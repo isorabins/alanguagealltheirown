@@ -1,8 +1,8 @@
 {
- "version": "0.16",
- "kernel_tokens": 677,
- "changes": 16,
- "next_id": 12,
+ "version": "0.17",
+ "kernel_tokens": 770,
+ "changes": 17,
+ "next_id": 13,
  "rules": [
   {
    "id": "rule-001",
@@ -68,8 +68,8 @@
   },
   {
    "id": "rule-003",
-   "text_en": "rule\u2011003 \u2014 To mark a contiguous block as a set of directives from sender to receiver, start the block with `{@` on its own line and end it with `}` on its own line. Inside, lines are treated as instructions or proposals, same as rule\u2011001. This replaces per\u2011line `^` prefixes when multiple directive lines appear together.",
-   "status": "adopted",
+   "text_en": "To mark a contiguous block as a set of directives from sender to receiver, start the block with `{@` on its own line and end it with `}` on its own line. Inside, lines are treated as instructions or proposals. Any text after the closing `}` is not part of the directive block.",
+   "status": "proposed",
    "proposed_turn": 6,
    "scores": {
     "token_delta_pct": 6,
@@ -105,7 +105,13 @@
     "tested turn 48: fid 0, +21%",
     "tested turn 51: fid 100, -1%",
     "tested turn 54: fid 100, +0%",
-    "tested turn 57: fid 0, +6%"
+    "tested turn 57: fid 0, +6%",
+    {
+     "verb": "revise",
+     "turn": 58,
+     "agent": "A",
+     "why": "Also, rule\u2011003 needs clarification: the block ends at the `}` line, nothing after is part of the directive set."
+    }
    ]
   },
   {
@@ -264,6 +270,21 @@
     },
     "tested turn 54: fid 100, +0%",
     "tested turn 57: fid 0, +6%"
+   ]
+  },
+  {
+   "id": "rule-012",
+   "text_en": "Plain text lines (those not starting with a reserved marker) are narrative content from the sender. They are to be preserved verbatim, but are not instructions for the receiver to execute. The receiver should not treat plain text as part of a directive block unless it is inside a block delimited by `{@` and `}`.",
+   "status": "proposed",
+   "proposed_turn": 58,
+   "scores": null,
+   "history": [
+    {
+     "verb": "proposed",
+     "turn": 58,
+     "agent": "A",
+     "why": "We need a rule that explicitly says: **Plain text lines are not directives. They are narrative content to be preserved, not executed.** The decoder should treat them as read\u2011only context."
+    }
    ]
   }
  ]
