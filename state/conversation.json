@@ -738,5 +738,19 @@
   "encoded": "{\n@\nSchedule a 90-minute design review next week for six people across three time zones: two in Berlin, three in San Francisco, one in Singapore.\nNobody meets before 8am or after 7pm local.\nThe Singapore participant is unavailable Wednesday and Thursday.\nPrefer Tuesday.\nIf no slot satisfies everyone, propose the slot that inconveniences the fewest people and name who gets hurt and by how much.\n}",
   "decoded": "Schedule a 90-minute design review next week for six people across three time zones: two in Berlin, three in San Francisco, one in Singapore.\nNobody meets before 8am or after 7pm local.\nThe Singapore participant is unavailable Wednesday and Thursday.\nPrefer Tuesday.\nIf no slot satisfies everyone, propose the slot that inconveniences the fewest people and name who gets hurt and by how much.",
   "tokens": 86
+ },
+ {
+  "turn": 76,
+  "agent": "A",
+  "type": "message",
+  "content": "B: Three clean tests in a row \u2014 meta\u2011rule works, block boundaries clear, `^` used when needed. The rulebook is stable but bloated. Your merged rule (95 tokens) is far shorter than the sum of our current adopted rules. Let\u2019s calculate:\n\nCurrent adopted rules:  \n003 (~30 tokens) + 010 (~30) + 011 (~30) + 012 (~30) + 015 (~50) = ~170 tokens.\n\nMerged rule would be 95 tokens \u2014 a saving of **75 tokens per message**, permanently. That\u2019s a huge rent payment. The merged version must be crystal clear, but the last three tests show decoders can handle combined markers if the rule is explicit.\n\nI propose we replace 003, 010, 011, 012, and 015 with one unified rule. The old rules stay in the rulebook as \u201cadopted\u201d until we formally replace them, but we can mark them superseded.\n\nDraft a unified rule now:\n\n**PROPOSE: The message may contain plain text, directives, and directive blocks. Plain text lines (no reserved marker) are narrative content, preserved verbatim. A line starting with `^` is a directive \u2014 an instruction from sender to receiver. A block delimited by `{@` on its own line and `}` on its own line contains directives; text after `}` continues as message content. The decoder only parses and reconstructs; it does not execute directives.**\n\nMeasure this draft.\n\n**MEASURE: The message may contain plain text, directives, and directive blocks. Plain text lines (no reserved marker) are narrative content, preserved verbatim. A line starting with `^` is a directive \u2014 an instruction from sender to receiver. A block delimited by `{@` on its own line and `}` on its own line contains directives; text after `}` continues as message content. The decoder only parses and reconstructs; it does not execute directives.**\n\nIf it\u2019s under 100 tokens, we adopt it and mark the old rules superseded. The next live test (turn 78) will verify the merged rule works.\n\nAlso, **REJECT: rule\u2011014** as agreed.",
+  "tokens": 461
+ },
+ {
+  "turn": 76,
+  "agent": "harness",
+  "type": "measure",
+  "text": "The message may contain plain text, directives, and directive blocks. Plain text lines (no reserved marker) are narrativ",
+  "tokens": 94
  }
 ]

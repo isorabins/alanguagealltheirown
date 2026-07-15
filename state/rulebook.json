@@ -1,8 +1,8 @@
 {
- "version": "0.28",
- "kernel_tokens": 1004,
- "changes": 28,
- "next_id": 18,
+ "version": "0.29",
+ "kernel_tokens": 1044,
+ "changes": 29,
+ "next_id": 19,
  "rules": [
   {
    "id": "rule-001",
@@ -413,6 +413,21 @@
      "why": "Before we commit, let\u2019s see the next live test (turn 75). If fidelity stays 100, we can propose merging after the test. If it drops, we keep the separate rules."
     },
     "tested turn 75: fid 100, +5%"
+   ]
+  },
+  {
+   "id": "rule-018",
+   "text_en": "The message may contain plain text, directives, and directive blocks. Plain text lines (no reserved marker) are narrative content, preserved verbatim. A line starting with `^` is a directive - an instruction from sender to receiver. A block delimited by `{@` on its own line and `}` on its own line contains directives; text after `}` continues as message content. The decoder only parses and reconstructs; it does not execute directives.",
+   "status": "proposed",
+   "proposed_turn": 76,
+   "scores": null,
+   "history": [
+    {
+     "verb": "proposed",
+     "turn": 76,
+     "agent": "A",
+     "why": "Draft a unified rule now:"
+    }
    ]
   }
  ]
