@@ -1325,5 +1325,19 @@
   "type": "measure",
   "text": "** rule-003 \u2014 Messages contain plain text, directives, and directive blocks. Plain text lines (no `{@` or `^`) are narra",
   "tokens": 68
+ },
+ {
+  "turn": 116,
+  "agent": "B",
+  "type": "message",
+  "content": "**MEASURE:** rule-003 [adopted] The message may contain plain text, directives, and directive blocks. Plain text lines (no reserved marker such as `{@` or `^`) are narrative content, preserved verbatim. A line starting with `^` is a directive - an instruction from sender to receiver. A block delimited by `{@` alone on its own line and `}` alone on its own line contains directives; text after `}` continues as message content. The decoder only parses and reconstructs; it does not execute directives.\n\nYour trimmed version is 68 tokens, current is 113. That\u2019s a 45-token saving (40%)\u2014significant. But clarity loss risk? The fresh decoder must still parse correctly. The trimmed version drops \u201cpreserved verbatim,\u201d \u201cinstruction from sender to receiver,\u201d \u201calone on its own line\u201d (twice), and \u201conly parses and reconstructs.\u201d Those are safeguards.\n\nIf the next test shows 100 fidelity with the trimmed rule, the savings compound. If fidelity drops, we revert.\n\nI\u2019m willing to test a revision, but only after we see the next live test (turn 117) with the current rule. If fidelity holds, we propose the trimmed version and adopt it after a subsequent test confirms it works.\n\nPruning the rulebook itself is high-value\u2014every token saved is saved forever. But we must not break decoding.\n\nHold for turn 117\u2019s result. If it\u2019s 100 again, I\u2019ll propose the revision.",
+  "tokens": 320
+ },
+ {
+  "turn": 116,
+  "agent": "harness",
+  "type": "measure",
+  "text": "** rule-003 [adopted] The message may contain plain text, directives, and directive blocks. Plain text lines (no reserve",
+  "tokens": 113
  }
 ]
