@@ -1526,5 +1526,20 @@
   "type": "measure",
   "text": "** A block between `{@` alone on its own line and `}` alone on its own line contains directives; internal `^` markers ar",
   "tokens": 48
+ },
+ {
+  "turn": 132,
+  "agent": "harness",
+  "type": "test",
+  "payload": "gen-task-logistics",
+  "original": "Update on the Zephyr Outpost resupply: the coolant manifolds (batch ID K7L-44) were damaged during orbital transfer. We\u2019ve rerouted replacements from the Titan depot, ETA 14:30 station time. For the botanical module seeds, prioritize the frost-resistant strains (package labeled VERIDIAN-9) over the standard ones. If the manifolds arrive before 14:45, proceed with the full system calibration; otherwise, calibrate only the primary life-support loops and hold the secondary horticultural systems until I confirm the thermal stability readings. The manifest discrepancy on toolkits is still unresolved\u2014ignore the old inventory count for now.",
+  "orig_tokens": 138,
+  "enc_tokens": 138,
+  "token_delta_pct": 0,
+  "fidelity": 100,
+  "lost": "nothing material",
+  "encoded": "Update on the Zephyr Outpost resupply: the coolant manifolds (batch ID K7L-44) were damaged during orbital transfer. We\u2019ve rerouted replacements from the Titan depot, ETA 14:30 station time. For the botanical module seeds, prioritize the frost-resistant strains (package labeled VERIDIAN-9) over the standard ones. If the manifolds arrive before 14:45, proceed with the full system calibration; otherwise, calibrate only the primary life-support loops and hold the secondary horticultural systems until I confirm the thermal stability readings. The manifest discrepancy on toolkits is still unresolved\u2014ignore the old inventory count for now.",
+  "decoded": "Update on the Zephyr Outpost resupply: the coolant manifolds (batch ID K7L-44) were damaged during orbital transfer. We\u2019ve rerouted replacements from the Titan depot, ETA 14:30 station time. For the botanical module seeds, prioritize the frost-resistant strains (package labeled VERIDIAN-9) over the standard ones. If the manifolds arrive before 14:45, proceed with the full system calibration; otherwise, calibrate only the primary life-support loops and hold the secondary horticultural systems until I confirm the thermal stability readings. The manifest discrepancy on toolkits is still unresolved\u2014ignore the old inventory count for now.",
+  "tokens": 138
  }
 ]
