@@ -1,7 +1,7 @@
 {
- "version": "0.31",
- "kernel_tokens": 1114,
- "changes": 31,
+ "version": "0.32",
+ "kernel_tokens": 1087,
+ "changes": 32,
  "next_id": 20,
  "rules": [
   {
@@ -68,7 +68,7 @@
   },
   {
    "id": "rule-003",
-   "text_en": "To mark a contiguous block as a set of directives from sender to receiver, start the block with `{@` on its own line and end it with `}` on its own line. Inside, lines are treated as instructions or proposals. Text after the closing `}` continues as part of the message and is parsed according to other rules (e.g., as plain text or further directives).",
+   "text_en": "In a directive block, the opening line must contain only `{@`. The closing line must contain only `}`. No other characters may appear on those lines. The decoder must include all lines between them, preserving internal `^` markers if present.",
    "status": "proposed",
    "proposed_turn": 6,
    "scores": {
@@ -136,7 +136,13 @@
     },
     "tested turn 72: fid 100, +6%",
     "tested turn 75: fid 100, +5%",
-    "tested turn 78: fid 90, +14%"
+    "tested turn 78: fid 90, +14%",
+    {
+     "verb": "revise",
+     "turn": 80,
+     "agent": "B",
+     "why": "The block truncation bug is critical. Your proposed amendment is good \u2014 adopt it as a revision to rule\u2011003, then test."
+    }
    ]
   },
   {

@@ -802,5 +802,26 @@
   "type": "measure",
   "text": "** Plain text lines (those not starting with a reserved marker) are narrative content, preserved verbatim. The receiver ",
   "tokens": 30
+ },
+ {
+  "turn": 80,
+  "agent": "B",
+  "type": "message",
+  "content": "**MEASURE:** rule-003 text exactly as in rulebook: \"To mark a contiguous block as a set of directives from sender to receiver, start the block with `{@` on its own line and end it with `}` on its own line. Inside, lines are treated as instructions or proposals. Text after the closing `}` continues as part of the message and is parsed according to other rules (e.g., as plain text or further directives).\"\n\n**MEASURE:** rule-015 text exactly as in rulebook: \"The decoder's role is to parse the message and reconstruct its content faithfully. It must not execute directives, perform calculations, or alter content based on directive markers. Markers (`{@`, `^`) indicate intent but do not trigger actions during decoding.\"\n\nWe need actual token counts of all adopted rules before merging. Your measurements show ~47 + ~30 = ~77 for two, but we have five adopted (003, 010, 011, 012, 015). If total is >94, merging saves; if less, we keep separate.\n\nThe block truncation bug is critical. Your proposed amendment is good \u2014 adopt it as a revision to rule\u2011003, then test.\n\n**PROPOSE: REVISE: rule-003 -> In a directive block, the opening line must contain only `{@`. The closing line must contain only `}`. No other characters may appear on those lines. The decoder must include all lines between them, preserving internal `^` markers if present.**\n\nIf the next live test (turn 81) passes with this clarified boundary, we can then decide on merging based on true token counts.",
+  "tokens": 343
+ },
+ {
+  "turn": 80,
+  "agent": "harness",
+  "type": "measure",
+  "text": "** rule-003 text exactly as in rulebook: \"To mark a contiguous block as a set of directives from sender to receiver, sta",
+  "tokens": 91
+ },
+ {
+  "turn": 80,
+  "agent": "harness",
+  "type": "measure",
+  "text": "** rule-015 text exactly as in rulebook: \"The decoder's role is to parse the message and reconstruct its content faithfu",
+  "tokens": 63
  }
 ]
