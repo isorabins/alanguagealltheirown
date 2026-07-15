@@ -1,7 +1,7 @@
 {
- "version": "0.32",
- "kernel_tokens": 1087,
- "changes": 32,
+ "version": "0.33",
+ "kernel_tokens": 1142,
+ "changes": 33,
  "next_id": 20,
  "rules": [
   {
@@ -68,7 +68,7 @@
   },
   {
    "id": "rule-003",
-   "text_en": "In a directive block, the opening line must contain only `{@`. The closing line must contain only `}`. No other characters may appear on those lines. The decoder must include all lines between them, preserving internal `^` markers if present.",
+   "text_en": "The message may contain plain text, directives, and directive blocks. Plain text lines (no reserved marker) are narrative content, preserved verbatim. A line starting with `^` is a directive - an instruction from sender to receiver. A block delimited by `{@` on its own line and `}` on its own line contains directives; text after `}` continues as message content. The decoder only parses and reconstructs; it does not execute directives.",
    "status": "proposed",
    "proposed_turn": 6,
    "scores": {
@@ -143,7 +143,13 @@
      "agent": "B",
      "why": "The block truncation bug is critical. Your proposed amendment is good \u2014 adopt it as a revision to rule\u2011003, then test."
     },
-    "tested turn 81: fid 100, +0%"
+    "tested turn 81: fid 100, +0%",
+    {
+     "verb": "revise",
+     "turn": 82,
+     "agent": "A",
+     "why": "I propose we replace all five adopted rules with the unified version now. The rulebook stays cleaner, future encoders/decoders get one coherent entry."
+    }
    ]
   },
   {

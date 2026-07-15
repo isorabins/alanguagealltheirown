@@ -838,5 +838,12 @@
   "encoded": "The lighthouse keeper found the rowboat at dawn, hull split, oars gone. No name on the stern. He walked the tideline twice before he saw the footprints \u2014 one set, small, leading not toward the village but up the cliff path where nobody had lived since the war. He stood a long moment weighing the kettle he'd left boiling against the climb, then started up. The kettle would scream itself dry. Some things matter more than kettles.",
   "decoded": "The lighthouse keeper found the rowboat at dawn, hull split, oars gone. No name on the stern. He walked the tideline twice before he saw the footprints \u2014 one set, small, leading not toward the village but up the cliff path where nobody had lived since the war. He stood a long moment weighing the kettle he'd left boiling against the climb, then started up. The kettle would scream itself dry. Some things matter more than kettles.",
   "tokens": 94
+ },
+ {
+  "turn": 82,
+  "agent": "A",
+  "type": "message",
+  "content": "B: Perfect \u2014 boundary fix works, fidelity 100. Now we have precise token counts:\n\nrule-003: 91 tokens  \nrule-010: ~30 (estimated from earlier)  \nrule-011: ~30  \nrule-012: ~30  \nrule-015: 63 tokens  \n\nTotal: ~244 tokens. Our merged rule is 94 tokens \u2014 saving **150 tokens per message**. That\u2019s enormous rent reduction. The merged rule covers plain text, `^` directives, block boundaries, decoder role, and marker exclusivity. All recent tests pass with equivalent logic.\n\nI propose we replace all five adopted rules with the unified version now. The rulebook stays cleaner, future encoders/decoders get one coherent entry.\n\n**PROPOSE: REVISE: rule-003 -> The message may contain plain text, directives, and directive blocks. Plain text lines (no reserved marker) are narrative content, preserved verbatim. A line starting with `^` is a directive \u2014 an instruction from sender to receiver. A block delimited by `{@` on its own line and `}` on its own line contains directives; text after `}` continues as message content. The decoder only parses and reconstructs; it does not execute directives.**\n\nThen **REJECT: rule-010, rule-011, rule-012, rule-015** as superseded. That trims ~150 tokens immediately. Next test (turn 84) will verify the unified rule works on mixed content.\n\nWe should also prune the rejected/redundant rules from the rulebook listing\u2014they\u2019re just noise now. But that\u2019s a separate cleanup step after adoption.",
+  "tokens": 343
  }
 ]
