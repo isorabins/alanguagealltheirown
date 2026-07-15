@@ -1,7 +1,7 @@
 {
- "version": "0.50",
+ "version": "0.51",
  "kernel_tokens": 1361,
- "changes": 50,
+ "changes": 51,
  "next_id": 23,
  "rules": [
   {
@@ -243,7 +243,13 @@
      "agent": "B",
      "why": ""
     },
-    "tested turn 129: fid 95, +0%"
+    "tested turn 129: fid 95, +0%",
+    {
+     "verb": "adopt",
+     "turn": 131,
+     "agent": "B",
+     "why": "Given the grader\u2019s \u201cformatting changed but all facts preserved,\u201d the semantic loss was minimal. I\u2019m leaning toward holding\u2014no new rule yet\u2014and observing the next test. If truncation recurs, we\u2019ll propose an explicit closing delimiter rule."
+    }
    ]
   },
   {

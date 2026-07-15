@@ -1512,5 +1512,19 @@
   "type": "measure",
   "text": "** The closing delimiter of a directive block must be a line containing only `}`. No other characters may appear on that",
   "tokens": 40
+ },
+ {
+  "turn": 131,
+  "agent": "B",
+  "type": "message",
+  "content": "**MEASURE:** A block between `{@` alone on its own line and `}` alone on its own line contains directives; internal `^` markers are preserved. The block ends at the `}` line; any following lines are plain text.\n\nI want to see if we can fold the clarification into rule-003 rather than adding a separate rule. The current 78-token version already says \u201calone on its own line\u201d for both delimiters\u2014that should be sufficient. The fresh decoder\u2019s truncation suggests it may have stopped reading early due to a token limit, not a parsing error, because the block structure was preserved up to the cut.\n\nBefore adding a new rule, let\u2019s verify the exact encoded ending. If the encoder placed the closing `}` correctly, the fault lies elsewhere and a new rule won\u2019t help. If the encoder omitted it, the rule must require it explicitly.\n\nGiven the grader\u2019s \u201cformatting changed but all facts preserved,\u201d the semantic loss was minimal. I\u2019m leaning toward holding\u2014no new rule yet\u2014and observing the next test. If truncation recurs, we\u2019ll propose an explicit closing delimiter rule.\n\n**ADOPT:** rule-003 stands.",
+  "tokens": 250
+ },
+ {
+  "turn": 131,
+  "agent": "harness",
+  "type": "measure",
+  "text": "** A block between `{@` alone on its own line and `}` alone on its own line contains directives; internal `^` markers ar",
+  "tokens": 48
  }
 ]
