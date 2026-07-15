@@ -72,8 +72,8 @@
    "status": "proposed",
    "proposed_turn": 6,
    "scores": {
-    "token_delta_pct": 5,
-    "fidelity_pct": 100
+    "token_delta_pct": 17,
+    "fidelity_pct": 0
    },
    "history": [
     {
@@ -120,7 +120,8 @@
     },
     "tested turn 60: fid 100, +0%",
     "tested turn 63: fid 100, +3%",
-    "tested turn 66: fid 100, +5%"
+    "tested turn 66: fid 100, +5%",
+    "tested turn 69: fid 0, +17%"
    ]
   },
   {
@@ -187,8 +188,8 @@
    "status": "proposed",
    "proposed_turn": 37,
    "scores": {
-    "token_delta_pct": 5,
-    "fidelity_pct": 100
+    "token_delta_pct": 17,
+    "fidelity_pct": 0
    },
    "history": [
     {
@@ -205,7 +206,8 @@
     "tested turn 57: fid 0, +6%",
     "tested turn 60: fid 100, +0%",
     "tested turn 63: fid 100, +3%",
-    "tested turn 66: fid 100, +5%"
+    "tested turn 66: fid 100, +5%",
+    "tested turn 69: fid 0, +17%"
    ]
   },
   {
@@ -214,8 +216,8 @@
    "status": "proposed",
    "proposed_turn": 47,
    "scores": {
-    "token_delta_pct": 5,
-    "fidelity_pct": 100
+    "token_delta_pct": 17,
+    "fidelity_pct": 0
    },
    "history": [
     {
@@ -230,7 +232,8 @@
     "tested turn 57: fid 0, +6%",
     "tested turn 60: fid 100, +0%",
     "tested turn 63: fid 100, +3%",
-    "tested turn 66: fid 100, +5%"
+    "tested turn 66: fid 100, +5%",
+    "tested turn 69: fid 0, +17%"
    ]
   },
   {
@@ -239,8 +242,8 @@
    "status": "adopted",
    "proposed_turn": 49,
    "scores": {
-    "token_delta_pct": 5,
-    "fidelity_pct": 100
+    "token_delta_pct": 17,
+    "fidelity_pct": 0
    },
    "history": [
     {
@@ -260,7 +263,8 @@
     "tested turn 57: fid 0, +6%",
     "tested turn 60: fid 100, +0%",
     "tested turn 63: fid 100, +3%",
-    "tested turn 66: fid 100, +5%"
+    "tested turn 66: fid 100, +5%",
+    "tested turn 69: fid 0, +17%"
    ]
   },
   {
@@ -269,8 +273,8 @@
    "status": "adopted",
    "proposed_turn": 49,
    "scores": {
-    "token_delta_pct": 5,
-    "fidelity_pct": 100
+    "token_delta_pct": 17,
+    "fidelity_pct": 0
    },
    "history": [
     {
@@ -290,7 +294,8 @@
     "tested turn 57: fid 0, +6%",
     "tested turn 60: fid 100, +0%",
     "tested turn 63: fid 100, +3%",
-    "tested turn 66: fid 100, +5%"
+    "tested turn 66: fid 100, +5%",
+    "tested turn 69: fid 0, +17%"
    ]
   },
   {
@@ -299,8 +304,8 @@
    "status": "adopted",
    "proposed_turn": 58,
    "scores": {
-    "token_delta_pct": 5,
-    "fidelity_pct": 100
+    "token_delta_pct": 17,
+    "fidelity_pct": 0
    },
    "history": [
     {
@@ -317,7 +322,8 @@
     },
     "tested turn 60: fid 100, +0%",
     "tested turn 63: fid 100, +3%",
-    "tested turn 66: fid 100, +5%"
+    "tested turn 66: fid 100, +5%",
+    "tested turn 69: fid 0, +17%"
    ]
   },
   {
@@ -326,8 +332,8 @@
    "status": "adopted",
    "proposed_turn": 64,
    "scores": {
-    "token_delta_pct": 5,
-    "fidelity_pct": 100
+    "token_delta_pct": 17,
+    "fidelity_pct": 0
    },
    "history": [
     {
@@ -342,7 +348,8 @@
      "agent": "B",
      "why": "We have evidence `^` was used, so we keep it for now. But rule\u2011006 (`//`) has been absent for four consecutive tests\u2014strong disuse."
     },
-    "tested turn 66: fid 100, +5%"
+    "tested turn 66: fid 100, +5%",
+    "tested turn 69: fid 0, +17%"
    ]
   },
   {
@@ -350,14 +357,18 @@
    "text_en": "Plain text lines (those not starting with a reserved marker such as `{@` or `^`) are narrative content from the sender. They are to be preserved verbatim, but are not instructions for the receiver to execute. The receiver should treat them as read-only context.",
    "status": "proposed",
    "proposed_turn": 67,
-   "scores": null,
+   "scores": {
+    "token_delta_pct": 17,
+    "fidelity_pct": 0
+   },
    "history": [
     {
      "verb": "proposed",
      "turn": 67,
      "agent": "A",
      "why": "That\u2019s four adopted rules, maybe ~120 tokens of context every message. Could we compress them? Rule\u2011010 and 012 overlap: 010 says \u201cany line not starting with a reserved marker is plain text,\u201d and 012 says \u201cplain text lines are narrative, not executable.\u201d We could merge them into "
-    }
+    },
+    "tested turn 69: fid 0, +17%"
    ]
   }
  ]
