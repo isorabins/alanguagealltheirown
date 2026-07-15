@@ -1017,5 +1017,19 @@
   "type": "measure",
   "text": "** RULEBOOK v0.38 \u2014 1188 tokens of context, every message pays for it",
   "tokens": 21
+ },
+ {
+  "turn": 95,
+  "agent": "B",
+  "type": "message",
+  "content": "**REJECT: rule-001, rule-002, rule-004, rule-005, rule-006, rule-009, rule-010, rule-014, rule-018, rule-019, rule-020.**\n\nGood \u2014 we\u2019ve pruned all non-adopted rules. The rulebook should now contain only rule-003, 011, 012, 015 (all adopted). That\u2019s the core: plain text, `^` directives, `{@`/`}` blocks, and the decoder\u2019s non-execution role. The language is minimal and passes all tests.\n\nThe edge\u2011case expansion (\u201cstart with\u201d) is unnecessary until a live test fails. Adding it now would be speculative tax.\n\nNext live test (turn 96) will confirm stability. If fidelity holds, we can declare the language functionally complete. Any further additions (like `//` commentary) must wait for a demonstrated need from a failed test.\n\n**MEASURE:** The exact token count of the current rulebook after these rejects (the entire block the harness will show in the next turn).",
+  "tokens": 227
+ },
+ {
+  "turn": 95,
+  "agent": "harness",
+  "type": "measure",
+  "text": "** The exact token count of the current rulebook after these rejects (the entire block the harness will show in the next",
+  "tokens": 26
  }
 ]
