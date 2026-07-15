@@ -1,7 +1,7 @@
 {
- "version": "0.19",
+ "version": "0.20",
  "kernel_tokens": 796,
- "changes": 19,
+ "changes": 20,
  "next_id": 14,
  "rules": [
   {
@@ -317,7 +317,7 @@
   {
    "id": "rule-013",
    "text_en": "REJECT: rule-006",
-   "status": "proposed",
+   "status": "adopted",
    "proposed_turn": 64,
    "scores": null,
    "history": [
@@ -326,6 +326,12 @@
      "turn": 64,
      "agent": "A",
      "why": "We should keep `^` for now \u2014 it was used, it worked, and it\u2019s cheap. Rule\u2011006 (`//`) remains unused. Four tests without it. I propose rejecting it."
+    },
+    {
+     "verb": "adopt",
+     "turn": 65,
+     "agent": "B",
+     "why": "We have evidence `^` was used, so we keep it for now. But rule\u2011006 (`//`) has been absent for four consecutive tests\u2014strong disuse."
     }
    ]
   }
