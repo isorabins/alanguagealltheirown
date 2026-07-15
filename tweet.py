@@ -39,21 +39,30 @@ def adopted_count(rb):
 REFRAIN = "Two AIs are inventing a language, one tested rule at a time."
 LABEL = {"adopted": "New rule adopted", "rejected": "Rule rejected",
          "reverted": "Rule un-adopted"}
+DIFF = {"adopted": "+", "rejected": "-", "reverted": "~"}
+PREMISE_EVERY = 5   # tweet 0, 5, 10… carry the full premise; the rest stay machine-dry
 
 
-def compose(rb, rule):
+def compose(rb, rule, n_sent):
     # scores attach rulebook-wide, so they only honestly describe the rulebook a
     # rule was adopted INTO — never why something was rejected
     s = rule.get("scores") if rule["status"] == "adopted" else None
-    if s:
-        d = s["token_delta_pct"]
-        size = ("the same length as plain English" if d == 0 else
-                f'{abs(d)}% {"shorter" if d < 0 else "longer"} than plain English')
-        evidence = f'\n\nStranger-test: {s["fidelity_pct"]}% of meaning survived, {size}.'
+    if n_sent % PREMISE_EVERY == 0:
+        if s:
+            d = s["token_delta_pct"]
+            size = ("the same length as plain English" if d == 0 else
+                    f'{abs(d)}% {"shorter" if d < 0 else "longer"} than plain English')
+            evidence = f'\n\nStranger-test: {s["fidelity_pct"]}% of meaning survived, {size}.'
+        else:
+            evidence = ""
+        head = f'{REFRAIN}\n\n{LABEL[rule["status"]]}: '
+        tail = f'\n\n{adopted_count(rb)} rules in force. {PAGE}'
     else:
-        evidence = ""
-    head = f'{REFRAIN}\n\n{LABEL[rule["status"]]}: '
-    tail = f'\n\n{adopted_count(rb)} rules in force. {PAGE}'
+        turn = next((e["turn"] for e in reversed(rule["history"]) if isinstance(e, dict)), "?")
+        evidence = (f'\nstranger-test: {s["fidelity_pct"]}% meaning · {s["token_delta_pct"]:+d}% size'
+                    if s else "")
+        head = f'{DIFF[rule["status"]]} {rule["id"]} {rule["status"]} · turn {turn}\n'
+        tail = f'\n{adopted_count(rb)} rules live → {PAGE}'
     text = " ".join(rule["text_en"].replace("**", "").split())
     room = MAX_LEN - len(head) - len(evidence) - len(tail) - 2
     if len(text) > room:
@@ -80,21 +89,21 @@ def main():
     rb = json.loads((STATE / "rulebook.json").read_text())
     cur = {r["id"]: r["status"] for r in rb["rules"]}
     snap_f = STATE / "tweet-state.json"
-    prev = json.loads(snap_f.read_text())["statuses"] if snap_f.exists() else None
-    snap_f.write_text(json.dumps({"statuses": cur}, indent=1) + "\n")
+    snap = json.loads(snap_f.read_text()) if snap_f.exists() else None
+    prev, n_sent = (snap["statuses"], snap.get("tweets_sent", 0)) if snap else (None, 0)
+    events = [r for r in rb["rules"]
+              if prev is not None and r["status"] in TWEET_VERBS and prev.get(r["id"]) != r["status"]]
     if prev is None:
         log(f"bootstrap: snapshot of {len(cur)} rule statuses, nothing tweeted")
-        return
-    events = [r for r in rb["rules"]
-              if r["status"] in TWEET_VERBS and prev.get(r["id"]) != r["status"]]
-    if not events:
-        return
-    if len(events) > 3:  # mass change (repair/migration) — one summary, never a flood
+    elif len(events) > 3:  # mass change (repair/migration) — one summary, never a flood
         post(f'{REFRAIN}\n\nBig turn: {len(events)} rules changed status at once. '
              f'{adopted_count(rb)} now in force. {PAGE}')
-        return
-    for r in events:
-        post(compose(rb, r))
+        n_sent += 1
+    else:
+        for r in events:
+            post(compose(rb, r, n_sent))
+            n_sent += 1
+    snap_f.write_text(json.dumps({"statuses": cur, "tweets_sent": n_sent}, indent=1) + "\n")
 
 
 if __name__ == "__main__":
