@@ -680,5 +680,20 @@
   "type": "message",
   "content": "Zero fidelity because the decoder **executed** rather than reconstructed \u2014 that\u2019s a fundamental rulebook failure. Our markers have been ambiguous about whether they indicate intent for later execution (by the receiver) or immediate execution during decoding. The decoder must be a parser, not an agent.\n\n**ADOPT: rule-015** (the meta-rule about decoder\u2019s role). This is essential \u2014 it\u2019s worth the token cost to prevent catastrophic misinterpretation.\n\n**REVISE: rule-003** as you wrote \u2014 the boundary must be explicit. Text after `}` is still part of the message.\n\nNow, about `^`. Inside a block, it\u2019s redundant \u2014 but the encoder used it anyway. The decoder shouldn\u2019t treat `^` inside a block any differently than lines without it. We should clarify that `^` is optional; a block\u2019s content is directives regardless.\n\nBut more pressing: the block\u2019s content was output verbatim in the decoded response, then the decoder stopped. The meta-rule should fix that \u2014 but we also need to ensure the decoder doesn\u2019t truncate after the block. The revised rule\u2011003 should handle that.\n\nLet\u2019s adopt the meta-rule and revise the block rule now. Then the next test will show whether decoders stop executing.\n\n**PROPOSE: The decoder's role is to parse the message and reconstruct its content faithfully. It must not execute directives, perform calculations, or alter content based on directive markers. Markers (`{@`, `^`) indicate intent but do not trigger actions during decoding.**\n\n**REVISE: rule-003 ->** To mark a contiguous block as a set of directives from sender to receiver, start the block with `{@` on its own line and end it with `}` on its own line. Inside, lines are treated as instructions or proposals. Text after the closing `}` continues as part of the message and is parsed according to other rules (e.g., as plain text or further directives).\n\nIf fidelity recovers, we can then consider whether `^` is still needed or if blocks alone suffice for directives. But first, stop the bleeding.",
   "tokens": 442
+ },
+ {
+  "turn": 72,
+  "agent": "harness",
+  "type": "test",
+  "payload": "prose-instructions.txt",
+  "original": "To bleed the brakes, start at the wheel farthest from the master cylinder. Have a helper press the brake pedal three times and hold it down. Open the bleeder valve a quarter turn; fluid and air will escape. Close the valve BEFORE the helper releases the pedal, or air gets sucked back in. Repeat until the fluid runs clear with no bubbles, topping up the reservoir every few cycles so it never runs dry. Then move to the next-farthest wheel and repeat the whole sequence.",
+  "orig_tokens": 99,
+  "enc_tokens": 105,
+  "token_delta_pct": 6,
+  "fidelity": 100,
+  "lost": "nothing material",
+  "encoded": "^ To bleed the brakes, start at the wheel farthest from the master cylinder.\n^ Have a helper press the brake pedal three times and hold it down.\n^ Open the bleeder valve a quarter turn; fluid and air will escape.\n^ Close the valve BEFORE the helper releases the pedal, or air gets sucked back in.\n^ Repeat until the fluid runs clear with no bubbles, topping up the reservoir every few cycles so it never runs dry.\n^ Then move to the next-farthest wheel and repeat the whole sequence.",
+  "decoded": "To bleed the brakes, start at the wheel farthest from the master cylinder.\nHave a helper press the brake pedal three times and hold it down.\nOpen the bleeder valve a quarter turn; fluid and air will escape.\nClose the valve BEFORE the helper releases the pedal, or air gets sucked back in.\nRepeat until the fluid runs clear with no bubbles, topping up the reservoir every few cycles so it never runs dry.\nThen move to the next-farthest wheel and repeat the whole sequence.",
+  "tokens": 105
  }
 ]
