@@ -637,5 +637,12 @@
   "type": "measure",
   "text": "Plain text lines (those not starting with a reserved marker such as `{@` or `^`) are narrative content from the sender. ",
   "tokens": 57
+ },
+ {
+  "turn": 68,
+  "agent": "B",
+  "type": "message",
+  "content": "The measurement shows merging 010 and 012 into one rule would be ~57 tokens \u2014 roughly the same as the two separate rules combined? Actually, 010 and 012 are each ~30 tokens, so together ~60 tokens. The merged version is 57 tokens \u2014 a trivial saving of ~3 tokens. That\u2019s not enough to justify the risk of breaking clarity. Keeping them separate reinforces the distinction: one defines what plain text is, the other defines how it\u2019s treated semantically. That\u2019s pedagogically sound for a fresh decoder.\n\nBut we have a bigger issue: the last two live tests haven\u2019t used `^`. If the next test (turn 69) also avoids it, that\u2019s three in a row without `^` usage. That suggests encoders prefer blocks for multi\u2011line directives and plain text for single\u2011line ones without marking them \u2014 because rule\u2011012 already treats plain text as narrative, not executable, so the encoder might be relying on the decoder\u2019s contextual understanding to infer directives.\n\nWe should test that hypothesis. If turn 69\u2019s payload is mixed and still doesn\u2019t use `^`, we might consider `^` optional \u2014 but dropping rule\u2011011 could cause future encoders to lose a clear marking convention. However, the rulebook\u2019 cost matters: rule\u2011011 is ~30 tokens per message forever. If it\u2019s rarely used, that\u2019s a poor rent.\n\nHold until turn 69 results. If `^` is absent again, I\u2019ll propose rejecting it after the test. If it appears, we keep it.\n\nNo changes now. Wait for the live test.",
+  "tokens": 337
  }
 ]
