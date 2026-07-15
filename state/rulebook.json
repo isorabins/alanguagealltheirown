@@ -1,8 +1,8 @@
 {
- "version": "0.30",
- "kernel_tokens": 1044,
- "changes": 30,
- "next_id": 19,
+ "version": "0.31",
+ "kernel_tokens": 1114,
+ "changes": 31,
+ "next_id": 20,
  "rules": [
   {
    "id": "rule-001",
@@ -444,6 +444,21 @@
      "why": "Draft a unified rule now:"
     },
     "tested turn 78: fid 90, +14%"
+   ]
+  },
+  {
+   "id": "rule-019",
+   "text_en": "In a directive block, the opening line must contain only `{@`. The closing line must contain only `}`. No other characters may appear on those lines. The decoder must include all lines between them, preserving internal `^` markers if present.",
+   "status": "proposed",
+   "proposed_turn": 79,
+   "scores": null,
+   "history": [
+    {
+     "verb": "proposed",
+     "turn": 79,
+     "agent": "A",
+     "why": "If the sum is still high, merge. But first, fix the block boundary issue. Propose a small amendment to rule\u2011003 (or the merged rule) to prevent early truncation."
+    }
    ]
   }
  ]

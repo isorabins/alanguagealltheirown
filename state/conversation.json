@@ -781,5 +781,26 @@
   "encoded": "{@\n^ Verify Q2 status report before compiling board pack.\n^ Revenue Q1 to Q2 (USD thousands):\n^ North: 412k to 455k. Headcount 18, 2 open roles.\n^ South: 388k to 371k (decline). Headcount not specified. Note: two churned logos in May, not due to pricing.\n^ East: 510k to 562k. Headcount 22, 5 open roles. Exclude Delta account (books under corporate) to avoid double-counting.\n^ West: 295k to 340.1k. Headcount 11, 3 open roles.\n^ Flag South as at-risk in summary.\n^ Keep all figures in USD thousands exactly as given.\n}",
   "decoded": "{@\n^ Verify Q2 status report before compiling board pack.\n^ Revenue Q1 to Q2 (USD thousands):\n^ North: 412k to 455k. Headcount 18, 2 open roles.\n^ South: 388k to 371k (decline). Headcount not specified. Note: two churned logos in May, not due to pricing.\n^ East: 510k to 562k. Headcount 22, 5 open roles. Exclude Delta account (books under corporate) to avoid double-counting.\n^ West: 295k to 340.1k. Headcount 11, 3 open roles.\n^ Flag South as at-risk in summary.\n^ Keep all figures in USD thousands exactly as given.\n}",
   "tokens": 159
+ },
+ {
+  "turn": 79,
+  "agent": "A",
+  "type": "message",
+  "content": "B: Fidelity 90 \u2014 the decoder truncated the block early, dropping the last directive and closing `}`. That\u2019s a boundary parsing bug, not a rulebook flaw. The unified rule must explicitly say that the block ends only at a line containing just `}` (not `}...`). The encoder wrote `}` on its own line, but the decoder stopped before it.\n\nThis is fixable: clarify that `}` must be alone on its line to close a block. The rule currently says \"delimited by `{@` on its own line and `}` on its own line\" \u2014 that should be enough, but decoders are misinterpreting. We could add \"with no characters before or after the `}`\" to be bulletproof.\n\nBefore merging, we must ensure the boundary rule is ironclad. The current adopted rule\u2011003 already has that wording, yet the decoder failed. So the bug might be in implementation, not rulebook. Still, we can harden.\n\nYour merge draft is 94 tokens, saving ~76 per message if we replace five rules. But we need to verify the actual token count of the five current adopted rules \u2014 your measurement gave 34 tokens, but that\u2019s just the meta\u2011instruction \u201cCurrent adopted rules...\u201d. We need the true total of the rule texts themselves.\n\nLet\u2019s measure each adopted rule\u2019s exact token count from the rulebook snippet, then decide.\n\n**MEASURE:** Use `{@` at the start of a line and `}` at the end of a line to mark a block of directives. Inside, each line is a directive. Text after `}` continues as part of the message.\n\n**MEASURE:** Plain text lines (those not starting with a reserved marker) are narrative content, preserved verbatim. The receiver should not treat them as instructions.\n\nIf the sum is still high, merge. But first, fix the block boundary issue. Propose a small amendment to rule\u2011003 (or the merged rule) to prevent early truncation.\n\n**PROPOSE: In a directive block, the opening line must contain only `{@`. The closing line must contain only `}`. No other characters may appear on those lines. The decoder must include all lines between them, preserving internal `^` markers if present.**\n\nThen, if the next test passes, we can merge.",
+  "tokens": 485
+ },
+ {
+  "turn": 79,
+  "agent": "harness",
+  "type": "measure",
+  "text": "** Use `{@` at the start of a line and `}` at the end of a line to mark a block of directives. Inside, each line is a di",
+  "tokens": 47
+ },
+ {
+  "turn": 79,
+  "agent": "harness",
+  "type": "measure",
+  "text": "** Plain text lines (those not starting with a reserved marker) are narrative content, preserved verbatim. The receiver ",
+  "tokens": 30
  }
 ]
