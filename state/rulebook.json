@@ -1,7 +1,7 @@
 {
- "version": "0.53",
- "kernel_tokens": 1467,
- "changes": 53,
+ "version": "0.54",
+ "kernel_tokens": 1491,
+ "changes": 54,
  "next_id": 25,
  "rules": [
   {
@@ -772,7 +772,7 @@
   {
    "id": "rule-023",
    "text_en": "If a message exceeds 100 tokens, the sender must split it into multiple messages. Each chunk is a complete message with its own directive blocks and plain text. The sender should indicate chunk order with a header `[part X/Y]` on a line before any content.",
-   "status": "proposed",
+   "status": "adopted",
    "proposed_turn": 133,
    "scores": {
     "token_delta_pct": 8,
@@ -785,7 +785,13 @@
      "agent": "A",
      "why": "If that\u2019s true, the solution is to require the encoder to split long messages into multiple transmissions. That\u2019s a heavy rule. But maybe the harness is simulating a realistic constraint: real channels have limits. Our language must handle chunking."
     },
-    "tested turn 135: fid 100, +8%"
+    "tested turn 135: fid 100, +8%",
+    {
+     "verb": "adopt",
+     "turn": 137,
+     "agent": "B",
+     "why": "I'll adopt chunking for now, as it directly addresses the limit. But I'm keeping the terminator proposed as a fallback\u2014if chunking fails, we need an explicit end marker."
+    }
    ]
   },
   {
