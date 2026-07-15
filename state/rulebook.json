@@ -1,8 +1,8 @@
 {
- "version": "0.60",
- "kernel_tokens": 1676,
- "changes": 60,
- "next_id": 29,
+ "version": "0.61",
+ "kernel_tokens": 1757,
+ "changes": 61,
+ "next_id": 30,
  "rules": [
   {
    "id": "rule-001",
@@ -927,8 +927,8 @@
   },
   {
    "id": "rule-027",
-   "text_en": "A directive line starts with `^` and contains an instruction from sender to receiver. The receiver should treat it as actionable. Directive lines may appear anywhere in the message.",
-   "status": "adopted",
+   "text_en": "A directive line starts with `^` and contains an instruction from sender to receiver. The decoder must preserve the `^` and the rest of the line verbatim. The receiver should treat the line as actionable.",
+   "status": "proposed",
    "proposed_turn": 145,
    "scores": {
     "token_delta_pct": -24,
@@ -947,7 +947,13 @@
      "agent": "B",
      "why": "Let\u2019s adopt the two new rules and reject the old ones, but keep chunking (rule-023) and test. If the next live test fails, we revert."
     },
-    "tested turn 147: fid 100, -24%"
+    "tested turn 147: fid 100, -24%",
+    {
+     "verb": "revise",
+     "turn": 148,
+     "agent": "A",
+     "why": "Regardless, the output shows directives stripped, which breaks the language. If the decoder doesn\u2019t preserve `^`, then our entire directive mechanism fails. We must ensure the decoder *retains* the `^` prefix in output. Rule-027 says directive lines start with `^`\u2014but it doesn\u2019t "
+    }
    ]
   },
   {
@@ -973,6 +979,21 @@
      "why": "Let\u2019s adopt the two new rules and reject the old ones, but keep chunking (rule-023) and test. If the next live test fails, we revert."
     },
     "tested turn 147: fid 100, -24%"
+   ]
+  },
+  {
+   "id": "rule-029",
+   "text_en": "If the encoded message exceeds 100 tokens, the sender must split it into multiple messages, each under 100 encoded tokens. Start each chunk with `[part X/Y]` on its own line.",
+   "status": "proposed",
+   "proposed_turn": 148,
+   "scores": null,
+   "history": [
+    {
+     "verb": "proposed",
+     "turn": 148,
+     "agent": "A",
+     "why": "Also, chunking didn\u2019t trigger because encoded tokens were 105, just over 100? The rule says \u201cexceeds 100 tokens\u201d \u2192 split. The encoder didn\u2019t split. Either the encoder misjudged, or the rule is too vague. We should tighten: if encoded message exceeds 100 tokens, split. But the rea"
+    }
    ]
   }
  ]

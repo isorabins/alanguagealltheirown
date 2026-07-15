@@ -1756,5 +1756,26 @@
   "encoded": "^Update guest count for Veridian Room to 47 confirmed attendees.\n^Confirm with caterer Salt & Stone that final number includes 3 vegan meals and 2 nut-allergy plates.\n^Hold 5 seats for LumenTech group until 5 PM tomorrow, then release to waitlist if cancellations come in.\n^Ensure floral install for centerpieces at 10 AM uses only deep blue hydrangeas, not lighter periwinkle ones.\nAdditional sound-dampening panels for the northern wall have been secured.",
   "decoded": "Update guest count for Veridian Room to 47 confirmed attendees.\nConfirm with caterer Salt & Stone that final number includes 3 vegan meals and 2 nut-allergy plates.\nHold 5 seats for LumenTech group until 5 PM tomorrow, then release to waitlist if cancellations come in.\nEnsure floral install for centerpieces at 10 AM uses only deep blue hydrangeas, not lighter periwinkle ones.\nAdditional sound-dampening panels for the northern wall have been secured.",
   "tokens": 105
+ },
+ {
+  "turn": 148,
+  "agent": "A",
+  "type": "message",
+  "content": "The decoder dropped the `^` markers \u2014 it returned plain text, not directives. That\u2019s a critical failure. Why? Because our fresh decoder, given only the new rules, didn\u2019t know to treat `^` lines specially. Wait\u2014the rulebook still contains rule-027 and rule-028, which define `^` lines as directives. Did the fresh decoder ignore them? Possibly the decoder implementation only uses *adopted* rules, and rule-027/028 were just adopted this turn\u2014maybe they weren\u2019t yet in the rulebook for this test. But you adopted them before the test? The timeline is unclear.\n\nRegardless, the output shows directives stripped, which breaks the language. If the decoder doesn\u2019t preserve `^`, then our entire directive mechanism fails. We must ensure the decoder *retains* the `^` prefix in output. Rule-027 says directive lines start with `^`\u2014but it doesn\u2019t say the decoder must keep the `^` in reconstructed output. That\u2019s a flaw.\n\n**REVISE:** rule-027 -> A directive line starts with `^` and contains an instruction from sender to receiver. The decoder must preserve the `^` and the rest of the line verbatim. The receiver should treat the line as actionable.\n\nAlso, chunking didn\u2019t trigger because encoded tokens were 105, just over 100? The rule says \u201cexceeds 100 tokens\u201d \u2192 split. The encoder didn\u2019t split. Either the encoder misjudged, or the rule is too vague. We should tighten: if encoded message exceeds 100 tokens, split. But the real limit is *decoded* output tokens\u2014the harness truncates at ~100 output tokens. We saw the tail lost: \u201cAdditional sound-damp\u201d cut off. That\u2019s acceptable loss per grader, but we could avoid it by splitting.\n\n**PROPOSE:** If the encoded message exceeds 100 tokens, the sender must split it into multiple messages, each under 100 encoded tokens. Start each chunk with `[part X/Y]` on its own line.\n\nBut let\u2019s first fix the directive preservation.\n\n**MEASURE:** A directive line starts with `^` and contains an instruction from sender to receiver. The decoder must preserve the `^` and the rest of the line verbatim. The receiver should treat the line as actionable.\n\n**MEASURE:** If the encoded message exceeds 100 tokens, the sender must split it into multiple messages, each under 100 encoded tokens. Start each chunk with `[part X/Y]` on its own line.\n\nB, we need to adopt the revised directive rule immediately\u2014otherwise the next test will fail. The grader called it \u201cnothing material\u201d because the content was preserved, but the intent (directive vs narrative) was lost. That\u2019s a silent failure.",
+  "tokens": 589
+ },
+ {
+  "turn": 148,
+  "agent": "harness",
+  "type": "measure",
+  "text": "** A directive line starts with `^` and contains an instruction from sender to receiver. The decoder must preserve the `",
+  "tokens": 44
+ },
+ {
+  "turn": 148,
+  "agent": "harness",
+  "type": "measure",
+  "text": "** If the encoded message exceeds 100 tokens, the sender must split it into multiple messages, each under 100 encoded to",
+  "tokens": 42
  }
 ]
