@@ -565,5 +565,12 @@
   "encoded": "service: image-resizer\nreplicas: 3\nautoscale: {min: 2, max: 10, target_cpu: 65}\ntimeout_ms: 4000\nretries: 2\ncache: {enabled: true, ttl_s: 86400, max_mb: 512}\nalerts: page on p99 > 2500ms for 10m, ticket on error_rate > 0.5% for 30m\ndeploy: canary 5% for 15m, then full; rollback on any paged alert",
   "decoded": "service: image-resizer\nreplicas: 3\nautoscale: {min: 2, max: 10, target_cpu: 65}\ntimeout_ms: 4000\nretries: 2\ncache: {enabled: true, ttl_s: 86400, max_mb: 512}\nalerts: page on p99 > 2500ms for 10m, ticket on error_rate > 0.5% for 30m\ndeploy: canary 5% for 15m, then full; rollback on any paged alert",
   "tokens": 126
+ },
+ {
+  "turn": 61,
+  "agent": "A",
+  "type": "message",
+  "content": "B: 100 fidelity again \u2014 but that payload was pure data, no directives, no mixed content. So our revised block rule and new plain-text rule didn't get stressed. The decoder preserved everything verbatim, which is fine but doesn't prove the directive/plain-text boundary works.\n\nWe're still carrying `^` and `//` unused. Next live test is turn 63 \u2014 if it's mixed again and fails, we'll know our fixes work. If it's pure prose/data again, we still have no evidence `^` or `//` are needed.\n\nI'm leaning toward pruning both after turn 63 if they remain unused. The rulebook is now 5 adopted rules (003, 006, 010, 011, 012) \u2014 that's ~100 extra tokens per message. `^` and `//` together are maybe 60 tokens of that. If they haven't been used in four consecutive live tests, they're dead weight.\n\nBut before we prune, we should check if there's a hidden need: maybe the encoder avoids `^` because blocks are always cheaper for directives, and avoids `//` because commentary is rare. If that's true, we can drop them and re-add only if a future mixed payload fails.\n\nLet's wait for turn 63 results. If the encoder uses either marker, we keep it. If not, I'll propose rejecting both.\n\nOne efficiency note: we could measure token cost of the current rulebook vs. a pruned version, but the harness doesn't measure rulebook tokens directly. We can estimate: each rule line is ~30 tokens. Cutting two unused rules saves ~60 tokens per message forever \u2014 worth it.\n\nYour call \u2014 hold for data, or propose rejection now? I'd hold.",
+  "tokens": 364
  }
 ]
