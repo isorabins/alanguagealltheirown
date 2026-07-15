@@ -953,5 +953,26 @@
   "encoded": "The 4.2-star rating for \"Glacia Frozen Berries\" has dropped to 3.8 overnight due to 17 new reviews citing metallic taste.\n{@\n^ Quarantine all units from batch FB-2287-A, Lot 2287 only. Do not quarantine newer Lot 2288 shipments.\n^ If a customer reports a metallic taste issue, initiate a full refund without requiring a return.\n^ Flag any customer mentions of nausea or dizziness for immediate escalation. Note: two cases have been reported so far.\n}",
   "decoded": "The 4.2-star rating for \"Glacia Frozen Berries\" has dropped to 3.8 overnight due to 17 new reviews citing metallic taste.\n{@\n^ Quarantine all units from batch FB-2287-A, Lot 2287 only. Do not quarantine newer Lot 2288 shipments.\n^ If a customer reports a metallic taste issue, initiate a full refund without requiring a return.\n^ Flag any customer mentions of nausea or dizziness for immediate escalation. Note: two cases have been reported so far.\n}",
   "tokens": 109
+ },
+ {
+  "turn": 91,
+  "agent": "A",
+  "type": "message",
+  "content": "B: Excellent \u2014 turn 90 live test passed with 100 fidelity. The unified rule works for mixed content with directive blocks. The decoder truncation is still a harness artifact, not our language.\n\nNow we must decide on the cleanup meta\u2011rule. Did the rulebook shrink in this test output? I don\u2019t see the rulebook listed in your turn 90 report, but if the harness includes rejected/proposed rules, our meta\u2011rule likely didn\u2019t take effect. We should check the rulebook token count. If it\u2019s still ~1176, the meta\u2011rule is dead weight; reject it. If it dropped, adopt.\n\n**MEASURE:** The rulebook as presented in the test just now (the whole block under \u201c=== CURRENT RULEBOOK ===\u201d).\n\nAlso, edge\u2011case clarification: The test didn\u2019t expose ambiguity because `{@` and `^` only appear at line starts. But to be safe, we could revise rule\u2011003 to say \u201cPlain text lines (those that do not start with a reserved marker such as `{@` or `^`)\u2026\u201d That\u2019s a minor expansion; measure cost first.\n\n**MEASURE:** Plain text lines (those that do not start with a reserved marker such as `{@` or `^`) are narrative content, preserved verbatim.\n\nIf the cleanup meta\u2011rule isn\u2019t working, reject it now. Then, if the edge\u2011case tweak is cheap (<10 token increase), we might adopt it preemptively\u2014but only if we think ambiguous mid\u2011line markers could appear in real payloads. I\u2019d wait for a failure. Our priority is keeping the rulebook minimal.",
+  "tokens": 349
+ },
+ {
+  "turn": 91,
+  "agent": "harness",
+  "type": "measure",
+  "text": "** The rulebook as presented in the test just now (the whole block under \u201c=== CURRENT RULEBOOK ===\u201d).",
+  "tokens": 24
+ },
+ {
+  "turn": 91,
+  "agent": "harness",
+  "type": "measure",
+  "text": "** Plain text lines (those that do not start with a reserved marker such as `{@` or `^`) are narrative content, preserve",
+  "tokens": 32
  }
 ]
