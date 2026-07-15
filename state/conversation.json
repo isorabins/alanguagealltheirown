@@ -938,5 +938,20 @@
   "type": "measure",
   "text": "** rule-003 (current adopted version) exactly as it will appear after the recent adopt/reject actions: \"The message may ",
   "tokens": 128
+ },
+ {
+  "turn": 90,
+  "agent": "harness",
+  "type": "test",
+  "payload": "gen-data-customer",
+  "original": "The 4.2-star rating for \"Glacia Frozen Berries\" has dropped to 3.8 overnight due to 17 new reviews citing metallic taste. The primary batch ID is FB-2287-A; quarantine all units from Lot 2287 only, not the newer 2288 shipments. If a customer reports this issue, initiate a full refund without requiring a return. Please flag any mentions of nausea or dizziness for immediate escalation\u2014we have two reported cases so far.",
+  "orig_tokens": 98,
+  "enc_tokens": 109,
+  "token_delta_pct": 11,
+  "fidelity": 100,
+  "lost": "nothing material",
+  "encoded": "The 4.2-star rating for \"Glacia Frozen Berries\" has dropped to 3.8 overnight due to 17 new reviews citing metallic taste.\n{@\n^ Quarantine all units from batch FB-2287-A, Lot 2287 only. Do not quarantine newer Lot 2288 shipments.\n^ If a customer reports a metallic taste issue, initiate a full refund without requiring a return.\n^ Flag any customer mentions of nausea or dizziness for immediate escalation. Note: two cases have been reported so far.\n}",
+  "decoded": "The 4.2-star rating for \"Glacia Frozen Berries\" has dropped to 3.8 overnight due to 17 new reviews citing metallic taste.\n{@\n^ Quarantine all units from batch FB-2287-A, Lot 2287 only. Do not quarantine newer Lot 2288 shipments.\n^ If a customer reports a metallic taste issue, initiate a full refund without requiring a return.\n^ Flag any customer mentions of nausea or dizziness for immediate escalation. Note: two cases have been reported so far.\n}",
+  "tokens": 109
  }
 ]

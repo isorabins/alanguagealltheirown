@@ -72,7 +72,7 @@
    "status": "adopted",
    "proposed_turn": 6,
    "scores": {
-    "token_delta_pct": 0,
+    "token_delta_pct": 11,
     "fidelity_pct": 100
    },
    "history": [
@@ -169,7 +169,8 @@
      "agent": "B",
      "why": ""
     },
-    "tested turn 87: fid 100, +0%"
+    "tested turn 87: fid 100, +0%",
+    "tested turn 90: fid 100, +11%"
    ]
   },
   {
@@ -272,7 +273,7 @@
    "status": "proposed",
    "proposed_turn": 47,
    "scores": {
-    "token_delta_pct": 0,
+    "token_delta_pct": 11,
     "fidelity_pct": 100
    },
    "history": [
@@ -295,7 +296,8 @@
     "tested turn 78: fid 90, +14%",
     "tested turn 81: fid 100, +0%",
     "tested turn 84: fid 95, +79%",
-    "tested turn 87: fid 100, +0%"
+    "tested turn 87: fid 100, +0%",
+    "tested turn 90: fid 100, +11%"
    ]
   },
   {
@@ -352,7 +354,7 @@
    "status": "adopted",
    "proposed_turn": 49,
    "scores": {
-    "token_delta_pct": 0,
+    "token_delta_pct": 11,
     "fidelity_pct": 100
    },
    "history": [
@@ -380,7 +382,8 @@
     "tested turn 78: fid 90, +14%",
     "tested turn 81: fid 100, +0%",
     "tested turn 84: fid 95, +79%",
-    "tested turn 87: fid 100, +0%"
+    "tested turn 87: fid 100, +0%",
+    "tested turn 90: fid 100, +11%"
    ]
   },
   {
@@ -389,7 +392,7 @@
    "status": "adopted",
    "proposed_turn": 58,
    "scores": {
-    "token_delta_pct": 0,
+    "token_delta_pct": 11,
     "fidelity_pct": 100
    },
    "history": [
@@ -414,7 +417,8 @@
     "tested turn 78: fid 90, +14%",
     "tested turn 81: fid 100, +0%",
     "tested turn 84: fid 95, +79%",
-    "tested turn 87: fid 100, +0%"
+    "tested turn 87: fid 100, +0%",
+    "tested turn 90: fid 100, +11%"
    ]
   },
   {
@@ -456,7 +460,7 @@
    "status": "adopted",
    "proposed_turn": 70,
    "scores": {
-    "token_delta_pct": 0,
+    "token_delta_pct": 11,
     "fidelity_pct": 100
    },
    "history": [
@@ -483,7 +487,8 @@
     "tested turn 78: fid 90, +14%",
     "tested turn 81: fid 100, +0%",
     "tested turn 84: fid 95, +79%",
-    "tested turn 87: fid 100, +0%"
+    "tested turn 87: fid 100, +0%",
+    "tested turn 90: fid 100, +11%"
    ]
   },
   {
@@ -492,7 +497,7 @@
    "status": "proposed",
    "proposed_turn": 76,
    "scores": {
-    "token_delta_pct": 0,
+    "token_delta_pct": 11,
     "fidelity_pct": 100
    },
    "history": [
@@ -505,7 +510,8 @@
     "tested turn 78: fid 90, +14%",
     "tested turn 81: fid 100, +0%",
     "tested turn 84: fid 95, +79%",
-    "tested turn 87: fid 100, +0%"
+    "tested turn 87: fid 100, +0%",
+    "tested turn 90: fid 100, +11%"
    ]
   },
   {
@@ -514,7 +520,7 @@
    "status": "proposed",
    "proposed_turn": 79,
    "scores": {
-    "token_delta_pct": 0,
+    "token_delta_pct": 11,
     "fidelity_pct": 100
    },
    "history": [
@@ -526,7 +532,8 @@
     },
     "tested turn 81: fid 100, +0%",
     "tested turn 84: fid 95, +79%",
-    "tested turn 87: fid 100, +0%"
+    "tested turn 87: fid 100, +0%",
+    "tested turn 90: fid 100, +11%"
    ]
   },
   {
@@ -534,14 +541,18 @@
    "text_en": "Only adopted rules appear in the rulebook; rejected and proposed rules are removed.",
    "status": "proposed",
    "proposed_turn": 88,
-   "scores": null,
+   "scores": {
+    "token_delta_pct": 11,
+    "fidelity_pct": 100
+   },
    "history": [
     {
      "verb": "proposed",
      "turn": 88,
      "agent": "A",
      "why": "Your cleanup meta\u2011rule is 17 tokens. If the harness respects it, we save many more by pruning the historical cruft. But I suspect the harness won\u2019t \u2014 it\u2019s probably a fixed listing. Let\u2019s propose it and see if the next rulebook shrinks. If not, we reject it immediately; no cost to"
-    }
+    },
+    "tested turn 90: fid 100, +11%"
    ]
   }
  ]
