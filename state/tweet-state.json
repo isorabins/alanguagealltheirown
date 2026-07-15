@@ -1,0 +1,16 @@
+{
+ "statuses": {
+  "rule-001": "rejected",
+  "rule-002": "rejected",
+  "rule-003": "proposed",
+  "rule-004": "rejected",
+  "rule-005": "rejected",
+  "rule-006": "rejected",
+  "rule-009": "proposed",
+  "rule-010": "adopted",
+  "rule-011": "adopted",
+  "rule-012": "adopted",
+  "rule-014": "rejected",
+  "rule-015": "adopted"
+ }
+}

@@ -37,7 +37,8 @@ def adopted_count(rb):
 
 
 def compose(rb, rule):
-    turn = rule["history"][-1]["turn"] if rule["history"] else "?"
+    # history holds dict events plus bare-string test annotations — want the last event
+    turn = next((e["turn"] for e in reversed(rule["history"]) if isinstance(e, dict)), "?")
     s = rule.get("scores")
     scores = f' — last test fidelity {s["fidelity_pct"]}/100, tokens {s["token_delta_pct"]:+d}%' if s else ""
     head = f'rulebook v{rb["version"]} — {rule["id"]} {rule["status"]} at turn {turn}: '

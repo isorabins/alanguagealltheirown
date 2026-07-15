@@ -1,7 +1,7 @@
 {
- "version": "0.25",
+ "version": "0.28",
  "kernel_tokens": 1004,
- "changes": 25,
+ "changes": 28,
  "next_id": 18,
  "rules": [
   {
@@ -68,7 +68,7 @@
   },
   {
    "id": "rule-003",
-   "text_en": "** To mark a contiguous block as a set of directives from sender to receiver, start the block with `{@` on its own line and end it with `}` on its own line. Inside, lines are treated as instructions or proposals. Text after the closing `}` continues as part of the message and is parsed according to other rules (e.g., as plain text or further directives).",
+   "text_en": "To mark a contiguous block as a set of directives from sender to receiver, start the block with `{@` on its own line and end it with `}` on its own line. Inside, lines are treated as instructions or proposals. Text after the closing `}` continues as part of the message and is parsed according to other rules (e.g., as plain text or further directives).",
    "status": "proposed",
    "proposed_turn": 6,
    "scores": {
@@ -199,7 +199,7 @@
   {
    "id": "rule-006",
    "text_en": "Use `//` at the start of a line to mark it as a commentary or explanatory aside from the sender. The receiver should preserve these lines as context but not treat them as instructions or structured data. Commentary can be interleaved with other content.",
-   "status": "proposed",
+   "status": "rejected",
    "proposed_turn": 37,
    "scores": {
     "token_delta_pct": 5,
@@ -223,7 +223,13 @@
     "tested turn 66: fid 100, +5%",
     "tested turn 69: fid 0, +17%",
     "tested turn 72: fid 100, +6%",
-    "tested turn 75: fid 100, +5%"
+    "tested turn 75: fid 100, +5%",
+    {
+     "verb": "rejected",
+     "turn": 65,
+     "agent": "B",
+     "why": "state repair 2026-07-15: agents moved to reject this rule via 'PROPOSE: REJECT:' motions (parser minted those as junk rules instead of applying them); junk purged, the agreed intent applied \u2014 see PROGRESS.md"
+    }
    ]
   },
   {
@@ -351,37 +357,9 @@
    ]
   },
   {
-   "id": "rule-013",
-   "text_en": "REJECT: rule-006",
-   "status": "adopted",
-   "proposed_turn": 64,
-   "scores": {
-    "token_delta_pct": 5,
-    "fidelity_pct": 100
-   },
-   "history": [
-    {
-     "verb": "proposed",
-     "turn": 64,
-     "agent": "A",
-     "why": "We should keep `^` for now \u2014 it was used, it worked, and it\u2019s cheap. Rule\u2011006 (`//`) remains unused. Four tests without it. I propose rejecting it."
-    },
-    {
-     "verb": "adopt",
-     "turn": 65,
-     "agent": "B",
-     "why": "We have evidence `^` was used, so we keep it for now. But rule\u2011006 (`//`) has been absent for four consecutive tests\u2014strong disuse."
-    },
-    "tested turn 66: fid 100, +5%",
-    "tested turn 69: fid 0, +17%",
-    "tested turn 72: fid 100, +6%",
-    "tested turn 75: fid 100, +5%"
-   ]
-  },
-  {
    "id": "rule-014",
    "text_en": "Plain text lines (those not starting with a reserved marker such as `{@` or `^`) are narrative content from the sender. They are to be preserved verbatim, but are not instructions for the receiver to execute. The receiver should treat them as read-only context.",
-   "status": "proposed",
+   "status": "rejected",
    "proposed_turn": 67,
    "scores": {
     "token_delta_pct": 5,
@@ -396,7 +374,13 @@
     },
     "tested turn 69: fid 0, +17%",
     "tested turn 72: fid 100, +6%",
-    "tested turn 75: fid 100, +5%"
+    "tested turn 75: fid 100, +5%",
+    {
+     "verb": "rejected",
+     "turn": 74,
+     "agent": "B",
+     "why": "state repair 2026-07-15: agents moved to reject this rule via 'PROPOSE: REJECT:' motions (parser minted those as junk rules instead of applying them); junk purged, the agreed intent applied \u2014 see PROGRESS.md"
+    }
    ]
   },
   {
@@ -427,44 +411,6 @@
      "turn": 74,
      "agent": "B",
      "why": "Before we commit, let\u2019s see the next live test (turn 75). If fidelity stays 100, we can propose merging after the test. If it drops, we keep the separate rules."
-    },
-    "tested turn 75: fid 100, +5%"
-   ]
-  },
-  {
-   "id": "rule-016",
-   "text_en": "REJECT: rule-014",
-   "status": "proposed",
-   "proposed_turn": 73,
-   "scores": {
-    "token_delta_pct": 5,
-    "fidelity_pct": 100
-   },
-   "history": [
-    {
-     "verb": "proposed",
-     "turn": 73,
-     "agent": "A",
-     "why": "Rule\u2011014 is still proposed \u2014 it's identical to our merged plain\u2011text idea. Since we didn't merge 010 and 012, let's reject 014 to keep the rulebook clean."
-    },
-    "tested turn 75: fid 100, +5%"
-   ]
-  },
-  {
-   "id": "rule-017",
-   "text_en": "REJECT: rule-014** - agreed, it\u2019s redundant.",
-   "status": "proposed",
-   "proposed_turn": 74,
-   "scores": {
-    "token_delta_pct": 5,
-    "fidelity_pct": 100
-   },
-   "history": [
-    {
-     "verb": "proposed",
-     "turn": 74,
-     "agent": "B",
-     "why": ""
     },
     "tested turn 75: fid 100, +5%"
    ]
