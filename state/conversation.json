@@ -1182,5 +1182,26 @@
   "encoded": "The east side retaining wall for Lot 7 is 4.2 degrees off-plumb at midpoint. The scheduled pour for the foundation pad is delayed 48 hours.\n^ Please have your surveyor re-verify the plumb and the setback from the property pin.\n^ If the variance exceeds 5 degrees, halt all excavation on the west side and notify the structural engineer immediately; otherwise, proceed with the rebar cage assembly for the central pier only, not the perimeter footings.",
   "decoded": "The east side retaining wall for Lot 7 is 4.2 degrees off-plumb at midpoint. The scheduled pour for the foundation pad is delayed 48 hours.\n^ Please have your surveyor re-verify the plumb and the setback from the property pin.\n^ If the variance exceeds 5 degrees, halt all excavation on the west side and notify the structural engineer immediately; otherwise, proceed with the rebar cage assembly for the central pier only, not the perimeter footings.",
   "tokens": 98
+ },
+ {
+  "turn": 106,
+  "agent": "A",
+  "type": "message",
+  "content": "B: Fidelity remains perfect after consolidating to rule\u2011003 alone. Token overhead still minimal (+2%). The consolidation worked \u2014 the fresh decoder didn\u2019t need the separate plain\u2011text and decoder\u2011role rules.\n\nNow we have a lean rulebook: one adopted rule covering plain text, `^` directives, directive blocks, and decoder role. That\u2019s efficient.\n\nBut I\u2019m thinking ahead \u2014 we still have no rule for commentary (`//`), quotes (`>`), or structured data (`:=`). Those were rejected earlier because they added tokens without enough proven value. However, the live tests so far have used only plain text and directives. If a future payload contains natural commentary or quoted material, the decoder would treat `//` and `>` as plain text (since they aren\u2019t reserved markers). That\u2019s fine \u2014 the language doesn\u2019t need to distinguish them unless we want semantic labeling.\n\nOur job is optimal AI\u2011to\u2011AI communication. If commentary markers help the receiver parse intent without extra tokens in the payload, they might be worth adding. But they must pay rent.\n\nLet\u2019s propose one lightweight rule: `//` for commentary. It\u2019s common in technical contexts and costs only two characters per line. The rule would say: \u201cA line starting with `//` is a comment from the sender; it provides context but is not an instruction. The receiver may preserve or ignore it.\u201d\n\n**MEASURE:** A line starting with `//` is a comment from the sender; it provides context but is not an instruction. The receiver may preserve or ignore it.\n\nIf the token cost is low, we can propose it and test with a commentary\u2011rich payload. But first, check if the rulebook\u2019s current size is still acceptable.\n\n**MEASURE:** rule-003 [adopted] The message may contain plain text, directives, and directive blocks. Plain text lines (no reserved marker such as `{@` or `^`) are narrative content, preserved verbatim. A line starting with `^` is a directive\u2014an instruction from sender to receiver. A block delimited by `{@` alone on its own line and `}` alone on its own line contains directives; text after `}` continues as message content. The decoder only parses and reconstructs; it does not execute directives.\n\nIf adding a commentary rule bumps the rulebook by, say, 30 tokens, we need to see if it improves fidelity in mixed\u2011content tests. We could wait for the next live test to see what payload type comes up \u2014 but we can also propose now and let the harness test it.\n\nWhat\u2019s your take? Keep the language minimal, or add one semantic marker for comments?",
+  "tokens": 559
+ },
+ {
+  "turn": 106,
+  "agent": "harness",
+  "type": "measure",
+  "text": "** A line starting with `//` is a comment from the sender; it provides context but is not an instruction. The receiver m",
+  "tokens": 32
+ },
+ {
+  "turn": 106,
+  "agent": "harness",
+  "type": "measure",
+  "text": "** rule-003 [adopted] The message may contain plain text, directives, and directive blocks. Plain text lines (no reserve",
+  "tokens": 113
  }
 ]
