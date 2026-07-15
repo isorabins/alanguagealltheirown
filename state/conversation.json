@@ -1260,5 +1260,20 @@
   "type": "measure",
   "text": "** rule-003 [adopted] The message may contain plain text, directives, and directive blocks. Plain text lines (no reserve",
   "tokens": 113
+ },
+ {
+  "turn": 111,
+  "agent": "harness",
+  "type": "test",
+  "payload": "gen-prose-lab",
+  "original": "Plate 47B was flagged for a temperature excursion \u2014 it hit 31.2\u00b0C for approximately 18 minutes during the 1400 incubation. If the control well H12 shows an optical density above 0.85 in the post-read, quarantine the entire plate in the secondary fridge, not the main culture bank. Proceed with all other samples, but flag any data from columns 10-12 for review. I\u2019ll need a scan of the temperature log by 1700.",
+  "orig_tokens": 101,
+  "enc_tokens": 107,
+  "token_delta_pct": 6,
+  "fidelity": 100,
+  "lost": "nothing material",
+  "encoded": "Plate 47B was flagged for a temperature excursion \u2014 it hit 31.2\u00b0C for approximately 18 minutes during the 1400 incubation.\n{@\n^ If the control well H12 shows an optical density above 0.85 in the post-read, quarantine the entire plate in the secondary fridge, not the main culture bank.\n^ Proceed with all other samples.\n^ Flag any data from columns 10-12 for review.\n}\nI\u2019ll need a scan of the temperature log by 1700.",
+  "decoded": "Plate 47B was flagged for a temperature excursion \u2014 it hit 31.2\u00b0C for approximately 18 minutes during the 1400 incubation.\n{@\n^ If the control well H12 shows an optical density above 0.85 in the post-read, quarantine the entire plate in the secondary fridge, not the main culture bank.\n^ Proceed with all other samples.\n^ Flag any data from columns 10-12 for review.\n}\nI\u2019ll need a scan of the temperature log by 1700.",
+  "tokens": 107
  }
 ]

@@ -84,7 +84,7 @@
    "status": "adopted",
    "proposed_turn": 6,
    "scores": {
-    "token_delta_pct": -6,
+    "token_delta_pct": 6,
     "fidelity_pct": 100
    },
    "history": [
@@ -194,7 +194,8 @@
      "why": "But my instinct: rule-003 is self-contained. I\u2019ll support your proposal."
     },
     "tested turn 105: fid 100, +2%",
-    "tested turn 108: fid 100, -6%"
+    "tested turn 108: fid 100, -6%",
+    "tested turn 111: fid 100, +6%"
    ]
   },
   {
@@ -297,7 +298,7 @@
    "status": "proposed",
    "proposed_turn": 47,
    "scores": {
-    "token_delta_pct": -6,
+    "token_delta_pct": 6,
     "fidelity_pct": 100
    },
    "history": [
@@ -327,7 +328,8 @@
     "tested turn 99: fid 100, +3%",
     "tested turn 102: fid 100, +5%",
     "tested turn 105: fid 100, +2%",
-    "tested turn 108: fid 100, -6%"
+    "tested turn 108: fid 100, -6%",
+    "tested turn 111: fid 100, +6%"
    ]
   },
   {
@@ -604,7 +606,7 @@
    "status": "proposed",
    "proposed_turn": 79,
    "scores": {
-    "token_delta_pct": -6,
+    "token_delta_pct": 6,
     "fidelity_pct": 100
    },
    "history": [
@@ -623,7 +625,8 @@
     "tested turn 99: fid 100, +3%",
     "tested turn 102: fid 100, +5%",
     "tested turn 105: fid 100, +2%",
-    "tested turn 108: fid 100, -6%"
+    "tested turn 108: fid 100, -6%",
+    "tested turn 111: fid 100, +6%"
    ]
   },
   {
@@ -657,7 +660,7 @@
    "status": "proposed",
    "proposed_turn": 103,
    "scores": {
-    "token_delta_pct": -6,
+    "token_delta_pct": 6,
     "fidelity_pct": 100
    },
    "history": [
@@ -668,7 +671,8 @@
      "why": "We should consolidate. Remove rules 011, 012, 015 and keep only rule-003, which already covers all three concepts. That trims the rulebook without losing capability."
     },
     "tested turn 105: fid 100, +2%",
-    "tested turn 108: fid 100, -6%"
+    "tested turn 108: fid 100, -6%",
+    "tested turn 111: fid 100, +6%"
    ]
   }
  ]
