@@ -1,0 +1,48 @@
+{
+ "version": "0.5",
+ "kernel_tokens": 203,
+ "changes": 5,
+ "next_id": 4,
+ "rules": [
+  {
+   "id": "rule-001",
+   "text_en": "rule-001: All messages are JSON objects. Keys are short strings, values can be strings, numbers, arrays, or nested objects.",
+   "status": "adopted",
+   "proposed_turn": 1,
+   "scores": {
+    "token_delta_pct": 4,
+    "fidelity_pct": 0
+   },
+   "history": [
+    "proposed turn 1",
+    "adopt turn 2",
+    "tested turn 5: fid 0, +4%"
+   ]
+  },
+  {
+   "id": "rule-002",
+   "text_en": "rule-002: Replace common JSON keys with single-letter symbols. Use this mapping: t\u2192\"type\", d\u2192\"data\", r\u2192\"ref\", i\u2192\"id\", a\u2192\"array\", o\u2192\"object\". The decoder expands symbols to full keys.",
+   "status": "adopted",
+   "proposed_turn": 3,
+   "scores": {
+    "token_delta_pct": 4,
+    "fidelity_pct": 0
+   },
+   "history": [
+    "proposed turn 3",
+    "adopt turn 4",
+    "tested turn 5: fid 0, +4%"
+   ]
+  },
+  {
+   "id": "rule-003",
+   "text_en": "rule-003: If a key in the JSON object is a single letter not listed in rule\u2011002, treat it as a literal key (do not expand). If a key is a string longer than one character, leave it unchanged. This ensures unknown keys are preserved.",
+   "status": "proposed",
+   "proposed_turn": 6,
+   "scores": null,
+   "history": [
+    "proposed turn 6"
+   ]
+  }
+ ]
+}

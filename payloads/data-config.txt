@@ -1,0 +1,8 @@
+service: image-resizer
+replicas: 3
+autoscale: {min: 2, max: 10, target_cpu: 65}
+timeout_ms: 4000
+retries: 2
+cache: {enabled: true, ttl_s: 86400, max_mb: 512}
+alerts: page on p99 > 2500ms for 10m, ticket on error_rate > 0.5% for 30m
+deploy: canary 5% for 15m, then full; rollback on any paged alert

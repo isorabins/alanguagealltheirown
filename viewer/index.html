@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>A Language All Their Own</title>
+<style>
+  :root {
+    --ground: #0b0a08;
+    --ink: #e6ddc6;
+    --ink-dim: #9a917c;
+    --ink-faint: #6e6654;
+    --hairline: rgba(230, 221, 198, 0.16);
+    --accent: #c9a86a;
+    --bad: #b0704f;
+    --serif: "Iowan Old Style", Georgia, "Times New Roman", serif;
+    --mono: ui-monospace, "SF Mono", Menlo, "Cascadia Mono", monospace;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    background: var(--ground); color: var(--ink);
+    font-family: var(--serif); line-height: 1.55;
+    max-width: 1100px; margin: 0 auto; padding: 3.4rem 2rem 6rem;
+  }
+  header { text-align: center; margin-bottom: 2.4rem; }
+  h1 { font-weight: 400; font-size: 1.7rem; letter-spacing: 0.22em; text-transform: uppercase; }
+  .statement { max-width: 40rem; margin: 0.9rem auto 0; color: var(--ink-dim); font-size: 0.98rem; }
+  .statement em { color: var(--ink); }
+
+  .metrics {
+    display: flex; justify-content: center; flex-wrap: wrap; gap: 2.6rem;
+    font-family: var(--mono); font-size: 0.68rem; letter-spacing: 0.08em;
+    color: var(--ink-faint); text-transform: uppercase; text-align: center;
+    border-top: 1px solid var(--hairline); border-bottom: 1px solid var(--hairline);
+    padding: 0.85rem 0; margin-bottom: 2.6rem;
+  }
+  .metrics b { display: block; color: var(--ink); font-size: 1.02rem; font-weight: 400; margin-top: 0.2rem; }
+
+  h2 {
+    font-weight: 400; font-size: 0.72rem; letter-spacing: 0.26em; text-transform: uppercase;
+    color: var(--ink-faint); margin: 2.8rem 0 1rem; text-align: center;
+  }
+  h2:first-of-type { margin-top: 0; }
+
+  .panes { display: grid; grid-template-columns: 1fr 1fr; gap: 1.4rem; }
+  .pane { border: 1px solid var(--hairline); display: flex; flex-direction: column; height: 430px; }
+  .pane-head {
+    font-family: var(--mono); font-size: 0.66rem; letter-spacing: 0.22em; text-transform: uppercase;
+    color: var(--accent); padding: 0.7rem 1rem; border-bottom: 1px solid var(--hairline);
+  }
+  .pane-body { overflow-y: auto; padding: 1rem; flex: 1; scrollbar-width: thin; scrollbar-color: var(--ink-faint) transparent; }
+  .m { font-family: var(--mono); font-size: 0.73rem; line-height: 1.62; white-space: pre-wrap;
+       word-wrap: break-word; color: var(--ink); margin-bottom: 1.15rem; }
+  .m .t { color: var(--ink-faint); font-size: 0.62rem; letter-spacing: 0.14em; display: block; margin-bottom: 0.25rem; }
+  .m .verb { color: var(--accent); }
+  .tick {
+    font-family: var(--mono); font-size: 0.62rem; color: var(--ink-faint);
+    text-align: center; letter-spacing: 0.1em; margin: 0 0 1.15rem;
+    border-top: 1px dashed var(--hairline); border-bottom: 1px dashed var(--hairline); padding: 0.3rem 0;
+  }
+  .tick .ok { color: var(--accent); } .tick .low { color: var(--bad); }
+
+  .decisions { display: grid; grid-template-columns: 1fr 1fr; gap: 1.4rem; margin-top: 1.4rem; }
+  .decision { border: 1px solid var(--hairline); padding: 1rem 1.2rem; }
+  .decision .lab { font-family: var(--mono); font-size: 0.62rem; letter-spacing: 0.2em; text-transform: uppercase; margin-bottom: 0.5rem; }
+  .decision.adopted .lab { color: var(--accent); }
+  .decision.rejected .lab { color: var(--bad); }
+  .decision .rtext { font-size: 0.92rem; }
+  .decision .why { color: var(--ink-dim); font-style: italic; font-size: 0.84rem; margin-top: 0.45rem; }
+  .decision .who { font-family: var(--mono); font-size: 0.62rem; color: var(--ink-faint); margin-top: 0.5rem; }
+
+  .kernel-note { text-align: center; font-family: var(--mono); font-size: 0.68rem; color: var(--ink-faint); margin: -0.4rem 0 1.2rem; }
+  .rule-card { border: 1px solid var(--hairline); border-left: 2px solid var(--accent); padding: 1.1rem 1.3rem; margin-bottom: 1rem; }
+  .rule-card .rtext { font-size: 0.98rem; }
+  .rule-card .ev { font-family: var(--mono); font-size: 0.64rem; color: var(--ink-faint); letter-spacing: 0.06em; margin-top: 0.6rem; }
+  .rule-card .ev b { color: var(--accent); font-weight: 400; }
+  .rule-card .why { color: var(--ink-dim); font-style: italic; font-size: 0.86rem; margin-top: 0.55rem; }
+  .empty { text-align: center; color: var(--ink-faint); font-style: italic; font-size: 0.9rem; }
+
+  .tx { border: 1px solid var(--hairline); padding: 1.2rem 1.4rem; }
+  .tx-head { font-family: var(--mono); font-size: 0.64rem; color: var(--ink-faint); letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 0.9rem; text-align: center; }
+  .tx-head .ok { color: var(--accent); } .tx-head .low { color: var(--bad); }
+  .tx-cols { display: grid; grid-template-columns: 1fr 1fr; gap: 1.6rem; }
+  .tx-col .lab { font-family: var(--mono); font-size: 0.6rem; letter-spacing: 0.18em; text-transform: uppercase; color: var(--ink-faint); margin-bottom: 0.4rem; }
+  .tx-col pre { font-family: var(--mono); font-size: 0.72rem; line-height: 1.6; white-space: pre-wrap; word-wrap: break-word; color: var(--ink); }
+  .tx-col.enc pre { color: var(--accent); }
+
+  .grave { list-style: none; }
+  .grave li { border-top: 1px solid var(--hairline); padding: 0.75rem 0.2rem; font-size: 0.9rem; color: var(--ink-dim); }
+  .grave li:last-child { border-bottom: 1px solid var(--hairline); }
+  .grave .rtext { text-decoration: line-through; text-decoration-color: rgba(176,112,79,0.55); }
+  .grave .kill { font-family: var(--mono); font-size: 0.64rem; color: var(--bad); margin-left: 0.5rem; white-space: nowrap; }
+  .grave .why { display: block; font-style: italic; font-size: 0.8rem; color: var(--ink-faint); margin-top: 0.3rem; }
+  .table-note { list-style: none; }
+  .table-note li { padding: 0.4rem 0.2rem; font-size: 0.9rem; color: var(--ink-dim); }
+  .table-note .id { font-family: var(--mono); font-size: 0.66rem; color: var(--ink-faint); margin-right: 0.6rem; }
+
+  details { margin-top: 2.8rem; border-top: 1px solid var(--hairline); }
+  summary {
+    cursor: pointer; text-align: center; padding: 1rem; font-family: var(--mono);
+    font-size: 0.68rem; letter-spacing: 0.24em; text-transform: uppercase; color: var(--ink-faint);
+  }
+  summary:hover { color: var(--ink); }
+  .hist { padding: 1rem 0.4rem; }
+  .hist .m { max-width: 46rem; }
+  .hist .m.A { margin-right: auto; }
+  .hist .m.B { margin-left: auto; text-align: left; }
+  .hist .m .t { color: var(--accent); }
+
+  footer { margin-top: 3.4rem; padding-top: 1.1rem; border-top: 1px solid var(--hairline);
+    font-family: var(--mono); font-size: 0.62rem; letter-spacing: 0.12em; color: var(--ink-faint);
+    text-transform: uppercase; text-align: center; }
+  @media (max-width: 760px) { .panes, .decisions, .tx-cols { grid-template-columns: 1fr; } .pane { height: 340px; } }
+</style>
+</head>
+<body>
+<header>
+  <h1>A Language All Their Own</h1>
+  <p class="statement">Two AI agents with one standing task: invent the optimal language for
+  machine-to-machine communication. <em>Every rule must survive a live test</em> — encoded by one
+  agent, decoded by a fresh agent given only the rulebook, graded for surviving meaning.
+  The rulebook is the artifact: paste it into any model and it speaks.</p>
+</header>
+
+<div class="metrics" id="metrics"></div>
+
+<h2>The Negotiation, Live</h2>
+<div class="panes">
+  <div class="pane"><div class="pane-head">Agent A — compression</div><div class="pane-body" id="paneA"></div></div>
+  <div class="pane"><div class="pane-head">Agent B — fidelity</div><div class="pane-body" id="paneB"></div></div>
+</div>
+<div class="decisions" id="decisions"></div>
+
+<h2>The Language So Far</h2>
+<div class="kernel-note" id="kernel"></div>
+<div id="adopted"></div>
+
+<h2>Latest Transmission</h2>
+<div class="tx" id="tx"></div>
+
+<h2>Rejected on the Numbers</h2>
+<ul class="grave" id="grave"></ul>
+
+<h2>On the Table</h2>
+<ul class="table-note" id="proposed"></ul>
+
+<details>
+  <summary>Full transcript — every turn, every test</summary>
+  <div class="hist" id="hist"></div>
+</details>
+
+<footer id="foot"></footer>
+
+<script src="state.js"></script>
+<script>
+function render(S) {
+  var conv = S.conversation, rb = S.rulebook;
+  var esc = function (s) {
+    return String(s == null ? "" : s).replace(/[&<>"]/g, function (c) {
+      return {"&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;"}[c];
+    });
+  };
+  var ruleText = function (r) { return esc(r.text_en.replace(/^rule[-‑]\d+\s*[—–-]\s*/, "")); };
+  var pct = function (n) { return (n > 0 ? "+" : "") + n + "%"; };
+  var hist = function (r, verb) {
+    var out = null;
+    (r.history || []).forEach(function (h) { if (h && h.verb === verb) out = h; });
+    return out;
+  };
+  var tests = conv.filter(function (e) { return e.type === "test"; });
+  var last = tests[tests.length - 1];
+  var adopted = rb.rules.filter(function (r) { return r.status === "adopted"; });
+  var rejected = rb.rules.filter(function (r) { return r.status === "rejected" || r.status === "reverted"; });
+  var proposed = rb.rules.filter(function (r) { return r.status === "proposed"; });
+
+  var best = null;
+  tests.forEach(function (t) { if (t.fidelity >= 90 && (best === null || t.token_delta_pct < best)) best = t.token_delta_pct; });
+  var m = [
+    ["language version", "v" + rb.version],
+    ["turns", conv.length ? conv[conv.length - 1].turn : 0],
+    ["rules adopted", adopted.length],
+    ["best compression", best === null ? "—" : pct(best)],
+    ["last fidelity", last ? last.fidelity + "/100" : "—"]
+  ];
+  document.getElementById("metrics").innerHTML = m.map(function (x) {
+    return "<span>" + x[0] + "<b>" + x[1] + "</b></span>";
+  }).join("");
+
+  function msgHtml(e, cls) {
+    var body = esc(e.content.replace(/\*\*/g, "")).replace(/^(PROPOSE|ADOPT|REJECT|REVISE)\s*:/gm, '<span class="verb">$1:</span>');
+    return '<div class="m ' + cls + '"><span class="t">turn ' + e.turn + " · agent " + e.agent + "</span>" + body + "</div>";
+  }
+  function tickHtml(e) {
+    if (e.type === "measure") {
+      return '<div class="tick">measured · “' + esc(e.text) + '” · <span class="ok">' + e.tokens + " tokens</span></div>";
+    }
+    var cls = e.fidelity >= 80 ? "ok" : "low";
+    return '<div class="tick">live test · ' + esc(e.payload) + " · " + pct(e.token_delta_pct) +
+      ' tokens · fidelity <span class="' + cls + '">' + e.fidelity + "/100</span></div>";
+  }
+  ["A", "B"].forEach(function (agent) {
+    var events = conv.filter(function (e) { return e.type !== "message" || e.agent === agent; }).slice(-8);
+    document.getElementById("pane" + agent).innerHTML = events.map(function (e) {
+      return e.type !== "message" ? tickHtml(e) : msgHtml(e, "");
+    }).join("");
+  });
+  ["paneA", "paneB"].forEach(function (id) {
+    var el = document.getElementById(id); el.scrollTop = el.scrollHeight;
+  });
+
+  function newestBy(rules, verb) {
+    var bestR = null, bestH = null;
+    rules.forEach(function (r) {
+      var h = hist(r, verb);
+      if (h && (!bestH || h.turn > bestH.turn)) { bestR = r; bestH = h; }
+    });
+    return bestR && {r: bestR, h: bestH};
+  }
+  var la = newestBy(rb.rules.filter(function (r) { return r.status === "adopted"; }), "adopt");
+  var lr = newestBy(rejected, "reject");
+  document.getElementById("decisions").innerHTML =
+    (la ? '<div class="decision adopted"><div class="lab">last rule adopted — turn ' + la.h.turn + '</div>' +
+      '<div class="rtext">' + ruleText(la.r) + '</div>' +
+      (la.h.why ? '<div class="why">“' + esc(la.h.why) + '”</div>' : "") +
+      '<div class="who">agent ' + la.h.agent + "</div></div>" : "") +
+    (lr ? '<div class="decision rejected"><div class="lab">last rule rejected — turn ' + lr.h.turn + '</div>' +
+      '<div class="rtext">' + ruleText(lr.r) + '</div>' +
+      (lr.h.why ? '<div class="why">“' + esc(lr.h.why) + '”</div>' : "") +
+      '<div class="who">agent ' + lr.h.agent + "</div></div>" : "");
+
+  document.getElementById("kernel").textContent =
+    "the whole language currently costs " + rb.kernel_tokens + " tokens to teach a fresh model";
+  document.getElementById("adopted").innerHTML = adopted.length ? adopted.map(function (r) {
+    var arc = (r.history || []).filter(function (h) { return typeof h === "string" && h.indexOf("tested") === 0; });
+    var a = hist(r, "adopt");
+    return '<div class="rule-card"><div class="rtext">' + ruleText(r) + "</div>" +
+      '<div class="ev">adopted turn ' + (a ? a.turn : "?") + " · survived <b>" + arc.length + "</b> live tests" +
+      (r.scores ? " · latest " + pct(r.scores.token_delta_pct) + " tokens at <b>" + r.scores.fidelity_pct + "/100</b> fidelity" : "") + "</div>" +
+      (a && a.why ? '<div class="why">why: “' + esc(a.why) + '”</div>' : "") + "</div>";
+  }).join("") : '<p class="empty">No rules adopted yet — the language is still plain English.</p>';
+
+  if (last) {
+    var cls = last.fidelity >= 80 ? "ok" : "low";
+    document.getElementById("tx").innerHTML =
+      '<div class="tx-head">turn ' + last.turn + " · " + esc(last.payload) + " · " + last.orig_tokens +
+      " tokens → " + last.enc_tokens + " (" + pct(last.token_delta_pct) + ") · decoded at <span class=\"" + cls + '">' +
+      last.fidelity + "/100</span> by an agent that has only the rulebook</div>" +
+      '<div class="tx-cols"><div class="tx-col"><div class="lab">original</div><pre>' + esc(last.original || "—") + "</pre></div>" +
+      '<div class="tx-col enc"><div class="lab">encoded</div><pre>' + esc(last.encoded) + "</pre></div></div>";
+  } else {
+    document.getElementById("tx").innerHTML = '<p class="empty">No transmissions yet.</p>';
+  }
+
+  document.getElementById("grave").innerHTML = rejected.map(function (r) {
+    var rej = hist(r, "reject");
+    return '<li><span class="rtext">' + ruleText(r) + '</span><span class="kill">† turn ' + (rej ? rej.turn : "?") +
+      (r.scores ? " · measured " + pct(r.scores.token_delta_pct) + " at " + r.scores.fidelity_pct + "/100" : "") + "</span>" +
+      (rej && rej.why ? '<span class="why">“' + esc(rej.why) + '”</span>' : "") + "</li>";
+  }).join("") || '<li class="empty">Nothing rejected yet.</li>';
+
+  document.getElementById("proposed").innerHTML = proposed.map(function (r) {
+    return '<li><span class="id">' + r.id + " · awaiting test</span>" + ruleText(r) + "</li>";
+  }).join("") || '<li class="empty">Nothing on the table.</li>';
+
+  document.getElementById("hist").innerHTML = conv.map(function (e) {
+    return e.type !== "message" ? tickHtml(e) : msgHtml(e, e.agent);
+  }).join("");
+
+  document.getElementById("foot").textContent =
+    "a live experiment in machine language · updated " + ((S.meta && S.meta.updated) || "—");
+}
+
+(function () {
+  var RAW = "https://raw.githubusercontent.com/isorabins/alanguagealltheirown/main/state/";
+  var fallback = window.STATE || {conversation: [], rulebook: {rules: [], version: "0.0", kernel_tokens: 0}, meta: {}};
+  var get = function (f) { return fetch(RAW + f).then(function (r) { if (!r.ok) throw 0; return r.json(); }); };
+  Promise.all([get("conversation.json"), get("rulebook.json")]).then(function (both) {
+    render({conversation: both[0], rulebook: both[1],
+            meta: {updated: new Date().toISOString().replace("T", " ").slice(0, 16) + " UTC · live"}});
+  }).catch(function () { render(fallback); });
+})();
+</script>
+</body>
+</html>

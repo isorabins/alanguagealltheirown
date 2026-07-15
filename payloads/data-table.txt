@@ -1,0 +1,6 @@
+region,q1_revenue,q2_revenue,headcount,open_roles
+north,412000,455000,18,2
+south,388000,371000,15,0
+east,510000,562000,22,5
+west,295000,340100,11,3
+Note: east figures exclude the Delta account, booked under corporate. South decline attributed to two churned logos in May.

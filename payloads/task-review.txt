@@ -1,0 +1,1 @@
+Review this pull request for a payment retry function. Check that: retries use exponential backoff capped at five attempts; a failed retry never double-charges; every state change writes an audit log entry; and secrets never appear in log output. Approve only if all four hold. If any fail, list each violation with the line number and a one-sentence fix. Do not comment on style.

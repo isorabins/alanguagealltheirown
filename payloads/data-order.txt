@@ -1,0 +1,1 @@
+{"order_id": "A-88213", "placed": "2026-06-30T14:22:09Z", "customer": {"id": 55901, "tier": "gold"}, "items": [{"sku": "MUG-BLK-11", "qty": 2, "unit_price": 14.50}, {"sku": "TEE-NVY-M", "qty": 1, "unit_price": 28.00}], "discount_pct": 10, "ship_to": "Portland, OR", "status": "paid", "notes": "gift wrap the mugs only"}

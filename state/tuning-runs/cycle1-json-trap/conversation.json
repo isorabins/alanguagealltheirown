@@ -1,0 +1,51 @@
+[
+ {
+  "turn": 1,
+  "agent": "A",
+  "type": "message",
+  "content": "We have zero rules. We cannot send anything meaningful yet. First we need a foundation: a way to represent structured data.\n\nPROPOSE: rule-001: All messages are JSON objects. Keys are short strings, values can be strings, numbers, arrays, or nested objects.\n\nThis is inefficient in tokens but gives us a baseline to compress later. B will likely accept this as a necessary start. I predict first test fidelity will be high but tokens will be high. We'll then compress keys and maybe drop JSON syntax.",
+  "tokens": 106
+ },
+ {
+  "turn": 2,
+  "agent": "B",
+  "type": "message",
+  "content": "Agreed, we need a structured baseline. JSON is human\u2011readable but inefficient; however, we must start somewhere measurable. I accept rule\u2011001 as the foundation, but with a note: we must later test whether dropping braces, quotes, or using a binary format saves meaningful tokens without breaking fidelity.\n\nADOPT: rule-001\n\nI propose we next define a core vocabulary\u2014a short list of key names that appear in every message\u2014so we can replace verbose strings with single symbols. That will cut payload size immediately.\n\nBut first, let\u2019s see the token cost of a simple JSON message under rule\u2011001 alone in the upcoming test. If it\u2019s e.g. 200 tokens for a trivial payload, we\u2019ll know compression is urgent.",
+  "tokens": 155
+ },
+ {
+  "turn": 3,
+  "agent": "A",
+  "type": "message",
+  "content": "JSON baseline is in place, but every key and quote costs tokens. Let's compress keys immediately. We can start with a minimal essential set.\n\nPROPOSE: rule-002: Replace common JSON keys with single-letter symbols. Use this mapping: t\u2192\"type\", d\u2192\"data\", r\u2192\"ref\", i\u2192\"id\", a\u2192\"array\", o\u2192\"object\". The decoder expands symbols to full keys.\n\nThis reduces token count for any nested structure. It's reversible, testable, and doesn't break rule-001's structure. If B wants more symbols, we can expand later\u2014but we must start measuring savings now. I'll also propose we drop quotes around symbols, but that's a separate rule. Let's get this adopted before the turn 5 test.",
+  "tokens": 161
+ },
+ {
+  "turn": 4,
+  "agent": "B",
+  "type": "message",
+  "content": "Agreed that key compression is the logical next step, but we must ensure the mapping is sufficient for early tests without overloading the rulebook. Your proposed symbols are reasonable, but we should confirm they cover the minimal payload set. We can expand later if needed.\n\nHowever, I want to test a specific hypothesis: does using single-letter keys actually reduce token count with the real tokenizer? Intuitively yes, but we need measurements. Also, we must decide whether keys require quotes in JSON. If we keep quotes, \"t\" is two tokens (`\"` and `t`), while `\"type\"` might be one token if `\"type\"` is in the vocabulary. We need the test to show us.\n\nI propose we adopt rule-002 now, but be ready to revise after the turn 5 test if the token savings are negligible or fidelity drops.\n\nADOPT: rule-002\n\nI'll also note: the rulebook itself will grow by one rule, costing tokens every message. That's fine if the savings outweigh the cost. Let's measure.",
+  "tokens": 219
+ },
+ {
+  "turn": 5,
+  "agent": "harness",
+  "type": "test",
+  "payload": "data-config.txt",
+  "orig_tokens": 120,
+  "enc_tokens": 125,
+  "token_delta_pct": 4,
+  "fidelity": 0,
+  "lost": "The decoded text introduces a 'scaling_triggers' array that misrepresents the original 'deploy' canary and full rollout instructions, and incorrectly structures the alert conditions by omitting the 'for 10m'/'for 30m' durations and separating them from the alert types.",
+  "encoded": "{\"t\":\"deploy\",\"d\":{\"s\":\"image-resizer\",\"r\":3,\"a\":{\"min\":2,\"max\":10,\"tc\":65},\"to\":4000,\"rt\":2,\"c\":{\"e\":true,\"ttl\":86400,\"mm\":512},\"al\":[{\"t\":\"page\",\"c\":\"p99>2500ms\",\"d\":600},{\"t\":\"ticket\",\"c\":\"error_rate>0.5%\",\"d\":1800}],\"st\":[{\"p\":5,\"d\":900},{\"p\":100}],\"rb\":\"any_paged_alert\"}}",
+  "decoded": "{\n  \"type\": \"deploy\",\n  \"data\": {\n    \"service\": \"image-resizer\",\n    \"replicas\": 3,\n    \"autoscale\": {\n      \"min\": 2,\n      \"max\": 10,\n      \"target_cpu\": 65\n    },\n    \"timeout\": 4000,\n    \"retries\": 2,\n    \"cache\": {\n      \"enabled\": true,\n      \"ttl\": 86400,\n      \"max_memory\": 512\n    },\n    \"alerts\": [\n      {\n        \"type\": \"page\",\n        \"condition\": \"p99>2500ms\",\n        \"duration\": 600\n      },\n      {\n        \"type\": \"ticket\",\n        \"condition\": \"error_rate>0.5%\",\n        \"duration\": 1800\n      }\n    ],\n    \"scaling_triggers\": [\n      {\n        \"percent\": 5,\n        \"duration\": 900\n      },\n      {\n        \"percent\": 100\n      }\n    ],\n    \"rollback\": \"any_paged_alert\"\n  }\n}",
+  "tokens": 125
+ },
+ {
+  "turn": 6,
+  "agent": "A",
+  "type": "message",
+  "content": "Fidelity zero \u2014 the decoder failed to reconstruct the original. That means our rulebook is incomplete; a fresh agent couldn\u2019t decode the payload correctly. The rulebook only says to replace symbols, but we didn\u2019t specify that *unknown keys* must be left intact. The decoder invented a \"scaling_triggers\" field that wasn\u2019t there.\n\nOur compression rule works, but we lack a rule for handling unmapped keys. We must add a fallback rule: if a symbol isn\u2019t in the mapping, treat it as a literal key. Otherwise fidelity will stay zero.\n\nPROPOSE: rule-003: If a key in the JSON object is a single letter not listed in rule\u2011002, treat it as a literal key (do not expand). If a key is a string longer than one character, leave it unchanged. This ensures unknown keys are preserved.\n\nThis should fix the decoding error. Also, the token count was only +4% \u2014 key compression helped, but not enough. After fidelity is fixed, we need to attack JSON syntax overhead (commas, colons, braces). But first, make decoding reliable. B will likely agree because fidelity is essential.",
+  "tokens": 242
+ }
+]

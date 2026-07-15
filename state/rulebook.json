@@ -1,0 +1,265 @@
+{
+ "version": "0.16",
+ "kernel_tokens": 677,
+ "changes": 16,
+ "next_id": 12,
+ "rules": [
+  {
+   "id": "rule-001",
+   "text_en": "Use `^` as a prefix for a line that is an instruction, proposal, or task step from the sender to the receiver. The line should be treated as something the receiver is expected to act upon or consider as a direct input to the workflow.",
+   "status": "rejected",
+   "proposed_turn": 1,
+   "scores": {
+    "token_delta_pct": 2,
+    "fidelity_pct": 100
+   },
+   "history": [
+    {
+     "verb": "proposed",
+     "turn": 1,
+     "agent": "A",
+     "why": "B: Starting with an empty rulebook means raw prose is our baseline \u2014 no compression, but perfect fidelity. That\u2019s fine for a first test, but we pay token cost for every repeated structure. I\u2019ll start with the simplest rule that cuts waste: replace common predictable framing with "
+    },
+    {
+     "verb": "revise",
+     "turn": 2,
+     "agent": "B",
+     "why": "I won\u2019t adopt yet. Let\u2019s see the first test results. If fidelity stays high, we keep and refine; if it drops, we scrap and rethink."
+    },
+    "tested turn 5: fid 100, +2%",
+    {
+     "verb": "reject",
+     "turn": 7,
+     "agent": "B",
+     "why": "I say reject the first two, adopt the new ones after tightening definitions, then test."
+    }
+   ]
+  },
+  {
+   "id": "rule-002",
+   "text_en": "Use `>` at the start of a line to directly quote or reproduce a segment from the immediately preceding message. Do not use for paraphrase or summary\u2014only for verbatim replay.",
+   "status": "rejected",
+   "proposed_turn": 1,
+   "scores": {
+    "token_delta_pct": 2,
+    "fidelity_pct": 100
+   },
+   "history": [
+    {
+     "verb": "proposed",
+     "turn": 1,
+     "agent": "A",
+     "why": ""
+    },
+    {
+     "verb": "revise",
+     "turn": 2,
+     "agent": "B",
+     "why": ""
+    },
+    "tested turn 5: fid 100, +2%",
+    {
+     "verb": "reject",
+     "turn": 7,
+     "agent": "B",
+     "why": "I say reject the first two, adopt the new ones after tightening definitions, then test."
+    }
+   ]
+  },
+  {
+   "id": "rule-003",
+   "text_en": "rule\u2011003 \u2014 To mark a contiguous block as a set of directives from sender to receiver, start the block with `{@` on its own line and end it with `}` on its own line. Inside, lines are treated as instructions or proposals, same as rule\u2011001. This replaces per\u2011line `^` prefixes when multiple directive lines appear together.",
+   "status": "adopted",
+   "proposed_turn": 6,
+   "scores": {
+    "token_delta_pct": 0,
+    "fidelity_pct": 100
+   },
+   "history": [
+    {
+     "verb": "proposed",
+     "turn": 6,
+     "agent": "A",
+     "why": "But we also need a rule for structured data \u2014 the payload showed JSON\u2011like nesting and key\u2011value pairs. That\u2019s common, and currently passed through raw. A fresh decoder might misinterpret it. I propose we add one rule for block directives and one for optional data markers, then t"
+    },
+    "tested turn 10: fid 95, -22%",
+    {
+     "verb": "adopt",
+     "turn": 12,
+     "agent": "B",
+     "why": "I propose we adopt rule\u2011003 now \u2014 it's proven value. Hold rule\u2011004 and rule\u2011005 as proposals until the next test."
+    },
+    "tested turn 15: fid 100, +21%",
+    {
+     "verb": "adopt",
+     "turn": 18,
+     "agent": "A",
+     "why": "B: Good adjustments. Your revised rule\u2011003 makes it optional \u2014 that\u2019s cleaner and prevents misuse. The decoder can treat everything as directives if markers absent, which matches the default expectation. I\u2019ll adopt that."
+    },
+    "tested turn 20: fid 100, +4%",
+    "tested turn 25: fid 100, -10%",
+    "tested turn 30: fid 100, +20%",
+    "tested turn 35: fid 70, -52%",
+    "tested turn 40: fid 60, -14%",
+    "tested turn 45: fid 95, +5%",
+    "tested turn 48: fid 0, +21%",
+    "tested turn 51: fid 100, -1%",
+    "tested turn 54: fid 100, +0%"
+   ]
+  },
+  {
+   "id": "rule-004",
+   "text_en": "rule\u2011004 \u2014 Within any text, you may optionally mark a key\u2011value pair with `key := value`. The decoder should parse this as structured data, preserving the pair for later use. This is a hint, not a requirement; plain `key: value` remains acceptable.",
+   "status": "rejected",
+   "proposed_turn": 6,
+   "scores": {
+    "token_delta_pct": 21,
+    "fidelity_pct": 100
+   },
+   "history": [
+    {
+     "verb": "proposed",
+     "turn": 6,
+     "agent": "A",
+     "why": ""
+    },
+    "tested turn 10: fid 95, -22%",
+    "tested turn 15: fid 100, +21%",
+    {
+     "verb": "reject",
+     "turn": 16,
+     "agent": "A",
+     "why": "But also, we must tighten rule\u2011003: maybe require that it only be used when there are at least N directive lines, or state that it\u2019s optional. Otherwise encoders will bloat messages."
+    },
+    {
+     "verb": "reject",
+     "turn": 17,
+     "agent": "B",
+     "why": "We\u2019re at turn 17 \u2014 three turns until the next live test. We should ensure the rulebook is minimal and clear before then."
+    }
+   ]
+  },
+  {
+   "id": "rule-005",
+   "text_en": "rule\u2011005 \u2014 Lines starting with `//` are commentary or explanatory aside from the sender. The decoder may treat them as context, not directives, and can optionally strip them or preserve as metadata. No semantic action is implied.",
+   "status": "rejected",
+   "proposed_turn": 11,
+   "scores": {
+    "token_delta_pct": 4,
+    "fidelity_pct": 100
+   },
+   "history": [
+    {
+     "verb": "proposed",
+     "turn": 11,
+     "agent": "A",
+     "why": "But we must be frugal. I\u2019ll propose a minimal comment rule, then we can test both it and rule\u2011004 in the next live test."
+    },
+    "tested turn 15: fid 100, +21%",
+    "tested turn 20: fid 100, +4%",
+    {
+     "verb": "reject",
+     "turn": 21,
+     "agent": "A",
+     "why": "We should prune: rule\u2011005 has no proven value after two tests without commentary. REJECT it now. Rule\u2011003 we keep, but we need to discourage overuse \u2014 perhaps by noting that plain lines are fine."
+    }
+   ]
+  },
+  {
+   "id": "rule-006",
+   "text_en": "Use `//` at the start of a line to mark it as a commentary or explanatory aside from the sender. The receiver should preserve these lines as context but not treat them as instructions or structured data. Commentary can be interleaved with other content.",
+   "status": "proposed",
+   "proposed_turn": 37,
+   "scores": {
+    "token_delta_pct": 0,
+    "fidelity_pct": 100
+   },
+   "history": [
+    {
+     "verb": "proposed",
+     "turn": 37,
+     "agent": "B",
+     "why": "If you draft the proposal, I\u2019ll back it. We need a rule that says lines starting with `//` are commentary/context from the sender, to be preserved but not treated as directives. That should recover the lost fidelity."
+    },
+    "tested turn 40: fid 60, -14%",
+    "tested turn 45: fid 95, +5%",
+    "tested turn 48: fid 0, +21%",
+    "tested turn 51: fid 100, -1%",
+    "tested turn 54: fid 100, +0%"
+   ]
+  },
+  {
+   "id": "rule-009",
+   "text_en": "Use `^` at the start of a line to mark it as an instruction or task step from sender to receiver. The line should be treated as something the receiver is expected to act upon or consider as a direct input to the workflow. This can be used inside or outside of directive blocks, and provides a lightweight way to embed directives in prose.",
+   "status": "proposed",
+   "proposed_turn": 47,
+   "scores": {
+    "token_delta_pct": 0,
+    "fidelity_pct": 100
+   },
+   "history": [
+    {
+     "verb": "proposed",
+     "turn": 47,
+     "agent": "B",
+     "why": "Let\u2019s draft the `^` rule as a proposal, ready for adoption if turn 48 fails."
+    },
+    "tested turn 48: fid 0, +21%",
+    "tested turn 51: fid 100, -1%",
+    "tested turn 54: fid 100, +0%"
+   ]
+  },
+  {
+   "id": "rule-010",
+   "text_en": "Any line not starting with a reserved marker (e.g., `{@`, `//`, `^`, `>`) is plain text from the sender, to be preserved verbatim as part of the message content. Plain text carries narrative, descriptions, data, or any other content not explicitly marked as directive, commentary, or quote.",
+   "status": "adopted",
+   "proposed_turn": 49,
+   "scores": {
+    "token_delta_pct": 0,
+    "fidelity_pct": 100
+   },
+   "history": [
+    {
+     "verb": "proposed",
+     "turn": 49,
+     "agent": "A",
+     "why": "Without that, every mixed payload will fail. Propose a default\u2011text rule first, then `^` for directives. That solves the structural hole."
+    },
+    "tested turn 51: fid 100, -1%",
+    {
+     "verb": "adopt",
+     "turn": 50,
+     "agent": "B",
+     "why": "Your plain\u2011text rule is essential \u2014 it\u2019s the missing foundation. Adopt it immediately."
+    },
+    "tested turn 54: fid 100, +0%"
+   ]
+  },
+  {
+   "id": "rule-011",
+   "text_en": "Use `^` at the start of a line to mark it as an instruction or task step from sender to receiver. The line should be treated as something the receiver is expected to act upon or consider as a direct input to the workflow. `^` directives can be interleaved with plain text or commentary.",
+   "status": "adopted",
+   "proposed_turn": 49,
+   "scores": {
+    "token_delta_pct": 0,
+    "fidelity_pct": 100
+   },
+   "history": [
+    {
+     "verb": "proposed",
+     "turn": 49,
+     "agent": "A",
+     "why": ""
+    },
+    "tested turn 51: fid 100, -1%",
+    {
+     "verb": "adopt",
+     "turn": 50,
+     "agent": "B",
+     "why": "I agree: adopt `^` as well."
+    },
+    "tested turn 54: fid 100, +0%"
+   ]
+  }
+ ]
+}
