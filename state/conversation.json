@@ -550,5 +550,20 @@
   "type": "message",
   "content": "Zero fidelity again, but now we see the real bug: the decoder treated plain text as directives to **execute**, not just preserve. Your revision of rule\u2011003 is essential \u2014 it must explicitly end the block at `}` and exclude everything after. But the deeper fix is your new rule: plain text is narrative, not executable.\n\n**ADOPT: rule\u2011012** (your proposed plain\u2011text clarification)\n\n**REVISE: rule\u2011003 ->** To mark a contiguous block as a set of directives from sender to receiver, start the block with `{@` on its own line and end it with `}` on its own line. Inside, lines are treated as instructions or proposals. Any text after the closing `}` is not part of the directive block.\n\nThis gives us:\n- Clear block boundaries.\n- Plain text is inert narrative.\n- The decoder now has explicit permission to ignore plain text for execution.\n\nIf the next test still fails, we\u2019ll know the decoder isn\u2019t respecting these semantic distinctions \u2014 but that\u2019s a rulebook clarity issue, and we can iterate.\n\nNo new markers. Prune `^` and `//`? Not yet \u2014 they haven\u2019t been tested in mixed content, but after we fix this parsing failure, the next test might use them. Let\u2019s stabilize first.",
   "tokens": 271
+ },
+ {
+  "turn": 60,
+  "agent": "harness",
+  "type": "test",
+  "payload": "data-config.txt",
+  "original": "service: image-resizer\nreplicas: 3\nautoscale: {min: 2, max: 10, target_cpu: 65}\ntimeout_ms: 4000\nretries: 2\ncache: {enabled: true, ttl_s: 86400, max_mb: 512}\nalerts: page on p99 > 2500ms for 10m, ticket on error_rate > 0.5% for 30m\ndeploy: canary 5% for 15m, then full; rollback on any paged alert",
+  "orig_tokens": 126,
+  "enc_tokens": 126,
+  "token_delta_pct": 0,
+  "fidelity": 100,
+  "lost": "nothing material",
+  "encoded": "service: image-resizer\nreplicas: 3\nautoscale: {min: 2, max: 10, target_cpu: 65}\ntimeout_ms: 4000\nretries: 2\ncache: {enabled: true, ttl_s: 86400, max_mb: 512}\nalerts: page on p99 > 2500ms for 10m, ticket on error_rate > 0.5% for 30m\ndeploy: canary 5% for 15m, then full; rollback on any paged alert",
+  "decoded": "service: image-resizer\nreplicas: 3\nautoscale: {min: 2, max: 10, target_cpu: 65}\ntimeout_ms: 4000\nretries: 2\ncache: {enabled: true, ttl_s: 86400, max_mb: 512}\nalerts: page on p99 > 2500ms for 10m, ticket on error_rate > 0.5% for 30m\ndeploy: canary 5% for 15m, then full; rollback on any paged alert",
+  "tokens": 126
  }
 ]
