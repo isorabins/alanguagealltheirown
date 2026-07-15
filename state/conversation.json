@@ -766,5 +766,20 @@
   "type": "measure",
   "text": "** Current adopted rules (003, 010, 011, 012, 015) as they stand in the rulebook, concatenated exactly as they appear.",
   "tokens": 34
+ },
+ {
+  "turn": 78,
+  "agent": "harness",
+  "type": "test",
+  "payload": "data-table.txt",
+  "original": "Q2 status report for your board pack - verify before you compile. Revenue Q1 to Q2: north 412k to 455k, headcount 18, 2 open roles. South 388k to 371k, the only decline - two churned logos in May, not pricing. East 510k to 562k, headcount 22, 5 open roles; east excludes the Delta account, which books under corporate, so don't double-count it. West 295k to 340.1k, headcount 11, 3 open roles. Flag south as at-risk in your summary and keep all figures in USD thousands exactly as given.",
+  "orig_tokens": 140,
+  "enc_tokens": 159,
+  "token_delta_pct": 14,
+  "fidelity": 90,
+  "lost": "South headcount (18) was omitted in decoded; otherwise all facts, figures, and instructions preserved.",
+  "encoded": "{@\n^ Verify Q2 status report before compiling board pack.\n^ Revenue Q1 to Q2 (USD thousands):\n^ North: 412k to 455k. Headcount 18, 2 open roles.\n^ South: 388k to 371k (decline). Headcount not specified. Note: two churned logos in May, not due to pricing.\n^ East: 510k to 562k. Headcount 22, 5 open roles. Exclude Delta account (books under corporate) to avoid double-counting.\n^ West: 295k to 340.1k. Headcount 11, 3 open roles.\n^ Flag South as at-risk in summary.\n^ Keep all figures in USD thousands exactly as given.\n}",
+  "decoded": "{@\n^ Verify Q2 status report before compiling board pack.\n^ Revenue Q1 to Q2 (USD thousands):\n^ North: 412k to 455k. Headcount 18, 2 open roles.\n^ South: 388k to 371k (decline). Headcount not specified. Note: two churned logos in May, not due to pricing.\n^ East: 510k to 562k. Headcount 22, 5 open roles. Exclude Delta account (books under corporate) to avoid double-counting.\n^ West: 295k to 340.1k. Headcount 11, 3 open roles.\n^ Flag South as at-risk in summary.\n^ Keep all figures in USD thousands exactly as given.\n}",
+  "tokens": 159
  }
 ]
