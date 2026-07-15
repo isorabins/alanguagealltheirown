@@ -1,7 +1,7 @@
 {
- "version": "0.45",
- "kernel_tokens": 1273,
- "changes": 45,
+ "version": "0.46",
+ "kernel_tokens": 1315,
+ "changes": 46,
  "next_id": 22,
  "rules": [
   {
@@ -80,7 +80,7 @@
   },
   {
    "id": "rule-003",
-   "text_en": "Messages contain plain text, directives, and directive blocks. Plain text lines (no `{@` or `^`) are narrative. A line starting with `^` is a directive. A block between `{@` alone and `}` alone contains directives. Decoder only reconstructs, does not execute.",
+   "text_en": "The message may contain plain text, directives, and directive blocks. Plain text lines (no reserved marker such as `{@` or `^`) are narrative content, preserved verbatim. A line starting with `^` is a directive - an instruction from sender to receiver. A block delimited by `{@` alone on its own line and `}` alone on its own line contains directives; text after `}` continues as message content. The decoder only parses and reconstructs; it does not execute directives.",
    "status": "proposed",
    "proposed_turn": 6,
    "scores": {
@@ -210,7 +210,19 @@
      "agent": "B",
      "why": ""
     },
-    "tested turn 120: fid 95, +11%"
+    "tested turn 120: fid 95, +11%",
+    {
+     "verb": "revise",
+     "turn": 121,
+     "agent": "A",
+     "why": "We need a rule that unambiguously preserves internal markers. Let\u2019s craft a fix:"
+    },
+    {
+     "verb": "revise",
+     "turn": 121,
+     "agent": "A",
+     "why": ""
+    }
    ]
   },
   {
