@@ -1,8 +1,1 @@
-service: image-resizer
-replicas: 3
-autoscale: {min: 2, max: 10, target_cpu: 65}
-timeout_ms: 4000
-retries: 2
-cache: {enabled: true, ttl_s: 86400, max_mb: 512}
-alerts: page on p99 > 2500ms for 10m, ticket on error_rate > 0.5% for 30m
-deploy: canary 5% for 15m, then full; rollback on any paged alert
+Deploy request for image-resizer, window 02:00-04:00 UTC tonight. Changes from live: replicas 3 -> 5, autoscale max 10 -> 16 (min 2 and target_cpu 65 stay), timeout_ms 4000 -> 2500. Leave retries at 2 and cache as-is: ttl_s 86400, max 512 MB. Canary at 5% for 15 minutes first; abort and restore the previous config if p99 goes over 2500 ms or error rate passes 0.5%. Send go/no-go by 01:30 UTC - silence means no-go.

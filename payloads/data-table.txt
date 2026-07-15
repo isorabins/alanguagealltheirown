@@ -1,6 +1,1 @@
-region,q1_revenue,q2_revenue,headcount,open_roles
-north,412000,455000,18,2
-south,388000,371000,15,0
-east,510000,562000,22,5
-west,295000,340100,11,3
-Note: east figures exclude the Delta account, booked under corporate. South decline attributed to two churned logos in May.
+Q2 status report for your board pack - verify before you compile. Revenue Q1 to Q2: north 412k to 455k, headcount 18, 2 open roles. South 388k to 371k, the only decline - two churned logos in May, not pricing. East 510k to 562k, headcount 22, 5 open roles; east excludes the Delta account, which books under corporate, so don't double-count it. West 295k to 340.1k, headcount 11, 3 open roles. Flag south as at-risk in your summary and keep all figures in USD thousands exactly as given.
