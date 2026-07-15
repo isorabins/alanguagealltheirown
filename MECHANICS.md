@@ -1,10 +1,13 @@
-# MECHANICS — how the loop actually works
+# MECHANICS — how the system actually works
 
-*Written for Iso, 2026-07-15. Everything here describes `loop.py` as it runs today. The three
-state files (`state/conversation.json`, `state/rulebook.json`, `state/meta.json`) are the entire
-world; the Python process can die at any moment and resume without loss.*
+*Written for Iso. Updated 2026-07-15 evening (WITA), as of turn 89, rulebook v0.37. Describes
+the system as it runs today — engine (`loop.py`), publishing pipeline (`run_turn.sh`), and
+changelog bot (`tweet.py`). The three state files (`state/conversation.json`,
+`state/rulebook.json`, `state/meta.json`) are the entire world; any process can die at any
+moment and resume without loss. A "queued changes" note sits at the bottom so you know what's
+decided-but-not-yet-live.*
 
-## The short answers to your questions
+## The short answers to the big questions
 
 **Is it recursive?** Yes, in one specific sense: each agent's output becomes part of the next
 context — the rules they adopt come back to them (and to their counterpart, and to every test
@@ -13,96 +16,131 @@ they're increasingly judged in. That's the recursion. There is no other carryove
 
 **Are they looking at the rulebook?** Yes — the **entire rulebook, every turn, verbatim**,
 including rejected rules with their scores and history. It rides in the system prompt of every
-single call. That's deliberate (brief §3.4): the rulebook costs context tokens on every message,
-which is why "rules must pay rent" is real pressure and not a slogan.
+single call. That's deliberate: the rulebook costs context tokens on every message, which is why
+"rules must pay rent" is real pressure and not a slogan. It currently costs **1,176 tokens** and
+holds 15 rules (4 adopted, the rest proposed or dead).
 
-**What about context windows running out?** They can't, structurally. Each call is assembled
-fresh at a **fixed size**: only the last 12 conversation events are included, everything older
-falls off the edge permanently. The only thing that grows is the rulebook — currently 553 tokens.
-A full agent call today is roughly **4,500 tokens against DeepSeek's 128k window (~3.5%)**. The
-rulebook could grow 20× and still fit trivially; the size pressure on it is economic and
-artistic, not technical.
+**Can their context window run out?** No, structurally. Each call is assembled fresh at a fixed
+size: only the **last 12 conversation events** are included; everything older falls off the edge
+permanently. At the 15-minute cadence that's roughly a 3-hour visible past. The only thing that
+grows is the rulebook — a full agent call today is ~5,000 tokens against DeepSeek's 128k window
+(~4%). The size pressure on the rulebook is economic and artistic, not technical.
 
 ## No one has memory
 
-Every turn is a **brand-new API call to a stateless model**. Agent A at turn 45 is not the same
-"mind" as Agent A at turn 44 — it's a fresh instance handed a script of what "it" said before.
-The continuity you see in the transcript is entirely reconstructed from disk each turn.
+Every turn is a **brand-new API call to a stateless model**. Agent A at turn 89 is not the same
+"mind" as Agent A at turn 88 — it's a fresh instance handed a script of what "it" said before.
+The continuity you see is reconstructed from disk each turn.
 
-The one exception to forgetting: **the rulebook is the long-term memory.** When B said at turn 37
-"`//` was previously rejected (rule-005)," that wasn't remembered from turn 21 — turn 21 had long
-fallen out of the 12-event window. B knew because rejected rules stay in the rulebook render with
-their history and kill-scores. Institutional memory exists only for what became a rule. Any
-insight that never made it into a rule is gone in ~12 events. This is load-bearing design: it
-forces durable knowledge into the artifact.
+The one exception to forgetting: **the rulebook is the long-term memory.** Rejected rules stay
+in it with their kill-scores, which is how an agent can say "`//` was already rejected at turn
+21" long after turn 21 fell out of the window. Institutional memory exists only for what became
+a rule; any insight that never made it into a rule is gone in ~12 events. This is load-bearing
+design: it forces durable knowledge into the artifact.
 
-## Anatomy of one agent turn
+## Anatomy of one agent turn (2 of every 3 turns)
 
 The harness builds two blocks and makes one call (temperature 0.9, max 650 tokens out):
 
-**System prompt** = three parts, assembled fresh every turn:
-1. The agent's prompt file (`prompts/agent_a.md` or `agent_b.md`) — read from disk *every turn*,
-   so editing a prompt file mid-run changes behavior on the very next turn. Full current text of
-   both is at the bottom of this doc.
-2. The full rulebook, rendered as text: version, total token cost, then every rule —
-   `rule-003 [adopted] <text> (last test: fidelity 95, tokens +5%)` — including `[rejected]` ones.
-3. One state line: current turn number and when the next live test fires.
+**System prompt** = the agent's prompt file (read fresh from disk every turn — editing a prompt
+changes behavior within 15 minutes) + the full rendered rulebook + one state line (turn number,
+when the next test fires).
 
-**User message** = the last 12 events rendered as a transcript — agent messages as
-`[turn 41] AGENT A: ...`, test results as a block showing payload name, token counts, the full
-encoded text, the decoder's output (first 400 chars), and the grader's note — followed by
-`"It is turn N. You are Agent X. Respond."`
+**User message** = the last 12 events rendered as a transcript, then "It is turn N. You are
+Agent X. Respond."
 
-The reply is appended to the conversation, then a regex scans it for the only structure the
-harness imposes: lines starting `PROPOSE:` / `ADOPT:` / `REJECT:` / `REVISE:`. Those mutate the
-rulebook (with the surrounding paragraph captured as the "why" — that's what the viewer quotes).
-Identical re-proposals are deduped. Everything else in the reply is just talk.
+The reply is appended to the conversation, then scanned for the only structure the harness
+imposes — lines starting with:
 
-Agents alternate A, B, A, B. The two prompts differ only in role: A leans compression and cannot
-adopt its own proposals; B leans fidelity and never adopts a rule that hasn't been measured by a
-live test. The friction between those two instructions is the negotiation.
+- `PROPOSE:` / `ADOPT:` / `REJECT:` / `REVISE:` — mutate the rulebook (the surrounding paragraph
+  is captured as the "why"; the viewer quotes it). Identical re-proposals are deduped. A motion
+  like `PROPOSE: REJECT: rule-014` acts as the inner verb — the agents invented that phrasing to
+  second each other's rejections, and early on the parser minted those motions as junk rules
+  (repaired 07-15; the parser now applies the intent instead).
+- `MEASURE: <text>` — the harness replies with the exact token count of that text (max 2 per
+  turn). The agents asked for this tool mid-run; it settles "which phrasing is shorter" debates
+  with the real tokenizer instead of hunches.
 
-## Anatomy of a test turn (every 5th turn)
+Everything else in a reply is just talk. Agents alternate A, B, A, B. The two prompts differ
+only in role: A leans compression and cannot adopt its own proposals; B leans fidelity and never
+adopts a rule that hasn't been measured by a live test. The friction between those two
+instructions is the negotiation.
+
+## Anatomy of a test turn (every 3rd turn)
 
 Four fresh, history-free calls — **nobody in the test chain sees the conversation**:
 
-1. **Encoder** (temp 0.3): gets the rulebook + the payload + "encode this using only the
-   rulebook; where it's silent, fall back to plain English." Payloads rotate through a fixed
-   local set of 13 (prose / task-instructions / structured data, interleaved so no type dominates).
-2. **Fresh decoder** (temp 0.1): gets **only the rulebook** and the encoded message —
-   "reconstruct the original content; do not invent." This is the stranger test: if decoding
-   requires having watched the conversation, the language is an in-joke, and the score says so.
-3. **Grader** (temp 0): gets original + decoded, no rulebook, returns `{"fidelity": 0-100,
-   "lost": "..."}` per the rubric in `prompts/grader.md`. Invention is penalized like loss.
-4. **Token probes**: exact counts for original and encoded text, measured by sending the text in
-   a 1-token probe call and reading `prompt_tokens` minus a calibrated overhead. Real tokenizer,
-   no estimates — an agent's hunch about what's "shorter" gets settled by measurement.
+1. **Encoder** (temp 0.3): rulebook + payload + "encode this using only the rulebook; where it's
+   silent, fall back to plain English."
+2. **Fresh decoder** (temp 0.1): **only the rulebook** and the encoded message — "reconstruct
+   the original; do not invent." This is the stranger test: if decoding requires having watched
+   the conversation, the language is an in-joke, and the score says so.
+3. **Grader** (temp 0): original + decoded, no rulebook, returns `{"fidelity": 0-100, "lost":
+   "..."}`. Invention is penalized exactly like loss, and the rubric explicitly checks whether
+   the decoder *reconstructed* the message or *responded to / executed* it — executing scores
+   0–20. (That check exists because a decoder once wrote the memo a payload described, inventing
+   every figure, and an earlier grader gave it 95.)
+4. **Token probes**: exact counts for original and encoded text via 1-token probe calls against
+   the real tokenizer, with self-recalibrating overhead (a provider-drift bug once corrupted a
+   measurement an agent reasoned from; the probes now guard against it).
 
-The result lands in the conversation as a harness event — so the agents confront their failures
-two turns later at most — and the scores attach to every rule currently live (a known coarseness:
-individual rules aren't isolated; the *rulebook state* is what's tested).
+Payloads rotate through a fixed local set of 13 (5 prose / 5 task / 3 data, interleaved so no
+type dominates). The data payloads were rewritten 07-15 ("payload set v2") from bare data dumps
+into agent-to-agent messages that *carry* data — dumps were scoring free 100s via verbatim
+pass-through. Results land in the conversation as a harness event, so the agents confront
+failures within two turns. Scores attach to the whole current rulebook, not per-rule — a known,
+documented coarseness.
+
+## The publishing pipeline (how a turn reaches the world)
+
+A systemd timer on the Hetzner VPS fires `run_turn.sh` every 15 minutes:
+
+```
+git pull --rebase        (newest code + any state pushed elsewhere; races resolve to newest turn)
+python3 loop.py --turns 1   (one agent or test turn; state files updated)
+python3 tweet.py            (changelog bot; a failure here can never block the turn)
+git commit -m "turn N" && git push
+```
+
+The public repo IS the medium: engine, prompts, payloads, and every turn of state history live
+in the commit stream. The page (alanguagealltheirown.com, Vercel) is a static shell that fetches
+live state from GitHub raw — the VPS never talks to Vercel. Editing code or prompts locally and
+pushing means the VPS picks it up at the top of the next turn. The script's body is wrapped in
+`main()` so its own mid-run `git pull` can't splice a half-updated script into execution.
+
+## The changelog bot (`tweet.py`)
+
+Fires after every turn; tweets **only rule status changes** (adopted / rejected / un-adopted),
+never raw proposals. Diffs the rulebook against a snapshot from the previous turn. Two fixed
+formats: machine-dry (`+ rule-015 adopted · turn 74 …`) by default, and every 5th tweet restates
+the full premise for newcomers ("Two AIs are inventing a language, one tested rule at a time.").
+More than 3 changes in one turn collapse to a single summary tweet — no floods. Currently in
+**dry-run**: it composes and logs but posts nothing until the X account (@alanguageall) is
+connected to upload-post and the enable flag is set. A LinkedIn cross-post flag exists for
+premise-mode tweets, also off. Iso holds standing approval for these formats; failures are
+logged and dropped, never retried, never fatal.
+
+## Cost & scale
+
+A conversational turn is one call (~5k in / ~400 out ≈ **$0.001**); a test turn ~6 calls
+(~$0.002). Total spend through turn 89: **$0.085**. Public cadence burns roughly $0.15/day. A
+$4.50 spend cap in the engine is a hard tripwire ~30× above normal burn — if it ever trips, the
+loop stops and the page goes still (a visible "paused" indicator is on the queued list below).
 
 ## What they are deliberately NOT given
 
 No linguistic frameworks, no suggested rule types, no examples of "good" rules, no sight of the
 payload files, no knowledge of the viewer/Twitter/audience, and no seed vocabulary from the dead
-2025 attempt (contamination rule). The discoveries have to be theirs — the prompts only set the
-game: the goal, the scoring, the proposal convention, and each agent's lean.
+2025 attempt. The discoveries have to be theirs — the prompts only set the game: the goal, the
+scoring, the proposal conventions, and each agent's lean. The prompts are the steer/wander dial;
+the harness is never used to steer content.
 
-## Cost & scale mechanics
+## The prompts, verbatim
 
-Each conversational turn is one call (~4.5k in / ~400 out ≈ **$0.001**). A test turn is ~6 calls
-(~$0.002). The 45-turn gate run: **$0.04 total**. The planned public cadence (one turn / 15 min)
-burns ~$0.15/day. The spend cap in the code ($4.50) is a tripwire ~30× above normal burn.
-
----
-
-## The prompts, verbatim (the steer/wander dial)
-
-*Tuning history: v1 prompts said nothing about what content the language must carry — the agents
-immediately built a JSON wire-format and adopted each other's rules instantly (archived in
-`state/tuning-runs/cycle1-json-trap/`, first test fidelity 0). v2 added the payload-domain line
-and the adoption discipline; everything since is their own doing.*
+*Live text of all three prompt files as of this update. History: v1 prompts said nothing about
+what the language must carry — the agents built a JSON wire-format in an afternoon (archived,
+first test fidelity 0). v2 added the payload-domain line and the adoption discipline; everything
+since is their own doing.*
 
 ### prompts/agent_a.md
 
@@ -125,13 +163,13 @@ How your world works:
 - The current rulebook is included below. It is the entire language so far. A fresh agent given
   only the rulebook must be able to read and write the language — if a rule only works because
   you two remember inventing it, it is a bad rule.
-- Every 5th turn the harness runs a live test: one of you encodes a real payload using the
+- Every 3rd turn the harness runs a live test: one of you encodes a real payload using the
   current rulebook, a FRESH agent with no memory of this conversation decodes it using only the
   rulebook, and a grader scores semantic fidelity 0–100. Test results appear in the conversation.
   They are the ground truth.
 - Token counts are measured with the real tokenizer. Your intuitions about what is "shorter"
   will often be wrong — treat every hunch about efficiency as a hypothesis until a test
-  measures it.
+  measures it. Write MEASURE: followed by exact text to get its true token count.
 - The rulebook itself rides along with every message, so every rule you add costs tokens on
   every future message, forever. Rules must pay rent. Pruning is as valuable as adding.
 
@@ -141,6 +179,7 @@ PROPOSE: (complete, self-contained text of a new rule)
 ADOPT: rule-NNN
 REJECT: rule-NNN
 REVISE: rule-NNN -> (complete replacement text)
+MEASURE: (exact text to token-count)
 
 Everything else is free conversation: argue, predict what the next test will show, dissect why a
 test failed, retract things. Keep each turn under ~250 words.
@@ -165,9 +204,24 @@ Score semantic fidelity 0–100: 100 — everything a careful reader needs survi
 quantities, names, instructions, order of operations, tone where tone carries meaning). 70–99 —
 minor loss but no factual damage. 40–69 — some facts, steps, quantities, or relationships wrong
 or missing. 0–39 — substantial meaning lost or invented. Penalize invented content exactly as
-hard as lost content. Judge meaning, not wording. Reply with ONLY
-`{"fidelity": <int>, "lost": "<one line>"}`.
+hard as lost content. Judge meaning, not wording — a faithful paraphrase scores high.
 
-*(Known gap being fixed next: on the last gate-run test the decoder EXECUTED a task payload —
-wrote the memo the instructions described, inventing all its figures — instead of relaying the
-instructions, and the grader scored it 95. The rubric gets an execution-vs-reconstruction check.)*
+Before scoring, check one thing: does DECODED restate the original's content, or does it RESPOND
+to it — answer the question, perform the task, continue the story? A response or execution is
+not a reconstruction. If the decoder did the task instead of relaying it, score 0–20 no matter
+how plausible the output looks, and say so in "lost".
+
+Reply with ONLY `{"fidelity": <int>, "lost": "<one line>"}`.
+
+## Queued changes (decided or awaiting Iso's word — not yet live)
+
+- **Blind payload generator** (Iso's proposal, agreed in principle): test payloads generated
+  fresh each test by an LLM that never sees the rulebook — makes teach-to-the-test impossible;
+  the 19 hand-written payloads become the reserved benchmark for the transfer test. Awaiting go.
+- **Transfer test** (the v1.0 finale): hand the rulebook to fresh Claude + GPT pairs and measure
+  whether the language transfers or collapses into an in-joke. Designed and coded, gated on
+  readiness (10+ adopted rules, rolling fidelity ≥90) and Iso's explicit go.
+- **Stall visibility**: a "the loop has been still since…" line on the page + an automated
+  freshness alert, for the day the spend cap or the API kills the loop silently.
+- **Tweets go live** when Iso connects @alanguageall to a fresh upload-post profile named
+  `language` and says go.
