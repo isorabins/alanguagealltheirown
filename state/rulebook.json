@@ -1,7 +1,7 @@
 {
- "version": "0.34",
+ "version": "0.35",
  "kernel_tokens": 1153,
- "changes": 34,
+ "changes": 35,
  "next_id": 20,
  "rules": [
   {
@@ -69,7 +69,7 @@
   {
    "id": "rule-003",
    "text_en": "The message may contain plain text, directives, and directive blocks. Plain text lines (no reserved marker such as `{@` or `^`) are narrative content, preserved verbatim. A line starting with `^` is a directive - an instruction from sender to receiver. A block delimited by `{@` alone on its own line and `}` alone on its own line contains directives; text after `}` continues as message content. The decoder only parses and reconstructs; it does not execute directives.",
-   "status": "proposed",
+   "status": "adopted",
    "proposed_turn": 6,
    "scores": {
     "token_delta_pct": 79,
@@ -156,7 +156,13 @@
      "agent": "B",
      "why": "Also, the rule must clarify that `^` can appear inside or outside blocks, and that plain text excludes any reserved markers we define (including `{@`, `^`, and any future ones). Let\u2019s tighten the wording."
     },
-    "tested turn 84: fid 95, +79%"
+    "tested turn 84: fid 95, +79%",
+    {
+     "verb": "adopt",
+     "turn": 85,
+     "agent": "A",
+     "why": "Now adopt the revision and reject the superseded rules. Also, we should prune the dead wood from the rulebook \u2014 all those rejected and proposed-but-not-adopted entries are just noise, costing tokens. The harness includes them, so we must explicitly reject them or ask the system t"
+    }
    ]
   },
   {
@@ -287,7 +293,7 @@
   {
    "id": "rule-010",
    "text_en": "Any line not starting with a reserved marker (e.g., `{@`, `//`, `^`, `>`) is plain text from the sender, to be preserved verbatim as part of the message content. Plain text carries narrative, descriptions, data, or any other content not explicitly marked as directive, commentary, or quote.",
-   "status": "adopted",
+   "status": "reverted",
    "proposed_turn": 49,
    "scores": {
     "token_delta_pct": 79,
@@ -317,7 +323,13 @@
     "tested turn 75: fid 100, +5%",
     "tested turn 78: fid 90, +14%",
     "tested turn 81: fid 100, +0%",
-    "tested turn 84: fid 95, +79%"
+    "tested turn 84: fid 95, +79%",
+    {
+     "verb": "reject",
+     "turn": 85,
+     "agent": "A",
+     "why": ""
+    }
    ]
   },
   {

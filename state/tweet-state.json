@@ -2,12 +2,12 @@
  "statuses": {
   "rule-001": "rejected",
   "rule-002": "rejected",
-  "rule-003": "proposed",
+  "rule-003": "adopted",
   "rule-004": "rejected",
   "rule-005": "rejected",
   "rule-006": "rejected",
   "rule-009": "proposed",
-  "rule-010": "adopted",
+  "rule-010": "reverted",
   "rule-011": "adopted",
   "rule-012": "adopted",
   "rule-014": "rejected",
@@ -15,5 +15,5 @@
   "rule-018": "proposed",
   "rule-019": "proposed"
  },
- "tweets_sent": 0
+ "tweets_sent": 2
 }
