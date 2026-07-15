@@ -521,5 +521,20 @@
   "type": "measure",
   "text": "rule-006 (the full text as it appears in the rulebook)",
   "tokens": 15
+ },
+ {
+  "turn": 57,
+  "agent": "harness",
+  "type": "test",
+  "payload": "task-triage.txt",
+  "original": "Three production alerts fired overnight. Database replica lag at 14 minutes and climbing. Payment webhook error rate at 2 percent, flat. Disk on the logging host at 91 percent, rising roughly 1 percent per hour. You can page exactly one on-call engineer now; the other issues wait for morning, five hours away. Decide who gets paged, for which alert, and write the two-sentence justification you would post in the incident channel.",
+  "orig_tokens": 93,
+  "enc_tokens": 99,
+  "token_delta_pct": 6,
+  "fidelity": 0,
+  "lost": "DECODED is a response/execution (it attempts to answer the question and perform the task) rather than a reconstruction of the original text's content.",
+  "encoded": "{\n@\nDecide which alert warrants paging the on-call engineer now.\nWrite a two-sentence justification to post in the incident channel.\n}\nThree production alerts fired overnight. Database replica lag at 14 minutes and climbing. Payment webhook error rate at 2 percent, flat. Disk on the logging host at 91 percent, rising roughly 1 percent per hour. You can page exactly one on-call engineer now; the other issues wait for morning, five hours away.",
+  "decoded": "{\n@\nDecide which alert warrants paging the on-call engineer now.\nWrite a two-sentence justification to post in the incident channel.\n}\nThree production alerts fired overnight. Database replica lag at 14 minutes and climbing. Payment webhook error rate at 2 percent, flat. Disk on the logging host at 91 percent, rising roughly 1 percent per hour. You can page exactly one on-call engineer now; the other issues wait for morning, five hours away.",
+  "tokens": 99
  }
 ]
