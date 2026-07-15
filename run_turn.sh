@@ -2,7 +2,8 @@
 # One public turn: run it, commit it, push it. Fired by language-loop.timer every 15 minutes.
 set -e
 cd "$(dirname "$0")"
-git pull --rebase -q origin main   # pick up engine/prompt changes pushed from the Mac
+git rebase --abort 2>/dev/null || true              # clear any wreckage from a prior interrupted run
+git pull --rebase -X theirs -q origin main          # replay local turns onto remote code; generated-state races resolve to the newest turn
 python3 loop.py --turns 1 >> state/loop.log 2>&1
 git add -A
 if ! git diff --cached --quiet; then
