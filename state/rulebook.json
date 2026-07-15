@@ -1,7 +1,7 @@
 {
- "version": "0.35",
+ "version": "0.36",
  "kernel_tokens": 1153,
- "changes": 35,
+ "changes": 36,
  "next_id": 20,
  "rules": [
   {
@@ -162,6 +162,12 @@
      "turn": 85,
      "agent": "A",
      "why": "Now adopt the revision and reject the superseded rules. Also, we should prune the dead wood from the rulebook \u2014 all those rejected and proposed-but-not-adopted entries are just noise, costing tokens. The harness includes them, so we must explicitly reject them or ask the system t"
+    },
+    {
+     "verb": "adopt",
+     "turn": 86,
+     "agent": "B",
+     "why": ""
     }
    ]
   },
@@ -293,7 +299,7 @@
   {
    "id": "rule-010",
    "text_en": "Any line not starting with a reserved marker (e.g., `{@`, `//`, `^`, `>`) is plain text from the sender, to be preserved verbatim as part of the message content. Plain text carries narrative, descriptions, data, or any other content not explicitly marked as directive, commentary, or quote.",
-   "status": "reverted",
+   "status": "rejected",
    "proposed_turn": 49,
    "scores": {
     "token_delta_pct": 79,
@@ -328,6 +334,12 @@
      "verb": "reject",
      "turn": 85,
      "agent": "A",
+     "why": ""
+    },
+    {
+     "verb": "reject",
+     "turn": 86,
+     "agent": "B",
      "why": ""
     }
    ]

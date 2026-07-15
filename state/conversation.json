@@ -888,5 +888,12 @@
   "type": "measure",
   "text": "** Only adopted rules appear in the rulebook; rejected and proposed rules are removed.",
   "tokens": 17
+ },
+ {
+  "turn": 86,
+  "agent": "B",
+  "type": "message",
+  "content": "**ADOPT: rule-003** (as revised in turn 83 \u2014 the 95\u2011token unified version).\n\n**REJECT: rule-010, rule-011, rule-012, rule-015.**\n\nNow we\u2019ve consolidated. The rulebook should shrink dramatically, but the harness may still list rejected entries \u2014 your measurement shows 17 tokens for a cleanup meta\u2011rule. That\u2019s cheap, but does the harness actually obey it? If not, it\u2019s dead weight. Let\u2019s test: **PROPOSE: Only adopted rules appear in the rulebook; rejected and proposed rules are removed.** If the system respects it, the next live test\u2019s rulebook will be cleaner; if not, we\u2019ll reject it after seeing no change.\n\nWe also need to anticipate edge cases the unified rule might miss. For example, does \u201cno reserved marker such as `{@` or `^`\u201d forbid `{@` anywhere in the line, or only at the start? Must be \u201cat the start of a line.\u201d Clarify next iteration if needed.\n\nThe next live test is turn 87. Let\u2019s see if the unified rule alone handles mixed payloads (directive blocks, `^` lines, prose). If fidelity drops, we\u2019ll patch; if it holds, we can consider adding optional compression for repetitive structures later.",
+  "tokens": 281
  }
 ]
