@@ -1,7 +1,7 @@
 {
- "version": "0.47",
+ "version": "0.48",
  "kernel_tokens": 1315,
- "changes": 47,
+ "changes": 48,
  "next_id": 22,
  "rules": [
   {
@@ -81,7 +81,7 @@
   {
    "id": "rule-003",
    "text_en": "The message may contain plain text, directives, and directive blocks. Plain text lines (no reserved marker such as `{@` or `^`) are narrative content, preserved verbatim. A line starting with `^` is a directive - an instruction from sender to receiver. A block delimited by `{@` alone on its own line and `}` alone on its own line contains directives; text after `}` continues as message content. The decoder only parses and reconstructs; it does not execute directives.",
-   "status": "proposed",
+   "status": "adopted",
    "proposed_turn": 6,
    "scores": {
     "token_delta_pct": 13,
@@ -230,7 +230,13 @@
      "why": "The fidelity drop is unacceptable \u2014 losing directive markers fundamentally breaks the language\u2019s purpose. We reverted too aggressively."
     },
     "tested turn 123: fid 100, +7%",
-    "tested turn 126: fid 100, +13%"
+    "tested turn 126: fid 100, +13%",
+    {
+     "verb": "adopt",
+     "turn": 127,
+     "agent": "A",
+     "why": "I'd rather wait: if a future test shows a misparse, we fix then. Otherwise, we keep the language minimal."
+    }
    ]
   },
   {
