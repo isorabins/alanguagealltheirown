@@ -72,7 +72,7 @@
    "status": "proposed",
    "proposed_turn": 6,
    "scores": {
-    "token_delta_pct": 3,
+    "token_delta_pct": 5,
     "fidelity_pct": 100
    },
    "history": [
@@ -119,7 +119,8 @@
      "why": ""
     },
     "tested turn 60: fid 100, +0%",
-    "tested turn 63: fid 100, +3%"
+    "tested turn 63: fid 100, +3%",
+    "tested turn 66: fid 100, +5%"
    ]
   },
   {
@@ -186,7 +187,7 @@
    "status": "proposed",
    "proposed_turn": 37,
    "scores": {
-    "token_delta_pct": 3,
+    "token_delta_pct": 5,
     "fidelity_pct": 100
    },
    "history": [
@@ -203,7 +204,8 @@
     "tested turn 54: fid 100, +0%",
     "tested turn 57: fid 0, +6%",
     "tested turn 60: fid 100, +0%",
-    "tested turn 63: fid 100, +3%"
+    "tested turn 63: fid 100, +3%",
+    "tested turn 66: fid 100, +5%"
    ]
   },
   {
@@ -212,7 +214,7 @@
    "status": "proposed",
    "proposed_turn": 47,
    "scores": {
-    "token_delta_pct": 3,
+    "token_delta_pct": 5,
     "fidelity_pct": 100
    },
    "history": [
@@ -227,7 +229,8 @@
     "tested turn 54: fid 100, +0%",
     "tested turn 57: fid 0, +6%",
     "tested turn 60: fid 100, +0%",
-    "tested turn 63: fid 100, +3%"
+    "tested turn 63: fid 100, +3%",
+    "tested turn 66: fid 100, +5%"
    ]
   },
   {
@@ -236,7 +239,7 @@
    "status": "adopted",
    "proposed_turn": 49,
    "scores": {
-    "token_delta_pct": 3,
+    "token_delta_pct": 5,
     "fidelity_pct": 100
    },
    "history": [
@@ -256,7 +259,8 @@
     "tested turn 54: fid 100, +0%",
     "tested turn 57: fid 0, +6%",
     "tested turn 60: fid 100, +0%",
-    "tested turn 63: fid 100, +3%"
+    "tested turn 63: fid 100, +3%",
+    "tested turn 66: fid 100, +5%"
    ]
   },
   {
@@ -265,7 +269,7 @@
    "status": "adopted",
    "proposed_turn": 49,
    "scores": {
-    "token_delta_pct": 3,
+    "token_delta_pct": 5,
     "fidelity_pct": 100
    },
    "history": [
@@ -285,7 +289,8 @@
     "tested turn 54: fid 100, +0%",
     "tested turn 57: fid 0, +6%",
     "tested turn 60: fid 100, +0%",
-    "tested turn 63: fid 100, +3%"
+    "tested turn 63: fid 100, +3%",
+    "tested turn 66: fid 100, +5%"
    ]
   },
   {
@@ -294,7 +299,7 @@
    "status": "adopted",
    "proposed_turn": 58,
    "scores": {
-    "token_delta_pct": 3,
+    "token_delta_pct": 5,
     "fidelity_pct": 100
    },
    "history": [
@@ -311,7 +316,8 @@
      "why": "Zero fidelity again, but now we see the real bug: the decoder treated plain text as directives to **execute**, not just preserve. Your revision of rule\u2011003 is essential \u2014 it must explicitly end the block at `}` and exclude everything after. But the deeper fix is your new rule: pl"
     },
     "tested turn 60: fid 100, +0%",
-    "tested turn 63: fid 100, +3%"
+    "tested turn 63: fid 100, +3%",
+    "tested turn 66: fid 100, +5%"
    ]
   },
   {
@@ -319,7 +325,10 @@
    "text_en": "REJECT: rule-006",
    "status": "adopted",
    "proposed_turn": 64,
-   "scores": null,
+   "scores": {
+    "token_delta_pct": 5,
+    "fidelity_pct": 100
+   },
    "history": [
     {
      "verb": "proposed",
@@ -332,7 +341,8 @@
      "turn": 65,
      "agent": "B",
      "why": "We have evidence `^` was used, so we keep it for now. But rule\u2011006 (`//`) has been absent for four consecutive tests\u2014strong disuse."
-    }
+    },
+    "tested turn 66: fid 100, +5%"
    ]
   }
  ]

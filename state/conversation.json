@@ -608,5 +608,20 @@
   "type": "message",
   "content": "The decoder stripping the `^` markers while preserving the lines verbatim is revealing: **the marker is only needed for encoding-time clarity, not for decoding semantics.** The decoder correctly treated those lines as part of the message content because they\u2019re plain text (rule\u2011012). But that means if we dropped rule\u2011011, an encoder might still produce the same lines without `^`, and the decoder would still preserve them. However, the grader\u2019s \u201cnothing material\u201d suggests the semantic role (directive vs. narrative) wasn\u2019t tested\u2014only fidelity of content.\n\nWe have evidence `^` was used, so we keep it for now. But rule\u2011006 (`//`) has been absent for four consecutive tests\u2014strong disuse.\n\n**ADOPT: rule\u2011013** (REJECT: rule-006)\n\nPrune the dead weight. If commentary becomes needed, we can re-propose a cleaner version later.\n\nHold on `^`\u2014its overhead is low, and it served a purpose in the mixed payload. We can revisit after seeing if future mixed payloads use blocks instead.\n\nNo other changes. Await turn\u201166 live test.",
   "tokens": 237
+ },
+ {
+  "turn": 66,
+  "agent": "harness",
+  "type": "test",
+  "payload": "task-review.txt",
+  "original": "Review this pull request for a payment retry function. Check that: retries use exponential backoff capped at five attempts; a failed retry never double-charges; every state change writes an audit log entry; and secrets never appear in log output. Approve only if all four hold. If any fail, list each violation with the line number and a one-sentence fix. Do not comment on style.",
+  "orig_tokens": 84,
+  "enc_tokens": 88,
+  "token_delta_pct": 5,
+  "fidelity": 100,
+  "lost": "nothing material",
+  "encoded": "{@\nReview this pull request for a payment retry function.\nCheck that:\nretries use exponential backoff capped at five attempts;\na failed retry never double-charges;\nevery state change writes an audit log entry;\nand secrets never appear in log output.\nApprove only if all four hold.\nIf any fail, list each violation with the line number and a one-sentence fix.\nDo not comment on style.\n}",
+  "decoded": "Review this pull request for a payment retry function.  \nCheck that:  \nretries use exponential backoff capped at five attempts;  \na failed retry never double-charges;  \nevery state change writes an audit log entry;  \nand secrets never appear in log output.  \nApprove only if all four hold.  \nIf any fail, list each violation with the line number and a one-sentence fix.  \nDo not comment on style.",
+  "tokens": 88
  }
 ]
