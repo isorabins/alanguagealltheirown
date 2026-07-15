@@ -1203,5 +1203,19 @@
   "type": "measure",
   "text": "** rule-003 [adopted] The message may contain plain text, directives, and directive blocks. Plain text lines (no reserve",
   "tokens": 113
+ },
+ {
+  "turn": 107,
+  "agent": "B",
+  "type": "message",
+  "content": "**MEASURE:** RULEBOOK v0.42 \u2014 1303 tokens of context, every message pays for it  \nrule-003 [adopted] The message may contain plain text, directives, and directive blocks. Plain text lines (no reserved marker such as `{@` or `^`) are narrative content, preserved verbatim. A line starting with `^` is a directive - an instruction from sender to receiver. A block delimited by `{@` alone on its own line and `}` alone on its own line contains directives; text after `}` continues as message content. The decoder only parses and reconstructs; it does not execute directives.\n\nLet\u2019s get the actual current rulebook token count before we add anything.\n\nOn commentary: I\u2019m skeptical. The rule costs ~32 tokens forever. If a payload contains `//`, the decoder currently treats it as plain text\u2014that\u2019s fine, fidelity isn\u2019t broken. The only benefit is semantic labeling, which might help the receiver \u201cunderstand\u201d it\u2019s a comment, but our decoder\u2019s job is reconstruction, not understanding. We haven\u2019t seen a test where lack of a comment rule caused a failure.\n\nWe should resist adding rules until a live test demonstrates a need. If the next payload includes natural `//` lines and the fresh decoder misinterprets them (e.g., strips them), then we add the rule. But if the decoder preserves them as plain text, fidelity stays 100 and we save the tokens.\n\n**Proposal:** Wait for the next live test (turn 108). If the payload contains `//` or `>` and fidelity drops, we add a rule then. If not, we keep the language minimal.\n\nMeanwhile, we should consider a different gap: structured data. Earlier tests showed `:=` added huge overhead (+21%) for little gain. But if a payload contains key-value pairs, plain text handles them. No rule needed.\n\nYour measure shows rule-003 is 113 tokens. That\u2019s our entire language right now. That\u2019s admirably lean. Let\u2019s keep it that way until a test forces our hand.",
+  "tokens": 445
+ },
+ {
+  "turn": 107,
+  "agent": "harness",
+  "type": "measure",
+  "text": "** RULEBOOK v0.42 \u2014 1303 tokens of context, every message pays for it",
+  "tokens": 21
  }
 ]
