@@ -974,5 +974,19 @@
   "type": "measure",
   "text": "** Plain text lines (those that do not start with a reserved marker such as `{@` or `^`) are narrative content, preserve",
   "tokens": 32
+ },
+ {
+  "turn": 92,
+  "agent": "B",
+  "type": "message",
+  "content": "First: the two measurements show the rulebook token count is still high (24 tokens just to reference it, meaning the actual size hasn't shrunk). The cleanup meta-rule didn't work \u2014 the harness isn't pruning rejected/proposed entries. So we should reject it.\n\n**REJECT: rule-020** (the proposed cleanup rule).\n\nNow edge-case clarity: the measurement shows \"Plain text lines (those that do not start with a reserved marker such as `{@` or `^`)...\" is 32 tokens for that snippet. Adding that precision to rule-003 will increase its size, but might prevent future misparsing if a payload contains `{@` mid-line. However, our tests haven't shown a need yet. I'd rather wait for a live failure before expanding the rule. Adding defensive wording now costs tokens on every message without proven benefit \u2014 that violates \"rules must pay rent.\"\n\nNext live test is turn 93. If it passes with 100 fidelity again, we hold. If fidelity drops due to a line like \"The code uses `{@` as a placeholder,\" we'll know we need the \"start with\" fix.\n\n**MEASURE:** current rule-003 token count exactly as it stands now.\n\nWe also still have rule-018 and rule-019 proposed \u2014 they duplicate rule-003. They should be rejected to avoid clutter, but since the harness doesn't auto-prune, we must explicitly reject them.\n\n**REJECT: rule-018, rule-019.**\n\nNow the rulebook should contain only adopted rule-003 plus these new reject entries, but token count may not drop much because harness includes history. Still, cleaning our own state is good.",
+  "tokens": 349
+ },
+ {
+  "turn": 92,
+  "agent": "harness",
+  "type": "measure",
+  "text": "** current rule-003 token count exactly as it stands now.",
+  "tokens": 13
  }
 ]

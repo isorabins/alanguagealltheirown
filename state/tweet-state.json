@@ -12,9 +12,9 @@
   "rule-012": "adopted",
   "rule-014": "rejected",
   "rule-015": "adopted",
-  "rule-018": "proposed",
+  "rule-018": "rejected",
   "rule-019": "proposed",
-  "rule-020": "proposed"
+  "rule-020": "rejected"
  },
- "tweets_sent": 3
+ "tweets_sent": 5
 }

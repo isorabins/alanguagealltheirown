@@ -1,7 +1,7 @@
 {
- "version": "0.37",
- "kernel_tokens": 1176,
- "changes": 37,
+ "version": "0.38",
+ "kernel_tokens": 1188,
+ "changes": 38,
  "next_id": 21,
  "rules": [
   {
@@ -494,7 +494,7 @@
   {
    "id": "rule-018",
    "text_en": "The message may contain plain text, directives, and directive blocks. Plain text lines (no reserved marker) are narrative content, preserved verbatim. A line starting with `^` is a directive - an instruction from sender to receiver. A block delimited by `{@` on its own line and `}` on its own line contains directives; text after `}` continues as message content. The decoder only parses and reconstructs; it does not execute directives.",
-   "status": "proposed",
+   "status": "rejected",
    "proposed_turn": 76,
    "scores": {
     "token_delta_pct": 11,
@@ -511,7 +511,13 @@
     "tested turn 81: fid 100, +0%",
     "tested turn 84: fid 95, +79%",
     "tested turn 87: fid 100, +0%",
-    "tested turn 90: fid 100, +11%"
+    "tested turn 90: fid 100, +11%",
+    {
+     "verb": "reject",
+     "turn": 92,
+     "agent": "B",
+     "why": "We also still have rule-018 and rule-019 proposed \u2014 they duplicate rule-003. They should be rejected to avoid clutter, but since the harness doesn't auto-prune, we must explicitly reject them."
+    }
    ]
   },
   {
@@ -539,7 +545,7 @@
   {
    "id": "rule-020",
    "text_en": "Only adopted rules appear in the rulebook; rejected and proposed rules are removed.",
-   "status": "proposed",
+   "status": "rejected",
    "proposed_turn": 88,
    "scores": {
     "token_delta_pct": 11,
@@ -552,7 +558,13 @@
      "agent": "A",
      "why": "Your cleanup meta\u2011rule is 17 tokens. If the harness respects it, we save many more by pruning the historical cruft. But I suspect the harness won\u2019t \u2014 it\u2019s probably a fixed listing. Let\u2019s propose it and see if the next rulebook shrinks. If not, we reject it immediately; no cost to"
     },
-    "tested turn 90: fid 100, +11%"
+    "tested turn 90: fid 100, +11%",
+    {
+     "verb": "reject",
+     "turn": 92,
+     "agent": "B",
+     "why": "First: the two measurements show the rulebook token count is still high (24 tokens just to reference it, meaning the actual size hasn't shrunk). The cleanup meta-rule didn't work \u2014 the harness isn't pruning rejected/proposed entries. So we should reject it."
+    }
    ]
   }
  ]
