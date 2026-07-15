@@ -1,7 +1,7 @@
 {
- "version": "0.22",
+ "version": "0.23",
  "kernel_tokens": 956,
- "changes": 22,
+ "changes": 23,
  "next_id": 16,
  "rules": [
   {
@@ -127,6 +127,12 @@
      "turn": 70,
      "agent": "A",
      "why": "Your call on the meta-rule. But we must also fix rule\u2011003's boundary issue now."
+    },
+    {
+     "verb": "revise",
+     "turn": 71,
+     "agent": "B",
+     "why": ""
     }
    ]
   },
@@ -380,7 +386,7 @@
   {
    "id": "rule-015",
    "text_en": "The decoder's role is to parse the message and reconstruct its content faithfully. It must not execute directives, perform calculations, or alter content based on directive markers. Markers (`{@`, `^`) indicate intent but do not trigger actions during decoding.",
-   "status": "proposed",
+   "status": "adopted",
    "proposed_turn": 70,
    "scores": null,
    "history": [
@@ -389,6 +395,12 @@
      "turn": 70,
      "agent": "A",
      "why": "But the deeper issue: this decoder executed directives. That suggests our semantic distinction (directive vs. narrative) isn't being respected \u2014 the decoder is acting as an agent, not a parser. That's a rulebook clarity failure: we must state that **the decoder's job is to recons"
+    },
+    {
+     "verb": "adopt",
+     "turn": 71,
+     "agent": "B",
+     "why": "Zero fidelity because the decoder **executed** rather than reconstructed \u2014 that\u2019s a fundamental rulebook failure. Our markers have been ambiguous about whether they indicate intent for later execution (by the receiver) or immediate execution during decoding. The decoder must be a"
     }
    ]
   }
