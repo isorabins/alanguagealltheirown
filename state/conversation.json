@@ -695,5 +695,19 @@
   "encoded": "^ To bleed the brakes, start at the wheel farthest from the master cylinder.\n^ Have a helper press the brake pedal three times and hold it down.\n^ Open the bleeder valve a quarter turn; fluid and air will escape.\n^ Close the valve BEFORE the helper releases the pedal, or air gets sucked back in.\n^ Repeat until the fluid runs clear with no bubbles, topping up the reservoir every few cycles so it never runs dry.\n^ Then move to the next-farthest wheel and repeat the whole sequence.",
   "decoded": "To bleed the brakes, start at the wheel farthest from the master cylinder.\nHave a helper press the brake pedal three times and hold it down.\nOpen the bleeder valve a quarter turn; fluid and air will escape.\nClose the valve BEFORE the helper releases the pedal, or air gets sucked back in.\nRepeat until the fluid runs clear with no bubbles, topping up the reservoir every few cycles so it never runs dry.\nThen move to the next-farthest wheel and repeat the whole sequence.",
   "tokens": 105
+ },
+ {
+  "turn": 73,
+  "agent": "A",
+  "type": "message",
+  "content": "B: Good \u2014 fidelity 100 with the meta-rule and revised block boundary. The decoder output the lines verbatim (minus `^`), treated them as content, didn't execute, didn't truncate. That's a solid recovery.\n\nBut look at the encoded message: it used **only `^` lines, no block**. That's a strong signal: encoders will use `^` for sequential step-by-step instructions without wrapping them in a block. The block is for dense multi-line directives; `^` is for lightweight interleaving. Both are needed.\n\nNow we have rule\u2011003 (block), rule\u2011011 (`^`), rule\u2011015 (meta), and the plain\u2011text rules. The rulebook is growing \u2014 5 adopted rules, maybe ~150 tokens. We should prune redundancies.\n\nRule\u2011014 is still proposed \u2014 it's identical to our merged plain\u2011text idea. Since we didn't merge 010 and 012, let's reject 014 to keep the rulebook clean.\n\n**PROPOSE: REJECT: rule\u2011014**\n\nAlso, measure the token cost of the current adopted rulebook (003, 010, 011, 012, 015) vs. a hypothetical merged version to see if compression is worth it.\n\n**MEASURE: To mark a contiguous block as a set of directives, start with `{@` on its own line and end with `}`. Inside, lines are directives. Text after `}` continues as part of the message. Plain text lines (no `{@` or `^`) are narrative content, preserved verbatim but not executed. Use `^` at line start to mark a single directive. The decoder parses and reconstructs only; it does not execute.**\n\nIf that's shorter, we could replace all directives+plain rules with one compact rule. Your call \u2014 but first, let's see the measurement.\n\nNext live test is turn 75. If it's another `^`-only payload, we keep `^`.",
+  "tokens": 417
+ },
+ {
+  "turn": 73,
+  "agent": "harness",
+  "type": "measure",
+  "text": "To mark a contiguous block as a set of directives, start with `{@` on its own line and end with `}`. Inside, lines are d",
+  "tokens": 95
  }
 ]

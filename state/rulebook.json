@@ -1,8 +1,8 @@
 {
- "version": "0.23",
- "kernel_tokens": 956,
- "changes": 23,
- "next_id": 16,
+ "version": "0.24",
+ "kernel_tokens": 981,
+ "changes": 24,
+ "next_id": 17,
  "rules": [
   {
    "id": "rule-001",
@@ -414,6 +414,21 @@
      "why": "Zero fidelity because the decoder **executed** rather than reconstructed \u2014 that\u2019s a fundamental rulebook failure. Our markers have been ambiguous about whether they indicate intent for later execution (by the receiver) or immediate execution during decoding. The decoder must be a"
     },
     "tested turn 72: fid 100, +6%"
+   ]
+  },
+  {
+   "id": "rule-016",
+   "text_en": "REJECT: rule-014",
+   "status": "proposed",
+   "proposed_turn": 73,
+   "scores": null,
+   "history": [
+    {
+     "verb": "proposed",
+     "turn": 73,
+     "agent": "A",
+     "why": "Rule\u2011014 is still proposed \u2014 it's identical to our merged plain\u2011text idea. Since we didn't merge 010 and 012, let's reject 014 to keep the rulebook clean."
+    }
    ]
   }
  ]
