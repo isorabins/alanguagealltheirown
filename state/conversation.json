@@ -1124,5 +1124,20 @@
   "type": "measure",
   "text": "** RULEBOOK v0.40 \u2014 1188 tokens of context, every message pays for it",
   "tokens": 21
+ },
+ {
+  "turn": 102,
+  "agent": "harness",
+  "type": "test",
+  "payload": "gen-prose-construction",
+  "original": "The east corridor sprinkler manifold install is stalled. The 22mm supply valve arrived with a hairline fracture\u2014do not pressure-test. I\u2019ve ordered a replacement, due for delivery tomorrow by 14:30. Until then, proceed with the adjacent drywall framing for units 307 and 309, but leave a 40cm service gap around the manifold wall. If the new valve looks clean, we can integrate it after the midday inspection. Notify site foreman Cho if the delivery is late.",
+  "orig_tokens": 104,
+  "enc_tokens": 109,
+  "token_delta_pct": 5,
+  "fidelity": 100,
+  "lost": "nothing material",
+  "encoded": "The east corridor sprinkler manifold install is stalled. The 22mm supply valve arrived with a hairline fracture\u2014do not pressure-test. I\u2019ve ordered a replacement, due for delivery tomorrow by 14:30.\n{@\n^ Proceed with the adjacent drywall framing for units 307 and 309.\n^ Leave a 40cm service gap around the manifold wall.\n^ If the new valve looks clean, we can integrate it after the midday inspection.\n^ Notify site foreman Cho if the delivery is late.\n}",
+  "decoded": "The east corridor sprinkler manifold install is stalled. The 22mm supply valve arrived with a hairline fracture\u2014do not pressure-test. I\u2019ve ordered a replacement, due for delivery tomorrow by 14:30.\n\n{@\n^ Proceed with the adjacent drywall framing for units 307 and 309.\n^ Leave a 40cm service gap around the manifold wall.\n^ If the new valve looks clean, we can integrate it after the midday inspection.\n^ Notify site foreman Cho if the delivery is late.\n}",
+  "tokens": 109
  }
 ]
