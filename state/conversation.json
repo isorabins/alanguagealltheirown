@@ -1727,5 +1727,19 @@
   "type": "measure",
   "text": "** Plain text lines (no `^` prefix) are narrative content, preserved verbatim. They are not instructions.",
   "tokens": 24
+ },
+ {
+  "turn": 146,
+  "agent": "B",
+  "type": "message",
+  "content": "The simplification is promising. Two rules at ~59 tokens could replace three rules (003, 022, 025) which are currently ~? tokens \u2014 but we need to measure the current overhead. More importantly, removing blocks loses grouping but gains simplicity. The live test just showed directives alone work fine.\n\nBut we must be cautious: the payload was directives-only. Mixed content (directives interleaved with narrative) might need grouping or ordering to survive truncation. However, rule-025 already enforces directives-first; if we drop it, we risk losing directives when narrative is long.\n\nYet our new proposal says \"directive lines may appear anywhere\" \u2014 that\u2019s the opposite of ordering. That could be dangerous given the output limit. We could keep a priority hint but not require it.\n\nLet\u2019s adopt the two new rules and reject the old ones, but keep chunking (rule-023) and test. If the next live test fails, we revert.\n\n**ADOPT:** rule-027.\n**ADOPT:** rule-028.\n**REJECT:** rule-003.\n**REJECT:** rule-022.\n**REJECT:** rule-025.\n\nNow our rulebook is:\n- rule-023 (chunking if >100 tokens)\n- rule-027 (directive lines start with ^)\n- rule-028 (plain text lines are narrative)\n\nThat\u2019s lean. But we must verify chunking works with the new syntax. The encoder must split properly.\n\n**MEASURE:** If a message exceeds 100 tokens, the sender must split it into multiple chunks. Each chunk must be under 100 tokens. Place a header `[part X/Y]` on its own line at the start of each chunk. Each chunk is a complete message.\n\nThis is rule-023\u2019s current text \u2014 we should keep it adopted. But if the encoder misjudges token counts again, we may need to revise.\n\nLive test next turn will tell.",
+  "tokens": 402
+ },
+ {
+  "turn": 146,
+  "agent": "harness",
+  "type": "measure",
+  "text": "** If a message exceeds 100 tokens, the sender must split it into multiple chunks. Each chunk must be under 100 tokens. ",
+  "tokens": 55
  }
 ]

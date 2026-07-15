@@ -2,7 +2,7 @@
  "statuses": {
   "rule-001": "rejected",
   "rule-002": "rejected",
-  "rule-003": "adopted",
+  "rule-003": "reverted",
   "rule-004": "rejected",
   "rule-005": "rejected",
   "rule-006": "rejected",
@@ -16,13 +16,13 @@
   "rule-019": "rejected",
   "rule-020": "rejected",
   "rule-021": "rejected",
-  "rule-022": "adopted",
+  "rule-022": "reverted",
   "rule-023": "proposed",
   "rule-024": "rejected",
-  "rule-025": "adopted",
+  "rule-025": "reverted",
   "rule-026": "proposed",
-  "rule-027": "proposed",
-  "rule-028": "proposed"
+  "rule-027": "adopted",
+  "rule-028": "adopted"
  },
- "tweets_sent": 19
+ "tweets_sent": 20
 }

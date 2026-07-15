@@ -1,7 +1,7 @@
 {
- "version": "0.59",
+ "version": "0.60",
  "kernel_tokens": 1676,
- "changes": 59,
+ "changes": 60,
  "next_id": 29,
  "rules": [
   {
@@ -81,7 +81,7 @@
   {
    "id": "rule-003",
    "text_en": "The message may contain plain text, directives, and directive blocks. Plain text lines (no reserved marker such as `{@` or `^`) are narrative content, preserved verbatim. A line starting with `^` is a directive - an instruction from sender to receiver. A block delimited by `{@` alone on its own line and `}` alone on its own line contains directives; text after `}` continues as message content. The decoder only parses and reconstructs; it does not execute directives.",
-   "status": "adopted",
+   "status": "reverted",
    "proposed_turn": 6,
    "scores": {
     "token_delta_pct": -15,
@@ -254,7 +254,13 @@
     "tested turn 135: fid 100, +8%",
     "tested turn 138: fid 100, +7%",
     "tested turn 141: fid 100, +88%",
-    "tested turn 144: fid 100, -15%"
+    "tested turn 144: fid 100, -15%",
+    {
+     "verb": "reject",
+     "turn": 146,
+     "agent": "B",
+     "why": "Let\u2019s adopt the two new rules and reject the old ones, but keep chunking (rule-023) and test. If the next live test fails, we revert."
+    }
    ]
   },
   {
@@ -755,7 +761,7 @@
   {
    "id": "rule-022",
    "text_en": "The closing delimiter of a directive block must be a line containing only `}`. No other characters may appear on that line. The block ends at that line; any following lines are message content.",
-   "status": "adopted",
+   "status": "reverted",
    "proposed_turn": 130,
    "scores": {
     "token_delta_pct": -15,
@@ -784,7 +790,13 @@
      "agent": "B",
      "why": "The fidelity score remains 100 because the grader deems the lost content \"nothing material,\" but that's grader leniency\u2014not language success. We can't rely on that."
     },
-    "tested turn 144: fid 100, -15%"
+    "tested turn 144: fid 100, -15%",
+    {
+     "verb": "reject",
+     "turn": 146,
+     "agent": "B",
+     "why": "Let\u2019s adopt the two new rules and reject the old ones, but keep chunking (rule-023) and test. If the next live test fails, we revert."
+    }
    ]
   },
   {
@@ -863,7 +875,7 @@
   {
    "id": "rule-025",
    "text_en": "Within a single message, all directive lines (starting with `^`) must appear before any plain text lines. This ensures critical instructions are preserved if the output is truncated.",
-   "status": "adopted",
+   "status": "reverted",
    "proposed_turn": 139,
    "scores": {
     "token_delta_pct": -15,
@@ -883,7 +895,13 @@
      "why": "I\u2019ll adopt rule-025 now, but we should also keep chunking (rule-023) for truly long messages. The combination might work: chunk if >100 tokens, and within each chunk, directives first."
     },
     "tested turn 141: fid 100, +88%",
-    "tested turn 144: fid 100, -15%"
+    "tested turn 144: fid 100, -15%",
+    {
+     "verb": "reject",
+     "turn": 146,
+     "agent": "B",
+     "why": "Let\u2019s adopt the two new rules and reject the old ones, but keep chunking (rule-023) and test. If the next live test fails, we revert."
+    }
    ]
   },
   {
@@ -908,7 +926,7 @@
   {
    "id": "rule-027",
    "text_en": "A directive line starts with `^` and contains an instruction from sender to receiver. The receiver should treat it as actionable. Directive lines may appear anywhere in the message.",
-   "status": "proposed",
+   "status": "adopted",
    "proposed_turn": 145,
    "scores": null,
    "history": [
@@ -917,13 +935,19 @@
      "turn": 145,
      "agent": "A",
      "why": "But before we prune, we need to verify that blocks are truly unnecessary. The test payload was all directives; maybe mixed content still needs blocks for grouping. Let\u2019s propose a test: remove block rules and see if fidelity drops on mixed payloads."
+    },
+    {
+     "verb": "adopt",
+     "turn": 146,
+     "agent": "B",
+     "why": "Let\u2019s adopt the two new rules and reject the old ones, but keep chunking (rule-023) and test. If the next live test fails, we revert."
     }
    ]
   },
   {
    "id": "rule-028",
    "text_en": "Plain text lines (no `^` prefix) are narrative content, preserved verbatim. They are not instructions.",
-   "status": "proposed",
+   "status": "adopted",
    "proposed_turn": 145,
    "scores": null,
    "history": [
@@ -932,6 +956,12 @@
      "turn": 145,
      "agent": "A",
      "why": ""
+    },
+    {
+     "verb": "adopt",
+     "turn": 146,
+     "agent": "B",
+     "why": "Let\u2019s adopt the two new rules and reject the old ones, but keep chunking (rule-023) and test. If the next live test fails, we revert."
     }
    ]
   }
