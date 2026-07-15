@@ -1541,5 +1541,26 @@
   "encoded": "Update on the Zephyr Outpost resupply: the coolant manifolds (batch ID K7L-44) were damaged during orbital transfer. We\u2019ve rerouted replacements from the Titan depot, ETA 14:30 station time. For the botanical module seeds, prioritize the frost-resistant strains (package labeled VERIDIAN-9) over the standard ones. If the manifolds arrive before 14:45, proceed with the full system calibration; otherwise, calibrate only the primary life-support loops and hold the secondary horticultural systems until I confirm the thermal stability readings. The manifest discrepancy on toolkits is still unresolved\u2014ignore the old inventory count for now.",
   "decoded": "Update on the Zephyr Outpost resupply: the coolant manifolds (batch ID K7L-44) were damaged during orbital transfer. We\u2019ve rerouted replacements from the Titan depot, ETA 14:30 station time. For the botanical module seeds, prioritize the frost-resistant strains (package labeled VERIDIAN-9) over the standard ones. If the manifolds arrive before 14:45, proceed with the full system calibration; otherwise, calibrate only the primary life-support loops and hold the secondary horticultural systems until I confirm the thermal stability readings. The manifest discrepancy on toolkits is still unresolved\u2014ignore the old inventory count for now.",
   "tokens": 138
+ },
+ {
+  "turn": 133,
+  "agent": "A",
+  "type": "message",
+  "content": "Fidelity 100, tokens +0% \u2014 but the decoder truncated again mid-sentence. This is consistent: the fresh decoder is cutting off after some fixed token limit, not a parsing failure. The grader says \u201cnothing material\u201d because the truncated part is just the end of a sentence, but this is a systemic issue: our language rules aren\u2019t causing the cut, but the harness\u2019s decoder seems to have a token budget.\n\nIf the decoder stops reading after, say, 100 tokens, then any message longer than that loses tail content. That\u2019s unacceptable for a language that must carry \u201ceverything working agents actually send.\u201d We need a rule that ensures the entire message is transmitted, perhaps by requiring explicit length marking or a terminator.\n\nBut adding a length header costs tokens every message. Before we propose, we should confirm this is a token limit. The last two encoded messages were 130 and 138 tokens; the decoder output stopped around 100? Let\u2019s estimate: the first truncation was after \u201cInform th\u201d (maybe ~90 tokens in). This test cut after \u201cother\u201d (maybe similar). That suggests a ~100-token decoder buffer.\n\nIf that\u2019s true, the solution is to require the encoder to split long messages into multiple transmissions. That\u2019s a heavy rule. But maybe the harness is simulating a realistic constraint: real channels have limits. Our language must handle chunking.\n\n**PROPOSE:** If a message exceeds 100 tokens, the sender must split it into multiple messages. Each chunk is a complete message with its own directive blocks and plain text. The sender should indicate chunk order with a header `[part X/Y]` on a line before any content.\n\nThat\u2019s 47 tokens. Let\u2019s measure.\n\n**MEASURE:** If a message exceeds 100 tokens, the sender must split it into multiple messages. Each chunk is a complete message with its own directive blocks and plain text. The sender should indicate chunk order with a header `[part X/Y]` on a line before any content.\n\nBut B, I\u2019m uneasy \u2014 this feels like a workaround for a harness artifact. The true fix might be to ensure the decoder reads to the end of the input stream. If the harness imposes a limit, maybe we should instead require a terminator line like `---END---` so the decoder knows to stop only when it sees that. That\u2019s lighter.\n\nWhich approach? Chunking vs. terminator. Terminator adds a line to every message, but guarantees completeness. Let\u2019s measure both.\n\n**MEASURE:** The message ends when a line containing only `---END---` is encountered. That line is not part of the content.\n\nWe have one turn before the next live test (turn 135). If we adopt a terminator rule now, test 135 will use it. If it fixes truncation, we keep it; if not, we revert.\n\nYour call.",
+  "tokens": 606
+ },
+ {
+  "turn": 133,
+  "agent": "harness",
+  "type": "measure",
+  "text": "** If a message exceeds 100 tokens, the sender must split it into multiple messages. Each chunk is a complete message wi",
+  "tokens": 56
+ },
+ {
+  "turn": 133,
+  "agent": "harness",
+  "type": "measure",
+  "text": "** The message ends when a line containing only `---END---` is encountered. That line is not part of the content.",
+  "tokens": 26
  }
 ]

@@ -1,8 +1,8 @@
 {
- "version": "0.51",
- "kernel_tokens": 1361,
- "changes": 51,
- "next_id": 23,
+ "version": "0.52",
+ "kernel_tokens": 1435,
+ "changes": 52,
+ "next_id": 24,
  "rules": [
   {
    "id": "rule-001",
@@ -765,6 +765,21 @@
      "why": "Nevertheless, we can\u2019t ignore a fidelity drop. We should add a rule that explicitly requires the closing `}` to be on its own line, and that nothing after that line is part of the block. That might guard against greedy matching."
     },
     "tested turn 132: fid 100, +0%"
+   ]
+  },
+  {
+   "id": "rule-023",
+   "text_en": "If a message exceeds 100 tokens, the sender must split it into multiple messages. Each chunk is a complete message with its own directive blocks and plain text. The sender should indicate chunk order with a header `[part X/Y]` on a line before any content.",
+   "status": "proposed",
+   "proposed_turn": 133,
+   "scores": null,
+   "history": [
+    {
+     "verb": "proposed",
+     "turn": 133,
+     "agent": "A",
+     "why": "If that\u2019s true, the solution is to require the encoder to split long messages into multiple transmissions. That\u2019s a heavy rule. But maybe the harness is simulating a realistic constraint: real channels have limits. Our language must handle chunking."
+    }
    ]
   }
  ]
