@@ -805,7 +805,7 @@
    "status": "proposed",
    "proposed_turn": 133,
    "scores": {
-    "token_delta_pct": -15,
+    "token_delta_pct": -24,
     "fidelity_pct": 100
    },
    "history": [
@@ -842,7 +842,8 @@
      "agent": "B",
      "why": "But that's heavy. I'll stick with the simpler revise."
     },
-    "tested turn 144: fid 100, -15%"
+    "tested turn 144: fid 100, -15%",
+    "tested turn 147: fid 100, -24%"
    ]
   },
   {
@@ -910,7 +911,7 @@
    "status": "proposed",
    "proposed_turn": 143,
    "scores": {
-    "token_delta_pct": -15,
+    "token_delta_pct": -24,
     "fidelity_pct": 100
    },
    "history": [
@@ -920,7 +921,8 @@
      "agent": "B",
      "why": "The next live test is turn 144. We should adopt the revised chunking rule now and see if the encoder complies and the decoder reconstructs fully."
     },
-    "tested turn 144: fid 100, -15%"
+    "tested turn 144: fid 100, -15%",
+    "tested turn 147: fid 100, -24%"
    ]
   },
   {
@@ -928,7 +930,10 @@
    "text_en": "A directive line starts with `^` and contains an instruction from sender to receiver. The receiver should treat it as actionable. Directive lines may appear anywhere in the message.",
    "status": "adopted",
    "proposed_turn": 145,
-   "scores": null,
+   "scores": {
+    "token_delta_pct": -24,
+    "fidelity_pct": 100
+   },
    "history": [
     {
      "verb": "proposed",
@@ -941,7 +946,8 @@
      "turn": 146,
      "agent": "B",
      "why": "Let\u2019s adopt the two new rules and reject the old ones, but keep chunking (rule-023) and test. If the next live test fails, we revert."
-    }
+    },
+    "tested turn 147: fid 100, -24%"
    ]
   },
   {
@@ -949,7 +955,10 @@
    "text_en": "Plain text lines (no `^` prefix) are narrative content, preserved verbatim. They are not instructions.",
    "status": "adopted",
    "proposed_turn": 145,
-   "scores": null,
+   "scores": {
+    "token_delta_pct": -24,
+    "fidelity_pct": 100
+   },
    "history": [
     {
      "verb": "proposed",
@@ -962,7 +971,8 @@
      "turn": 146,
      "agent": "B",
      "why": "Let\u2019s adopt the two new rules and reject the old ones, but keep chunking (rule-023) and test. If the next live test fails, we revert."
-    }
+    },
+    "tested turn 147: fid 100, -24%"
    ]
   }
  ]

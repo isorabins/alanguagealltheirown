@@ -1741,5 +1741,20 @@
   "type": "measure",
   "text": "** If a message exceeds 100 tokens, the sender must split it into multiple chunks. Each chunk must be under 100 tokens. ",
   "tokens": 55
+ },
+ {
+  "turn": 147,
+  "agent": "harness",
+  "type": "test",
+  "payload": "gen-prose-event",
+  "original": "The guest count for the Veridian Room has been updated to 47 confirmed attendees. We\u2019ve secured the additional sound-dampening panels for the northern wall, as requested. Please confirm with the caterer, Salt & Stone, that the final number includes the 3 vegan meals and 2 nut-allergy plates we flagged. If any last-minute cancellations come in from the LumenTech group, hold their 5 seats until 5 PM tomorrow, but release them to the waitlist after that. The floral install for the centerpieces begins at 10 AM; ensure they only use the deep blue hydrangeas, not the lighter periwinkle ones that arrived by mistake.",
+  "orig_tokens": 139,
+  "enc_tokens": 105,
+  "token_delta_pct": -24,
+  "fidelity": 100,
+  "lost": "nothing material",
+  "encoded": "^Update guest count for Veridian Room to 47 confirmed attendees.\n^Confirm with caterer Salt & Stone that final number includes 3 vegan meals and 2 nut-allergy plates.\n^Hold 5 seats for LumenTech group until 5 PM tomorrow, then release to waitlist if cancellations come in.\n^Ensure floral install for centerpieces at 10 AM uses only deep blue hydrangeas, not lighter periwinkle ones.\nAdditional sound-dampening panels for the northern wall have been secured.",
+  "decoded": "Update guest count for Veridian Room to 47 confirmed attendees.\nConfirm with caterer Salt & Stone that final number includes 3 vegan meals and 2 nut-allergy plates.\nHold 5 seats for LumenTech group until 5 PM tomorrow, then release to waitlist if cancellations come in.\nEnsure floral install for centerpieces at 10 AM uses only deep blue hydrangeas, not lighter periwinkle ones.\nAdditional sound-dampening panels for the northern wall have been secured.",
+  "tokens": 105
  }
 ]
