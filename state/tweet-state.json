@@ -8,14 +8,14 @@
   "rule-006": "rejected",
   "rule-009": "proposed",
   "rule-010": "rejected",
-  "rule-011": "reverted",
-  "rule-012": "reverted",
+  "rule-011": "rejected",
+  "rule-012": "rejected",
   "rule-014": "rejected",
-  "rule-015": "reverted",
+  "rule-015": "rejected",
   "rule-018": "rejected",
   "rule-019": "proposed",
   "rule-020": "rejected",
   "rule-021": "proposed"
  },
- "tweets_sent": 8
+ "tweets_sent": 11
 }

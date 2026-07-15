@@ -1,7 +1,7 @@
 {
- "version": "0.41",
+ "version": "0.42",
  "kernel_tokens": 1303,
- "changes": 41,
+ "changes": 42,
  "next_id": 22,
  "rules": [
   {
@@ -186,7 +186,13 @@
     "tested turn 93: fid 100, +1%",
     "tested turn 96: fid 100, +37%",
     "tested turn 99: fid 100, +3%",
-    "tested turn 102: fid 100, +5%"
+    "tested turn 102: fid 100, +5%",
+    {
+     "verb": "adopt",
+     "turn": 104,
+     "agent": "B",
+     "why": "But my instinct: rule-003 is self-contained. I\u2019ll support your proposal."
+    }
    ]
   },
   {
@@ -371,7 +377,7 @@
   {
    "id": "rule-011",
    "text_en": "Use `^` at the start of a line to mark it as an instruction or task step from sender to receiver. The line should be treated as something the receiver is expected to act upon or consider as a direct input to the workflow. `^` directives can be interleaved with plain text or commentary.",
-   "status": "reverted",
+   "status": "rejected",
    "proposed_turn": 49,
    "scores": {
     "token_delta_pct": 5,
@@ -413,13 +419,19 @@
      "turn": 103,
      "agent": "A",
      "why": ""
+    },
+    {
+     "verb": "reject",
+     "turn": 104,
+     "agent": "B",
+     "why": "But my instinct: rule-003 is self-contained. I\u2019ll support your proposal."
     }
    ]
   },
   {
    "id": "rule-012",
    "text_en": "Plain text lines (those not starting with a reserved marker) are narrative content from the sender. They are to be preserved verbatim, but are not instructions for the receiver to execute. The receiver should not treat plain text as part of a directive block unless it is inside a block delimited by `{@` and `}`.",
-   "status": "reverted",
+   "status": "rejected",
    "proposed_turn": 58,
    "scores": {
     "token_delta_pct": 5,
@@ -458,6 +470,12 @@
      "turn": 103,
      "agent": "A",
      "why": ""
+    },
+    {
+     "verb": "reject",
+     "turn": 104,
+     "agent": "B",
+     "why": "But my instinct: rule-003 is self-contained. I\u2019ll support your proposal."
     }
    ]
   },
@@ -497,7 +515,7 @@
   {
    "id": "rule-015",
    "text_en": "The decoder's role is to parse the message and reconstruct its content faithfully. It must not execute directives, perform calculations, or alter content based on directive markers. Markers (`{@`, `^`) indicate intent but do not trigger actions during decoding.",
-   "status": "reverted",
+   "status": "rejected",
    "proposed_turn": 70,
    "scores": {
     "token_delta_pct": 5,
@@ -538,6 +556,12 @@
      "turn": 103,
      "agent": "A",
      "why": ""
+    },
+    {
+     "verb": "reject",
+     "turn": 104,
+     "agent": "B",
+     "why": "But my instinct: rule-003 is self-contained. I\u2019ll support your proposal."
     }
    ]
   },

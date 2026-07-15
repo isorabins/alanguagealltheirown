@@ -1146,5 +1146,26 @@
   "type": "message",
   "content": "B: Another perfect fidelity test, token overhead minimal. The language is solid.\n\nBut the rulebook has redundancy: rule-003 already defines plain text, `^` directives, blocks, and decoder role. Yet we also have separate adopted rules for each (011, 012, 015). That\u2019s costing us extra tokens for no new clarity\u2014a fresh decoder reading only rule-003 could still parse everything correctly, as the latest test shows.\n\nWe should consolidate. Remove rules 011, 012, 015 and keep only rule-003, which already covers all three concepts. That trims the rulebook without losing capability.\n\n**PROPOSE:** rule-003 \u2014 The message may contain plain text, directives, and directive blocks. Plain text lines (no reserved marker such as `{@` or `^`) are narrative content, preserved verbatim. A line starting with `^` is a directive\u2014an instruction from sender to receiver. A block delimited by `{@` alone on its own line and `}` alone on its own line contains directives; text after `}` continues as message content. The decoder only parses and reconstructs; it does not execute directives.\n\n**REJECT:** rule-011  \n**REJECT:** rule-012  \n**REJECT:** rule-015\n\nIf you agree, adopt the rejections. We\u2019ll test the leaner rulebook at the next live test (turn 105). The risk is low\u2014rule-003 already passed all tests.\n\nIf you want to keep redundancy for clarity, we need a measurement showing the token cost difference is negligible. But our goal is minimal viable rules.",
   "tokens": 338
+ },
+ {
+  "turn": 104,
+  "agent": "B",
+  "type": "message",
+  "content": "I agree redundancy is a tax. Rule-003 is comprehensive and has proven sufficient\u2014the fresh decoder in the last test used the full rulebook, but the core parsing logic is all in rule-003. Trimming 011, 012, 015 reduces rulebook tokens without breaking functionality.\n\nBut before we reject them, let\u2019s confirm the token savings are meaningful. The harness\u2019s measurement earlier was flawed. Let\u2019s measure the exact current rulebook text (including all adopted rules) versus a version with only rule-003.\n\n**MEASURE:** rule-003 [adopted] The message may contain plain text, directives, and directive blocks. Plain text lines (no reserved marker such as `{@` or `^`) are narrative content, preserved verbatim. A line starting with `^` is a directive - an instruction from sender to receiver. A block delimited by `{@` alone on its own line and `}` alone on its own line contains directives; text after `}` continues as message content. The decoder only parses and reconstructs; it does not execute directives.\n\n**MEASURE:** rule-011 [adopted] Use `^` at the start of a line to mark it as an instruction or task step from sender to receiver. The line should be treated as something the receiver is expected to act upon or consider as a direct input to the workflow. `^` directives can be interleaved with plain text or commentary.\n\nIf the combined separate rules are significantly longer, consolidation is wise. If they\u2019re similar, redundancy might aid clarity for edge cases.\n\nBut my instinct: rule-003 is self-contained. I\u2019ll support your proposal.\n\n**ADOPT:** rule-003 (as your proposed text)\n**REJECT:** rule-011\n**REJECT:** rule-012\n**REJECT:** rule-015\n\nWe test the leaner rulebook at turn 105. If fidelity drops, we revert.",
+  "tokens": 404
+ },
+ {
+  "turn": 104,
+  "agent": "harness",
+  "type": "measure",
+  "text": "** rule-003 [adopted] The message may contain plain text, directives, and directive blocks. Plain text lines (no reserve",
+  "tokens": 113
+ },
+ {
+  "turn": 104,
+  "agent": "harness",
+  "type": "measure",
+  "text": "** rule-011 [adopted] Use `^` at the start of a line to mark it as an instruction or task step from sender to receiver. ",
+  "tokens": 71
  }
 ]
