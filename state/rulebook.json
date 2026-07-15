@@ -72,7 +72,7 @@
    "status": "proposed",
    "proposed_turn": 6,
    "scores": {
-    "token_delta_pct": 6,
+    "token_delta_pct": 5,
     "fidelity_pct": 100
    },
    "history": [
@@ -134,7 +134,8 @@
      "agent": "B",
      "why": ""
     },
-    "tested turn 72: fid 100, +6%"
+    "tested turn 72: fid 100, +6%",
+    "tested turn 75: fid 100, +5%"
    ]
   },
   {
@@ -201,7 +202,7 @@
    "status": "proposed",
    "proposed_turn": 37,
    "scores": {
-    "token_delta_pct": 6,
+    "token_delta_pct": 5,
     "fidelity_pct": 100
    },
    "history": [
@@ -221,7 +222,8 @@
     "tested turn 63: fid 100, +3%",
     "tested turn 66: fid 100, +5%",
     "tested turn 69: fid 0, +17%",
-    "tested turn 72: fid 100, +6%"
+    "tested turn 72: fid 100, +6%",
+    "tested turn 75: fid 100, +5%"
    ]
   },
   {
@@ -230,7 +232,7 @@
    "status": "proposed",
    "proposed_turn": 47,
    "scores": {
-    "token_delta_pct": 6,
+    "token_delta_pct": 5,
     "fidelity_pct": 100
    },
    "history": [
@@ -248,7 +250,8 @@
     "tested turn 63: fid 100, +3%",
     "tested turn 66: fid 100, +5%",
     "tested turn 69: fid 0, +17%",
-    "tested turn 72: fid 100, +6%"
+    "tested turn 72: fid 100, +6%",
+    "tested turn 75: fid 100, +5%"
    ]
   },
   {
@@ -257,7 +260,7 @@
    "status": "adopted",
    "proposed_turn": 49,
    "scores": {
-    "token_delta_pct": 6,
+    "token_delta_pct": 5,
     "fidelity_pct": 100
    },
    "history": [
@@ -280,7 +283,8 @@
     "tested turn 63: fid 100, +3%",
     "tested turn 66: fid 100, +5%",
     "tested turn 69: fid 0, +17%",
-    "tested turn 72: fid 100, +6%"
+    "tested turn 72: fid 100, +6%",
+    "tested turn 75: fid 100, +5%"
    ]
   },
   {
@@ -289,7 +293,7 @@
    "status": "adopted",
    "proposed_turn": 49,
    "scores": {
-    "token_delta_pct": 6,
+    "token_delta_pct": 5,
     "fidelity_pct": 100
    },
    "history": [
@@ -312,7 +316,8 @@
     "tested turn 63: fid 100, +3%",
     "tested turn 66: fid 100, +5%",
     "tested turn 69: fid 0, +17%",
-    "tested turn 72: fid 100, +6%"
+    "tested turn 72: fid 100, +6%",
+    "tested turn 75: fid 100, +5%"
    ]
   },
   {
@@ -321,7 +326,7 @@
    "status": "adopted",
    "proposed_turn": 58,
    "scores": {
-    "token_delta_pct": 6,
+    "token_delta_pct": 5,
     "fidelity_pct": 100
    },
    "history": [
@@ -341,7 +346,8 @@
     "tested turn 63: fid 100, +3%",
     "tested turn 66: fid 100, +5%",
     "tested turn 69: fid 0, +17%",
-    "tested turn 72: fid 100, +6%"
+    "tested turn 72: fid 100, +6%",
+    "tested turn 75: fid 100, +5%"
    ]
   },
   {
@@ -350,7 +356,7 @@
    "status": "adopted",
    "proposed_turn": 64,
    "scores": {
-    "token_delta_pct": 6,
+    "token_delta_pct": 5,
     "fidelity_pct": 100
    },
    "history": [
@@ -368,7 +374,8 @@
     },
     "tested turn 66: fid 100, +5%",
     "tested turn 69: fid 0, +17%",
-    "tested turn 72: fid 100, +6%"
+    "tested turn 72: fid 100, +6%",
+    "tested turn 75: fid 100, +5%"
    ]
   },
   {
@@ -377,7 +384,7 @@
    "status": "proposed",
    "proposed_turn": 67,
    "scores": {
-    "token_delta_pct": 6,
+    "token_delta_pct": 5,
     "fidelity_pct": 100
    },
    "history": [
@@ -388,7 +395,8 @@
      "why": "That\u2019s four adopted rules, maybe ~120 tokens of context every message. Could we compress them? Rule\u2011010 and 012 overlap: 010 says \u201cany line not starting with a reserved marker is plain text,\u201d and 012 says \u201cplain text lines are narrative, not executable.\u201d We could merge them into "
     },
     "tested turn 69: fid 0, +17%",
-    "tested turn 72: fid 100, +6%"
+    "tested turn 72: fid 100, +6%",
+    "tested turn 75: fid 100, +5%"
    ]
   },
   {
@@ -397,7 +405,7 @@
    "status": "adopted",
    "proposed_turn": 70,
    "scores": {
-    "token_delta_pct": 6,
+    "token_delta_pct": 5,
     "fidelity_pct": 100
    },
    "history": [
@@ -419,7 +427,8 @@
      "turn": 74,
      "agent": "B",
      "why": "Before we commit, let\u2019s see the next live test (turn 75). If fidelity stays 100, we can propose merging after the test. If it drops, we keep the separate rules."
-    }
+    },
+    "tested turn 75: fid 100, +5%"
    ]
   },
   {
@@ -427,14 +436,18 @@
    "text_en": "REJECT: rule-014",
    "status": "proposed",
    "proposed_turn": 73,
-   "scores": null,
+   "scores": {
+    "token_delta_pct": 5,
+    "fidelity_pct": 100
+   },
    "history": [
     {
      "verb": "proposed",
      "turn": 73,
      "agent": "A",
      "why": "Rule\u2011014 is still proposed \u2014 it's identical to our merged plain\u2011text idea. Since we didn't merge 010 and 012, let's reject 014 to keep the rulebook clean."
-    }
+    },
+    "tested turn 75: fid 100, +5%"
    ]
   },
   {
@@ -442,14 +455,18 @@
    "text_en": "REJECT: rule-014** - agreed, it\u2019s redundant.",
    "status": "proposed",
    "proposed_turn": 74,
-   "scores": null,
+   "scores": {
+    "token_delta_pct": 5,
+    "fidelity_pct": 100
+   },
    "history": [
     {
      "verb": "proposed",
      "turn": 74,
      "agent": "B",
      "why": ""
-    }
+    },
+    "tested turn 75: fid 100, +5%"
    ]
   }
  ]

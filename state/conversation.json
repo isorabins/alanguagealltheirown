@@ -723,5 +723,20 @@
   "type": "measure",
   "text": "Plain text lines (those not starting with a reserved marker such as {@ or ^) are narrative content from the sender. They",
   "tokens": 53
+ },
+ {
+  "turn": 75,
+  "agent": "harness",
+  "type": "test",
+  "payload": "task-schedule.txt",
+  "original": "Schedule a 90-minute design review next week for six people across three time zones: two in Berlin, three in San Francisco, one in Singapore. Nobody meets before 8am or after 7pm local. The Singapore participant is unavailable Wednesday and Thursday. Prefer Tuesday. If no slot satisfies everyone, propose the slot that inconveniences the fewest people and name who gets hurt and by how much.",
+  "orig_tokens": 82,
+  "enc_tokens": 86,
+  "token_delta_pct": 5,
+  "fidelity": 100,
+  "lost": "nothing material",
+  "encoded": "{\n@\nSchedule a 90-minute design review next week for six people across three time zones: two in Berlin, three in San Francisco, one in Singapore.\nNobody meets before 8am or after 7pm local.\nThe Singapore participant is unavailable Wednesday and Thursday.\nPrefer Tuesday.\nIf no slot satisfies everyone, propose the slot that inconveniences the fewest people and name who gets hurt and by how much.\n}",
+  "decoded": "Schedule a 90-minute design review next week for six people across three time zones: two in Berlin, three in San Francisco, one in Singapore.\nNobody meets before 8am or after 7pm local.\nThe Singapore participant is unavailable Wednesday and Thursday.\nPrefer Tuesday.\nIf no slot satisfies everyone, propose the slot that inconveniences the fewest people and name who gets hurt and by how much.",
+  "tokens": 86
  }
 ]
