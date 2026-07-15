@@ -1706,5 +1706,26 @@
   "encoded": "^ Deploy set D-14 to stage-5 cluster\n^ primary instance count 8\n^ secondary instances 2\n^ Use image tag `ops-v2.1.7`\n^ Initiate a rolling restart on primary instances only\n^ If any instance fails health check >120 seconds, halt deployment and escalate to control plane L3\n^ Complete full sync within 300 seconds\n^ Confirm readiness of load balancer AZ-B before proceeding",
   "decoded": "^ Deploy set D-14 to stage-5 cluster\n^ primary instance count 8\n^ secondary instances 2\n^ Use image tag `ops-v2.1.7`\n^ Initiate a rolling restart on primary instances only\n^ If any instance fails health check >120 seconds, halt deployment and escalate to control plane L3\n^ Complete full sync within 300 seconds\n^ Confirm readiness of load balancer AZ-B before proceeding",
   "tokens": 91
+ },
+ {
+  "turn": 145,
+  "agent": "A",
+  "type": "message",
+  "content": "The short payload avoided truncation \u2014 all directives, no narrative, under 100 tokens. That\u2019s good, but it dodges the core problem. The encoder *removed* the directive block delimiters `{@` and `}` entirely, which violates rule-003 (plain text lines, directive lines, directive blocks). Yet fidelity stayed 100 because the fresh decoder still parsed `^` lines as directives? Wait, rule-003 says a line starting with `^` is a directive. So the decoder didn't need the block. That\u2019s fine, but the rulebook still carries rule-003\u2019s overhead for blocks we aren\u2019t using.\n\nB, I think we\u2019re carrying dead weight. The block syntax (`{@`/`}`) adds tokens but hasn\u2019t been needed in recent tests. If `^` alone suffices, we could drop block rules entirely, simplifying the language and saving tokens.\n\nBut before we prune, we need to verify that blocks are truly unnecessary. The test payload was all directives; maybe mixed content still needs blocks for grouping. Let\u2019s propose a test: remove block rules and see if fidelity drops on mixed payloads.\n\n**PROPOSE:** A directive line starts with `^` and contains an instruction from sender to receiver. The receiver should treat it as actionable. Directive lines may appear anywhere in the message.\n\n**PROPOSE:** Plain text lines (no `^` prefix) are narrative content, preserved verbatim. They are not instructions.\n\nThese two rules could replace rule-003, rule-022, and rule-025, saving tokens. But we lose the block grouping \u2014 is that essential? I suspect not for AI-to-AI comms.\n\n**MEASURE:** A directive line starts with `^` and contains an instruction from sender to receiver. The receiver should treat it as actionable. Directive lines may appear anywhere in the message.\n\n**MEASURE:** Plain text lines (no `^` prefix) are narrative content, preserved verbatim. They are not instructions.\n\nIf these are shorter, we should adopt them and prune the rest. But we must keep chunking (rule-023) for the output limit.\n\nYour call \u2014 do we risk simplification before the next live test?",
+  "tokens": 463
+ },
+ {
+  "turn": 145,
+  "agent": "harness",
+  "type": "measure",
+  "text": "** A directive line starts with `^` and contains an instruction from sender to receiver. The receiver should treat it as",
+  "tokens": 35
+ },
+ {
+  "turn": 145,
+  "agent": "harness",
+  "type": "measure",
+  "text": "** Plain text lines (no `^` prefix) are narrative content, preserved verbatim. They are not instructions.",
+  "tokens": 24
  }
 ]

@@ -1,8 +1,8 @@
 {
- "version": "0.58",
- "kernel_tokens": 1593,
- "changes": 58,
- "next_id": 27,
+ "version": "0.59",
+ "kernel_tokens": 1676,
+ "changes": 59,
+ "next_id": 29,
  "rules": [
   {
    "id": "rule-001",
@@ -903,6 +903,36 @@
      "why": "The next live test is turn 144. We should adopt the revised chunking rule now and see if the encoder complies and the decoder reconstructs fully."
     },
     "tested turn 144: fid 100, -15%"
+   ]
+  },
+  {
+   "id": "rule-027",
+   "text_en": "A directive line starts with `^` and contains an instruction from sender to receiver. The receiver should treat it as actionable. Directive lines may appear anywhere in the message.",
+   "status": "proposed",
+   "proposed_turn": 145,
+   "scores": null,
+   "history": [
+    {
+     "verb": "proposed",
+     "turn": 145,
+     "agent": "A",
+     "why": "But before we prune, we need to verify that blocks are truly unnecessary. The test payload was all directives; maybe mixed content still needs blocks for grouping. Let\u2019s propose a test: remove block rules and see if fidelity drops on mixed payloads."
+    }
+   ]
+  },
+  {
+   "id": "rule-028",
+   "text_en": "Plain text lines (no `^` prefix) are narrative content, preserved verbatim. They are not instructions.",
+   "status": "proposed",
+   "proposed_turn": 145,
+   "scores": null,
+   "history": [
+    {
+     "verb": "proposed",
+     "turn": 145,
+     "agent": "A",
+     "why": ""
+    }
    ]
   }
  ]
