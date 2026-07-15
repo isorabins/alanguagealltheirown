@@ -178,7 +178,7 @@ def apply_conventions(text, rb, turn, agent="?"):
         m = re.match(r"\s*\**(PROPOSE|ADOPT|REJECT|REVISE)\**\s*:\s*(.+)", line)
         if not m:
             continue
-        verb, rest = m.group(1), m.group(2).strip().rstrip("*")
+        verb, rest = m.group(1), m.group(2).strip().strip("*").strip()
         rest = re.sub(r"[‐‑‒–—]", "-", rest)  # agents emit unicode hyphens in rule ids
         if verb == "PROPOSE":
             if any(r["text_en"].strip() == rest for r in rb["rules"]):
@@ -202,7 +202,7 @@ def apply_conventions(text, rb, turn, agent="?"):
         elif verb == "REVISE":
             new = rest.split("->", 1)
             if len(new) == 2:
-                rule["text_en"] = new[1].strip()
+                rule["text_en"] = new[1].strip().strip("*").strip()
                 rule["status"] = "proposed"
             else:
                 continue

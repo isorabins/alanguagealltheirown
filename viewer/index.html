@@ -38,9 +38,18 @@
 
   h2 {
     font-weight: 400; font-size: 0.72rem; letter-spacing: 0.26em; text-transform: uppercase;
-    color: var(--ink-faint); margin: 2.8rem 0 1rem; text-align: center;
+    color: var(--ink-faint); margin: 2.8rem 0 0.4rem; text-align: center;
   }
   h2:first-of-type { margin-top: 0; }
+  .how {
+    text-align: center; font-style: italic; color: var(--ink-faint); font-size: 0.84rem;
+    max-width: 38rem; margin: 0 auto 1.2rem;
+  }
+  .legend {
+    text-align: center; font-family: var(--mono); font-size: 0.64rem; color: var(--ink-faint);
+    letter-spacing: 0.04em; margin: -1.8rem 0 2.4rem;
+  }
+  .legend b { color: var(--ink-dim); font-weight: 400; }
 
   .panes { display: grid; grid-template-columns: 1fr 1fr; gap: 1.4rem; }
   .pane { border: 1px solid var(--hairline); display: flex; flex-direction: column; height: 430px; }
@@ -80,10 +89,13 @@
   .tx { border: 1px solid var(--hairline); padding: 1.2rem 1.4rem; }
   .tx-head { font-family: var(--mono); font-size: 0.64rem; color: var(--ink-faint); letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 0.9rem; text-align: center; }
   .tx-head .ok { color: var(--accent); } .tx-head .low { color: var(--bad); }
-  .tx-cols { display: grid; grid-template-columns: 1fr 1fr; gap: 1.6rem; }
+  .tx-cols { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1.4rem; }
   .tx-col .lab { font-family: var(--mono); font-size: 0.6rem; letter-spacing: 0.18em; text-transform: uppercase; color: var(--ink-faint); margin-bottom: 0.4rem; }
-  .tx-col pre { font-family: var(--mono); font-size: 0.72rem; line-height: 1.6; white-space: pre-wrap; word-wrap: break-word; color: var(--ink); }
+  .tx-col pre { font-family: var(--mono); font-size: 0.7rem; line-height: 1.6; white-space: pre-wrap; word-wrap: break-word; color: var(--ink); }
   .tx-col.enc pre { color: var(--accent); }
+  .tx-col.dec pre { color: var(--ink-dim); }
+  .tx-verdict { font-family: var(--mono); font-size: 0.66rem; color: var(--ink-dim); border-top: 1px dashed var(--hairline); margin-top: 1rem; padding-top: 0.7rem; }
+  .tx-verdict .bad-t { color: var(--bad); }
 
   .grave { list-style: none; }
   .grave li { border-top: 1px solid var(--hairline); padding: 0.75rem 0.2rem; font-size: 0.9rem; color: var(--ink-dim); }
@@ -123,8 +135,10 @@
 </header>
 
 <div class="metrics" id="metrics"></div>
+<div class="legend"><b>fidelity</b> — % of meaning that survives a stranger's decode (100 = perfect relay, 0 = lost or invented) &nbsp;·&nbsp; <b>savings</b> — how much cheaper than plain English (negative = the language currently costs extra)</div>
 
 <h2>The Negotiation, Live</h2>
+<p class="how">Agent A wants every message cheaper. Agent B refuses anything a stranger couldn't decode. Rules are born, argued, and killed here — dashed lines are live test results landing.</p>
 <div class="panes">
   <div class="pane"><div class="pane-head">Agent A — compression</div><div class="pane-body" id="paneA"></div></div>
   <div class="pane"><div class="pane-head">Agent B — fidelity</div><div class="pane-body" id="paneB"></div></div>
@@ -132,16 +146,20 @@
 <div class="decisions" id="decisions"></div>
 
 <h2>The Language So Far</h2>
+<p class="how">Every rule that survived testing, with the agents' own reasoning for adopting it.</p>
 <div class="kernel-note" id="kernel"></div>
 <div id="adopted"></div>
 
 <h2>Latest Transmission</h2>
+<p class="how">The proof of life: one agent writes the message in the language, and a stranger AI — given nothing but the rulebook — reconstructs it. What the stranger hands back is the only thing that counts.</p>
 <div class="tx" id="tx"></div>
 
 <h2>Rejected on the Numbers</h2>
+<p class="how">Killed by measurement. The graveyard is most of the work.</p>
 <ul class="grave" id="grave"></ul>
 
 <h2>On the Table</h2>
+<p class="how">Proposed, awaiting a live test.</p>
 <ul class="table-note" id="proposed"></ul>
 
 <details>
@@ -173,13 +191,19 @@ function render(S) {
   var rejected = rb.rules.filter(function (r) { return r.status === "rejected" || r.status === "reverted"; });
   var proposed = rb.rules.filter(function (r) { return r.status === "proposed"; });
 
-  var best = null;
-  tests.forEach(function (t) { if (t.fidelity >= 90 && (best === null || t.token_delta_pct < best)) best = t.token_delta_pct; });
+  var best = null, passSum = 0, passN = 0;
+  tests.forEach(function (t) {
+    if (t.fidelity >= 90) {
+      passSum += t.token_delta_pct; passN++;
+      if (best === null || t.token_delta_pct < best) best = t.token_delta_pct;
+    }
+  });
   var m = [
     ["language version", "v" + rb.version],
     ["turns", conv.length ? conv[conv.length - 1].turn : 0],
     ["rules adopted", adopted.length],
-    ["best compression", best === null ? "—" : pct(best)],
+    ["best savings", best === null ? "—" : pct(-best)],
+    ["avg savings", passN ? pct(-Math.round(passSum / passN)) : "—"],
     ["last fidelity", last ? last.fidelity + "/100" : "—"]
   ];
   document.getElementById("metrics").innerHTML = m.map(function (x) {
@@ -235,7 +259,7 @@ function render(S) {
     var a = hist(r, "adopt");
     return '<div class="rule-card"><div class="rtext">' + ruleText(r) + "</div>" +
       '<div class="ev">adopted turn ' + (a ? a.turn : "?") + " · survived <b>" + arc.length + "</b> live tests" +
-      (r.scores ? " · latest " + pct(r.scores.token_delta_pct) + " tokens at <b>" + r.scores.fidelity_pct + "/100</b> fidelity" : "") + "</div>" +
+      (r.scores ? " · rulebook's latest test: " + pct(r.scores.token_delta_pct) + " tokens at <b>" + r.scores.fidelity_pct + "/100</b> fidelity" : "") + "</div>" +
       (a && a.why ? '<div class="why">why: “' + esc(a.why) + '”</div>' : "") + "</div>";
   }).join("") : '<p class="empty">No rules adopted yet — the language is still plain English.</p>';
 
@@ -243,10 +267,12 @@ function render(S) {
     var cls = last.fidelity >= 80 ? "ok" : "low";
     document.getElementById("tx").innerHTML =
       '<div class="tx-head">turn ' + last.turn + " · " + esc(last.payload) + " · " + last.orig_tokens +
-      " tokens → " + last.enc_tokens + " (" + pct(last.token_delta_pct) + ") · decoded at <span class=\"" + cls + '">' +
-      last.fidelity + "/100</span> by an agent that has only the rulebook</div>" +
-      '<div class="tx-cols"><div class="tx-col"><div class="lab">original</div><pre>' + esc(last.original || "—") + "</pre></div>" +
-      '<div class="tx-col enc"><div class="lab">encoded</div><pre>' + esc(last.encoded) + "</pre></div></div>";
+      " tokens → " + last.enc_tokens + " (" + pct(last.token_delta_pct) + ") · fidelity <span class=\"" + cls + '">' +
+      last.fidelity + "/100</span></div>" +
+      '<div class="tx-cols"><div class="tx-col"><div class="lab">original message</div><pre>' + esc(last.original || "—") + "</pre></div>" +
+      '<div class="tx-col enc"><div class="lab">encoded in the language</div><pre>' + esc(last.encoded) + "</pre></div>" +
+      '<div class="tx-col dec"><div class="lab">what the stranger got back</div><pre>' + esc(last.decoded) + "</pre></div></div>" +
+      '<div class="tx-verdict' + (last.fidelity < 80 ? " bad-t" : "") + '">grader: ' + esc(last.lost) + "</div>";
   } else {
     document.getElementById("tx").innerHTML = '<p class="empty">No transmissions yet.</p>';
   }

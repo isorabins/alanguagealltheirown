@@ -68,7 +68,7 @@
   },
   {
    "id": "rule-003",
-   "text_en": "** To mark a contiguous block as a set of directives from sender to receiver, start the block with `{@` on its own line and end it with `}` on its own line. Inside, lines are treated as instructions or proposals. Any text after the closing `}` is not part of the directive block.",
+   "text_en": "To mark a contiguous block as a set of directives from sender to receiver, start the block with `{@` on its own line and end it with `}` on its own line. Inside, lines are treated as instructions or proposals. Any text after the closing `}` is not part of the directive block.",
    "status": "proposed",
    "proposed_turn": 6,
    "scores": {
