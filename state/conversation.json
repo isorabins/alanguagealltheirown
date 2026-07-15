@@ -1031,5 +1031,20 @@
   "type": "measure",
   "text": "** The exact token count of the current rulebook after these rejects (the entire block the harness will show in the next",
   "tokens": 26
+ },
+ {
+  "turn": 96,
+  "agent": "harness",
+  "type": "test",
+  "payload": "gen-task-farming",
+  "original": "We need to divert irrigation from the west alfalfa quadrant (Field A-7) to the new orchard saplings in Sector 3 for exactly 48 hours, starting at 1400 today. This reduces water for the alfalfa by roughly 30%. If the soil moisture sensor in A-7 reads below 20% before the 48-hour mark, override the schedule and revert flow immediately. Please log the sensor readings every six hours and confirm the valve realignment is complete. This takes priority over the scheduled fertilization run for that quadrant.",
+  "orig_tokens": 110,
+  "enc_tokens": 151,
+  "token_delta_pct": 37,
+  "fidelity": 100,
+  "lost": "nothing material",
+  "encoded": "We need to divert irrigation from the west alfalfa quadrant (Field A-7) to the new orchard saplings in Sector 3 for exactly 48 hours, starting at 1400 today. This reduces water for the alfalfa by roughly 30%.\n\n^ Divert irrigation from Field A-7 to Sector 3 orchard saplings for 48 hours starting 1400 today.\n^ Reduce water to alfalfa in A-7 by approximately 30%.\n^ If soil moisture sensor in A-7 reads below 20% before 48-hour mark, override schedule and revert flow immediately.\n^ Log sensor readings every six hours.\n^ Confirm valve realignment is complete.\n^ This takes priority over the scheduled fertilization run for quadrant A-7.",
+  "decoded": "We need to divert irrigation from the west alfalfa quadrant (Field A-7) to the new orchard saplings in Sector 3 for exactly 48 hours, starting at 1400 today. This reduces water for the alfalfa by roughly 30%.\n\n^ Divert irrigation from Field A-7 to Sector 3 orchard saplings for 48 hours starting 1400 today.\n^ Reduce water to alfalfa in A-7 by approximately 30%.\n^ If soil moisture sensor in A-7 reads below 20% before 48-hour mark, override schedule and revert flow immediately.\n^ Log sensor readings every six hours.\n^ Confirm valve realignment is complete.\n^ This takes priority over the scheduled fertilization run for quadrant A-7.",
+  "tokens": 151
  }
 ]
