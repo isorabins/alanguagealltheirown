@@ -1655,5 +1655,20 @@
   "type": "measure",
   "text": "** The message ends when a line containing only `---END---` is encountered. That line is not part of the content.",
   "tokens": 26
+ },
+ {
+  "turn": 141,
+  "agent": "harness",
+  "type": "test",
+  "payload": "gen-task-software",
+  "original": "The deployment window for the Vectra-7 microservice is now 14:30\u201315:15 UTC, not the previously scheduled hour. The blue-green cutover must be initiated only after the final health check passes the 95% threshold for Pod set 'v7-core-az2'. If the latency metric for the primary database cluster exceeds 220ms for more than 30 seconds post-cutover, immediately revert to the previous deployment tag 'v7-stable-rc4'. Confirm readiness of the fallback configuration before 14:20.",
+  "orig_tokens": 113,
+  "enc_tokens": 213,
+  "token_delta_pct": 88,
+  "fidelity": 100,
+  "lost": "nothing material",
+  "encoded": "[part 1/1]\n{@\n^ Update deployment window to 14:30\u201315:15 UTC.\n^ Initiate blue-green cutover only after final health check passes 95% threshold for Pod set 'v7-core-az2'.\n^ If latency metric for primary database cluster exceeds 220ms for >30 seconds post-cutover, immediately revert to deployment tag 'v7-stable-rc4'.\n^ Confirm fallback configuration readiness before 14:20.\n}\nThe deployment window for the Vectra-7 microservice is now 14:30\u201315:15 UTC, not the previously scheduled hour. The blue-green cutover must be initiated only after the final health check passes the 95% threshold for Pod set 'v7-core-az2'. If the latency metric for the primary database cluster exceeds 220ms for more than 30 seconds post-cutover, immediately revert to the previous deployment tag 'v7-stable-rc4'. Confirm readiness of the fallback configuration before 14:20.",
+  "decoded": "{@\n^ Update deployment window to 14:30\u201315:15 UTC.\n^ Initiate blue-green cutover only after final health check passes 95% threshold for Pod set 'v7-core-az2'.\n^ If latency metric for primary database cluster exceeds 220ms for >30 seconds post-cutover, immediately revert to deployment tag 'v7-stable-rc4'.\n^ Confirm fallback configuration readiness before 14:20.\n}\nThe deployment window for the Vectra-7 microservice is now 14:30\u201315:15 UTC, not the previously scheduled hour. The blue-green cutover must be initiated only after the final health check passes the 95% threshold for Pod set 'v7-core-az2'. If the latency metric for the primary database cluster exceeds 220ms for more than 30 seconds post-cutover, immediately revert to the previous deployment tag 'v7-stable-rc4'. Confirm readiness of the fallback configuration before 14:20.",
+  "tokens": 213
  }
 ]

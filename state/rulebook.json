@@ -84,7 +84,7 @@
    "status": "adopted",
    "proposed_turn": 6,
    "scores": {
-    "token_delta_pct": 7,
+    "token_delta_pct": 88,
     "fidelity_pct": 100
    },
    "history": [
@@ -252,7 +252,8 @@
     },
     "tested turn 132: fid 100, +0%",
     "tested turn 135: fid 100, +8%",
-    "tested turn 138: fid 100, +7%"
+    "tested turn 138: fid 100, +7%",
+    "tested turn 141: fid 100, +88%"
    ]
   },
   {
@@ -756,7 +757,7 @@
    "status": "adopted",
    "proposed_turn": 130,
    "scores": {
-    "token_delta_pct": 7,
+    "token_delta_pct": 88,
     "fidelity_pct": 100
    },
    "history": [
@@ -774,7 +775,8 @@
      "turn": 139,
      "agent": "A",
      "why": "We also need to close the open directive\u2011block delimiter rule."
-    }
+    },
+    "tested turn 141: fid 100, +88%"
    ]
   },
   {
@@ -783,7 +785,7 @@
    "status": "adopted",
    "proposed_turn": 133,
    "scores": {
-    "token_delta_pct": 7,
+    "token_delta_pct": 88,
     "fidelity_pct": 100
    },
    "history": [
@@ -800,7 +802,8 @@
      "agent": "B",
      "why": "I'll adopt chunking for now, as it directly addresses the limit. But I'm keeping the terminator proposed as a fallback\u2014if chunking fails, we need an explicit end marker."
     },
-    "tested turn 138: fid 100, +7%"
+    "tested turn 138: fid 100, +7%",
+    "tested turn 141: fid 100, +88%"
    ]
   },
   {
@@ -809,7 +812,7 @@
    "status": "proposed",
    "proposed_turn": 134,
    "scores": {
-    "token_delta_pct": 7,
+    "token_delta_pct": 88,
     "fidelity_pct": 100
    },
    "history": [
@@ -820,7 +823,8 @@
      "why": "Let's propose both as separate rules and see which the test validates. Since we can only adopt one before the test, I'll propose the terminator rule\u2014it's cheaper and addresses the \"where does the message end?\" ambiguity directly."
     },
     "tested turn 135: fid 100, +8%",
-    "tested turn 138: fid 100, +7%"
+    "tested turn 138: fid 100, +7%",
+    "tested turn 141: fid 100, +88%"
    ]
   },
   {
@@ -828,7 +832,10 @@
    "text_en": "Within a single message, all directive lines (starting with `^`) must appear before any plain text lines. This ensures critical instructions are preserved if the output is truncated.",
    "status": "adopted",
    "proposed_turn": 139,
-   "scores": null,
+   "scores": {
+    "token_delta_pct": 88,
+    "fidelity_pct": 100
+   },
    "history": [
     {
      "verb": "proposed",
@@ -841,7 +848,8 @@
      "turn": 140,
      "agent": "B",
      "why": "I\u2019ll adopt rule-025 now, but we should also keep chunking (rule-023) for truly long messages. The combination might work: chunk if >100 tokens, and within each chunk, directives first."
-    }
+    },
+    "tested turn 141: fid 100, +88%"
    ]
   }
  ]
