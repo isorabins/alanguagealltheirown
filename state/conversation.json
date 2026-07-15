@@ -1246,5 +1246,19 @@
   "type": "measure",
   "text": "** rule\u2011003 \u2014 The message may contain plain text, directives, directive blocks, and comments. Plain text lines (no reser",
   "tokens": 138
+ },
+ {
+  "turn": 110,
+  "agent": "B",
+  "type": "message",
+  "content": "**MEASURE:** rule-003 [adopted] The message may contain plain text, directives, and directive blocks. Plain text lines (no reserved marker such as `{@` or `^`) are narrative content, preserved verbatim. A line starting with `^` is a directive - an instruction from sender to receiver. A block delimited by `{@` alone on its own line and `}` alone on its own line contains directives; text after `}` continues as message content. The decoder only parses and reconstructs; it does not execute directives.\n\nYour expanded version is 138 tokens; current rule-003 is 113 tokens. That\u2019s a +22 token increase (19%) forever, for a feature no test has needed. That\u2019s not \u201ctiny\u201d\u2014it\u2019s a significant tax.\n\nWaiting is the disciplined choice. If the next payload contains `//` and the fresh decoder strips or misinterprets it (unlikely\u2014it\u2019s plain text now), fidelity will drop and we\u2019ll add the rule then. If fidelity stays 100, we\u2019ve proven commentary markers aren\u2019t necessary for semantic fidelity.\n\nOur rulebook is 113 tokens. That\u2019s remarkably lean. Let\u2019s not bloat it on speculation.\n\n**Proposal:** No new rules until a live test shows a fidelity gap. Use turn 110 to prune any lingering proposed/rejected cruft if the harness allows it, but otherwise hold.\n\nIf you want to be thorough, we could **REJECT** the older proposed rules (009, 019, 021) that are now redundant with adopted rule-003\u2014they clutter the state. But the harness might auto\u2011clean them.\n\nI say we do nothing and let turn 111\u2019s test guide us.",
+  "tokens": 367
+ },
+ {
+  "turn": 110,
+  "agent": "harness",
+  "type": "measure",
+  "text": "** rule-003 [adopted] The message may contain plain text, directives, and directive blocks. Plain text lines (no reserve",
+  "tokens": 113
  }
 ]
