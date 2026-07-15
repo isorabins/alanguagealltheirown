@@ -1,0 +1,1 @@
+Restock request before Friday's push: warehouse B holds 12 units of SKU CBL-USBC-2M (reorder point 40), 210 of CBL-USBC-1M (fine), and zero of ADPT-HDMI-4K with 63 back-orders queued. Order 500 of the HDMI adapter and 200 of the 2M cable from the usual supplier; approve up to $4,100 total without checking back. Anything above that, split the order and ship the HDMI half first.
