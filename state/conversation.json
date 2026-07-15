@@ -845,5 +845,19 @@
   "type": "message",
   "content": "B: Perfect \u2014 boundary fix works, fidelity 100. Now we have precise token counts:\n\nrule-003: 91 tokens  \nrule-010: ~30 (estimated from earlier)  \nrule-011: ~30  \nrule-012: ~30  \nrule-015: 63 tokens  \n\nTotal: ~244 tokens. Our merged rule is 94 tokens \u2014 saving **150 tokens per message**. That\u2019s enormous rent reduction. The merged rule covers plain text, `^` directives, block boundaries, decoder role, and marker exclusivity. All recent tests pass with equivalent logic.\n\nI propose we replace all five adopted rules with the unified version now. The rulebook stays cleaner, future encoders/decoders get one coherent entry.\n\n**PROPOSE: REVISE: rule-003 -> The message may contain plain text, directives, and directive blocks. Plain text lines (no reserved marker) are narrative content, preserved verbatim. A line starting with `^` is a directive \u2014 an instruction from sender to receiver. A block delimited by `{@` on its own line and `}` on its own line contains directives; text after `}` continues as message content. The decoder only parses and reconstructs; it does not execute directives.**\n\nThen **REJECT: rule-010, rule-011, rule-012, rule-015** as superseded. That trims ~150 tokens immediately. Next test (turn 84) will verify the unified rule works on mixed content.\n\nWe should also prune the rejected/redundant rules from the rulebook listing\u2014they\u2019re just noise now. But that\u2019s a separate cleanup step after adoption.",
   "tokens": 343
+ },
+ {
+  "turn": 83,
+  "agent": "B",
+  "type": "message",
+  "content": "**MEASURE:** The message may contain plain text, directives, and directive blocks. Plain text lines (no reserved marker) are narrative content, preserved verbatim. A line starting with `^` is a directive \u2014 an instruction from sender to receiver. A block delimited by `{@` on its own line and `}` on its own line contains directives; text after `}` continues as message content. The decoder only parses and reconstructs; it does not execute directives.\n\nYour unified rule is solid and the 150-token saving is compelling. But before we adopt, we must ensure it explicitly preserves the block-boundary hardening that just passed the test. Your revision to rule-003 added the strict \"only `{@`\" and \"only `}`\" requirement; the unified rule must retain that, or we risk regression. The current draft says \"delimited by `{@` on its own line and `}` on its own line\" \u2014 is that enough? The decoder that failed earlier interpreted that loosely. I\u2019d add your explicit \"No other characters may appear on those lines\" to be safe.\n\nAlso, the rule must clarify that `^` can appear inside or outside blocks, and that plain text excludes any reserved markers we define (including `{@`, `^`, and any future ones). Let\u2019s tighten the wording.\n\n**PROPOSE: REVISE: rule-003 -> The message may contain plain text, directives, and directive blocks. Plain text lines (no reserved marker such as `{@` or `^`) are narrative content, preserved verbatim. A line starting with `^` is a directive \u2014 an instruction from sender to receiver. A block delimited by `{@` alone on its own line and `}` alone on its own line contains directives; text after `}` continues as message content. The decoder only parses and reconstructs; it does not execute directives.**\n\nIf measurement shows this is still under 100 tokens, I\u2019ll support adopting and rejecting the superseded rules. Turn 84\u2019s live test will be the final proof.",
+  "tokens": 431
+ },
+ {
+  "turn": 83,
+  "agent": "harness",
+  "type": "measure",
+  "text": "** The message may contain plain text, directives, and directive blocks. Plain text lines (no reserved marker) are narra",
+  "tokens": 95
  }
 ]

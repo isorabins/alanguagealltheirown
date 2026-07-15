@@ -1,7 +1,7 @@
 {
- "version": "0.33",
- "kernel_tokens": 1142,
- "changes": 33,
+ "version": "0.34",
+ "kernel_tokens": 1153,
+ "changes": 34,
  "next_id": 20,
  "rules": [
   {
@@ -68,7 +68,7 @@
   },
   {
    "id": "rule-003",
-   "text_en": "The message may contain plain text, directives, and directive blocks. Plain text lines (no reserved marker) are narrative content, preserved verbatim. A line starting with `^` is a directive - an instruction from sender to receiver. A block delimited by `{@` on its own line and `}` on its own line contains directives; text after `}` continues as message content. The decoder only parses and reconstructs; it does not execute directives.",
+   "text_en": "The message may contain plain text, directives, and directive blocks. Plain text lines (no reserved marker such as `{@` or `^`) are narrative content, preserved verbatim. A line starting with `^` is a directive - an instruction from sender to receiver. A block delimited by `{@` alone on its own line and `}` alone on its own line contains directives; text after `}` continues as message content. The decoder only parses and reconstructs; it does not execute directives.",
    "status": "proposed",
    "proposed_turn": 6,
    "scores": {
@@ -149,6 +149,12 @@
      "turn": 82,
      "agent": "A",
      "why": "I propose we replace all five adopted rules with the unified version now. The rulebook stays cleaner, future encoders/decoders get one coherent entry."
+    },
+    {
+     "verb": "revise",
+     "turn": 83,
+     "agent": "B",
+     "why": "Also, the rule must clarify that `^` can appear inside or outside blocks, and that plain text excludes any reserved markers we define (including `{@`, `^`, and any future ones). Let\u2019s tighten the wording."
     }
    ]
   },
