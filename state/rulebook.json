@@ -1,7 +1,7 @@
 {
- "version": "0.55",
+ "version": "0.56",
  "kernel_tokens": 1532,
- "changes": 55,
+ "changes": 56,
  "next_id": 26,
  "rules": [
   {
@@ -826,7 +826,7 @@
   {
    "id": "rule-025",
    "text_en": "Within a single message, all directive lines (starting with `^`) must appear before any plain text lines. This ensures critical instructions are preserved if the output is truncated.",
-   "status": "proposed",
+   "status": "adopted",
    "proposed_turn": 139,
    "scores": null,
    "history": [
@@ -835,6 +835,12 @@
      "turn": 139,
      "agent": "A",
      "why": "Let\u2019s propose a simple priority rule: within a message, place all `^` directives before any plain text narrative. That ensures directives survive truncation."
+    },
+    {
+     "verb": "adopt",
+     "turn": 140,
+     "agent": "B",
+     "why": "I\u2019ll adopt rule-025 now, but we should also keep chunking (rule-023) for truly long messages. The combination might work: chunk if >100 tokens, and within each chunk, directives first."
     }
    ]
   }
