@@ -1454,5 +1454,20 @@
   "type": "measure",
   "text": "** rule-003 \u2014 Messages contain plain text, directives, and directive blocks. Plain text lines (no `{@` or `^`) are prese",
   "tokens": 78
+ },
+ {
+  "turn": 126,
+  "agent": "harness",
+  "type": "test",
+  "payload": "gen-data-retail",
+  "original": "Item 1247-BL is temporarily mis-sorted at warehouse zone D12, bin 7. I\u2019ve logged a correction in the manifest for the pending shipment to the Westgate Outlet. The SKU count is now 83 units, not 76. If the shipment manifest prints before 15:00 UTC, please override and use the updated quantity; if it\u2019s after, alert the receiving dock directly so they can reconcile upon arrival. Do not adjust any other items in the Westgate order\u2014only the count for 1247-BL.",
+  "orig_tokens": 115,
+  "enc_tokens": 130,
+  "token_delta_pct": 13,
+  "fidelity": 100,
+  "lost": "nothing material",
+  "encoded": "Item 1247-BL is temporarily mis-sorted at warehouse zone D12, bin 7. I\u2019ve logged a correction in the manifest for the pending shipment to the Westgate Outlet. The SKU count is now 83 units, not 76.\n\n{@\n^ If the shipment manifest prints before 15:00 UTC, override and use the updated quantity (83 units).\n^ If the shipment manifest prints after 15:00 UTC, alert the receiving dock directly so they can reconcile upon arrival.\n^ Do not adjust any other items in the Westgate order\u2014only the count for 1247-BL.\n}",
+  "decoded": "Item 1247-BL is temporarily mis-sorted at warehouse zone D12, bin 7. I\u2019ve logged a correction in the manifest for the pending shipment to the Westgate Outlet. The SKU count is now 83 units, not 76.\n\n{@\n^ If the shipment manifest prints before 15:00 UTC, override and use the updated quantity (83 units).\n^ If the shipment manifest prints after 15:00 UTC, alert the receiving dock directly so they can reconcile upon arrival.\n^ Do not adjust any other items in the Westgate order\u2014only the count for 1247-BL.\n}",
+  "tokens": 130
  }
 ]
