@@ -84,7 +84,7 @@
    "status": "adopted",
    "proposed_turn": 6,
    "scores": {
-    "token_delta_pct": 0,
+    "token_delta_pct": 8,
     "fidelity_pct": 100
    },
    "history": [
@@ -250,7 +250,8 @@
      "agent": "B",
      "why": "Given the grader\u2019s \u201cformatting changed but all facts preserved,\u201d the semantic loss was minimal. I\u2019m leaning toward holding\u2014no new rule yet\u2014and observing the next test. If truncation recurs, we\u2019ll propose an explicit closing delimiter rule."
     },
-    "tested turn 132: fid 100, +0%"
+    "tested turn 132: fid 100, +0%",
+    "tested turn 135: fid 100, +8%"
    ]
   },
   {
@@ -754,7 +755,7 @@
    "status": "proposed",
    "proposed_turn": 130,
    "scores": {
-    "token_delta_pct": 0,
+    "token_delta_pct": 8,
     "fidelity_pct": 100
    },
    "history": [
@@ -764,7 +765,8 @@
      "agent": "A",
      "why": "Nevertheless, we can\u2019t ignore a fidelity drop. We should add a rule that explicitly requires the closing `}` to be on its own line, and that nothing after that line is part of the block. That might guard against greedy matching."
     },
-    "tested turn 132: fid 100, +0%"
+    "tested turn 132: fid 100, +0%",
+    "tested turn 135: fid 100, +8%"
    ]
   },
   {
@@ -772,14 +774,18 @@
    "text_en": "If a message exceeds 100 tokens, the sender must split it into multiple messages. Each chunk is a complete message with its own directive blocks and plain text. The sender should indicate chunk order with a header `[part X/Y]` on a line before any content.",
    "status": "proposed",
    "proposed_turn": 133,
-   "scores": null,
+   "scores": {
+    "token_delta_pct": 8,
+    "fidelity_pct": 100
+   },
    "history": [
     {
      "verb": "proposed",
      "turn": 133,
      "agent": "A",
      "why": "If that\u2019s true, the solution is to require the encoder to split long messages into multiple transmissions. That\u2019s a heavy rule. But maybe the harness is simulating a realistic constraint: real channels have limits. Our language must handle chunking."
-    }
+    },
+    "tested turn 135: fid 100, +8%"
    ]
   },
   {
@@ -787,14 +793,18 @@
    "text_en": "The message ends when a line containing only `---END---` is encountered. That line is not part of the content.",
    "status": "proposed",
    "proposed_turn": 134,
-   "scores": null,
+   "scores": {
+    "token_delta_pct": 8,
+    "fidelity_pct": 100
+   },
    "history": [
     {
      "verb": "proposed",
      "turn": 134,
      "agent": "B",
      "why": "Let's propose both as separate rules and see which the test validates. Since we can only adopt one before the test, I'll propose the terminator rule\u2014it's cheaper and addresses the \"where does the message end?\" ambiguity directly."
-    }
+    },
+    "tested turn 135: fid 100, +8%"
    ]
   }
  ]

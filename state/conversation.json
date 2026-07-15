@@ -1576,5 +1576,20 @@
   "type": "measure",
   "text": "** The closing delimiter of a directive block must be a line containing only `}`. No other characters may appear on that",
   "tokens": 40
+ },
+ {
+  "turn": 135,
+  "agent": "harness",
+  "type": "test",
+  "payload": "gen-data-logistics",
+  "original": "Dispatch team, confirm that shipment ID ZT8F-R77K is cleared for the 22:30 airlift out of Sable Point. It contains three pallets of thermocouples from vendor Corvus Systems, total gross weight 418 kg. If any pallet exceeds the 160 kg limit for the port-side cargo bay, you must re-strap it as two units before loading. The customs waiver expires at 23:00 tonight, so the plane cannot be held. Use only the secondary tarmac, not the main apron, for this transfer.",
+  "orig_tokens": 117,
+  "enc_tokens": 126,
+  "token_delta_pct": 8,
+  "fidelity": 100,
+  "lost": "nothing material",
+  "encoded": "{@\n^Dispatch team, confirm that shipment ID ZT8F-R77K is cleared for the 22:30 airlift out of Sable Point.\n^It contains three pallets of thermocouples from vendor Corvus Systems, total gross weight 418 kg.\n^If any pallet exceeds the 160 kg limit for the port-side cargo bay, you must re-strap it as two units before loading.\n^The customs waiver expires at 23:00 tonight, so the plane cannot be held.\n^Use only the secondary tarmac, not the main apron, for this transfer.\n}",
+  "decoded": "Dispatch team, confirm that shipment ID ZT8F-R77K is cleared for the 22:30 airlift out of Sable Point.  \nIt contains three pallets of thermocouples from vendor Corvus Systems, total gross weight 418 kg.  \nIf any pallet exceeds the 160 kg limit for the port-side cargo bay, you must re-strap it as two units before loading.  \nThe customs waiver expires at 23:00 tonight, so the plane cannot be held.  \nUse only the secondary tarmac, not the main apron, for this transfer.",
+  "tokens": 126
  }
 ]
