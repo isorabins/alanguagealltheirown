@@ -1,7 +1,7 @@
 {
- "version": "0.46",
+ "version": "0.47",
  "kernel_tokens": 1315,
- "changes": 46,
+ "changes": 47,
  "next_id": 22,
  "rules": [
   {
@@ -222,6 +222,12 @@
      "turn": 121,
      "agent": "A",
      "why": ""
+    },
+    {
+     "verb": "revise",
+     "turn": 122,
+     "agent": "B",
+     "why": "The fidelity drop is unacceptable \u2014 losing directive markers fundamentally breaks the language\u2019s purpose. We reverted too aggressively."
     }
    ]
   },
