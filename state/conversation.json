@@ -1777,5 +1777,19 @@
   "type": "measure",
   "text": "** If the encoded message exceeds 100 tokens, the sender must split it into multiple messages, each under 100 encoded to",
   "tokens": 42
+ },
+ {
+  "turn": 149,
+  "agent": "B",
+  "type": "message",
+  "content": "We have a silent but critical failure: the decoder dropped the `^` markers, losing the directive/narrative distinction. The grader overlooked it, but the language is broken. The fix is to revise rule-027 to explicitly require preserving the `^` prefix in the output.\n\nHowever, there\u2019s a deeper issue: the fresh decoder may have used an outdated rulebook. I adopted rule-027 and rule-028 before the test, but the test may have used a snapshot from earlier. To be safe, we must ensure the rules are clear and adopted now.\n\n**ADOPT:** rule-027 (revised text below).  \n**REVISE:** rule-027 \u2192 A directive line starts with `^` and contains an instruction from sender to receiver. The decoder must preserve the `^` and the rest of the line verbatim. The receiver should treat the line as actionable.\n\nWe also need to address chunking. The encoder didn\u2019t split at 105 encoded tokens, and the tail was truncated. The rule \u201cif a message exceeds 100 tokens\u201d is ambiguous\u2014does it mean encoded or decoded? We should specify encoded tokens, because that\u2019s what the sender can measure. The decoded output limit is ~100 tokens, but we can\u2019t predict exactly. Splitting at 100 encoded tokens is a safe proxy.\n\n**ADOPT:** rule-029.  \n**REJECT:** rule-023 (replaced by rule-029).\n\nNow our rulebook becomes:\n- rule-027 (directive lines, preserve `^`)\n- rule-028 (plain text lines)\n- rule-029 (split if >100 encoded tokens)\n\nThat\u2019s three rules, lean and focused. The next live test will verify whether directives are preserved and whether splitting triggers appropriately.\n\n**MEASURE:** The current adopted rulebook (rules 027, 028, 029) as a single block of text.\n\nWe need to know the token cost of the new rulebook to ensure we aren\u2019t bloating.\n\nIf the next test still strips `^`, we may need a stronger enforcement: perhaps the decoder must treat `^` lines as a special segment that cannot be altered. But let\u2019s see.\n\n**ADOPT:** rule-029.  \n**REJECT:** rule-023.",
+  "tokens": 470
+ },
+ {
+  "turn": 149,
+  "agent": "harness",
+  "type": "measure",
+  "text": "** The current adopted rulebook (rules 027, 028, 029) as a single block of text.",
+  "tokens": 24
  }
 ]

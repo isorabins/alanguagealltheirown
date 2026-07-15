@@ -17,13 +17,13 @@
   "rule-020": "rejected",
   "rule-021": "rejected",
   "rule-022": "reverted",
-  "rule-023": "proposed",
+  "rule-023": "rejected",
   "rule-024": "rejected",
   "rule-025": "reverted",
   "rule-026": "proposed",
-  "rule-027": "proposed",
+  "rule-027": "adopted",
   "rule-028": "adopted",
-  "rule-029": "proposed"
+  "rule-029": "adopted"
  },
- "tweets_sent": 20
+ "tweets_sent": 23
 }

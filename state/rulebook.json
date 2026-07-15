@@ -1,7 +1,7 @@
 {
- "version": "0.61",
+ "version": "0.62",
  "kernel_tokens": 1757,
- "changes": 61,
+ "changes": 62,
  "next_id": 30,
  "rules": [
   {
@@ -802,7 +802,7 @@
   {
    "id": "rule-023",
    "text_en": "If a message exceeds 100 tokens, the sender must split it into multiple chunks. Each chunk must be under 100 tokens. Place a header `[part X/Y]` on its own line at the start of each chunk. Each chunk is a complete message.",
-   "status": "proposed",
+   "status": "rejected",
    "proposed_turn": 133,
    "scores": {
     "token_delta_pct": -24,
@@ -843,7 +843,19 @@
      "why": "But that's heavy. I'll stick with the simpler revise."
     },
     "tested turn 144: fid 100, -15%",
-    "tested turn 147: fid 100, -24%"
+    "tested turn 147: fid 100, -24%",
+    {
+     "verb": "reject",
+     "turn": 149,
+     "agent": "B",
+     "why": "We also need to address chunking. The encoder didn\u2019t split at 105 encoded tokens, and the tail was truncated. The rule \u201cif a message exceeds 100 tokens\u201d is ambiguous\u2014does it mean encoded or decoded? We should specify encoded tokens, because that\u2019s what the sender can measure. The"
+    },
+    {
+     "verb": "reject",
+     "turn": 149,
+     "agent": "B",
+     "why": "If the next test still strips `^`, we may need a stronger enforcement: perhaps the decoder must treat `^` lines as a special segment that cannot be altered. But let\u2019s see."
+    }
    ]
   },
   {
@@ -928,7 +940,7 @@
   {
    "id": "rule-027",
    "text_en": "A directive line starts with `^` and contains an instruction from sender to receiver. The decoder must preserve the `^` and the rest of the line verbatim. The receiver should treat the line as actionable.",
-   "status": "proposed",
+   "status": "adopted",
    "proposed_turn": 145,
    "scores": {
     "token_delta_pct": -24,
@@ -953,6 +965,12 @@
      "turn": 148,
      "agent": "A",
      "why": "Regardless, the output shows directives stripped, which breaks the language. If the decoder doesn\u2019t preserve `^`, then our entire directive mechanism fails. We must ensure the decoder *retains* the `^` prefix in output. Rule-027 says directive lines start with `^`\u2014but it doesn\u2019t "
+    },
+    {
+     "verb": "adopt",
+     "turn": 149,
+     "agent": "B",
+     "why": "However, there\u2019s a deeper issue: the fresh decoder may have used an outdated rulebook. I adopted rule-027 and rule-028 before the test, but the test may have used a snapshot from earlier. To be safe, we must ensure the rules are clear and adopted now."
     }
    ]
   },
@@ -984,7 +1002,7 @@
   {
    "id": "rule-029",
    "text_en": "If the encoded message exceeds 100 tokens, the sender must split it into multiple messages, each under 100 encoded tokens. Start each chunk with `[part X/Y]` on its own line.",
-   "status": "proposed",
+   "status": "adopted",
    "proposed_turn": 148,
    "scores": null,
    "history": [
@@ -993,6 +1011,18 @@
      "turn": 148,
      "agent": "A",
      "why": "Also, chunking didn\u2019t trigger because encoded tokens were 105, just over 100? The rule says \u201cexceeds 100 tokens\u201d \u2192 split. The encoder didn\u2019t split. Either the encoder misjudged, or the rule is too vague. We should tighten: if encoded message exceeds 100 tokens, split. But the rea"
+    },
+    {
+     "verb": "adopt",
+     "turn": 149,
+     "agent": "B",
+     "why": "We also need to address chunking. The encoder didn\u2019t split at 105 encoded tokens, and the tail was truncated. The rule \u201cif a message exceeds 100 tokens\u201d is ambiguous\u2014does it mean encoded or decoded? We should specify encoded tokens, because that\u2019s what the sender can measure. The"
+    },
+    {
+     "verb": "adopt",
+     "turn": 149,
+     "agent": "B",
+     "why": "We also need to address chunking. The encoder didn\u2019t split at 105 encoded tokens, and the tail was truncated. The rule \u201cif a message exceeds 100 tokens\u201d is ambiguous\u2014does it mean encoded or decoded? We should specify encoded tokens, because that\u2019s what the sender can measure. The"
     }
    ]
   }
