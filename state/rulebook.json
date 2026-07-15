@@ -1,8 +1,8 @@
 {
- "version": "0.54",
- "kernel_tokens": 1491,
- "changes": 54,
- "next_id": 25,
+ "version": "0.55",
+ "kernel_tokens": 1532,
+ "changes": 55,
+ "next_id": 26,
  "rules": [
   {
    "id": "rule-001",
@@ -753,7 +753,7 @@
   {
    "id": "rule-022",
    "text_en": "The closing delimiter of a directive block must be a line containing only `}`. No other characters may appear on that line. The block ends at that line; any following lines are message content.",
-   "status": "proposed",
+   "status": "adopted",
    "proposed_turn": 130,
    "scores": {
     "token_delta_pct": 7,
@@ -768,7 +768,13 @@
     },
     "tested turn 132: fid 100, +0%",
     "tested turn 135: fid 100, +8%",
-    "tested turn 138: fid 100, +7%"
+    "tested turn 138: fid 100, +7%",
+    {
+     "verb": "adopt",
+     "turn": 139,
+     "agent": "A",
+     "why": "We also need to close the open directive\u2011block delimiter rule."
+    }
    ]
   },
   {
@@ -815,6 +821,21 @@
     },
     "tested turn 135: fid 100, +8%",
     "tested turn 138: fid 100, +7%"
+   ]
+  },
+  {
+   "id": "rule-025",
+   "text_en": "Within a single message, all directive lines (starting with `^`) must appear before any plain text lines. This ensures critical instructions are preserved if the output is truncated.",
+   "status": "proposed",
+   "proposed_turn": 139,
+   "scores": null,
+   "history": [
+    {
+     "verb": "proposed",
+     "turn": 139,
+     "agent": "A",
+     "why": "Let\u2019s propose a simple priority rule: within a message, place all `^` directives before any plain text narrative. That ensures directives survive truncation."
+    }
    ]
   }
  ]
