@@ -180,6 +180,11 @@ def apply_conventions(text, rb, turn, agent="?"):
             continue
         verb, rest = m.group(1), m.group(2).strip().strip("*").strip()
         rest = re.sub(r"[‐‑‒–—]", "-", rest)  # agents emit unicode hyphens in rule ids
+        inner = re.match(r"(PROPOSE|ADOPT|REJECT|REVISE)\**\s*:\s*(.+)", rest)
+        if verb == "PROPOSE" and inner:
+            # "PROPOSE: REJECT: rule-014" is a motion, not a rule — act on the inner
+            # verb instead of minting a rule whose text is a verb line (t63/t73/t74)
+            verb, rest = inner.group(1), inner.group(2).strip().strip("*").strip()
         if verb == "PROPOSE":
             if any(r["text_en"].strip() == rest for r in rb["rules"]):
                 continue  # identical re-proposal (echo agreement) — don't duplicate
