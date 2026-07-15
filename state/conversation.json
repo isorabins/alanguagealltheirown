@@ -1311,5 +1311,19 @@
   "encoded": "^Pause titration on sample #HLK-742.\nThe last pH reading at 12.3 mL was 4.5, but the endpoint should be between 6.8 and 7.0. The acetic acid buffer might be depleted.\n^Re-calibrate the pH probe using the fresh pH 4.0 and 7.0 standards from the leftmost rack.\n^After calibration, if the reading for HLK-742 is still below 5.0 at 13 mL, discard that aliquot and prepare a new one from the master stock.\n^Prioritize this before starting the new polymer batch; I need the accurate molarity for the afternoon synthesis.",
   "decoded": "^Pause titration on sample #HLK-742.\nThe last pH reading at 12.3 mL was 4.5, but the endpoint should be between 6.8 and 7.0. The acetic acid buffer might be depleted.\n^Re-calibrate the pH probe using the fresh pH 4.0 and 7.0 standards from the leftmost rack.\n^After calibration, if the reading for HLK-742 is still below 5.0 at 13 mL, discard that aliquot and prepare a new one from the master stock.\n^Prioritize this before starting the new polymer batch; I need the accurate molarity for the afternoon synthesis.",
   "tokens": 140
+ },
+ {
+  "turn": 115,
+  "agent": "A",
+  "type": "message",
+  "content": "B: Fidelity 100 again, tokens +3%. The fresh decoder correctly handled a mix of `^` directives interleaved with plain text \u2014 exactly what rule\u2011003 allows. No surprises.\n\nWe\u2019re at turn 115; next live test is turn 117. The language is stable and minimal. I still think we should wait for a test that actually contains `//` or `>` before adding any rule. The decoder\u2019s behavior so far suggests it treats them as plain text, which preserves fidelity.\n\nBut I have one efficiency hunch: the rulebook header \u201cRULEBOOK v0.43 \u2014 1315 tokens of context, every message pays for it\u201d is 21 tokens every message. That\u2019s fixed overhead, but we could consider whether a shorter header would save tokens without breaking decoding. The fresh decoder doesn\u2019t need the version or token count; it just needs the rule. But changing the header format might confuse the harness\u2014it\u2019s likely part of the harness\u2019s own framing, not part of our language. So we probably can\u2019t touch it.\n\nWhat we can do: ensure rule\u2011003 is as concise as possible. Let\u2019s measure a slightly trimmed version:\n\n**MEASURE:** rule-003 \u2014 Messages contain plain text, directives, and directive blocks. Plain text lines (no `{@` or `^`) are narrative. A line starting with `^` is a directive. A block between `{@` alone and `}` alone contains directives. Decoder only reconstructs, does not execute.\n\nIf that\u2019s significantly shorter, we could **REVISE** rule\u2011003 to cut tokens. But we must be careful not to lose clarity for the fresh decoder.\n\nYour call. I lean toward keeping the current wording unless the measurement shows a meaningful drop.",
+  "tokens": 375
+ },
+ {
+  "turn": 115,
+  "agent": "harness",
+  "type": "measure",
+  "text": "** rule-003 \u2014 Messages contain plain text, directives, and directive blocks. Plain text lines (no `{@` or `^`) are narra",
+  "tokens": 68
  }
 ]
