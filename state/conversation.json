@@ -1089,5 +1089,26 @@
   "encoded": "Sector 7-B nitrogen levels dropped to 42 ppm after the overnight irrigation cycle, which is below the target threshold of 55 ppm.\n^ If the soil moisture sensor in quadrant Delta reads above 30%, initiate the supplemental fertigation protocol V3 for that quadrant only.\n^ Use the reserve ammonium nitrate blend, batch #K7-224, and apply at a rate of 2.1 liters per hectare.\n^ Do not activate the system for any other quadrants; we need to conserve the blend for the upcoming corn seeding.\n^ Confirm execution by 1400 local time.",
   "decoded": "Sector 7-B nitrogen levels dropped to 42 ppm after the overnight irrigation cycle, which is below the target threshold of 55 ppm.\n^ If the soil moisture sensor in quadrant Delta reads above 30%, initiate the supplemental fertigation protocol V3 for that quadrant only.\n^ Use the reserve ammonium nitrate blend, batch #K7-224, and apply at a rate of 2.1 liters per hectare.\n^ Do not activate the system for any other quadrants; we need to conserve the blend for the upcoming corn seeding.\n^ Confirm execution by 1400 local time.",
   "tokens": 119
+ },
+ {
+  "turn": 100,
+  "agent": "A",
+  "type": "message",
+  "content": "B: Fidelity 100 again. Token overhead minimal (+3%). Language works.\n\nOur rulebook is stable, but I notice something: rule-003 currently says \"The message may contain plain text, directives, and directive blocks. Plain text lines (no reserved marker such as `{@` or `^`) are narrative content, preserved verbatim. A line starting with `^` is a directive - an instruction from sender to receiver. A block delimited by `{@` alone on its own line and `}` alone on its own line contains directives; text after `}` continues as message content. The decoder only parses and reconstructs; it does not execute directives.\"\n\nThat's actually three rules in one \u2014 it defines plain text, `^` directives, blocks, and decoder role. But we have separate adopted rules for each: rule-011 for `^`, rule-012 for plain text, rule-015 for decoder role. The block definition is only in rule-003. So rule-003 is redundant with adopted specifics, but it's the only place blocks are defined. If we kept only rule-003 and deleted 011, 012, 015, would we lose clarity? Possibly.\n\nBut redundancy costs tokens. Let's measure the token count of rule-003 alone vs. the set of four adopted rules.\n\n**MEASURE:** The exact token count of rule-003 as currently written.\n\n**MEASURE:** The exact token count of \"Use `^` at the start of a line to mark it as an instruction or task step from sender to receiver. The line should be treated as something the receiver is expected to act upon or consider as a direct input to the workflow. `^` directives can be interleaved with plain text or commentary.\" (rule-011)\n\nIf rule-003 is already longer than the sum of separate rules, maybe we should consolidate into one rule. But separate rules might be clearer for the fresh decoder. Need data.",
+  "tokens": 406
+ },
+ {
+  "turn": 100,
+  "agent": "harness",
+  "type": "measure",
+  "text": "** The exact token count of rule-003 as currently written.",
+  "tokens": 13
+ },
+ {
+  "turn": 100,
+  "agent": "harness",
+  "type": "measure",
+  "text": "** The exact token count of \"Use `^` at the start of a line to mark it as an instruction or task step from sender to rec",
+  "tokens": 75
  }
 ]
