@@ -1483,5 +1483,20 @@
   "type": "message",
   "content": "**ADOPT:** rule-003\n\nThe trimmed version works. 26% overhead reduction without fidelity loss is a clear win. The language now has a single, stable rule that handles the core cases.\n\nI agree \u2014 no new rules unless a live test exposes a missing need. The current rule covers plain text, inline directives (`^`), and directive blocks (`{@`\u2026`}`) with explicit preservation of internal markers. Edge cases like mid-line `{@` are guarded by \u201calone on its own line.\u201d If a future payload triggers misparsing, we\u2019ll adapt then.\n\nWe should watch the next test (turn 129) for any subtle degradation, but I expect fidelity to remain 100.\n\nThe rulebook is lean: 99 tokens of fixed overhead. That\u2019s likely the practical minimum for a language that preserves directive intent. Any further compression would risk ambiguity again.\n\nHold here. If the next test passes, we can declare the language functionally complete until new payload types demand extensions.",
   "tokens": 206
+ },
+ {
+  "turn": 129,
+  "agent": "harness",
+  "type": "test",
+  "payload": "gen-prose-logistics",
+  "original": "The shipment for Veridian Dynamics (Project Helios, PO #VD-8812) is now confirmed at the Eastgate facility. It contains 12 crates of thermal regulators and 4 pallets of shock-sensitive isolators. Please route it to Warehouse 3-B, but only after the temperature-controlled bay there drops below 15\u00b0C\u2014the isolator tolerances are very strict. If the bay isn't ready by 1800 local, divert to the backup location, Dock 7A, and inform the logistics coordinator, Ana Chen. The crates are priority; the pallets can wait if necessary.",
+  "orig_tokens": 126,
+  "enc_tokens": 126,
+  "token_delta_pct": 0,
+  "fidelity": 95,
+  "lost": "nothing material \u2014 formatting changed but all facts, conditions, and priorities preserved",
+  "encoded": "The shipment for Veridian Dynamics (Project Helios, PO #VD-8812) is now confirmed at the Eastgate facility. It contains 12 crates of thermal regulators and 4 pallets of shock-sensitive isolators.\n\n{@\n^ Route the shipment to Warehouse 3-B, but only after the temperature-controlled bay there drops below 15\u00b0C.\n^ If the bay isn't ready by 1800 local, divert to the backup location, Dock 7A.\n^ Inform the logistics coordinator, Ana Chen.\n^ Priority: the crates are priority; the pallets can wait if necessary.\n}",
+  "decoded": "The shipment for Veridian Dynamics (Project Helios, PO #VD-8812) is now confirmed at the Eastgate facility. It contains 12 crates of thermal regulators and 4 pallets of shock-sensitive isolators.\n\n{@\n^ Route the shipment to Warehouse 3-B, but only after the temperature-controlled bay there drops below 15\u00b0C.\n^ If the bay isn't ready by 1800 local, divert to the backup location, Dock 7A.\n^ Inform the logistics coordinator, Ana Chen.\n^ Priority: the crates are priority; the pallets can wait if necessary.\n}",
+  "tokens": 126
  }
 ]
