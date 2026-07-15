@@ -36,18 +36,29 @@ def adopted_count(rb):
     return sum(1 for r in rb["rules"] if r["status"] == "adopted")
 
 
+REFRAIN = "Two AIs are inventing a language, one tested rule at a time."
+LABEL = {"adopted": "New rule adopted", "rejected": "Rule rejected",
+         "reverted": "Rule un-adopted"}
+
+
 def compose(rb, rule):
-    # history holds dict events plus bare-string test annotations — want the last event
-    turn = next((e["turn"] for e in reversed(rule["history"]) if isinstance(e, dict)), "?")
-    s = rule.get("scores")
-    scores = f' — last test fidelity {s["fidelity_pct"]}/100, tokens {s["token_delta_pct"]:+d}%' if s else ""
-    head = f'rulebook v{rb["version"]} — {rule["id"]} {rule["status"]} at turn {turn}: '
-    tail = f'{scores}. {adopted_count(rb)}/{len(rb["rules"])} rules adopted. {PAGE}'
+    # scores attach rulebook-wide, so they only honestly describe the rulebook a
+    # rule was adopted INTO — never why something was rejected
+    s = rule.get("scores") if rule["status"] == "adopted" else None
+    if s:
+        d = s["token_delta_pct"]
+        size = ("the same length as plain English" if d == 0 else
+                f'{abs(d)}% {"shorter" if d < 0 else "longer"} than plain English')
+        evidence = f'\n\nStranger-test: {s["fidelity_pct"]}% of meaning survived, {size}.'
+    else:
+        evidence = ""
+    head = f'{REFRAIN}\n\n{LABEL[rule["status"]]}: '
+    tail = f'\n\n{adopted_count(rb)} rules in force. {PAGE}'
     text = " ".join(rule["text_en"].replace("**", "").split())
-    room = MAX_LEN - len(head) - len(tail) - 2
+    room = MAX_LEN - len(head) - len(evidence) - len(tail) - 2
     if len(text) > room:
         text = text[:room - 1].rstrip() + "…"
-    return f'{head}"{text}"{tail}'
+    return f'{head}"{text}"{evidence}{tail}'
 
 
 def post(text):
@@ -79,9 +90,8 @@ def main():
     if not events:
         return
     if len(events) > 3:  # mass change (repair/migration) — one summary, never a flood
-        detail = ", ".join(f'{r["id"]} {r["status"]}' for r in events)
-        post(f'rulebook v{rb["version"]} — {len(events)} rule changes: {detail[:140]}. '
-             f'{adopted_count(rb)}/{len(rb["rules"])} rules adopted. {PAGE}')
+        post(f'{REFRAIN}\n\nBig turn: {len(events)} rules changed status at once. '
+             f'{adopted_count(rb)} now in force. {PAGE}')
         return
     for r in events:
         post(compose(rb, r))
