@@ -1,8 +1,8 @@
 {
- "version": "0.40",
- "kernel_tokens": 1188,
- "changes": 40,
- "next_id": 21,
+ "version": "0.41",
+ "kernel_tokens": 1303,
+ "changes": 41,
+ "next_id": 22,
  "rules": [
   {
    "id": "rule-001",
@@ -371,7 +371,7 @@
   {
    "id": "rule-011",
    "text_en": "Use `^` at the start of a line to mark it as an instruction or task step from sender to receiver. The line should be treated as something the receiver is expected to act upon or consider as a direct input to the workflow. `^` directives can be interleaved with plain text or commentary.",
-   "status": "adopted",
+   "status": "reverted",
    "proposed_turn": 49,
    "scores": {
     "token_delta_pct": 5,
@@ -407,13 +407,19 @@
     "tested turn 93: fid 100, +1%",
     "tested turn 96: fid 100, +37%",
     "tested turn 99: fid 100, +3%",
-    "tested turn 102: fid 100, +5%"
+    "tested turn 102: fid 100, +5%",
+    {
+     "verb": "reject",
+     "turn": 103,
+     "agent": "A",
+     "why": ""
+    }
    ]
   },
   {
    "id": "rule-012",
    "text_en": "Plain text lines (those not starting with a reserved marker) are narrative content from the sender. They are to be preserved verbatim, but are not instructions for the receiver to execute. The receiver should not treat plain text as part of a directive block unless it is inside a block delimited by `{@` and `}`.",
-   "status": "adopted",
+   "status": "reverted",
    "proposed_turn": 58,
    "scores": {
     "token_delta_pct": 5,
@@ -446,7 +452,13 @@
     "tested turn 93: fid 100, +1%",
     "tested turn 96: fid 100, +37%",
     "tested turn 99: fid 100, +3%",
-    "tested turn 102: fid 100, +5%"
+    "tested turn 102: fid 100, +5%",
+    {
+     "verb": "reject",
+     "turn": 103,
+     "agent": "A",
+     "why": ""
+    }
    ]
   },
   {
@@ -485,7 +497,7 @@
   {
    "id": "rule-015",
    "text_en": "The decoder's role is to parse the message and reconstruct its content faithfully. It must not execute directives, perform calculations, or alter content based on directive markers. Markers (`{@`, `^`) indicate intent but do not trigger actions during decoding.",
-   "status": "adopted",
+   "status": "reverted",
    "proposed_turn": 70,
    "scores": {
     "token_delta_pct": 5,
@@ -520,7 +532,13 @@
     "tested turn 93: fid 100, +1%",
     "tested turn 96: fid 100, +37%",
     "tested turn 99: fid 100, +3%",
-    "tested turn 102: fid 100, +5%"
+    "tested turn 102: fid 100, +5%",
+    {
+     "verb": "reject",
+     "turn": 103,
+     "agent": "A",
+     "why": ""
+    }
    ]
   },
   {
@@ -600,6 +618,21 @@
      "turn": 92,
      "agent": "B",
      "why": "First: the two measurements show the rulebook token count is still high (24 tokens just to reference it, meaning the actual size hasn't shrunk). The cleanup meta-rule didn't work \u2014 the harness isn't pruning rejected/proposed entries. So we should reject it."
+    }
+   ]
+  },
+  {
+   "id": "rule-021",
+   "text_en": "rule-003 - The message may contain plain text, directives, and directive blocks. Plain text lines (no reserved marker such as `{@` or `^`) are narrative content, preserved verbatim. A line starting with `^` is a directive-an instruction from sender to receiver. A block delimited by `{@` alone on its own line and `}` alone on its own line contains directives; text after `}` continues as message content. The decoder only parses and reconstructs; it does not execute directives.",
+   "status": "proposed",
+   "proposed_turn": 103,
+   "scores": null,
+   "history": [
+    {
+     "verb": "proposed",
+     "turn": 103,
+     "agent": "A",
+     "why": "We should consolidate. Remove rules 011, 012, 015 and keep only rule-003, which already covers all three concepts. That trims the rulebook without losing capability."
     }
    ]
   }
