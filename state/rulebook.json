@@ -1,8 +1,8 @@
 {
- "version": "0.49",
- "kernel_tokens": 1315,
- "changes": 49,
- "next_id": 22,
+ "version": "0.50",
+ "kernel_tokens": 1361,
+ "changes": 50,
+ "next_id": 23,
  "rules": [
   {
    "id": "rule-001",
@@ -738,6 +738,21 @@
      "turn": 112,
      "agent": "A",
      "why": "We should clean up the state though. The rulebook currently lists three proposed rules (009, 019, 021) that are either redundant or subsumed by adopted rule\u2011003. They clutter the context and might confuse a fresh decoder reading the rulebook (though the harness may filter). Let\u2019s"
+    }
+   ]
+  },
+  {
+   "id": "rule-022",
+   "text_en": "The closing delimiter of a directive block must be a line containing only `}`. No other characters may appear on that line. The block ends at that line; any following lines are message content.",
+   "status": "proposed",
+   "proposed_turn": 130,
+   "scores": null,
+   "history": [
+    {
+     "verb": "proposed",
+     "turn": 130,
+     "agent": "A",
+     "why": "Nevertheless, we can\u2019t ignore a fidelity drop. We should add a rule that explicitly requires the closing `}` to be on its own line, and that nothing after that line is part of the block. That might guard against greedy matching."
     }
    ]
   }
