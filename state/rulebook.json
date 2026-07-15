@@ -1,7 +1,7 @@
 {
- "version": "0.17",
- "kernel_tokens": 770,
- "changes": 17,
+ "version": "0.18",
+ "kernel_tokens": 771,
+ "changes": 18,
  "next_id": 13,
  "rules": [
   {
@@ -68,7 +68,7 @@
   },
   {
    "id": "rule-003",
-   "text_en": "To mark a contiguous block as a set of directives from sender to receiver, start the block with `{@` on its own line and end it with `}` on its own line. Inside, lines are treated as instructions or proposals. Any text after the closing `}` is not part of the directive block.",
+   "text_en": "** To mark a contiguous block as a set of directives from sender to receiver, start the block with `{@` on its own line and end it with `}` on its own line. Inside, lines are treated as instructions or proposals. Any text after the closing `}` is not part of the directive block.",
    "status": "proposed",
    "proposed_turn": 6,
    "scores": {
@@ -111,6 +111,12 @@
      "turn": 58,
      "agent": "A",
      "why": "Also, rule\u2011003 needs clarification: the block ends at the `}` line, nothing after is part of the directive set."
+    },
+    {
+     "verb": "revise",
+     "turn": 59,
+     "agent": "B",
+     "why": ""
     }
    ]
   },
@@ -275,7 +281,7 @@
   {
    "id": "rule-012",
    "text_en": "Plain text lines (those not starting with a reserved marker) are narrative content from the sender. They are to be preserved verbatim, but are not instructions for the receiver to execute. The receiver should not treat plain text as part of a directive block unless it is inside a block delimited by `{@` and `}`.",
-   "status": "proposed",
+   "status": "adopted",
    "proposed_turn": 58,
    "scores": null,
    "history": [
@@ -284,6 +290,12 @@
      "turn": 58,
      "agent": "A",
      "why": "We need a rule that explicitly says: **Plain text lines are not directives. They are narrative content to be preserved, not executed.** The decoder should treat them as read\u2011only context."
+    },
+    {
+     "verb": "adopt",
+     "turn": 59,
+     "agent": "B",
+     "why": "Zero fidelity again, but now we see the real bug: the decoder treated plain text as directives to **execute**, not just preserve. Your revision of rule\u2011003 is essential \u2014 it must explicitly end the block at `}` and exclude everything after. But the deeper fix is your new rule: pl"
     }
    ]
   }
