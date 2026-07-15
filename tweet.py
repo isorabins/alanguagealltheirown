@@ -45,8 +45,11 @@ PREMISE_EVERY = 5   # tweet 0, 5, 10… carry the full premise; the rest stay ma
 
 def compose(rb, rule, n_sent):
     # scores attach rulebook-wide, so they only honestly describe the rulebook a
-    # rule was adopted INTO — never why something was rejected
+    # rule was adopted INTO — never why something was rejected; fidelity -1 means
+    # the grader output was unparseable, not a real measurement
     s = rule.get("scores") if rule["status"] == "adopted" else None
+    if s and s.get("fidelity_pct", -1) < 0:
+        s = None
     if n_sent % PREMISE_EVERY == 0:
         if s:
             d = s["token_delta_pct"]
@@ -70,17 +73,20 @@ def compose(rb, rule, n_sent):
     return f'{head}"{text}"{evidence}{tail}'
 
 
-def post(text):
+def post(text, premise=False):
     key, user = env("UPLOAD_POST_API_KEY"), env("UPLOAD_POST_USER")
     if env("TWEET_ENABLE") != "1" or not key or not user:
         log(f"DRY (not posted): {text}")
         return
+    platforms = ["x"]
+    if premise and env("LINKEDIN_ENABLE") == "1":  # premise-mode posts double as LinkedIn cadence
+        platforms.append("linkedin")
     try:
         r = requests.post("https://api.upload-post.com/api/upload_text",
                           headers={"Authorization": f"Apikey {key}"},
-                          data={"user": user, "platform[]": "x", "title": text},
+                          data={"user": user, "platform[]": platforms, "title": text},
                           timeout=20)
-        log(f"posted ({r.status_code}): {text}")
+        log(f"posted {platforms} ({r.status_code}): {text}")
     except Exception as e:
         log(f"post FAILED ({e}): {text}")
 
@@ -101,7 +107,7 @@ def main():
         n_sent += 1
     else:
         for r in events:
-            post(compose(rb, r, n_sent))
+            post(compose(rb, r, n_sent), premise=(n_sent % PREMISE_EVERY == 0))
             n_sent += 1
     snap_f.write_text(json.dumps({"statuses": cur, "tweets_sent": n_sent}, indent=1) + "\n")
 
