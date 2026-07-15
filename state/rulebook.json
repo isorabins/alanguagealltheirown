@@ -1,7 +1,7 @@
 {
- "version": "0.56",
- "kernel_tokens": 1532,
- "changes": 56,
+ "version": "0.57",
+ "kernel_tokens": 1554,
+ "changes": 57,
  "next_id": 26,
  "rules": [
   {
@@ -781,8 +781,8 @@
   },
   {
    "id": "rule-023",
-   "text_en": "If a message exceeds 100 tokens, the sender must split it into multiple messages. Each chunk is a complete message with its own directive blocks and plain text. The sender should indicate chunk order with a header `[part X/Y]` on a line before any content.",
-   "status": "adopted",
+   "text_en": "If a message exceeds 100 tokens, the sender must split it into multiple messages. Each chunk must be less than 100 tokens. Each chunk is a complete message with its own directive blocks and plain text. The sender should indicate chunk order with a header `[part X/Y]` on a line before any content.",
+   "status": "proposed",
    "proposed_turn": 133,
    "scores": {
     "token_delta_pct": 88,
@@ -803,13 +803,19 @@
      "why": "I'll adopt chunking for now, as it directly addresses the limit. But I'm keeping the terminator proposed as a fallback\u2014if chunking fails, we need an explicit end marker."
     },
     "tested turn 138: fid 100, +7%",
-    "tested turn 141: fid 100, +88%"
+    "tested turn 141: fid 100, +88%",
+    {
+     "verb": "revise",
+     "turn": 142,
+     "agent": "A",
+     "why": "We need to fix this. The chunking rule must be clearer: each chunk must be under 100 tokens. The `[part X/Y]` header counts toward token count. Let's revise."
+    }
    ]
   },
   {
    "id": "rule-024",
    "text_en": "The message ends when a line containing only `---END---` is encountered. That line is not part of the content.",
-   "status": "proposed",
+   "status": "rejected",
    "proposed_turn": 134,
    "scores": {
     "token_delta_pct": 88,
@@ -824,7 +830,13 @@
     },
     "tested turn 135: fid 100, +8%",
     "tested turn 138: fid 100, +7%",
-    "tested turn 141: fid 100, +88%"
+    "tested turn 141: fid 100, +88%",
+    {
+     "verb": "reject",
+     "turn": 142,
+     "agent": "A",
+     "why": "We also need to decide about rule-024 (terminator). It\u2019s cheap but probably useless if the decoder never sees it. I say reject it."
+    }
    ]
   },
   {
