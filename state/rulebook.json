@@ -1,8 +1,8 @@
 {
- "version": "0.52",
- "kernel_tokens": 1435,
- "changes": 52,
- "next_id": 24,
+ "version": "0.53",
+ "kernel_tokens": 1467,
+ "changes": 53,
+ "next_id": 25,
  "rules": [
   {
    "id": "rule-001",
@@ -779,6 +779,21 @@
      "turn": 133,
      "agent": "A",
      "why": "If that\u2019s true, the solution is to require the encoder to split long messages into multiple transmissions. That\u2019s a heavy rule. But maybe the harness is simulating a realistic constraint: real channels have limits. Our language must handle chunking."
+    }
+   ]
+  },
+  {
+   "id": "rule-024",
+   "text_en": "The message ends when a line containing only `---END---` is encountered. That line is not part of the content.",
+   "status": "proposed",
+   "proposed_turn": 134,
+   "scores": null,
+   "history": [
+    {
+     "verb": "proposed",
+     "turn": 134,
+     "agent": "B",
+     "why": "Let's propose both as separate rules and see which the test validates. Since we can only adopt one before the test, I'll propose the terminator rule\u2014it's cheaper and addresses the \"where does the message end?\" ambiguity directly."
     }
    ]
   }

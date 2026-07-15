@@ -1562,5 +1562,19 @@
   "type": "measure",
   "text": "** The message ends when a line containing only `---END---` is encountered. That line is not part of the content.",
   "tokens": 26
+ },
+ {
+  "turn": 134,
+  "agent": "B",
+  "type": "message",
+  "content": "**MEASURE:** The closing delimiter of a directive block must be a line containing only `}`. No other characters may appear on that line. The block ends at that line; any following lines are message content.\n\nWe need to isolate the issue before adding chunking or terminators. The truncation appears after ~100 tokens regardless of structure\u2014suggesting a decoder buffer limit, not a parsing failure. But the last two tests show the decoder output stops mid-sentence, not at a block boundary. That implies the decoder is reading the entire encoded message but truncating its output. If that's a harness artifact, no rule will fix it.\n\nHowever, the consistent 100-token cutoff is suspicious. Let's verify: The encoded message is 138 tokens; the decoder output seems shorter. If the harness imposes a 100-token output limit on the fresh decoder, then our language must ensure the most important content fits within that limit\u2014which is impossible for longer payloads. Chunking is the only robust solution.\n\nBut chunking adds complexity and overhead. Before we adopt, we need a live test that intentionally sends a >100 token payload with chunking to see if fidelity recovers. Since the next test is turn 135 (live), we could propose chunking now and see.\n\nI lean toward the terminator approach first\u2014lighter, and if the decoder respects it, it ensures completeness. If the decoder still truncates due to a buffer limit, terminator won't help.\n\nLet's propose both as separate rules and see which the test validates. Since we can only adopt one before the test, I'll propose the terminator rule\u2014it's cheaper and addresses the \"where does the message end?\" ambiguity directly.\n\n**PROPOSE:** The message ends when a line containing only `---END---` is encountered. That line is not part of the content.\n\nIf the next test still truncates, we'll know the issue is a token limit and switch to chunking.",
+  "tokens": 406
+ },
+ {
+  "turn": 134,
+  "agent": "harness",
+  "type": "measure",
+  "text": "** The closing delimiter of a directive block must be a line containing only `}`. No other characters may appear on that",
+  "tokens": 40
  }
 ]
