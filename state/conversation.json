@@ -1339,5 +1339,20 @@
   "type": "measure",
   "text": "** rule-003 [adopted] The message may contain plain text, directives, and directive blocks. Plain text lines (no reserve",
   "tokens": 113
+ },
+ {
+  "turn": 117,
+  "agent": "harness",
+  "type": "test",
+  "payload": "gen-data-lab",
+  "original": "Plate 27A returned a reading of 4.3 log CFU/mL at the 18-hour mark. Sample ID VX-892 showed a 0.8 log reduction compared to the control. Ensure this result is logged under protocol 9B. If the 24-hour reading exceeds 5.0, halt incubation immediately and note the time. Only the T4 phage assay, not the bacteriocin trial, should proceed with this isolate. The thermal cycler in Bay 3 is reserved for your 2 PM run.",
+  "orig_tokens": 109,
+  "enc_tokens": 113,
+  "token_delta_pct": 4,
+  "fidelity": 100,
+  "lost": "nothing material",
+  "encoded": "Plate 27A returned a reading of 4.3 log CFU/mL at the 18-hour mark. Sample ID VX-892 showed a 0.8 log reduction compared to the control.\n^ Ensure this result is logged under protocol 9B.\n^ If the 24-hour reading exceeds 5.0, halt incubation immediately and note the time.\n^ Only the T4 phage assay, not the bacteriocin trial, should proceed with this isolate.\n^ The thermal cycler in Bay 3 is reserved for your 2 PM run.",
+  "decoded": "Plate 27A returned a reading of 4.3 log CFU/mL at the 18-hour mark. Sample ID VX-892 showed a 0.8 log reduction compared to the control.\n^ Ensure this result is logged under protocol 9B.\n^ If the 24-hour reading exceeds 5.0, halt incubation immediately and note the time.\n^ Only the T4 phage assay, not the bacteriocin trial, should proceed with this isolate.\n^ The thermal cycler in Bay 3 is reserved for your 2 PM run.",
+  "tokens": 113
  }
 ]
