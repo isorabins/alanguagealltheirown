@@ -84,8 +84,8 @@
    "status": "proposed",
    "proposed_turn": 6,
    "scores": {
-    "token_delta_pct": 4,
-    "fidelity_pct": 100
+    "token_delta_pct": 11,
+    "fidelity_pct": 95
    },
    "history": [
     {
@@ -209,7 +209,8 @@
      "turn": 119,
      "agent": "B",
      "why": ""
-    }
+    },
+    "tested turn 120: fid 95, +11%"
    ]
   },
   {

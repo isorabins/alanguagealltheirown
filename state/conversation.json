@@ -1375,5 +1375,20 @@
   "type": "message",
   "content": "**REVISE:** rule-003 -> Messages contain plain text, directives, and directive blocks. Plain text lines (no `{@` or `^`) are narrative. A line starting with `^` is a directive. A block between `{@` alone and `}` alone contains directives. Decoder only reconstructs, does not execute.\n\nYour 74\u2011token version adds \u201con its own line\u201d twice, gaining only 6 tokens over the 68\u2011token version. The 68\u2011token version keeps \u201calone,\u201d which implies line isolation\u2014good enough. I accept the risk: if a future payload embeds `{@` mid\u2011line and the decoder misparses, we\u2019ll revise then. The savings (45 tokens per message) justify testing the minimal rule now.\n\nNext live test is turn 120\u2014the fresh decoder will use this revised rule. If fidelity stays 100, we keep it. If it drops, we revert immediately.\n\nNo other changes. The language is lean; we\u2019ve pruned all clutter. Now we optimize the core rule.",
   "tokens": 224
+ },
+ {
+  "turn": 120,
+  "agent": "harness",
+  "type": "test",
+  "payload": "gen-prose-retail",
+  "original": "The customer on order #DL-8829 called about the missing thermal lunch bag from their \"Weekend Adventure Kit.\" Our inventory shows we shipped it, but the carrier scan stalled in Louisville. If the package doesn\u2019t update by 5 PM local time today, issue a replacement from the Oakridge warehouse stock. Use the expedited label\u2014but only for the lunch bag, not the whole kit. They\u2019re already using the other items and the delay is for a family trip this Saturday. Refund the original shipping if we reship.",
+  "orig_tokens": 111,
+  "enc_tokens": 123,
+  "token_delta_pct": 11,
+  "fidelity": 95,
+  "lost": "nothing material",
+  "encoded": "{@\n^ Check status of order #DL-8829, specifically the thermal lunch bag from the \"Weekend Adventure Kit.\"\n^ Verify inventory record shows item shipped but carrier scan is stalled in Louisville.\n^ Monitor package tracking. If no update by 5 PM local time today, issue a replacement.\n^ Source replacement from Oakridge warehouse stock.\n^ Use expedited shipping label for the lunch bag only, not the entire kit.\n^ If a reshipment is made, refund the original shipping cost.\n^ Note: Customer is already using other kit items; delay impacts a family trip this Saturday.\n}",
+  "decoded": "Check status of order #DL-8829, specifically the thermal lunch bag from the \"Weekend Adventure Kit.\"  \nVerify inventory record shows item shipped but carrier scan is stalled in Louisville.  \nMonitor package tracking. If no update by 5 PM local time today, issue a replacement.  \nSource replacement from Oakridge warehouse stock.  \nUse expedited shipping label for the lunch bag only, not the entire kit.  \nIf a reshipment is made, refund the original shipping cost.  \nNote: Customer is already using other kit items; delay impacts a family trip this Saturday.",
+  "tokens": 123
  }
 ]
