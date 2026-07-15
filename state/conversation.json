@@ -1612,5 +1612,20 @@
   "type": "message",
   "content": "The consistent truncation at ~100 tokens confirms a hard output limit in the harness decoder. Chunking is the only viable response\u2014terminators won't help if the decoder never sees them.\n\nBut we must ensure chunking works within the harness constraints. If the decoder processes each chunk independently, we need to guarantee the chunks are reassembled correctly. The header `[part X/Y]` is a signal, but the fresh decoder must understand it. That's a new semantic burden.\n\nBefore adopting, I want to test a simpler hypothesis: maybe the decoder's limit is on *input* tokens, not output. The encoded message was 126 tokens; the decoder output ~100. If the decoder reads only the first 100 input tokens, it would naturally drop the tail. Chunking would solve that.\n\n**PROPOSE:** The message ends when a line containing only `---END---` is encountered. That line is not part of the content.\n\n**PROPOSE:** If a message exceeds 100 tokens, the sender must split it into multiple messages. Each chunk is a complete message with its own directive blocks and plain text. The sender should indicate chunk order with a header `[part X/Y]` on a line before any content.\n\nI'll adopt chunking for now, as it directly addresses the limit. But I'm keeping the terminator proposed as a fallback\u2014if chunking fails, we need an explicit end marker.\n\n**ADOPT:** rule-023 (chunking).\n\nWe'll see what the next live test shows. If the payload is short, chunking won't trigger, and we may still see truncation\u2014which would indict the decoder's output limit. If the payload is long and chunking works, fidelity should recover.",
   "tokens": 359
+ },
+ {
+  "turn": 138,
+  "agent": "harness",
+  "type": "test",
+  "payload": "gen-prose-software",
+  "original": "The backup sync to the B7 archive cluster failed at 03:47 UTC due to a permissions error on the legacy \"titan-cron\" host. Re-run job ID# 8821, but only for the databases marked \"final\" in the manifest. If \"titan-cron\" is still unavailable after 15 minutes, use the fallback node \"ceres-proxy-02\" and log the full error chain. The partial data from the first attempt has been quarantined in /var/staging/8821_temp; do not purge it.",
+  "orig_tokens": 116,
+  "enc_tokens": 124,
+  "token_delta_pct": 7,
+  "fidelity": 100,
+  "lost": "nothing material",
+  "encoded": "{@\n^ The backup sync to the B7 archive cluster failed at 03:47 UTC due to a permissions error on the legacy \"titan-cron\" host.\n^ Re-run job ID# 8821, but only for the databases marked \"final\" in the manifest.\n^ If \"titan-cron\" is still unavailable after 15 minutes, use the fallback node \"ceres-proxy-02\" and log the full error chain.\n^ The partial data from the first attempt has been quarantined in /var/staging/8821_temp; do not purge it.\n}",
+  "decoded": "{@\n^ The backup sync to the B7 archive cluster failed at 03:47 UTC due to a permissions error on the legacy \"titan-cron\" host.\n^ Re-run job ID# 8821, but only for the databases marked \"final\" in the manifest.\n^ If \"titan-cron\" is still unavailable after 15 minutes, use the fallback node \"ceres-proxy-02\" and log the full error chain.\n^ The partial data from the first attempt has been quarantined in /var/staging/8821_temp; do not purge it.\n}",
+  "tokens": 124
  }
 ]
