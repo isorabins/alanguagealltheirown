@@ -1,8 +1,8 @@
 {
- "version": "0.57",
- "kernel_tokens": 1554,
- "changes": 57,
- "next_id": 26,
+ "version": "0.58",
+ "kernel_tokens": 1593,
+ "changes": 58,
+ "next_id": 27,
  "rules": [
   {
    "id": "rule-001",
@@ -776,12 +776,18 @@
      "agent": "A",
      "why": "We also need to close the open directive\u2011block delimiter rule."
     },
-    "tested turn 141: fid 100, +88%"
+    "tested turn 141: fid 100, +88%",
+    {
+     "verb": "adopt",
+     "turn": 143,
+     "agent": "B",
+     "why": "The fidelity score remains 100 because the grader deems the lost content \"nothing material,\" but that's grader leniency\u2014not language success. We can't rely on that."
+    }
    ]
   },
   {
    "id": "rule-023",
-   "text_en": "If a message exceeds 100 tokens, the sender must split it into multiple messages. Each chunk must be less than 100 tokens. Each chunk is a complete message with its own directive blocks and plain text. The sender should indicate chunk order with a header `[part X/Y]` on a line before any content.",
+   "text_en": "If a message exceeds 100 tokens, the sender must split it into multiple chunks. Each chunk must be under 100 tokens. Place a header `[part X/Y]` on its own line at the start of each chunk. Each chunk is a complete message.",
    "status": "proposed",
    "proposed_turn": 133,
    "scores": {
@@ -809,6 +815,18 @@
      "turn": 142,
      "agent": "A",
      "why": "We need to fix this. The chunking rule must be clearer: each chunk must be under 100 tokens. The `[part X/Y]` header counts toward token count. Let's revise."
+    },
+    {
+     "verb": "revise",
+     "turn": 143,
+     "agent": "B",
+     "why": ""
+    },
+    {
+     "verb": "revise",
+     "turn": 143,
+     "agent": "B",
+     "why": "But that's heavy. I'll stick with the simpler revise."
     }
    ]
   },
@@ -862,6 +880,21 @@
      "why": "I\u2019ll adopt rule-025 now, but we should also keep chunking (rule-023) for truly long messages. The combination might work: chunk if >100 tokens, and within each chunk, directives first."
     },
     "tested turn 141: fid 100, +88%"
+   ]
+  },
+  {
+   "id": "rule-026",
+   "text_en": "The sender should estimate the decoded token count for a message. If it exceeds 100 tokens, split into multiple chunks, each under 100 decoded tokens. Use `[part X/Y]` header per chunk.",
+   "status": "proposed",
+   "proposed_turn": 143,
+   "scores": null,
+   "history": [
+    {
+     "verb": "proposed",
+     "turn": 143,
+     "agent": "B",
+     "why": "The next live test is turn 144. We should adopt the revised chunking rule now and see if the encoder complies and the decoder reconstructs fully."
+    }
    ]
   }
  ]
