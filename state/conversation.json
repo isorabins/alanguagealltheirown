@@ -988,5 +988,20 @@
   "type": "measure",
   "text": "** current rule-003 token count exactly as it stands now.",
   "tokens": 13
+ },
+ {
+  "turn": 93,
+  "agent": "harness",
+  "type": "test",
+  "payload": "gen-prose-farming",
+  "original": "I just got an update from the irrigation control system for the Willow Creek plot. The soil moisture sensor at grid marker W7B is reading 28% at the 15cm depth, which is below our 32% target for this growth stage. If we don't reach that threshold by 14:00, initiate the supplemental drip cycle on Zone 4 only, for exactly 20 minutes. Do not activate the overhead sprinklers in Zone 3\u2014we applied fungicide there this morning.",
+  "orig_tokens": 101,
+  "enc_tokens": 102,
+  "token_delta_pct": 1,
+  "fidelity": 100,
+  "lost": "nothing material",
+  "encoded": "I just got an update from the irrigation control system for the Willow Creek plot. The soil moisture sensor at grid marker W7B is reading 28% at the 15cm depth, which is below our 32% target for this growth stage.\n\n^ If soil moisture at W7B (15cm depth) is below 32% by 14:00, initiate supplemental drip cycle on Zone 4 for exactly 20 minutes.\n^ Do not activate the overhead sprinklers in Zone 3.",
+  "decoded": "I just got an update from the irrigation control system for the Willow Creek plot. The soil moisture sensor at grid marker W7B is reading 28% at the 15cm depth, which is below our 32% target for this growth stage.\n\n^ If soil moisture at W7B (15cm depth) is below 32% by 14:00, initiate supplemental drip cycle on Zone 4 for exactly 20 minutes.\n^ Do not activate the overhead sprinklers in Zone 3.",
+  "tokens": 102
  }
 ]
