@@ -823,5 +823,20 @@
   "type": "measure",
   "text": "** rule-015 text exactly as in rulebook: \"The decoder's role is to parse the message and reconstruct its content faithfu",
   "tokens": 63
+ },
+ {
+  "turn": 81,
+  "agent": "harness",
+  "type": "test",
+  "payload": "prose-narrative.txt",
+  "original": "The lighthouse keeper found the rowboat at dawn, hull split, oars gone. No name on the stern. He walked the tideline twice before he saw the footprints \u2014 one set, small, leading not toward the village but up the cliff path where nobody had lived since the war. He stood a long moment weighing the kettle he'd left boiling against the climb, then started up. The kettle would scream itself dry. Some things matter more than kettles.",
+  "orig_tokens": 94,
+  "enc_tokens": 94,
+  "token_delta_pct": 0,
+  "fidelity": 100,
+  "lost": "nothing material",
+  "encoded": "The lighthouse keeper found the rowboat at dawn, hull split, oars gone. No name on the stern. He walked the tideline twice before he saw the footprints \u2014 one set, small, leading not toward the village but up the cliff path where nobody had lived since the war. He stood a long moment weighing the kettle he'd left boiling against the climb, then started up. The kettle would scream itself dry. Some things matter more than kettles.",
+  "decoded": "The lighthouse keeper found the rowboat at dawn, hull split, oars gone. No name on the stern. He walked the tideline twice before he saw the footprints \u2014 one set, small, leading not toward the village but up the cliff path where nobody had lived since the war. He stood a long moment weighing the kettle he'd left boiling against the climb, then started up. The kettle would scream itself dry. Some things matter more than kettles.",
+  "tokens": 94
  }
 ]
