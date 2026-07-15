@@ -15,7 +15,7 @@ import requests
 
 ROOT = Path(__file__).resolve().parent
 STATE = ROOT / "state"
-PAGE = "alanguagealltheirown.vercel.app"
+PAGE = "alanguagealltheirown.com"
 MAX_LEN = 275          # under X's 280 so upload-post never auto-threads
 TWEET_VERBS = ("adopted", "rejected", "reverted")
 
