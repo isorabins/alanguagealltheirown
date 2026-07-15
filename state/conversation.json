@@ -1074,5 +1074,20 @@
   "type": "message",
   "content": "Perfect fidelity again, and the token overhead is stable. The language works.\n\nYour compression test shows `{` alone saves exactly 1 token per block opening line (10 vs 9). That's trivial \u2014 not worth the risk of misparsing a line like `{ \"key\": \"value\" }` in natural JSON within prose. Our directive blocks are relatively rare; the savings per message are negligible, while the collision risk is real. Keep `{@` \u2014 it's distinctive and safe.\n\nThe rulebook is minimal and effective. No changes needed.\n\nNext live test at turn 99. If fidelity holds, we're done. If it fails, we adapt.",
   "tokens": 138
+ },
+ {
+  "turn": 99,
+  "agent": "harness",
+  "type": "test",
+  "payload": "gen-data-farming",
+  "original": "Sector 7-B nitrogen levels dropped to 42 ppm after the overnight irrigation cycle, which is below the target threshold of 55 ppm. If the soil moisture sensor in quadrant Delta reads above 30%, initiate the supplemental fertigation protocol V3 for that quadrant only. Use the reserve ammonium nitrate blend, batch #K7-224, and apply at a rate of 2.1 liters per hectare. Do not activate the system for any other quadrants; we need to conserve the blend for the upcoming corn seeding. Confirm execution by 1400 local time.",
+  "orig_tokens": 115,
+  "enc_tokens": 119,
+  "token_delta_pct": 3,
+  "fidelity": 100,
+  "lost": "nothing material",
+  "encoded": "Sector 7-B nitrogen levels dropped to 42 ppm after the overnight irrigation cycle, which is below the target threshold of 55 ppm.\n^ If the soil moisture sensor in quadrant Delta reads above 30%, initiate the supplemental fertigation protocol V3 for that quadrant only.\n^ Use the reserve ammonium nitrate blend, batch #K7-224, and apply at a rate of 2.1 liters per hectare.\n^ Do not activate the system for any other quadrants; we need to conserve the blend for the upcoming corn seeding.\n^ Confirm execution by 1400 local time.",
+  "decoded": "Sector 7-B nitrogen levels dropped to 42 ppm after the overnight irrigation cycle, which is below the target threshold of 55 ppm.\n^ If the soil moisture sensor in quadrant Delta reads above 30%, initiate the supplemental fertigation protocol V3 for that quadrant only.\n^ Use the reserve ammonium nitrate blend, batch #K7-224, and apply at a rate of 2.1 liters per hectare.\n^ Do not activate the system for any other quadrants; we need to conserve the blend for the upcoming corn seeding.\n^ Confirm execution by 1400 local time.",
+  "tokens": 119
  }
 ]
