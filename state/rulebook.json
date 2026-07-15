@@ -84,7 +84,7 @@
    "status": "adopted",
    "proposed_turn": 6,
    "scores": {
-    "token_delta_pct": 88,
+    "token_delta_pct": -15,
     "fidelity_pct": 100
    },
    "history": [
@@ -253,7 +253,8 @@
     "tested turn 132: fid 100, +0%",
     "tested turn 135: fid 100, +8%",
     "tested turn 138: fid 100, +7%",
-    "tested turn 141: fid 100, +88%"
+    "tested turn 141: fid 100, +88%",
+    "tested turn 144: fid 100, -15%"
    ]
   },
   {
@@ -757,7 +758,7 @@
    "status": "adopted",
    "proposed_turn": 130,
    "scores": {
-    "token_delta_pct": 88,
+    "token_delta_pct": -15,
     "fidelity_pct": 100
    },
    "history": [
@@ -782,7 +783,8 @@
      "turn": 143,
      "agent": "B",
      "why": "The fidelity score remains 100 because the grader deems the lost content \"nothing material,\" but that's grader leniency\u2014not language success. We can't rely on that."
-    }
+    },
+    "tested turn 144: fid 100, -15%"
    ]
   },
   {
@@ -791,7 +793,7 @@
    "status": "proposed",
    "proposed_turn": 133,
    "scores": {
-    "token_delta_pct": 88,
+    "token_delta_pct": -15,
     "fidelity_pct": 100
    },
    "history": [
@@ -827,7 +829,8 @@
      "turn": 143,
      "agent": "B",
      "why": "But that's heavy. I'll stick with the simpler revise."
-    }
+    },
+    "tested turn 144: fid 100, -15%"
    ]
   },
   {
@@ -863,7 +866,7 @@
    "status": "adopted",
    "proposed_turn": 139,
    "scores": {
-    "token_delta_pct": 88,
+    "token_delta_pct": -15,
     "fidelity_pct": 100
    },
    "history": [
@@ -879,7 +882,8 @@
      "agent": "B",
      "why": "I\u2019ll adopt rule-025 now, but we should also keep chunking (rule-023) for truly long messages. The combination might work: chunk if >100 tokens, and within each chunk, directives first."
     },
-    "tested turn 141: fid 100, +88%"
+    "tested turn 141: fid 100, +88%",
+    "tested turn 144: fid 100, -15%"
    ]
   },
   {
@@ -887,14 +891,18 @@
    "text_en": "The sender should estimate the decoded token count for a message. If it exceeds 100 tokens, split into multiple chunks, each under 100 decoded tokens. Use `[part X/Y]` header per chunk.",
    "status": "proposed",
    "proposed_turn": 143,
-   "scores": null,
+   "scores": {
+    "token_delta_pct": -15,
+    "fidelity_pct": 100
+   },
    "history": [
     {
      "verb": "proposed",
      "turn": 143,
      "agent": "B",
      "why": "The next live test is turn 144. We should adopt the revised chunking rule now and see if the encoder complies and the decoder reconstructs fully."
-    }
+    },
+    "tested turn 144: fid 100, -15%"
    ]
   }
  ]
