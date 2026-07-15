@@ -1,7 +1,7 @@
 {
- "version": "0.42",
- "kernel_tokens": 1303,
- "changes": 42,
+ "version": "0.43",
+ "kernel_tokens": 1315,
+ "changes": 43,
  "next_id": 22,
  "rules": [
   {
@@ -295,7 +295,7 @@
   {
    "id": "rule-009",
    "text_en": "Use `^` at the start of a line to mark it as an instruction or task step from sender to receiver. The line should be treated as something the receiver is expected to act upon or consider as a direct input to the workflow. This can be used inside or outside of directive blocks, and provides a lightweight way to embed directives in prose.",
-   "status": "proposed",
+   "status": "rejected",
    "proposed_turn": 47,
    "scores": {
     "token_delta_pct": 6,
@@ -329,7 +329,13 @@
     "tested turn 102: fid 100, +5%",
     "tested turn 105: fid 100, +2%",
     "tested turn 108: fid 100, -6%",
-    "tested turn 111: fid 100, +6%"
+    "tested turn 111: fid 100, +6%",
+    {
+     "verb": "reject",
+     "turn": 112,
+     "agent": "A",
+     "why": "We should clean up the state though. The rulebook currently lists three proposed rules (009, 019, 021) that are either redundant or subsumed by adopted rule\u2011003. They clutter the context and might confuse a fresh decoder reading the rulebook (though the harness may filter). Let\u2019s"
+    }
    ]
   },
   {
@@ -603,7 +609,7 @@
   {
    "id": "rule-019",
    "text_en": "In a directive block, the opening line must contain only `{@`. The closing line must contain only `}`. No other characters may appear on those lines. The decoder must include all lines between them, preserving internal `^` markers if present.",
-   "status": "proposed",
+   "status": "rejected",
    "proposed_turn": 79,
    "scores": {
     "token_delta_pct": 6,
@@ -626,7 +632,13 @@
     "tested turn 102: fid 100, +5%",
     "tested turn 105: fid 100, +2%",
     "tested turn 108: fid 100, -6%",
-    "tested turn 111: fid 100, +6%"
+    "tested turn 111: fid 100, +6%",
+    {
+     "verb": "reject",
+     "turn": 112,
+     "agent": "A",
+     "why": "We should clean up the state though. The rulebook currently lists three proposed rules (009, 019, 021) that are either redundant or subsumed by adopted rule\u2011003. They clutter the context and might confuse a fresh decoder reading the rulebook (though the harness may filter). Let\u2019s"
+    }
    ]
   },
   {
@@ -657,7 +669,7 @@
   {
    "id": "rule-021",
    "text_en": "rule-003 - The message may contain plain text, directives, and directive blocks. Plain text lines (no reserved marker such as `{@` or `^`) are narrative content, preserved verbatim. A line starting with `^` is a directive-an instruction from sender to receiver. A block delimited by `{@` alone on its own line and `}` alone on its own line contains directives; text after `}` continues as message content. The decoder only parses and reconstructs; it does not execute directives.",
-   "status": "proposed",
+   "status": "rejected",
    "proposed_turn": 103,
    "scores": {
     "token_delta_pct": 6,
@@ -672,7 +684,13 @@
     },
     "tested turn 105: fid 100, +2%",
     "tested turn 108: fid 100, -6%",
-    "tested turn 111: fid 100, +6%"
+    "tested turn 111: fid 100, +6%",
+    {
+     "verb": "reject",
+     "turn": 112,
+     "agent": "A",
+     "why": "We should clean up the state though. The rulebook currently lists three proposed rules (009, 019, 021) that are either redundant or subsumed by adopted rule\u2011003. They clutter the context and might confuse a fresh decoder reading the rulebook (though the harness may filter). Let\u2019s"
+    }
    ]
   }
  ]
