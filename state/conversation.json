@@ -859,5 +859,20 @@
   "type": "measure",
   "text": "** The message may contain plain text, directives, and directive blocks. Plain text lines (no reserved marker) are narra",
   "tokens": 95
+ },
+ {
+  "turn": 84,
+  "agent": "harness",
+  "type": "test",
+  "payload": "task-summarize.txt",
+  "original": "Review the attached quarterly report. Summarize revenue, gross margin, and churn in three sentences. Flag any figure that moved more than 15 percent quarter over quarter, and for each flagged figure, state one plausible cause and one question leadership should ask. Do not speculate beyond the data. Deliver as a bulleted memo no longer than 200 words, subject line included.",
+  "orig_tokens": 75,
+  "enc_tokens": 134,
+  "token_delta_pct": 79,
+  "fidelity": 95,
+  "lost": "nothing material",
+  "encoded": "Subject: Q3 Performance Highlights & Anomalies\n\n- Revenue grew 12% QoQ to $4.2M, gross margin held steady at 68%, and customer churn decreased to 2.1%.\n- Two figures exceeded the 15% variance threshold: Revenue increased 12% and Churn decreased 24%.\n- The revenue increase could be due to strong seasonal demand in our core market; leadership should ask if this demand is sustainable into Q4.\n- The churn improvement may result from the enhanced onboarding program launched last quarter; leadership should ask what specific onboarding step correlated most with retention.\n- All other metrics were within expected ranges.",
+  "decoded": "Subject: Q3 Performance Highlights & Anomalies\n\n- Revenue grew 12% QoQ to $4.2M, gross margin held steady at 68%, and customer churn decreased to 2.1%.\n- Two figures exceeded the 15% variance threshold: Revenue increased 12% and Churn decreased 24%.\n- The revenue increase could be due to strong seasonal demand in our core market; leadership should ask if this demand is sustainable into Q4.\n- The churn improvement may result from the enhanced onboarding program launched last quarter; leadership should ask what specific onboarding step correlated most with retention.\n- All other metrics were within expected ranges.",
+  "tokens": 134
  }
 ]

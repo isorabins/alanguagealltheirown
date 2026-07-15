@@ -72,8 +72,8 @@
    "status": "proposed",
    "proposed_turn": 6,
    "scores": {
-    "token_delta_pct": 0,
-    "fidelity_pct": 100
+    "token_delta_pct": 79,
+    "fidelity_pct": 95
    },
    "history": [
     {
@@ -155,7 +155,8 @@
      "turn": 83,
      "agent": "B",
      "why": "Also, the rule must clarify that `^` can appear inside or outside blocks, and that plain text excludes any reserved markers we define (including `{@`, `^`, and any future ones). Let\u2019s tighten the wording."
-    }
+    },
+    "tested turn 84: fid 95, +79%"
    ]
   },
   {
@@ -258,8 +259,8 @@
    "status": "proposed",
    "proposed_turn": 47,
    "scores": {
-    "token_delta_pct": 0,
-    "fidelity_pct": 100
+    "token_delta_pct": 79,
+    "fidelity_pct": 95
    },
    "history": [
     {
@@ -279,7 +280,8 @@
     "tested turn 72: fid 100, +6%",
     "tested turn 75: fid 100, +5%",
     "tested turn 78: fid 90, +14%",
-    "tested turn 81: fid 100, +0%"
+    "tested turn 81: fid 100, +0%",
+    "tested turn 84: fid 95, +79%"
    ]
   },
   {
@@ -288,8 +290,8 @@
    "status": "adopted",
    "proposed_turn": 49,
    "scores": {
-    "token_delta_pct": 0,
-    "fidelity_pct": 100
+    "token_delta_pct": 79,
+    "fidelity_pct": 95
    },
    "history": [
     {
@@ -314,7 +316,8 @@
     "tested turn 72: fid 100, +6%",
     "tested turn 75: fid 100, +5%",
     "tested turn 78: fid 90, +14%",
-    "tested turn 81: fid 100, +0%"
+    "tested turn 81: fid 100, +0%",
+    "tested turn 84: fid 95, +79%"
    ]
   },
   {
@@ -323,8 +326,8 @@
    "status": "adopted",
    "proposed_turn": 49,
    "scores": {
-    "token_delta_pct": 0,
-    "fidelity_pct": 100
+    "token_delta_pct": 79,
+    "fidelity_pct": 95
    },
    "history": [
     {
@@ -349,7 +352,8 @@
     "tested turn 72: fid 100, +6%",
     "tested turn 75: fid 100, +5%",
     "tested turn 78: fid 90, +14%",
-    "tested turn 81: fid 100, +0%"
+    "tested turn 81: fid 100, +0%",
+    "tested turn 84: fid 95, +79%"
    ]
   },
   {
@@ -358,8 +362,8 @@
    "status": "adopted",
    "proposed_turn": 58,
    "scores": {
-    "token_delta_pct": 0,
-    "fidelity_pct": 100
+    "token_delta_pct": 79,
+    "fidelity_pct": 95
    },
    "history": [
     {
@@ -381,7 +385,8 @@
     "tested turn 72: fid 100, +6%",
     "tested turn 75: fid 100, +5%",
     "tested turn 78: fid 90, +14%",
-    "tested turn 81: fid 100, +0%"
+    "tested turn 81: fid 100, +0%",
+    "tested turn 84: fid 95, +79%"
    ]
   },
   {
@@ -423,8 +428,8 @@
    "status": "adopted",
    "proposed_turn": 70,
    "scores": {
-    "token_delta_pct": 0,
-    "fidelity_pct": 100
+    "token_delta_pct": 79,
+    "fidelity_pct": 95
    },
    "history": [
     {
@@ -448,7 +453,8 @@
     },
     "tested turn 75: fid 100, +5%",
     "tested turn 78: fid 90, +14%",
-    "tested turn 81: fid 100, +0%"
+    "tested turn 81: fid 100, +0%",
+    "tested turn 84: fid 95, +79%"
    ]
   },
   {
@@ -457,8 +463,8 @@
    "status": "proposed",
    "proposed_turn": 76,
    "scores": {
-    "token_delta_pct": 0,
-    "fidelity_pct": 100
+    "token_delta_pct": 79,
+    "fidelity_pct": 95
    },
    "history": [
     {
@@ -468,7 +474,8 @@
      "why": "Draft a unified rule now:"
     },
     "tested turn 78: fid 90, +14%",
-    "tested turn 81: fid 100, +0%"
+    "tested turn 81: fid 100, +0%",
+    "tested turn 84: fid 95, +79%"
    ]
   },
   {
@@ -477,8 +484,8 @@
    "status": "proposed",
    "proposed_turn": 79,
    "scores": {
-    "token_delta_pct": 0,
-    "fidelity_pct": 100
+    "token_delta_pct": 79,
+    "fidelity_pct": 95
    },
    "history": [
     {
@@ -487,7 +494,8 @@
      "agent": "A",
      "why": "If the sum is still high, merge. But first, fix the block boundary issue. Propose a small amendment to rule\u2011003 (or the merged rule) to prevent early truncation."
     },
-    "tested turn 81: fid 100, +0%"
+    "tested turn 81: fid 100, +0%",
+    "tested turn 84: fid 95, +79%"
    ]
   }
  ]
