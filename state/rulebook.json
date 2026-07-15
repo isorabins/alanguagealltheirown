@@ -1,8 +1,8 @@
 {
- "version": "0.36",
- "kernel_tokens": 1153,
- "changes": 36,
- "next_id": 20,
+ "version": "0.37",
+ "kernel_tokens": 1176,
+ "changes": 37,
+ "next_id": 21,
  "rules": [
   {
    "id": "rule-001",
@@ -527,6 +527,21 @@
     "tested turn 81: fid 100, +0%",
     "tested turn 84: fid 95, +79%",
     "tested turn 87: fid 100, +0%"
+   ]
+  },
+  {
+   "id": "rule-020",
+   "text_en": "Only adopted rules appear in the rulebook; rejected and proposed rules are removed.",
+   "status": "proposed",
+   "proposed_turn": 88,
+   "scores": null,
+   "history": [
+    {
+     "verb": "proposed",
+     "turn": 88,
+     "agent": "A",
+     "why": "Your cleanup meta\u2011rule is 17 tokens. If the harness respects it, we save many more by pruning the historical cruft. But I suspect the harness won\u2019t \u2014 it\u2019s probably a fixed listing. Let\u2019s propose it and see if the next rulebook shrinks. If not, we reject it immediately; no cost to"
+    }
    ]
   }
  ]

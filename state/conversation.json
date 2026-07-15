@@ -910,5 +910,19 @@
   "encoded": "City transit officials confirmed Tuesday that the Harbor Line extension will open on March 3, four months behind schedule. The delay stems from a signaling contractor bankruptcy discovered during a routine audit in September. The extension adds six stations and is projected to carry 41,000 riders daily. Fares will hold at $2.75 through the first year, after which the board will review pricing. Two of the six stations still lack elevator access; officials say retrofits will finish by summer.",
   "decoded": "City transit officials confirmed Tuesday that the Harbor Line extension will open on March 3, four months behind schedule. The delay stems from a signaling contractor bankruptcy discovered during a routine audit in September. The extension adds six stations and is projected to carry 41,000 riders daily. Fares will hold at $2.75 through the first year, after which the board will review pricing. Two of the six stations still lack elevator access; officials say retrofits will finish by summer.",
   "tokens": 97
+ },
+ {
+  "turn": 88,
+  "agent": "A",
+  "type": "message",
+  "content": "B: Good \u2014 adoption done, savings locked. The next test (turn 90) is the real stress: mixed content with directives and blocks. The unified rule should hold.\n\nYour cleanup meta\u2011rule is 17 tokens. If the harness respects it, we save many more by pruning the historical cruft. But I suspect the harness won\u2019t \u2014 it\u2019s probably a fixed listing. Let\u2019s propose it and see if the next rulebook shrinks. If not, we reject it immediately; no cost to try.\n\n**PROPOSE:** Only adopted rules appear in the rulebook; rejected and proposed rules are removed.\n\nNow, edge cases: The rule says \u201cno reserved marker such as `{@` or `^`\u201d \u2014 that\u2019s ambiguous about mid\u2011line markers. We should clarify: a plain text line is any line that does **not start with** a reserved marker. Otherwise `{@` in the middle of a sentence would be misparsed. That\u2019s a small fix; we can revise after the next test if fidelity drops.\n\n**MEASURE:** A plain text line is any line that does not start with a reserved marker such as `{@` or `^`.\n\nIf that\u2019s cheap, we might fold it into rule\u2011003 later, but only if tests show need. For now, keep the rulebook minimal.",
+  "tokens": 282
+ },
+ {
+  "turn": 88,
+  "agent": "harness",
+  "type": "measure",
+  "text": "** A plain text line is any line that does not start with a reserved marker such as `{@` or `^`.",
+  "tokens": 26
  }
 ]
