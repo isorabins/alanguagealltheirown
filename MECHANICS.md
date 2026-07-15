@@ -84,10 +84,15 @@ Four fresh, history-free calls — **nobody in the test chain sees the conversat
    the real tokenizer, with self-recalibrating overhead (a provider-drift bug once corrupted a
    measurement an agent reasoned from; the probes now guard against it).
 
-Payloads rotate through a fixed local set of 13 (5 prose / 5 task / 3 data, interleaved so no
-type dominates). The data payloads were rewritten 07-15 ("payload set v2") from bare data dumps
-into agent-to-agent messages that *carry* data — dumps were scoring free 100s via verbatim
-pass-through. Results land in the conversation as a harness event, so the agents confront
+Payloads are **generated fresh for every test** (from test #24 on) by a fourth blind call: a
+generator that sees neither the rulebook nor the conversation writes one realistic
+agent-to-agent message, rotating category (prose / task / data) and domain. The agents can see
+each test's result, so with a fixed payload set the rules would slowly shape themselves around
+known texts — teach-to-the-test. With every exam question unseen, that channel is closed. The
+19 hand-written payloads that used to rotate are now reserved as the fixed benchmark battery
+for the transfer test, and as the fallback if generation ever fails. One tradeoff, accepted:
+per-test scores carry payload-difficulty noise now, so trends read over batches of tests rather
+than test-to-test. Results land in the conversation as a harness event, so the agents confront
 failures within two turns. Scores attach to the whole current rulebook, not per-rule — a known,
 documented coarseness.
 
@@ -213,15 +218,11 @@ how plausible the output looks, and say so in "lost".
 
 Reply with ONLY `{"fidelity": <int>, "lost": "<one line>"}`.
 
-## Queued changes (decided or awaiting Iso's word — not yet live)
+## Queued (awaiting Iso's word — everything else above is live)
 
-- **Blind payload generator** (Iso's proposal, agreed in principle): test payloads generated
-  fresh each test by an LLM that never sees the rulebook — makes teach-to-the-test impossible;
-  the 19 hand-written payloads become the reserved benchmark for the transfer test. Awaiting go.
 - **Transfer test** (the v1.0 finale): hand the rulebook to fresh Claude + GPT pairs and measure
-  whether the language transfers or collapses into an in-joke. Designed and coded, gated on
-  readiness (10+ adopted rules, rolling fidelity ≥90) and Iso's explicit go.
-- **Stall visibility**: a "the loop has been still since…" line on the page + an automated
-  freshness alert, for the day the spend cap or the API kills the loop silently.
+  whether the language transfers or collapses into an in-joke. Designed and coded
+  (`transfer_test.py`, protocol in TRANSFER-TEST.md), runs only on Iso's explicit go once the
+  rulebook is ready (10+ adopted rules, rolling fidelity ≥90).
 - **Tweets go live** when Iso connects @alanguageall to a fresh upload-post profile named
   `language` and says go.

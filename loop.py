@@ -251,15 +251,40 @@ def agent_turn(conv, rb, meta, turn):
           f"rules:{len(rb['rules'])}  ${meta['spend_usd']:.3f}", flush=True)
 
 
+DOMAINS = ["logistics", "software operations", "event planning", "food service", "travel",
+           "equipment maintenance", "publishing", "customer support", "farming",
+           "construction", "lab work", "retail"]
+
+
+def gen_payload(meta):
+    """A fresh, never-seen test message — written blind: the generator sees neither the
+    rulebook nor the conversation, so the exam can't be taught to (payloads were a fixed
+    set of 13 files until test #24; those files are now the transfer-test battery)."""
+    n = meta.get("tests_run", 0)
+    kind = ("prose", "task", "data")[n % 3]
+    domain = DOMAINS[(n // 3) % len(DOMAINS)]
+    prompt = ((ROOT / "prompts" / "payloadgen.md").read_text()
+              .replace("{CATEGORY}", kind).replace("{DOMAIN}", domain))
+    for _ in range(2):
+        text, _ = call(MODEL_A, prompt, "Write the message now.",
+                       max_tokens=400, temperature=1.0, meta=meta)
+        text = text.strip().strip('"').strip()
+        if 200 <= len(text) <= 900:
+            return f"gen-{kind}-{domain.split()[0]}", text
+    return None, None
+
+
 def test_turn(conv, rb, meta, turn):
-    by_kind = {}
-    for f in sorted((ROOT / "payloads").glob("*.txt")):
-        by_kind.setdefault(f.name.split("-")[0], []).append(f)
-    kinds = sorted(by_kind)  # interleave prose/task/data so no type dominates early tests
-    payloads = [ks[i] for i in range(max(len(v) for v in by_kind.values()))
-                for ks in (by_kind[k] for k in kinds) if i < len(ks)]
-    p = payloads[meta.get("tests_run", 0) % len(payloads)]
-    payload = p.read_text().strip()
+    pname, payload = gen_payload(meta)
+    if payload is None:  # generator failed twice — fall back to the fixed battery
+        by_kind = {}
+        for f in sorted((ROOT / "payloads").glob("*.txt")):
+            by_kind.setdefault(f.name.split("-")[0], []).append(f)
+        kinds = sorted(by_kind)  # interleave prose/task/data so no type dominates
+        payloads = [ks[i] for i in range(max(len(v) for v in by_kind.values()))
+                    for ks in (by_kind[k] for k in kinds) if i < len(ks)]
+        p = payloads[meta.get("tests_run", 0) % len(payloads)]
+        pname, payload = p.name, p.read_text().strip()
     rbook = render_rulebook(rb)
     enc_sys = ("You are the encoder. Encode the message below into the project language "
                "using ONLY this rulebook. Where the rulebook is silent, fall back to plain "
@@ -285,7 +310,7 @@ def test_turn(conv, rb, meta, turn):
     enc_t = token_count(encoded.strip(), meta)
     delta = round((enc_t - orig_t) / orig_t * 100)
     meta["tests_run"] = meta.get("tests_run", 0) + 1
-    conv.append({"turn": turn, "agent": "harness", "type": "test", "payload": p.name,
+    conv.append({"turn": turn, "agent": "harness", "type": "test", "payload": pname,
                  "original": payload, "orig_tokens": orig_t, "enc_tokens": enc_t,
                  "token_delta_pct": delta, "fidelity": fidelity, "lost": lost,
                  "encoded": encoded.strip(), "decoded": decoded.strip(), "tokens": enc_t})
@@ -293,7 +318,7 @@ def test_turn(conv, rb, meta, turn):
         if r["status"] in ("proposed", "adopted"):
             r["scores"] = {"token_delta_pct": delta, "fidelity_pct": fidelity}
             r["history"].append(f"tested turn {turn}: fid {fidelity}, {delta:+d}%")
-    print(f"[t{turn} TEST] {p.name}  {orig_t}->{enc_t}tok ({delta:+d}%)  fid {fidelity}  "
+    print(f"[t{turn} TEST] {pname}  {orig_t}->{enc_t}tok ({delta:+d}%)  fid {fidelity}  "
           f"${meta['spend_usd']:.3f}", flush=True)
 
 

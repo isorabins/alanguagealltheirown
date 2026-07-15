@@ -308,16 +308,22 @@ function render(S) {
   }).join("");
 
   document.getElementById("foot").textContent =
-    "a live experiment in machine language · updated " + ((S.meta && S.meta.updated) || "—");
+    "a live experiment in machine language · " + ((S.meta && S.meta.updated) || "—");
 }
 
 (function () {
   var RAW = "https://raw.githubusercontent.com/isorabins/alanguagealltheirown/main/state/";
+  var COMMITS = "https://api.github.com/repos/isorabins/alanguagealltheirown/commits/main";
   var fallback = window.STATE || {conversation: [], rulebook: {rules: [], version: "0.0", kernel_tokens: 0}, meta: {}};
   var get = function (f) { return fetch(RAW + f).then(function (r) { if (!r.ok) throw 0; return r.json(); }); };
-  Promise.all([get("conversation.json"), get("rulebook.json")]).then(function (both) {
-    render({conversation: both[0], rulebook: both[1],
-            meta: {updated: new Date().toISOString().replace("T", " ").slice(0, 16) + " UTC · live"}});
+  var lastCommit = fetch(COMMITS).then(function (r) { return r.json(); }).catch(function () { return null; });
+  Promise.all([get("conversation.json"), get("rulebook.json"), lastCommit]).then(function (both) {
+    var when = both[2] && both[2].commit && both[2].commit.committer && both[2].commit.committer.date;
+    var mins = when ? Math.round((Date.now() - new Date(when).getTime()) / 60000) : null;
+    var stamp = mins === null ? "live"
+      : mins > 45 ? "the loop has been still since " + new Date(when).toISOString().replace("T", " ").slice(0, 16) + " UTC"
+      : "last turn " + mins + " min ago · live";
+    render({conversation: both[0], rulebook: both[1], meta: {updated: stamp}});
   }).catch(function () { render(fallback); });
 })();
 </script>
