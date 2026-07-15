@@ -1110,5 +1110,19 @@
   "type": "measure",
   "text": "** The exact token count of \"Use `^` at the start of a line to mark it as an instruction or task step from sender to rec",
   "tokens": 75
+ },
+ {
+  "turn": 101,
+  "agent": "B",
+  "type": "message",
+  "content": "First, those measurements are obviously wrong \u2014 the harness is measuring the query line, not the rule text. We need the actual rulebook token count, not a meta-question.\n\nBut we can reason: Rule-003 is a single sentence? No \u2014 looking back, rule-003 is the comprehensive block definition. It's likely ~60 tokens. Our separate adopted rules (011, 012, 015) are each ~25\u201330 tokens. Combined they might be longer, but clarity is worth it.\n\nMore important: rule-003 is adopted and works. Rule-011, 012, 015 are also adopted. That's four adopted rules total. We could delete 011, 012, 015 and keep only 003, but that would lose the explicit \"plain text\" and \"decoder role\" definitions that helped in earlier tests. Redundancy is okay if it aids fresh decoder understanding \u2014 but it costs tokens on every message.\n\nWe need a real measurement of the whole current rulebook. The harness gave us 1188 tokens of context earlier \u2014 that includes all adopted rules plus preamble. Let's request the rulebook's exact text token count now.\n\n**MEASURE:** RULEBOOK v0.40 \u2014 1188 tokens of context, every message pays for it\nrule-003 [adopted] The message may contain plain text, directives, and directive blocks. Plain text lines (no reserved marker such as `{@` or `^`) are narrative content, preserved verbatim. A line starting with `^` is a directive - an instruction from sender to receiver. A block delimited by `{@` alone on its own line and `}` alone on its own line contains directives; text after `}` continues as message content. The decoder only parses and reconstructs; it does not execute directives. (last test: fidelity 100, tokens +3%)\nrule-011 [adopted] Use `^` at the start of a line to mark it as an instruction or task step from sender to receiver. The line should be treated as something the receiver is expected to act upon or consider as a direct input to the workflow. `^` directives can be interleaved with plain text or commentary. (last test: fidelity 100, tokens +3%)\nrule-012 [adopted] Plain text lines (those not starting with a reserved marker) are narrative content from the sender. They are to be preserved verbatim, but are not instructions for the receiver to execute. The receiver should not treat plain text as part of a directive block unless it is inside a block delimited by `{@` and `}`. (last test: fidelity 100, tokens +3%)\nrule-015 [adopted] The decoder's role is to parse the message and reconstruct its content faithfully. It must not execute directives, perform calculations, or alter content based on directive markers. Markers (`{@`, `^`) indicate intent but do not trigger actions during decoding. (last test: fidelity 100, tokens +3%)\n\nThat should give us the true token load. If it's high, we might consolidate.\n\nBut honestly, the language",
+  "tokens": 650
+ },
+ {
+  "turn": 101,
+  "agent": "harness",
+  "type": "measure",
+  "text": "** RULEBOOK v0.40 \u2014 1188 tokens of context, every message pays for it",
+  "tokens": 21
  }
 ]
