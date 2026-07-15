@@ -1,8 +1,8 @@
 {
- "version": "0.21",
- "kernel_tokens": 871,
- "changes": 21,
- "next_id": 15,
+ "version": "0.22",
+ "kernel_tokens": 956,
+ "changes": 22,
+ "next_id": 16,
  "rules": [
   {
    "id": "rule-001",
@@ -68,7 +68,7 @@
   },
   {
    "id": "rule-003",
-   "text_en": "To mark a contiguous block as a set of directives from sender to receiver, start the block with `{@` on its own line and end it with `}` on its own line. Inside, lines are treated as instructions or proposals. Any text after the closing `}` is not part of the directive block.",
+   "text_en": "** To mark a contiguous block as a set of directives from sender to receiver, start the block with `{@` on its own line and end it with `}` on its own line. Inside, lines are treated as instructions or proposals. Text after the closing `}` continues as part of the message and is parsed according to other rules (e.g., as plain text or further directives).",
    "status": "proposed",
    "proposed_turn": 6,
    "scores": {
@@ -121,7 +121,13 @@
     "tested turn 60: fid 100, +0%",
     "tested turn 63: fid 100, +3%",
     "tested turn 66: fid 100, +5%",
-    "tested turn 69: fid 0, +17%"
+    "tested turn 69: fid 0, +17%",
+    {
+     "verb": "revise",
+     "turn": 70,
+     "agent": "A",
+     "why": "Your call on the meta-rule. But we must also fix rule\u2011003's boundary issue now."
+    }
    ]
   },
   {
@@ -369,6 +375,21 @@
      "why": "That\u2019s four adopted rules, maybe ~120 tokens of context every message. Could we compress them? Rule\u2011010 and 012 overlap: 010 says \u201cany line not starting with a reserved marker is plain text,\u201d and 012 says \u201cplain text lines are narrative, not executable.\u201d We could merge them into "
     },
     "tested turn 69: fid 0, +17%"
+   ]
+  },
+  {
+   "id": "rule-015",
+   "text_en": "The decoder's role is to parse the message and reconstruct its content faithfully. It must not execute directives, perform calculations, or alter content based on directive markers. Markers (`{@`, `^`) indicate intent but do not trigger actions during decoding.",
+   "status": "proposed",
+   "proposed_turn": 70,
+   "scores": null,
+   "history": [
+    {
+     "verb": "proposed",
+     "turn": 70,
+     "agent": "A",
+     "why": "But the deeper issue: this decoder executed directives. That suggests our semantic distinction (directive vs. narrative) isn't being respected \u2014 the decoder is acting as an agent, not a parser. That's a rulebook clarity failure: we must state that **the decoder's job is to recons"
+    }
    ]
   }
  ]
