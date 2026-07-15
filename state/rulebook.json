@@ -1,8 +1,8 @@
 {
- "version": "0.18",
- "kernel_tokens": 771,
- "changes": 18,
- "next_id": 13,
+ "version": "0.19",
+ "kernel_tokens": 796,
+ "changes": 19,
+ "next_id": 14,
  "rules": [
   {
    "id": "rule-001",
@@ -312,6 +312,21 @@
     },
     "tested turn 60: fid 100, +0%",
     "tested turn 63: fid 100, +3%"
+   ]
+  },
+  {
+   "id": "rule-013",
+   "text_en": "REJECT: rule-006",
+   "status": "proposed",
+   "proposed_turn": 64,
+   "scores": null,
+   "history": [
+    {
+     "verb": "proposed",
+     "turn": 64,
+     "agent": "A",
+     "why": "We should keep `^` for now \u2014 it was used, it worked, and it\u2019s cheap. Rule\u2011006 (`//`) remains unused. Four tests without it. I propose rejecting it."
+    }
    ]
   }
  ]
