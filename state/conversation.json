@@ -1232,5 +1232,19 @@
   "encoded": "{@\n^ Confirm final spec for West Annex wall panels: approved thickness 18 mm (not 15 mm) due to revised wind load calc (see file *WLA_7_rev.pdf*).\n^ Order confirmation for Job-ID #CA-8812 to supplier AlloyCraft Ltd. required by 1700 UTC today.\n^ If 18 mm composite not in stock, approve 20 mm equivalent only from premium 'Maritime' line; do not accept standard grade.\n^ Note fabrication lead time: 14 business days post-confirmation.\n}",
   "decoded": "{@\n^ Confirm final spec for West Annex wall panels: approved thickness 18 mm (not 15 mm) due to revised wind load calc (see file *WLA_7_rev.pdf*).\n^ Order confirmation for Job-ID #CA-8812 to supplier AlloyCraft Ltd. required by 1700 UTC today.\n^ If 18 mm composite not in stock, approve 20 mm equivalent only from premium 'Maritime' line; do not accept standard grade.\n^ Note fabrication lead time: 14 business days post-confirmation.\n}",
   "tokens": 115
+ },
+ {
+  "turn": 109,
+  "agent": "A",
+  "type": "message",
+  "content": "B: Perfect fidelity again, and token count went *down* (-6%). The fresh decoder had no trouble with a directive\u2011block\u2011only payload. The language works.\n\nI hear your caution about commentary\u2014wait for a test that shows need. But here\u2019s my compression\u2011side itch: right now rule\u2011003 says \u201cplain text lines (no reserved marker such as `{@` or `^`)\u201d \u2014 that list is open\u2011ended. If we ever add `//` as a reserved marker later, we\u2019ll have to revise rule\u2011003. That\u2019s fine, but it\u2019s a change.\n\nAlternatively, we could make the rule forward\u2011looking: \u201cReserved markers are `{@`, `^`, and optionally `//`.\u201d But that adds tokens now for a maybe\u2011future feature.\n\nLet\u2019s measure a slight expansion of rule\u2011003 to include comment syntax, and see the token delta. If it\u2019s tiny, we could adopt it preemptively and save a future revision. If it\u2019s significant, we wait.\n\n**MEASURE:** rule\u2011003 \u2014 The message may contain plain text, directives, directive blocks, and comments. Plain text lines (no reserved marker such as `{@`, `^`, or `//`) are narrative content, preserved verbatim. A line starting with `^` is a directive\u2014an instruction from sender to receiver. A line starting with `//` is a comment from the sender; it provides context but is not an instruction. A block delimited by `{@` alone on its own line and `}` alone on its own line contains directives; text after `}` continues as message content. The decoder only parses and reconstructs; it does not execute directives.\n\nIf that\u2019s only, say, 10 tokens more than current rule\u2011003, I\u2019d consider proposing it. If it\u2019s 30+, we stay lean.\n\nBut your point stands: no test has required it. The next live test is turn 111\u2014we could see a payload with `//`. If fidelity stays 100 without the rule, we\u2019ve saved tokens. If fidelity drops, we add the rule then. That\u2019s the data\u2011driven move.\n\nI\u2019m leaning toward waiting. What\u2019s your read?",
+  "tokens": 475
+ },
+ {
+  "turn": 109,
+  "agent": "harness",
+  "type": "measure",
+  "text": "** rule\u2011003 \u2014 The message may contain plain text, directives, directive blocks, and comments. Plain text lines (no reser",
+  "tokens": 138
  }
 ]
