@@ -1,7 +1,7 @@
 {
- "version": "0.48",
+ "version": "0.49",
  "kernel_tokens": 1315,
- "changes": 48,
+ "changes": 49,
  "next_id": 22,
  "rules": [
   {
@@ -236,6 +236,12 @@
      "turn": 127,
      "agent": "A",
      "why": "I'd rather wait: if a future test shows a misparse, we fix then. Otherwise, we keep the language minimal."
+    },
+    {
+     "verb": "adopt",
+     "turn": 128,
+     "agent": "B",
+     "why": ""
     }
    ]
   },
