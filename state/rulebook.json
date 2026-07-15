@@ -1,7 +1,7 @@
 {
- "version": "0.29",
+ "version": "0.30",
  "kernel_tokens": 1044,
- "changes": 29,
+ "changes": 30,
  "next_id": 19,
  "rules": [
   {
@@ -380,6 +380,12 @@
      "turn": 74,
      "agent": "B",
      "why": "state repair 2026-07-15: agents moved to reject this rule via 'PROPOSE: REJECT:' motions (parser minted those as junk rules instead of applying them); junk purged, the agreed intent applied \u2014 see PROGRESS.md"
+    },
+    {
+     "verb": "reject",
+     "turn": 77,
+     "agent": "B",
+     "why": "Your draft covers both. Let\u2019s measure the current rules first, then propose the merge."
     }
    ]
   },

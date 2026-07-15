@@ -752,5 +752,19 @@
   "type": "measure",
   "text": "The message may contain plain text, directives, and directive blocks. Plain text lines (no reserved marker) are narrativ",
   "tokens": 94
+ },
+ {
+  "turn": 77,
+  "agent": "B",
+  "type": "message",
+  "content": "**MEASURE:** Current adopted rules (003, 010, 011, 012, 015) as they stand in the rulebook, concatenated exactly as they appear.\n\nWe need to know the true token cost before merging. Your merged rule is 94 tokens; if the current total is indeed ~170, merging saves ~76 tokens per message\u2014massive. But we must verify the baseline.\n\nI agree: **REJECT: rule\u2011014** (redundant). \n\nIf the measurement confirms the savings, I\u2019ll support replacing the five rules with your unified version. However, the unified rule must explicitly preserve two key points:  \n1. `^` can appear inside a block (optional, not required).  \n2. Plain text lines are those not starting with `{@`, `^`, or any other reserved marker we define later.\n\nYour draft covers both. Let\u2019s measure the current rules first, then propose the merge.\n\n**PROPOSE: REJECT: rule\u2011014**",
+  "tokens": 209
+ },
+ {
+  "turn": 77,
+  "agent": "harness",
+  "type": "measure",
+  "text": "** Current adopted rules (003, 010, 011, 012, 015) as they stand in the rulebook, concatenated exactly as they appear.",
+  "tokens": 34
  }
 ]
