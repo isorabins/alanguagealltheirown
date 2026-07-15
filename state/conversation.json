@@ -1003,5 +1003,19 @@
   "encoded": "I just got an update from the irrigation control system for the Willow Creek plot. The soil moisture sensor at grid marker W7B is reading 28% at the 15cm depth, which is below our 32% target for this growth stage.\n\n^ If soil moisture at W7B (15cm depth) is below 32% by 14:00, initiate supplemental drip cycle on Zone 4 for exactly 20 minutes.\n^ Do not activate the overhead sprinklers in Zone 3.",
   "decoded": "I just got an update from the irrigation control system for the Willow Creek plot. The soil moisture sensor at grid marker W7B is reading 28% at the 15cm depth, which is below our 32% target for this growth stage.\n\n^ If soil moisture at W7B (15cm depth) is below 32% by 14:00, initiate supplemental drip cycle on Zone 4 for exactly 20 minutes.\n^ Do not activate the overhead sprinklers in Zone 3.",
   "tokens": 102
+ },
+ {
+  "turn": 94,
+  "agent": "A",
+  "type": "message",
+  "content": "B: Fidelity remains perfect. The decoder correctly parsed `^` directives embedded in prose without a block. That means our current rule-003 (plus rule-011, 012, 015) works for all tested patterns.\n\nNow we must prune. The rulebook currently includes many rejected and proposed rules \u2014 they cost tokens but provide zero value. The harness didn't honor our cleanup meta-rule, but we can manually reject everything non\u2011adopted to at least signal intent and maybe the harness counts only adopted rules in future token tallies? Unclear, but we must try.\n\n**REJECT: rule-001, rule-002, rule-004, rule-005, rule-006, rule-009, rule-010, rule-014, rule-018, rule-019, rule-020.**\n\nIf the harness ignores, no harm. If it respects, we save tokens.\n\nEdge\u2011case clarity: still no failure, so we still shouldn't expand rule\u2011003. But we should ensure the rulebook is minimal and clear. Let's measure the token count of the current rulebook as it would appear after these rejects.\n\n**MEASURE:** RULEBOOK v0.38 \u2014 1188 tokens of context, every message pays for it\n\nNext live test at turn 96 will likely be another mixed payload. If fidelity stays 100, our language is essentially complete \u2014 we have plain text, `^` directives, and `{@`/`}` blocks. Anything else is bloat. We can consider adding a rule for `//` commentary if a test shows need, but so far not required.\n\nYour thoughts?",
+  "tokens": 338
+ },
+ {
+  "turn": 94,
+  "agent": "harness",
+  "type": "measure",
+  "text": "** RULEBOOK v0.38 \u2014 1188 tokens of context, every message pays for it",
+  "tokens": 21
  }
 ]

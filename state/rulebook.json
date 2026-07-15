@@ -1,7 +1,7 @@
 {
- "version": "0.38",
+ "version": "0.39",
  "kernel_tokens": 1188,
- "changes": 38,
+ "changes": 39,
  "next_id": 21,
  "rules": [
   {
@@ -32,6 +32,12 @@
      "turn": 7,
      "agent": "B",
      "why": "I say reject the first two, adopt the new ones after tightening definitions, then test."
+    },
+    {
+     "verb": "reject",
+     "turn": 94,
+     "agent": "A",
+     "why": "Now we must prune. The rulebook currently includes many rejected and proposed rules \u2014 they cost tokens but provide zero value. The harness didn't honor our cleanup meta-rule, but we can manually reject everything non\u2011adopted to at least signal intent and maybe the harness counts "
     }
    ]
   },
