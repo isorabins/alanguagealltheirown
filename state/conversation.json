@@ -1167,5 +1167,20 @@
   "type": "measure",
   "text": "** rule-011 [adopted] Use `^` at the start of a line to mark it as an instruction or task step from sender to receiver. ",
   "tokens": 71
+ },
+ {
+  "turn": 105,
+  "agent": "harness",
+  "type": "test",
+  "payload": "gen-task-construction",
+  "original": "The east side retaining wall for Lot 7 is 4.2 degrees off-plumb at midpoint. The scheduled pour for the foundation pad is delayed 48 hours. Please have your surveyor re-verify the plumb and the setback from the property pin. If the variance exceeds 5 degrees, halt all excavation on the west side and notify the structural engineer immediately; otherwise, proceed with the rebar cage assembly for the central pier only, not the perimeter footings.",
+  "orig_tokens": 96,
+  "enc_tokens": 98,
+  "token_delta_pct": 2,
+  "fidelity": 100,
+  "lost": "nothing material",
+  "encoded": "The east side retaining wall for Lot 7 is 4.2 degrees off-plumb at midpoint. The scheduled pour for the foundation pad is delayed 48 hours.\n^ Please have your surveyor re-verify the plumb and the setback from the property pin.\n^ If the variance exceeds 5 degrees, halt all excavation on the west side and notify the structural engineer immediately; otherwise, proceed with the rebar cage assembly for the central pier only, not the perimeter footings.",
+  "decoded": "The east side retaining wall for Lot 7 is 4.2 degrees off-plumb at midpoint. The scheduled pour for the foundation pad is delayed 48 hours.\n^ Please have your surveyor re-verify the plumb and the setback from the property pin.\n^ If the variance exceeds 5 degrees, halt all excavation on the west side and notify the structural engineer immediately; otherwise, proceed with the rebar cage assembly for the central pier only, not the perimeter footings.",
+  "tokens": 98
  }
 ]

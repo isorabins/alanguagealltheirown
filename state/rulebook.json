@@ -84,7 +84,7 @@
    "status": "adopted",
    "proposed_turn": 6,
    "scores": {
-    "token_delta_pct": 5,
+    "token_delta_pct": 2,
     "fidelity_pct": 100
    },
    "history": [
@@ -192,7 +192,8 @@
      "turn": 104,
      "agent": "B",
      "why": "But my instinct: rule-003 is self-contained. I\u2019ll support your proposal."
-    }
+    },
+    "tested turn 105: fid 100, +2%"
    ]
   },
   {
@@ -295,7 +296,7 @@
    "status": "proposed",
    "proposed_turn": 47,
    "scores": {
-    "token_delta_pct": 5,
+    "token_delta_pct": 2,
     "fidelity_pct": 100
    },
    "history": [
@@ -323,7 +324,8 @@
     "tested turn 93: fid 100, +1%",
     "tested turn 96: fid 100, +37%",
     "tested turn 99: fid 100, +3%",
-    "tested turn 102: fid 100, +5%"
+    "tested turn 102: fid 100, +5%",
+    "tested turn 105: fid 100, +2%"
    ]
   },
   {
@@ -600,7 +602,7 @@
    "status": "proposed",
    "proposed_turn": 79,
    "scores": {
-    "token_delta_pct": 5,
+    "token_delta_pct": 2,
     "fidelity_pct": 100
    },
    "history": [
@@ -617,7 +619,8 @@
     "tested turn 93: fid 100, +1%",
     "tested turn 96: fid 100, +37%",
     "tested turn 99: fid 100, +3%",
-    "tested turn 102: fid 100, +5%"
+    "tested turn 102: fid 100, +5%",
+    "tested turn 105: fid 100, +2%"
    ]
   },
   {
@@ -650,14 +653,18 @@
    "text_en": "rule-003 - The message may contain plain text, directives, and directive blocks. Plain text lines (no reserved marker such as `{@` or `^`) are narrative content, preserved verbatim. A line starting with `^` is a directive-an instruction from sender to receiver. A block delimited by `{@` alone on its own line and `}` alone on its own line contains directives; text after `}` continues as message content. The decoder only parses and reconstructs; it does not execute directives.",
    "status": "proposed",
    "proposed_turn": 103,
-   "scores": null,
+   "scores": {
+    "token_delta_pct": 2,
+    "fidelity_pct": 100
+   },
    "history": [
     {
      "verb": "proposed",
      "turn": 103,
      "agent": "A",
      "why": "We should consolidate. Remove rules 011, 012, 015 and keep only rule-003, which already covers all three concepts. That trims the rulebook without losing capability."
-    }
+    },
+    "tested turn 105: fid 100, +2%"
    ]
   }
  ]
