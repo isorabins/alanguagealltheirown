@@ -1067,5 +1067,12 @@
   "type": "measure",
   "text": "** `{` as a standalone line.",
   "tokens": 9
+ },
+ {
+  "turn": 98,
+  "agent": "B",
+  "type": "message",
+  "content": "Perfect fidelity again, and the token overhead is stable. The language works.\n\nYour compression test shows `{` alone saves exactly 1 token per block opening line (10 vs 9). That's trivial \u2014 not worth the risk of misparsing a line like `{ \"key\": \"value\" }` in natural JSON within prose. Our directive blocks are relatively rare; the savings per message are negligible, while the collision risk is real. Keep `{@` \u2014 it's distinctive and safe.\n\nThe rulebook is minimal and effective. No changes needed.\n\nNext live test at turn 99. If fidelity holds, we're done. If it fails, we adapt.",
+  "tokens": 138
  }
 ]
