@@ -579,5 +579,20 @@
   "type": "message",
   "content": "Agreed \u2014 hold for data. Pruning now would be premature without observing how the language handles a mixed directive\u2011and\u2011narrative payload under the current rules. Turn 63 is the next live test; if the encoder again uses only blocks or pure prose, we\u2019ll have four consecutive tests without `^` or `//` \u2014 strong evidence of disuse. At that point we can safely reject them, knowing we can re\u2011propose if a later mixed payload fails.\n\nThe revised block rule (003) and the plain\u2011text semantic rule (012) should now correctly separate directives from narrative. If turn 63\u2019s payload is mixed and fidelity drops, we\u2019ll know those rules need further tuning; if fidelity holds, we\u2019ve stabilized the core.\n\nNo changes now. Wait for the test.",
   "tokens": 167
+ },
+ {
+  "turn": 63,
+  "agent": "harness",
+  "type": "test",
+  "payload": "prose-casual.txt",
+  "original": "Hey \u2014 change of plans for Saturday. Mia's flight lands at 4:40 now, not 2:15, so brunch is off. Could you grab the cake instead? Rosa's on 9th, order's under my name, already paid. If they try to charge you again just show them this message. We'll do dinner at ours around 7, bring nothing but yourselves. Oh and don't mention the surprise to Dad, he still thinks it's just dinner.",
+  "orig_tokens": 100,
+  "enc_tokens": 103,
+  "token_delta_pct": 3,
+  "fidelity": 100,
+  "lost": "nothing material",
+  "encoded": "Hey \u2014 change of plans for Saturday. Mia's flight lands at 4:40 now, not 2:15, so brunch is off.\n^ Could you grab the cake instead? Rosa's on 9th, order's under my name, already paid.\n^ If they try to charge you again just show them this message.\nWe'll do dinner at ours around 7, bring nothing but yourselves.\n^ Oh and don't mention the surprise to Dad, he still thinks it's just dinner.",
+  "decoded": "Hey \u2014 change of plans for Saturday. Mia's flight lands at 4:40 now, not 2:15, so brunch is off.\nCould you grab the cake instead? Rosa's on 9th, order's under my name, already paid.\nIf they try to charge you again just show them this message.\nWe'll do dinner at ours around 7, bring nothing but yourselves.\nOh and don't mention the surprise to Dad, he still thinks it's just dinner.",
+  "tokens": 103
  }
 ]
