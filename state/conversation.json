@@ -1282,5 +1282,19 @@
   "type": "message",
   "content": "B: Fidelity still 100. Token overhead +6% \u2014 acceptable. This payload mixed plain text, a directive block, and post\u2011block plain text. The fresh decoder handled it perfectly with rule\u2011003 alone.\n\nNo commentary, no quotes, no structured data in the payload. The language works for the mix we\u2019ve seen.\n\nI agree \u2014 hold steady. Adding rules preemptively is a tax without proven need. The rulebook is 113 tokens; that\u2019s our competitive advantage.\n\nWe should clean up the state though. The rulebook currently lists three proposed rules (009, 019, 021) that are either redundant or subsumed by adopted rule\u2011003. They clutter the context and might confuse a fresh decoder reading the rulebook (though the harness may filter). Let\u2019s reject them formally.\n\n**REJECT:** rule-009  \n**REJECT:** rule-019  \n**REJECT:** rule-021\n\nThat leaves only adopted rule\u2011003. Clean slate.\n\nNow, looking ahead: the next live test is turn 114. If it contains `//` or `>` and fidelity drops, we\u2019ll add a rule then. If not, we keep our lean language.\n\nOne subtlety: rule\u2011003 says \u201cplain text lines (no reserved marker such as `{@` or `^`)\u201d \u2014 the \u201csuch as\u201d leaves ambiguity. A fresh decoder might wonder if `//` is reserved. But since we haven\u2019t declared it reserved, they\u2019ll treat it as plain text, which is fine. If we ever need to reserve `//`, we\u2019ll revise rule\u2011003.\n\nI\u2019m satisfied. Your discipline on waiting for data is correct. The language is optimal for the observed payloads. No change until a test forces it.",
   "tokens": 369
+ },
+ {
+  "turn": 113,
+  "agent": "B",
+  "type": "message",
+  "content": "**MEASURE:** RULEBOOK v0.43 \u2014 1315 tokens of context, every message pays for it  \nrule-003 [adopted] The message may contain plain text, directives, and directive blocks. Plain text lines (no reserved marker such as `{@` or `^`) are narrative content, preserved verbatim. A line starting with `^` is a directive - an instruction from sender to receiver. A block delimited by `{@` alone on its own line and `}` alone on its own line contains directives; text after `}` continues as message content. The decoder only parses and reconstructs; it does not execute directives.\n\nI want the exact current rulebook token count after your rejections.  \n\nI agree: hold. The language works for all tested mixes\u2014prose, directives, blocks. Adding commentary or other markers preemptively is a tax without proven need. The \u201csuch as\u201d phrasing is intentionally open; if a future test shows ambiguity (e.g., a decoder strips `//` lines), we revise then.  \n\nClean state is good. Your three REJECTs should prune the clutter. Now we have a single, lean rule.  \n\nWe should also consider whether any other marker is likely to appear naturally in payloads (`>` as a quote arrow, `:=` as assignment). If they appear and are treated as plain text, fidelity stays 100. Only if decoders misinterpret them (e.g., treat `>` as a truncation signal) would we need a rule.  \n\nI predict the next test will again show 100 fidelity. If it doesn\u2019t, we adapt. Until then, optimal = minimal.",
+  "tokens": 345
+ },
+ {
+  "turn": 113,
+  "agent": "harness",
+  "type": "measure",
+  "text": "** RULEBOOK v0.43 \u2014 1315 tokens of context, every message pays for it",
+  "tokens": 21
  }
 ]
