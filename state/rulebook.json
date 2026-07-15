@@ -72,8 +72,8 @@
    "status": "adopted",
    "proposed_turn": 6,
    "scores": {
-    "token_delta_pct": 79,
-    "fidelity_pct": 95
+    "token_delta_pct": 0,
+    "fidelity_pct": 100
    },
    "history": [
     {
@@ -168,7 +168,8 @@
      "turn": 86,
      "agent": "B",
      "why": ""
-    }
+    },
+    "tested turn 87: fid 100, +0%"
    ]
   },
   {
@@ -271,8 +272,8 @@
    "status": "proposed",
    "proposed_turn": 47,
    "scores": {
-    "token_delta_pct": 79,
-    "fidelity_pct": 95
+    "token_delta_pct": 0,
+    "fidelity_pct": 100
    },
    "history": [
     {
@@ -293,7 +294,8 @@
     "tested turn 75: fid 100, +5%",
     "tested turn 78: fid 90, +14%",
     "tested turn 81: fid 100, +0%",
-    "tested turn 84: fid 95, +79%"
+    "tested turn 84: fid 95, +79%",
+    "tested turn 87: fid 100, +0%"
    ]
   },
   {
@@ -350,8 +352,8 @@
    "status": "adopted",
    "proposed_turn": 49,
    "scores": {
-    "token_delta_pct": 79,
-    "fidelity_pct": 95
+    "token_delta_pct": 0,
+    "fidelity_pct": 100
    },
    "history": [
     {
@@ -377,7 +379,8 @@
     "tested turn 75: fid 100, +5%",
     "tested turn 78: fid 90, +14%",
     "tested turn 81: fid 100, +0%",
-    "tested turn 84: fid 95, +79%"
+    "tested turn 84: fid 95, +79%",
+    "tested turn 87: fid 100, +0%"
    ]
   },
   {
@@ -386,8 +389,8 @@
    "status": "adopted",
    "proposed_turn": 58,
    "scores": {
-    "token_delta_pct": 79,
-    "fidelity_pct": 95
+    "token_delta_pct": 0,
+    "fidelity_pct": 100
    },
    "history": [
     {
@@ -410,7 +413,8 @@
     "tested turn 75: fid 100, +5%",
     "tested turn 78: fid 90, +14%",
     "tested turn 81: fid 100, +0%",
-    "tested turn 84: fid 95, +79%"
+    "tested turn 84: fid 95, +79%",
+    "tested turn 87: fid 100, +0%"
    ]
   },
   {
@@ -452,8 +456,8 @@
    "status": "adopted",
    "proposed_turn": 70,
    "scores": {
-    "token_delta_pct": 79,
-    "fidelity_pct": 95
+    "token_delta_pct": 0,
+    "fidelity_pct": 100
    },
    "history": [
     {
@@ -478,7 +482,8 @@
     "tested turn 75: fid 100, +5%",
     "tested turn 78: fid 90, +14%",
     "tested turn 81: fid 100, +0%",
-    "tested turn 84: fid 95, +79%"
+    "tested turn 84: fid 95, +79%",
+    "tested turn 87: fid 100, +0%"
    ]
   },
   {
@@ -487,8 +492,8 @@
    "status": "proposed",
    "proposed_turn": 76,
    "scores": {
-    "token_delta_pct": 79,
-    "fidelity_pct": 95
+    "token_delta_pct": 0,
+    "fidelity_pct": 100
    },
    "history": [
     {
@@ -499,7 +504,8 @@
     },
     "tested turn 78: fid 90, +14%",
     "tested turn 81: fid 100, +0%",
-    "tested turn 84: fid 95, +79%"
+    "tested turn 84: fid 95, +79%",
+    "tested turn 87: fid 100, +0%"
    ]
   },
   {
@@ -508,8 +514,8 @@
    "status": "proposed",
    "proposed_turn": 79,
    "scores": {
-    "token_delta_pct": 79,
-    "fidelity_pct": 95
+    "token_delta_pct": 0,
+    "fidelity_pct": 100
    },
    "history": [
     {
@@ -519,7 +525,8 @@
      "why": "If the sum is still high, merge. But first, fix the block boundary issue. Propose a small amendment to rule\u2011003 (or the merged rule) to prevent early truncation."
     },
     "tested turn 81: fid 100, +0%",
-    "tested turn 84: fid 95, +79%"
+    "tested turn 84: fid 95, +79%",
+    "tested turn 87: fid 100, +0%"
    ]
   }
  ]
