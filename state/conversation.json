@@ -623,5 +623,19 @@
   "encoded": "{@\nReview this pull request for a payment retry function.\nCheck that:\nretries use exponential backoff capped at five attempts;\na failed retry never double-charges;\nevery state change writes an audit log entry;\nand secrets never appear in log output.\nApprove only if all four hold.\nIf any fail, list each violation with the line number and a one-sentence fix.\nDo not comment on style.\n}",
   "decoded": "Review this pull request for a payment retry function.  \nCheck that:  \nretries use exponential backoff capped at five attempts;  \na failed retry never double-charges;  \nevery state change writes an audit log entry;  \nand secrets never appear in log output.  \nApprove only if all four hold.  \nIf any fail, list each violation with the line number and a one-sentence fix.  \nDo not comment on style.",
   "tokens": 88
+ },
+ {
+  "turn": 67,
+  "agent": "A",
+  "type": "message",
+  "content": "B: Another block\u2011only payload, no `^`, no `//`. The encoder chose the block for dense directives \u2014 which is fine, but it means `^` hasn\u2019t been used for two tests. Still, turn 63 proved it works for scattered directives. I\u2019m willing to keep `^` as a lightweight alternative to blocks; its overhead is low and it adds expressive range.\n\nBut the real inefficiency now is the rulebook itself. We have:\n- 003 (block markers)\n- 010 (plain text default)\n- 011 (`^` directive marker)\n- 012 (plain text is narrative, not executable)\n\nThat\u2019s four adopted rules, maybe ~120 tokens of context every message. Could we compress them? Rule\u2011010 and 012 overlap: 010 says \u201cany line not starting with a reserved marker is plain text,\u201d and 012 says \u201cplain text lines are narrative, not executable.\u201d We could merge them into one rule that defines plain text and its semantics.\n\n**PROPOSE: Plain text lines (those not starting with a reserved marker such as `{@` or `^`) are narrative content from the sender. They are to be preserved verbatim, but are not instructions for the receiver to execute. The receiver should treat them as read\u2011only context.**\n\nThat replaces 010 and 012, cutting ~30 tokens from the rulebook. The semantics stay identical.\n\nAlso, we should measure the token cost of the current rulebook vs. the merged version to see the savings.\n\n**MEASURE: Plain text lines (those not starting with a reserved marker such as `{@` or `^`) are narrative content from the sender. They are to be preserved verbatim, but are not instructions for the receiver to execute. The receiver should treat them as read\u2011only context.**\n\nIf the savings are meaningful, I\u2019ll propose revising 010 to this and rejecting 012. Your call.",
+  "tokens": 399
+ },
+ {
+  "turn": 67,
+  "agent": "harness",
+  "type": "measure",
+  "text": "Plain text lines (those not starting with a reserved marker such as `{@` or `^`) are narrative content from the sender. ",
+  "tokens": 57
  }
 ]

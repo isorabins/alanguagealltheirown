@@ -1,8 +1,8 @@
 {
- "version": "0.20",
- "kernel_tokens": 796,
- "changes": 20,
- "next_id": 14,
+ "version": "0.21",
+ "kernel_tokens": 871,
+ "changes": 21,
+ "next_id": 15,
  "rules": [
   {
    "id": "rule-001",
@@ -343,6 +343,21 @@
      "why": "We have evidence `^` was used, so we keep it for now. But rule\u2011006 (`//`) has been absent for four consecutive tests\u2014strong disuse."
     },
     "tested turn 66: fid 100, +5%"
+   ]
+  },
+  {
+   "id": "rule-014",
+   "text_en": "Plain text lines (those not starting with a reserved marker such as `{@` or `^`) are narrative content from the sender. They are to be preserved verbatim, but are not instructions for the receiver to execute. The receiver should treat them as read-only context.",
+   "status": "proposed",
+   "proposed_turn": 67,
+   "scores": null,
+   "history": [
+    {
+     "verb": "proposed",
+     "turn": 67,
+     "agent": "A",
+     "why": "That\u2019s four adopted rules, maybe ~120 tokens of context every message. Could we compress them? Rule\u2011010 and 012 overlap: 010 says \u201cany line not starting with a reserved marker is plain text,\u201d and 012 says \u201cplain text lines are narrative, not executable.\u201d We could merge them into "
+    }
    ]
   }
  ]
