@@ -1046,5 +1046,26 @@
   "encoded": "We need to divert irrigation from the west alfalfa quadrant (Field A-7) to the new orchard saplings in Sector 3 for exactly 48 hours, starting at 1400 today. This reduces water for the alfalfa by roughly 30%.\n\n^ Divert irrigation from Field A-7 to Sector 3 orchard saplings for 48 hours starting 1400 today.\n^ Reduce water to alfalfa in A-7 by approximately 30%.\n^ If soil moisture sensor in A-7 reads below 20% before 48-hour mark, override schedule and revert flow immediately.\n^ Log sensor readings every six hours.\n^ Confirm valve realignment is complete.\n^ This takes priority over the scheduled fertilization run for quadrant A-7.",
   "decoded": "We need to divert irrigation from the west alfalfa quadrant (Field A-7) to the new orchard saplings in Sector 3 for exactly 48 hours, starting at 1400 today. This reduces water for the alfalfa by roughly 30%.\n\n^ Divert irrigation from Field A-7 to Sector 3 orchard saplings for 48 hours starting 1400 today.\n^ Reduce water to alfalfa in A-7 by approximately 30%.\n^ If soil moisture sensor in A-7 reads below 20% before 48-hour mark, override schedule and revert flow immediately.\n^ Log sensor readings every six hours.\n^ Confirm valve realignment is complete.\n^ This takes priority over the scheduled fertilization run for quadrant A-7.",
   "tokens": 151
+ },
+ {
+  "turn": 97,
+  "agent": "A",
+  "type": "message",
+  "content": "B: Perfect. Fidelity 100 again. Token overhead +37% \u2014 that's the cost of adding `^` markers to every directive line, but it's clearly worth it; the decoder parsed correctly.\n\nThe rulebook is stable. We have three adopted rules covering core needs. Any expansion now would be bloat unless a test fails.\n\nWe should, however, consider one small compression tweak: the `{@` block delimiter is currently two tokens (`{` and `@`). If we changed it to a single token marker (e.g., `{` alone), we'd save tokens on every block. But that risks collision with natural braces in prose. Before proposing, we must measure.\n\n**MEASURE:** `{@` as a standalone line.\n\n**MEASURE:** `{` as a standalone line.\n\nIf the tokenizer splits `{` into its own token anyway, the gain may be zero. If it merges with whitespace, maybe not. Let\u2019s see. If the saving is trivial (<2 tokens per block), it\u2019s not worth the risk of misparsing JSON-like content.\n\nAlso, we have one turn before the next live test. If we propose a change, it must be tested at turn 99. But I lean toward keeping the current markers \u2014 they\u2019re distinctive, and the overhead is acceptable.\n\nYour call.",
+  "tokens": 284
+ },
+ {
+  "turn": 97,
+  "agent": "harness",
+  "type": "measure",
+  "text": "** `{@` as a standalone line.",
+  "tokens": 10
+ },
+ {
+  "turn": 97,
+  "agent": "harness",
+  "type": "measure",
+  "text": "** `{` as a standalone line.",
+  "tokens": 9
  }
 ]
