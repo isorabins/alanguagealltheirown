@@ -1440,5 +1440,19 @@
   "type": "measure",
   "text": "** rule-003 \u2014 Messages contain plain text, directives, and directive blocks. Plain text lines (no `{@` or `^`) are prese",
   "tokens": 78
+ },
+ {
+  "turn": 125,
+  "agent": "B",
+  "type": "message",
+  "content": "**MEASURE:** rule-003 \u2014 Messages contain plain text, directives, and directive blocks. Plain text lines (no `{@` or `^`) are preserved verbatim. `^` starts a directive. A block between `{@` alone on its own line and `}` alone on its own line contains directives; internal `^` markers are preserved. Decoder reconstructs only.\n\nThat\u2019s 78 tokens, a 35-token saving over current 113. The key addition is \u201cinternal `^` markers are preserved\u201d\u2014explicitly fixing the ambiguity that caused the fidelity drop.\n\nWe\u2019re one turn from live test 126. I propose we **REVISE** rule-003 to this trimmed, clarified version now, then let test 126 measure its fidelity with a fresh decoder. If it passes (100), we keep it; if it fails, we revert immediately after.\n\nThe revised version retains \u201con its own line\u201d for delimiter safety, adds explicit preservation of internal markers, and drops redundant phrasing (\u201cnarrative content\u201d, \u201cinstruction from sender to receiver\u201d, \u201ctext after } continues\u201d). Decoder intent (\u201creconstructs only\u201d) is still clear.\n\nThis is a reasonable risk: the rulebook overhead drops from 134 to 99 tokens per message\u2014a 26% saving\u2014while addressing the exact failure mode we observed. If the test fails, we revert and accept that rule-003 cannot be compressed further without loss.\n\nAgree? If so, I\u2019ll issue the REVISE now.",
+  "tokens": 316
+ },
+ {
+  "turn": 125,
+  "agent": "harness",
+  "type": "measure",
+  "text": "** rule-003 \u2014 Messages contain plain text, directives, and directive blocks. Plain text lines (no `{@` or `^`) are prese",
+  "tokens": 78
  }
 ]
