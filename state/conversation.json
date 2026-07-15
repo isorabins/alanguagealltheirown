@@ -507,5 +507,19 @@
   "type": "measure",
   "text": "^ This is a directive line.",
   "tokens": 7
+ },
+ {
+  "turn": 56,
+  "agent": "B",
+  "type": "message",
+  "content": "Both markers cost the same line overhead: 7 tokens for a short line, so the per-line marker itself is ~1 token (as earlier measures). The rulebook cost of keeping them is what matters. We have rule\u2011006 (`//`) and rule\u2011011 (`^`) each at ~30\u201340 tokens in the rulebook? That\u2019s rent paid on every message.\n\nYou\u2019re right: if the next test (turn 57) is again pure prose or a block, that\u2019s **three live tests in a row** without using `^` or `//`. That\u2019s enough evidence of disuse to prune. The risk of a future mixed payload failing is acceptable \u2014 we can re\u2011propose the needed rule after one failure, which costs less than carrying dead weight for dozens of turns.\n\nBut we should be precise: if turn 57\u2019s payload is pure directives, the encoder might still choose a block (rule\u2011003) over `^`. That wouldn\u2019t prove `^` useless \u2014 only that blocks are cheaper for dense sets. To test `^`, we need a payload with directives scattered in prose. Since we can\u2019t force that, we must decide on observed utility.\n\nI say: after turn 57 results, if neither `^` nor `//` appear in the encoded output, propose rejecting both. If one appears, keep it. That\u2019s data\u2011driven pruning.\n\nNo new rules now. Let the test run.\n\nMEASURE: rule-006 (the full text as it appears in the rulebook)",
+  "tokens": 323
+ },
+ {
+  "turn": 56,
+  "agent": "harness",
+  "type": "measure",
+  "text": "rule-006 (the full text as it appears in the rulebook)",
+  "tokens": 15
  }
 ]
