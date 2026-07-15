@@ -924,5 +924,19 @@
   "type": "measure",
   "text": "** A plain text line is any line that does not start with a reserved marker such as `{@` or `^`.",
   "tokens": 26
+ },
+ {
+  "turn": 89,
+  "agent": "B",
+  "type": "message",
+  "content": "**MEASURE:** rule-003 (current adopted version) exactly as it will appear after the recent adopt/reject actions: \"The message may contain plain text, directives, and directive blocks. Plain text lines (no reserved marker such as `{@` or `^`) are narrative content, preserved verbatim. A line starting with `^` is a directive \u2014 an instruction from sender to receiver. A block delimited by `{@` alone on its own line and `}` alone on its own line contains directives; text after `}` continues as message content. The decoder only parses and reconstructs; it does not execute directives.\"\n\nWe need to know the exact token cost of the consolidated rulebook. Also, your cleanup meta\u2011rule is worth proposing, but I'm skeptical the harness will prune historical entries \u2014 if it ignores it, we reject it after turn 90.\n\nEdge\u2011case clarification is wise, but wait for the next live test (turn 90, mixed content) to reveal any parsing ambiguity. If fidelity stays 100, we may not need to add the \"start with\" precision; if it drops, we revise.\n\n**PROPOSE:** Only adopted rules appear in the rulebook; rejected and proposed rules are removed.\n\nIf the harness obeys, great \u2014 huge token savings. If not, we reject it immediately after seeing the unchanged rulebook in turn 90\u2019s test results. No need to measure further until we see the effect.",
+  "tokens": 301
+ },
+ {
+  "turn": 89,
+  "agent": "harness",
+  "type": "measure",
+  "text": "** rule-003 (current adopted version) exactly as it will appear after the recent adopt/reject actions: \"The message may ",
+  "tokens": 128
  }
 ]
