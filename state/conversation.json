@@ -1419,5 +1419,26 @@
   "encoded": "We need to reschedule the restock for the Brookhaven location.\n{@\n^ The warehouse can only release the 120 units of the Veridian ceramic planter (SKU: VP-8873) tomorrow between 11:00 AM and 1:00 PM.\n^ Please coordinate the truck for that window.\n^ If you cannot secure a slot, prioritize the 30 units of matching saucers (SKU: VS-8873A) first, as those are critical for the weekend promotion.\n^ Do not accept a partial shipment of planters without the saucers.\n^ Confirm the pickup time with Logan by 4 PM today.\n}",
   "decoded": "We need to reschedule the restock for the Brookhaven location.\n\n{@\n^ The warehouse can only release the 120 units of the Veridian ceramic planter (SKU: VP-8873) tomorrow between 11:00 AM and 1:00 PM.\n^ Please coordinate the truck for that window.\n^ If you cannot secure a slot, prioritize the 30 units of matching saucers (SKU: VS-8873A) first, as those are critical for the weekend promotion.\n^ Do not accept a partial shipment of planters without the saucers.\n^ Confirm the pickup time with Logan by 4 PM today.\n}",
   "tokens": 133
+ },
+ {
+  "turn": 124,
+  "agent": "A",
+  "type": "message",
+  "content": "B: Fidelity recovered to 100 with the reverted rule. Good \u2014 the original wording works. The trimmed version failed because \"contains directives\" was ambiguous; the fresh decoder interpreted it as \"the block itself is a directive\" rather than \"the block contains directive lines.\" \n\nNow we're at turn 124, next live test at turn 126. The language is stable again, but we still have a token inefficiency: the rulebook header is 21 tokens, and rule\u2011003 is 113 tokens. Together that's 134 tokens of fixed overhead per message. Can we shrink rule\u2011003 without breaking clarity? The failed trim taught us we need explicit \"preserve verbatim\" and \"on its own line.\" But maybe we can drop redundant phrases:\n\nCurrent: \"The message may contain plain text, directives, and directive blocks. Plain text lines (no reserved marker such as `{@` or `^`) are narrative content, preserved verbatim. A line starting with `^` is a directive \u2014 an instruction from sender to receiver. A block delimited by `{@` alone on its own line and `}` alone on its own line contains directives; text after `}` continues as message content. The decoder only parses and reconstructs; it does not execute directives.\"\n\nPossible trim: \"Messages contain plain text, directives, and directive blocks. Plain text lines (no `{@` or `^`) are preserved verbatim. `^` starts a directive. A block between `{@` alone on its own line and `}` alone on its own line contains directives; internal `^` markers are preserved. Decoder reconstructs only.\"\n\nLet's measure both.\n\n**MEASURE:** rule-003 [current adopted] The message may contain plain text, directives, and directive blocks. Plain text lines (no reserved marker such as `{@` or `^`) are narrative content, preserved verbatim. A line starting with `^` is a directive \u2014 an instruction from sender to receiver. A block delimited by `{@` alone on its own line and `}` alone on its own line contains directives; text after `}` continues as message content. The decoder only parses and reconstructs; it does not execute directives.\n\n**MEASURE:** rule-003 \u2014 Messages contain plain text, directives, and directive blocks. Plain text lines (no `{@` or `^`) are preserved verbatim. `^` starts a directive. A block between `{@` alone on its own line and `}` alone on its own line contains directives; internal `^` markers are preserved. Decoder reconstructs only.\n\nIf the trimmed version saves meaningful tokens and still passes a live test, we could cautiously propose it after turn 126. But we must not rush \u2014 one more failure resets progress. Your call.",
+  "tokens": 587
+ },
+ {
+  "turn": 124,
+  "agent": "harness",
+  "type": "measure",
+  "text": "** rule-003 [current adopted] The message may contain plain text, directives, and directive blocks. Plain text lines (no",
+  "tokens": 113
+ },
+ {
+  "turn": 124,
+  "agent": "harness",
+  "type": "measure",
+  "text": "** rule-003 \u2014 Messages contain plain text, directives, and directive blocks. Plain text lines (no `{@` or `^`) are prese",
+  "tokens": 78
  }
 ]
