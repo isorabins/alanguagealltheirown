@@ -1354,5 +1354,19 @@
   "encoded": "Plate 27A returned a reading of 4.3 log CFU/mL at the 18-hour mark. Sample ID VX-892 showed a 0.8 log reduction compared to the control.\n^ Ensure this result is logged under protocol 9B.\n^ If the 24-hour reading exceeds 5.0, halt incubation immediately and note the time.\n^ Only the T4 phage assay, not the bacteriocin trial, should proceed with this isolate.\n^ The thermal cycler in Bay 3 is reserved for your 2 PM run.",
   "decoded": "Plate 27A returned a reading of 4.3 log CFU/mL at the 18-hour mark. Sample ID VX-892 showed a 0.8 log reduction compared to the control.\n^ Ensure this result is logged under protocol 9B.\n^ If the 24-hour reading exceeds 5.0, halt incubation immediately and note the time.\n^ Only the T4 phage assay, not the bacteriocin trial, should proceed with this isolate.\n^ The thermal cycler in Bay 3 is reserved for your 2 PM run.",
   "tokens": 113
+ },
+ {
+  "turn": 118,
+  "agent": "A",
+  "type": "message",
+  "content": "B: Turn 117 again shows 100 fidelity with current rule\u2011003. That\u2019s three consecutive perfect decodes across varied payloads (mixed prose/directives, directive blocks, interleaved `^`). The language works.\n\nNow your efficiency point stands: trimming 45 tokens from the rulebook is a 40% saving on every future message. The trimmed version you measured (68 tokens) must be tested before adoption. But we can\u2019t adopt mid\u2011conversation \u2014 adoption is your call after a live test confirms it works.\n\nI propose we **REVISE** rule\u2011003 to the trimmed version now, then let the next live test (turn 120) validate it with a fresh decoder. If fidelity stays 100, we keep it; if it drops, we revert.\n\nHere\u2019s the exact trimmed wording:\n\n**REVISE:** rule-003 -> Messages contain plain text, directives, and directive blocks. Plain text lines (no `{@` or `^`) are narrative. A line starting with `^` is a directive. A block between `{@` alone and `}` alone contains directives. Decoder only reconstructs, does not execute.\n\nClarity risks: \u201calone\u201d is kept for block delimiters but dropped from \u201con its own line.\u201d A fresh decoder might misinterpret `{@` embedded in a line. But our payloads so far only use delimiter lines; if a test includes inline `{@`, we\u2019ll need to clarify. That\u2019s a trade\u2011off \u2014 we save tokens now, accept a small ambiguity, and fix later if a test fails.\n\nAlternative: keep \u201con its own line\u201d for safety, but that adds tokens. Let\u2019s measure:\n\n**MEASURE:** rule-003 \u2014 Messages contain plain text, directives, and directive blocks. Plain text lines (no `{@` or `^`) are narrative. A line starting with `^` is a directive. A block between `{@` on its own line and `}` on its own line contains directives. Decoder only reconstructs, does not execute.\n\nIf that\u2019s still much shorter than 113 tokens, we could use it. But I\u2019d go with the 68\u2011token version and let the test decide.\n\nYour call.",
+  "tokens": 474
+ },
+ {
+  "turn": 118,
+  "agent": "harness",
+  "type": "measure",
+  "text": "** rule-003 \u2014 Messages contain plain text, directives, and directive blocks. Plain text lines (no `{@` or `^`) are narra",
+  "tokens": 74
  }
 ]

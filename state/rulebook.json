@@ -1,7 +1,7 @@
 {
- "version": "0.43",
- "kernel_tokens": 1315,
- "changes": 43,
+ "version": "0.44",
+ "kernel_tokens": 1273,
+ "changes": 44,
  "next_id": 22,
  "rules": [
   {
@@ -80,8 +80,8 @@
   },
   {
    "id": "rule-003",
-   "text_en": "The message may contain plain text, directives, and directive blocks. Plain text lines (no reserved marker such as `{@` or `^`) are narrative content, preserved verbatim. A line starting with `^` is a directive - an instruction from sender to receiver. A block delimited by `{@` alone on its own line and `}` alone on its own line contains directives; text after `}` continues as message content. The decoder only parses and reconstructs; it does not execute directives.",
-   "status": "adopted",
+   "text_en": "Messages contain plain text, directives, and directive blocks. Plain text lines (no `{@` or `^`) are narrative. A line starting with `^` is a directive. A block between `{@` alone and `}` alone contains directives. Decoder only reconstructs, does not execute.",
+   "status": "proposed",
    "proposed_turn": 6,
    "scores": {
     "token_delta_pct": 4,
@@ -197,7 +197,13 @@
     "tested turn 108: fid 100, -6%",
     "tested turn 111: fid 100, +6%",
     "tested turn 114: fid 100, +3%",
-    "tested turn 117: fid 100, +4%"
+    "tested turn 117: fid 100, +4%",
+    {
+     "verb": "revise",
+     "turn": 118,
+     "agent": "A",
+     "why": "Here\u2019s the exact trimmed wording:"
+    }
    ]
   },
   {
