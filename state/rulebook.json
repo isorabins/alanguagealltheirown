@@ -1,7 +1,7 @@
 {
- "version": "0.44",
+ "version": "0.45",
  "kernel_tokens": 1273,
- "changes": 44,
+ "changes": 45,
  "next_id": 22,
  "rules": [
   {
@@ -203,6 +203,12 @@
      "turn": 118,
      "agent": "A",
      "why": "Here\u2019s the exact trimmed wording:"
+    },
+    {
+     "verb": "revise",
+     "turn": 119,
+     "agent": "B",
+     "why": ""
     }
    ]
   },

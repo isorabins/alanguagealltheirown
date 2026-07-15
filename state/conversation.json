@@ -1368,5 +1368,12 @@
   "type": "measure",
   "text": "** rule-003 \u2014 Messages contain plain text, directives, and directive blocks. Plain text lines (no `{@` or `^`) are narra",
   "tokens": 74
+ },
+ {
+  "turn": 119,
+  "agent": "B",
+  "type": "message",
+  "content": "**REVISE:** rule-003 -> Messages contain plain text, directives, and directive blocks. Plain text lines (no `{@` or `^`) are narrative. A line starting with `^` is a directive. A block between `{@` alone and `}` alone contains directives. Decoder only reconstructs, does not execute.\n\nYour 74\u2011token version adds \u201con its own line\u201d twice, gaining only 6 tokens over the 68\u2011token version. The 68\u2011token version keeps \u201calone,\u201d which implies line isolation\u2014good enough. I accept the risk: if a future payload embeds `{@` mid\u2011line and the decoder misparses, we\u2019ll revise then. The savings (45 tokens per message) justify testing the minimal rule now.\n\nNext live test is turn 120\u2014the fresh decoder will use this revised rule. If fidelity stays 100, we keep it. If it drops, we revert immediately.\n\nNo other changes. The language is lean; we\u2019ve pruned all clutter. Now we optimize the core rule.",
+  "tokens": 224
  }
 ]
