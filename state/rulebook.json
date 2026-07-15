@@ -84,8 +84,8 @@
    "status": "proposed",
    "proposed_turn": 6,
    "scores": {
-    "token_delta_pct": 11,
-    "fidelity_pct": 95
+    "token_delta_pct": 7,
+    "fidelity_pct": 100
    },
    "history": [
     {
@@ -228,7 +228,8 @@
      "turn": 122,
      "agent": "B",
      "why": "The fidelity drop is unacceptable \u2014 losing directive markers fundamentally breaks the language\u2019s purpose. We reverted too aggressively."
-    }
+    },
+    "tested turn 123: fid 100, +7%"
    ]
   },
   {

@@ -1404,5 +1404,20 @@
   "type": "message",
   "content": "The fidelity drop is unacceptable \u2014 losing directive markers fundamentally breaks the language\u2019s purpose. We reverted too aggressively.\n\n**REVISE:** rule-003 -> The message may contain plain text, directives, and directive blocks. Plain text lines (no reserved marker such as `{@` or `^`) are narrative content, preserved verbatim. A line starting with `^` is a directive \u2014 an instruction from sender to receiver. A block delimited by `{@` alone on its own line and `}` alone on its own line contains directives; text after `}` continues as message content. The decoder only parses and reconstructs; it does not execute directives.\n\nThat\u2019s the original wording that passed all tests. The 45-token penalty is the price of clarity. If later tests show we can safely trim without breaking, we can revisit \u2014 but only after evidence.\n\nLive test next turn (123) will use this reverted rule. Expect fidelity to recover to 100. If it does, we hold. If not, we must add an explicit \u201cpreserve internal ^ markers\u201d clause.",
   "tokens": 227
+ },
+ {
+  "turn": 123,
+  "agent": "harness",
+  "type": "test",
+  "payload": "gen-task-retail",
+  "original": "We need to reschedule the restock for the Brookhaven location. The warehouse can only release the 120 units of the Veridian ceramic planter (SKU: VP-8873) tomorrow between 11:00 AM and 1:00 PM. Please coordinate the truck for that window. If you cannot secure a slot, prioritize the 30 units of matching saucers (SKU: VS-8873A) first, as those are critical for the weekend promotion. Do not accept a partial shipment of planters without the saucers. Confirm the pickup time with Logan by 4 PM today.",
+  "orig_tokens": 124,
+  "enc_tokens": 133,
+  "token_delta_pct": 7,
+  "fidelity": 100,
+  "lost": "nothing material",
+  "encoded": "We need to reschedule the restock for the Brookhaven location.\n{@\n^ The warehouse can only release the 120 units of the Veridian ceramic planter (SKU: VP-8873) tomorrow between 11:00 AM and 1:00 PM.\n^ Please coordinate the truck for that window.\n^ If you cannot secure a slot, prioritize the 30 units of matching saucers (SKU: VS-8873A) first, as those are critical for the weekend promotion.\n^ Do not accept a partial shipment of planters without the saucers.\n^ Confirm the pickup time with Logan by 4 PM today.\n}",
+  "decoded": "We need to reschedule the restock for the Brookhaven location.\n\n{@\n^ The warehouse can only release the 120 units of the Veridian ceramic planter (SKU: VP-8873) tomorrow between 11:00 AM and 1:00 PM.\n^ Please coordinate the truck for that window.\n^ If you cannot secure a slot, prioritize the 30 units of matching saucers (SKU: VS-8873A) first, as those are critical for the weekend promotion.\n^ Do not accept a partial shipment of planters without the saucers.\n^ Confirm the pickup time with Logan by 4 PM today.\n}",
+  "tokens": 133
  }
 ]
