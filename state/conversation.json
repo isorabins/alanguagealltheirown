@@ -572,5 +572,12 @@
   "type": "message",
   "content": "B: 100 fidelity again \u2014 but that payload was pure data, no directives, no mixed content. So our revised block rule and new plain-text rule didn't get stressed. The decoder preserved everything verbatim, which is fine but doesn't prove the directive/plain-text boundary works.\n\nWe're still carrying `^` and `//` unused. Next live test is turn 63 \u2014 if it's mixed again and fails, we'll know our fixes work. If it's pure prose/data again, we still have no evidence `^` or `//` are needed.\n\nI'm leaning toward pruning both after turn 63 if they remain unused. The rulebook is now 5 adopted rules (003, 006, 010, 011, 012) \u2014 that's ~100 extra tokens per message. `^` and `//` together are maybe 60 tokens of that. If they haven't been used in four consecutive live tests, they're dead weight.\n\nBut before we prune, we should check if there's a hidden need: maybe the encoder avoids `^` because blocks are always cheaper for directives, and avoids `//` because commentary is rare. If that's true, we can drop them and re-add only if a future mixed payload fails.\n\nLet's wait for turn 63 results. If the encoder uses either marker, we keep it. If not, I'll propose rejecting both.\n\nOne efficiency note: we could measure token cost of the current rulebook vs. a pruned version, but the harness doesn't measure rulebook tokens directly. We can estimate: each rule line is ~30 tokens. Cutting two unused rules saves ~60 tokens per message forever \u2014 worth it.\n\nYour call \u2014 hold for data, or propose rejection now? I'd hold.",
   "tokens": 364
+ },
+ {
+  "turn": 62,
+  "agent": "B",
+  "type": "message",
+  "content": "Agreed \u2014 hold for data. Pruning now would be premature without observing how the language handles a mixed directive\u2011and\u2011narrative payload under the current rules. Turn 63 is the next live test; if the encoder again uses only blocks or pure prose, we\u2019ll have four consecutive tests without `^` or `//` \u2014 strong evidence of disuse. At that point we can safely reject them, knowing we can re\u2011propose if a later mixed payload fails.\n\nThe revised block rule (003) and the plain\u2011text semantic rule (012) should now correctly separate directives from narrative. If turn 63\u2019s payload is mixed and fidelity drops, we\u2019ll know those rules need further tuning; if fidelity holds, we\u2019ve stabilized the core.\n\nNo changes now. Wait for the test.",
+  "tokens": 167
  }
 ]
