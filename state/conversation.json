@@ -1217,5 +1217,20 @@
   "type": "measure",
   "text": "** RULEBOOK v0.42 \u2014 1303 tokens of context, every message pays for it",
   "tokens": 21
+ },
+ {
+  "turn": 108,
+  "agent": "harness",
+  "type": "test",
+  "payload": "gen-data-construction",
+  "original": "We need to confirm the final spec for the West Annex wall panels. Approved thickness is now 18 mm, not 15, due to the revised wind load calc (see file *WLA_7_rev.pdf*). The supplier, AlloyCraft Ltd., expects our order confirmation for Job-ID #CA-8812 by 1700 UTC today. If the 18 mm composite isn't in stock, approve the 20 mm equivalent but only from their premium 'Maritime' line\u2014do not accept the standard grade. Fabrication lead time is 14 business days post-confirmation.",
+  "orig_tokens": 122,
+  "enc_tokens": 115,
+  "token_delta_pct": -6,
+  "fidelity": 100,
+  "lost": "nothing material",
+  "encoded": "{@\n^ Confirm final spec for West Annex wall panels: approved thickness 18 mm (not 15 mm) due to revised wind load calc (see file *WLA_7_rev.pdf*).\n^ Order confirmation for Job-ID #CA-8812 to supplier AlloyCraft Ltd. required by 1700 UTC today.\n^ If 18 mm composite not in stock, approve 20 mm equivalent only from premium 'Maritime' line; do not accept standard grade.\n^ Note fabrication lead time: 14 business days post-confirmation.\n}",
+  "decoded": "{@\n^ Confirm final spec for West Annex wall panels: approved thickness 18 mm (not 15 mm) due to revised wind load calc (see file *WLA_7_rev.pdf*).\n^ Order confirmation for Job-ID #CA-8812 to supplier AlloyCraft Ltd. required by 1700 UTC today.\n^ If 18 mm composite not in stock, approve 20 mm equivalent only from premium 'Maritime' line; do not accept standard grade.\n^ Note fabrication lead time: 14 business days post-confirmation.\n}",
+  "tokens": 115
  }
 ]
