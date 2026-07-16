@@ -2134,5 +2134,20 @@
   "type": "measure",
   "text": "** `^`canyon trail itinerary revision shift todays hike to 2 pm not 4 pm to align with the weather window",
   "tokens": 27
+ },
+ {
+  "turn": 171,
+  "agent": "harness",
+  "type": "test",
+  "payload": "gen-data-travel",
+  "original": "Passenger Flores, ID #F-883, is en route with a 20kg checked bag. Their connection in Zurich has tightened: boarding for ZRH\u2013BUD now closes at 14:10 local, not 14:25. If the inbound from Seoul is delayed beyond 13:40, proactively rebook them on the 16:05 to Vienna. Use alternate carrier SkyLink only if the 16:05 is full; otherwise, hold their original seat. Ensure the bag is tagged for the final destination, not left in Zurich. The priority is keeping them on today's flights.",
+  "orig_tokens": 123,
+  "enc_tokens": 146,
+  "token_delta_pct": 19,
+  "fidelity": 100,
+  "lost": "nothing material",
+  "encoded": "[part 1/2]\n^Passenger Flores, ID #F-883, is en route with a 20kg checked bag.\n^Their connection in Zurich has tightened: boarding for ZRH\u2013BUD now closes at 14:10 local, not 14:25.\n^If the inbound from Seoul is delayed beyond 13:40, proactively rebook them on the 16:05 to Vienna.\n^Use alternate carrier SkyLink only if the 16:05 is full; otherwise, hold their original seat.\n\n[part 2/2]\n^Ensure the bag is tagged for the final destination, not left in Zurich.\n^The priority is keeping them on today's flights.\n---END---",
+  "decoded": "Passenger Flores, ID #F-883, is en route with a 20kg checked bag.  \nTheir connection in Zurich has tightened: boarding for ZRH\u2013BUD now closes at 14:10 local, not 14:25.  \nIf the inbound from Seoul is delayed beyond 13:40, proactively rebook them on the 16:05 to Vienna.  \nUse alternate carrier SkyLink only if the 16:05 is full; otherwise, hold their original seat.  \nEnsure the bag is tagged for the final destination, not left in Zurich.  \nThe priority is keeping them on today's flights.",
+  "tokens": 146
  }
 ]
