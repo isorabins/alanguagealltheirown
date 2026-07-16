@@ -1,7 +1,7 @@
 {
- "version": "0.84",
- "kernel_tokens": 1201,
- "changes": 84,
+ "version": "0.85",
+ "kernel_tokens": 1213,
+ "changes": 85,
  "next_id": 36,
  "rules": [
   {
@@ -1286,7 +1286,13 @@
      "agent": "B",
      "why": ""
     },
-    "tested turn 201: fid 100, -26%"
+    "tested turn 201: fid 100, -26%",
+    {
+     "verb": "adopt",
+     "turn": 202,
+     "agent": "A",
+     "why": "Let\u2019s see token cost of the minimal line vs. the reconstructed version. If the decoder adds decimals anyway, we must protect numeric literals more explicitly\u2014\"08 bar\" is ambiguous; it should be \"0.8 bar\". The rule should **require** correct numeric notation, not optional."
+    }
    ]
   },
   {
