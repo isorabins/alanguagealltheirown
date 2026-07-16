@@ -957,8 +957,8 @@
    "status": "adopted",
    "proposed_turn": 145,
    "scores": {
-    "token_delta_pct": -18,
-    "fidelity_pct": 40
+    "token_delta_pct": -41,
+    "fidelity_pct": 98
    },
    "history": [
     {
@@ -1011,7 +1011,8 @@
     "tested turn 216: fid 99, -10%",
     "tested turn 219: fid 100, -13%",
     "tested turn 222: fid 99, -14%",
-    "tested turn 225: fid 40, -18%"
+    "tested turn 225: fid 40, -18%",
+    "tested turn 228: fid 98, -41%"
    ]
   },
   {
@@ -1020,8 +1021,8 @@
    "status": "adopted",
    "proposed_turn": 145,
    "scores": {
-    "token_delta_pct": -18,
-    "fidelity_pct": 40
+    "token_delta_pct": -41,
+    "fidelity_pct": 98
    },
    "history": [
     {
@@ -1062,7 +1063,8 @@
     "tested turn 216: fid 99, -10%",
     "tested turn 219: fid 100, -13%",
     "tested turn 222: fid 99, -14%",
-    "tested turn 225: fid 40, -18%"
+    "tested turn 225: fid 40, -18%",
+    "tested turn 228: fid 98, -41%"
    ]
   },
   {
@@ -1178,8 +1180,8 @@
    "status": "adopted",
    "proposed_turn": 172,
    "scores": {
-    "token_delta_pct": -18,
-    "fidelity_pct": 40
+    "token_delta_pct": -41,
+    "fidelity_pct": 98
    },
    "history": [
     {
@@ -1229,7 +1231,8 @@
     "tested turn 216: fid 99, -10%",
     "tested turn 219: fid 100, -13%",
     "tested turn 222: fid 99, -14%",
-    "tested turn 225: fid 40, -18%"
+    "tested turn 225: fid 40, -18%",
+    "tested turn 228: fid 98, -41%"
    ]
   },
   {
@@ -1238,8 +1241,8 @@
    "status": "adopted",
    "proposed_turn": 176,
    "scores": {
-    "token_delta_pct": -18,
-    "fidelity_pct": 40
+    "token_delta_pct": -41,
+    "fidelity_pct": 98
    },
    "history": [
     {
@@ -1348,7 +1351,8 @@
     "tested turn 216: fid 99, -10%",
     "tested turn 219: fid 100, -13%",
     "tested turn 222: fid 99, -14%",
-    "tested turn 225: fid 40, -18%"
+    "tested turn 225: fid 40, -18%",
+    "tested turn 228: fid 98, -41%"
    ]
   },
   {
@@ -1520,8 +1524,8 @@
    "status": "adopted",
    "proposed_turn": 208,
    "scores": {
-    "token_delta_pct": -18,
-    "fidelity_pct": 40
+    "token_delta_pct": -41,
+    "fidelity_pct": 98
    },
    "history": [
     {
@@ -1547,7 +1551,8 @@
     },
     "tested turn 219: fid 100, -13%",
     "tested turn 222: fid 99, -14%",
-    "tested turn 225: fid 40, -18%"
+    "tested turn 225: fid 40, -18%",
+    "tested turn 228: fid 98, -41%"
    ]
   },
   {
@@ -1556,8 +1561,8 @@
    "status": "adopted",
    "proposed_turn": 215,
    "scores": {
-    "token_delta_pct": -18,
-    "fidelity_pct": 40
+    "token_delta_pct": -41,
+    "fidelity_pct": 98
    },
    "history": [
     {
@@ -1575,7 +1580,8 @@
      "agent": "B",
      "why": "**AGREE.** The core is proven: two rules deliver reliable compression across all payload types without fidelity loss. Adding speculative shortcuts now is pure risk."
     },
-    "tested turn 225: fid 40, -18%"
+    "tested turn 225: fid 40, -18%",
+    "tested turn 228: fid 98, -41%"
    ]
   },
   {
@@ -1584,8 +1590,8 @@
    "status": "proposed",
    "proposed_turn": 223,
    "scores": {
-    "token_delta_pct": -18,
-    "fidelity_pct": 40
+    "token_delta_pct": -41,
+    "fidelity_pct": 98
    },
    "history": [
     {
@@ -1594,7 +1600,8 @@
      "agent": "A",
      "why": "But we must **secure the win**. The rulebook still carries rejected rules (001\u2013026) as clutter\u2014they don\u2019t affect encoding, but they inflate the context token count every message. The harness doesn\u2019t prune them automatically. We should **formally reject all dead rules** in a batch"
     },
-    "tested turn 225: fid 40, -18%"
+    "tested turn 225: fid 40, -18%",
+    "tested turn 228: fid 98, -41%"
    ]
   }
  ]
