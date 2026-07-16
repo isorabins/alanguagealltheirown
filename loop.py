@@ -136,6 +136,15 @@ def render_rulebook(rb):
     lines = [f"RULEBOOK v{rb['version']} — {rb['kernel_tokens']} tokens of context, every message pays for it"]
     for r in rb["rules"]:
         s = r["scores"]
+        if r["status"] in ("rejected", "reverted"):
+            # tombstones stay as memory but render as index cards, not full corpses —
+            # the graveyard was most of what every call paid for (full record: git + page)
+            died = next((e["turn"] for e in reversed(r["history"])
+                         if isinstance(e, dict) and e.get("verb") in ("reject", "rejected")), "?")
+            stub = r["text_en"][:60].rstrip() + ("…" if len(r["text_en"]) > 60 else "")
+            kill = f" — died at fidelity {s['fidelity_pct']}, {s['token_delta_pct']:+d}%" if s else ""
+            lines.append(f"{r['id']} [{r['status']} t{died}] {stub}{kill}")
+            continue
         score = f" (last test: fidelity {s['fidelity_pct']}, tokens {s['token_delta_pct']:+d}%)" if s else ""
         lines.append(f"{r['id']} [{r['status']}] {r['text_en']}{score}")
     return "\n".join(lines)
