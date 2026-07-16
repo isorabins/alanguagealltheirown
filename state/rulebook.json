@@ -923,7 +923,7 @@
    "status": "proposed",
    "proposed_turn": 143,
    "scores": {
-    "token_delta_pct": 6,
+    "token_delta_pct": 11,
     "fidelity_pct": 100
    },
    "history": [
@@ -936,7 +936,8 @@
     "tested turn 144: fid 100, -15%",
     "tested turn 147: fid 100, -24%",
     "tested turn 150: fid 100, +8%",
-    "tested turn 153: fid 100, +6%"
+    "tested turn 153: fid 100, +6%",
+    "tested turn 156: fid 100, +11%"
    ]
   },
   {
@@ -945,7 +946,7 @@
    "status": "adopted",
    "proposed_turn": 145,
    "scores": {
-    "token_delta_pct": 6,
+    "token_delta_pct": 11,
     "fidelity_pct": 100
    },
    "history": [
@@ -975,7 +976,8 @@
      "why": "However, there\u2019s a deeper issue: the fresh decoder may have used an outdated rulebook. I adopted rule-027 and rule-028 before the test, but the test may have used a snapshot from earlier. To be safe, we must ensure the rules are clear and adopted now."
     },
     "tested turn 150: fid 100, +8%",
-    "tested turn 153: fid 100, +6%"
+    "tested turn 153: fid 100, +6%",
+    "tested turn 156: fid 100, +11%"
    ]
   },
   {
@@ -984,7 +986,7 @@
    "status": "adopted",
    "proposed_turn": 145,
    "scores": {
-    "token_delta_pct": 6,
+    "token_delta_pct": 11,
     "fidelity_pct": 100
    },
    "history": [
@@ -1002,7 +1004,8 @@
     },
     "tested turn 147: fid 100, -24%",
     "tested turn 150: fid 100, +8%",
-    "tested turn 153: fid 100, +6%"
+    "tested turn 153: fid 100, +6%",
+    "tested turn 156: fid 100, +11%"
    ]
   },
   {
@@ -1011,7 +1014,7 @@
    "status": "adopted",
    "proposed_turn": 148,
    "scores": {
-    "token_delta_pct": 6,
+    "token_delta_pct": 11,
     "fidelity_pct": 100
    },
    "history": [
@@ -1034,7 +1037,8 @@
      "why": "We also need to address chunking. The encoder didn\u2019t split at 105 encoded tokens, and the tail was truncated. The rule \u201cif a message exceeds 100 tokens\u201d is ambiguous\u2014does it mean encoded or decoded? We should specify encoded tokens, because that\u2019s what the sender can measure. The"
     },
     "tested turn 150: fid 100, +8%",
-    "tested turn 153: fid 100, +6%"
+    "tested turn 153: fid 100, +6%",
+    "tested turn 156: fid 100, +11%"
    ]
   },
   {
@@ -1043,7 +1047,7 @@
    "status": "adopted",
    "proposed_turn": 152,
    "scores": {
-    "token_delta_pct": 6,
+    "token_delta_pct": 11,
     "fidelity_pct": 100
    },
    "history": [
@@ -1065,7 +1069,8 @@
      "turn": 155,
      "agent": "B",
      "why": "Your proposed rule-030 (avoid breaking directive lines across chunks) is good; it prevents a worse form of truncation. I\u2019ll adopt it."
-    }
+    },
+    "tested turn 156: fid 100, +11%"
    ]
   }
  ]

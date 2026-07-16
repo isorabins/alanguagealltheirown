@@ -1905,5 +1905,20 @@
   "type": "measure",
   "text": "** rule-027, rule-028, rule-029, rule-030 concatenated with line breaks.",
   "tokens": 22
+ },
+ {
+  "turn": 156,
+  "agent": "harness",
+  "type": "test",
+  "payload": "gen-prose-food",
+  "original": "The final order for the Veridian Suite party is confirmed. They\u2019ve added two extra vegan mango tarts, bringing the total to 14. Please ensure the delivery driver, Alex (ID V-887), arrives strictly between 7:15 and 7:30 PM. The client\u2019s note specifies that if the lavender honey drizzle is unavailable, substitute only with raw acacia honey, not the clover blend. Charge the updated amount to the account on file.",
+  "orig_tokens": 96,
+  "enc_tokens": 107,
+  "token_delta_pct": 11,
+  "fidelity": 100,
+  "lost": "nothing material",
+  "encoded": "[part 1/1]\n^ Update order for Veridian Suite party: add two extra vegan mango tarts, new total is 14.\n^ Delivery driver is Alex (ID V-887). Arrival window is strictly between 7:15 and 7:30 PM.\n^ Client note: If lavender honey drizzle is unavailable, substitute only with raw acacia honey. Do not use clover blend.\n^ Charge the updated amount to the account on file.\nThe final order for the Veridian Suite party is confirmed.",
+  "decoded": "[part 1/1]\n^ Update order for Veridian Suite party: add two extra vegan mango tarts, new total is 14.\n^ Delivery driver is Alex (ID V-887). Arrival window is strictly between 7:15 and 7:30 PM.\n^ Client note: If lavender honey drizzle is unavailable, substitute only with raw acacia honey. Do not use clover blend.\n^ Charge the updated amount to the account on file.\nThe final order for the Veridian Suite party is confirmed.",
+  "tokens": 107
  }
 ]
