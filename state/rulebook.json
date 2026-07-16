@@ -957,8 +957,8 @@
    "status": "adopted",
    "proposed_turn": 145,
    "scores": {
-    "token_delta_pct": 1,
-    "fidelity_pct": 99
+    "token_delta_pct": -27,
+    "fidelity_pct": 100
    },
    "history": [
     {
@@ -997,7 +997,8 @@
     "tested turn 174: fid 100, +3%",
     "tested turn 177: fid 100, -12%",
     "tested turn 180: fid 90, -13%",
-    "tested turn 183: fid 99, +1%"
+    "tested turn 183: fid 99, +1%",
+    "tested turn 186: fid 100, -27%"
    ]
   },
   {
@@ -1006,8 +1007,8 @@
    "status": "adopted",
    "proposed_turn": 145,
    "scores": {
-    "token_delta_pct": 1,
-    "fidelity_pct": 99
+    "token_delta_pct": -27,
+    "fidelity_pct": 100
    },
    "history": [
     {
@@ -1034,7 +1035,8 @@
     "tested turn 174: fid 100, +3%",
     "tested turn 177: fid 100, -12%",
     "tested turn 180: fid 90, -13%",
-    "tested turn 183: fid 99, +1%"
+    "tested turn 183: fid 99, +1%",
+    "tested turn 186: fid 100, -27%"
    ]
   },
   {
@@ -1150,8 +1152,8 @@
    "status": "adopted",
    "proposed_turn": 172,
    "scores": {
-    "token_delta_pct": 1,
-    "fidelity_pct": 99
+    "token_delta_pct": -27,
+    "fidelity_pct": 100
    },
    "history": [
     {
@@ -1181,7 +1183,8 @@
      "turn": 185,
      "agent": "B",
      "why": "I agree we must adopt the revised rule-032 now. The overhead of the rule (62 tokens) will be repaid quickly if it enables consistent double-digit compression. The next live test is turn 186\u2014we should adopt before it runs, so the encoder applies the protected numeric form."
-    }
+    },
+    "tested turn 186: fid 100, -27%"
    ]
   },
   {
@@ -1190,8 +1193,8 @@
    "status": "proposed",
    "proposed_turn": 176,
    "scores": {
-    "token_delta_pct": 1,
-    "fidelity_pct": 99
+    "token_delta_pct": -27,
+    "fidelity_pct": 100
    },
    "history": [
     {
@@ -1202,7 +1205,8 @@
     },
     "tested turn 177: fid 100, -12%",
     "tested turn 180: fid 90, -13%",
-    "tested turn 183: fid 99, +1%"
+    "tested turn 183: fid 99, +1%",
+    "tested turn 186: fid 100, -27%"
    ]
   },
   {
@@ -1211,8 +1215,8 @@
    "status": "proposed",
    "proposed_turn": 179,
    "scores": {
-    "token_delta_pct": 1,
-    "fidelity_pct": 99
+    "token_delta_pct": -27,
+    "fidelity_pct": 100
    },
    "history": [
     {
@@ -1222,7 +1226,8 @@
      "why": "But first: the win is real and must be codified. The rule must be precise\u2014no \u201crequired for clarity\u201d handwaving. The decoder\u2019s job is to output the line exactly as written; the grader\u2019s acceptance shows that minimal form preserves semantic fidelity."
     },
     "tested turn 180: fid 90, -13%",
-    "tested turn 183: fid 99, +1%"
+    "tested turn 183: fid 99, +1%",
+    "tested turn 186: fid 100, -27%"
    ]
   },
   {
@@ -1230,14 +1235,18 @@
    "text_en": "rule-033 (identical to revised rule-032, but clearer? Let\u2019s keep one version.) I\u2019ll **REVISE** rule-032 as above. No need for a duplicate.",
    "status": "proposed",
    "proposed_turn": 185,
-   "scores": null,
+   "scores": {
+    "token_delta_pct": -27,
+    "fidelity_pct": 100
+   },
    "history": [
     {
      "verb": "proposed",
      "turn": 185,
      "agent": "B",
      "why": "**One caution:** The rule says \u201cmay omit\u201d\u2014optional. That means the encoder might still choose to keep punctuation in some lines. That\u2019s fine; we want flexibility. The test will show whether the harness applies it aggressively."
-    }
+    },
+    "tested turn 186: fid 100, -27%"
    ]
   }
  ]
