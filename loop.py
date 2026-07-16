@@ -28,8 +28,8 @@ PRICE_IN = 0.2145 / 1e6   # $/token, OpenRouter listing 2026-07-14
 PRICE_OUT = 0.32175 / 1e6
 
 TEST_EVERY = 3      # every Nth turn is a test turn
-WINDOW = 12         # conversation events each agent sees
-SPEND_CAP = 4.50    # dollars, hard stop across all runs
+WINDOW = 30         # conversation events each agent sees
+SPEND_CAP = 25.00   # dollars, hard stop across all runs — anomaly tripwire, ~50 days at gloves-off burn
 AGENT_TEMP = 0.9
 
 _key = None
@@ -150,7 +150,7 @@ def render_rulebook(rb):
     return "\n".join(lines)
 
 
-DECODE_VIEW_MAX = 2000  # longest decode ever recorded is 838 chars — this should never fire
+DECODE_VIEW_MAX = 6000  # emergency brake only — sized so a 400–600-word decode always renders whole
 
 
 def render_decode(dec):
@@ -262,7 +262,7 @@ def agent_turn(conv, rb, meta, turn):
               f"=== STATE ===\nturn {turn} | next live test at turn "
               f"{((turn // TEST_EVERY) + 1) * TEST_EVERY}")
     user = render_window(conv) + f"\n\nIt is turn {turn}. You are Agent {agent}. Respond."
-    text, usage = call(model, system, user, max_tokens=650, temperature=AGENT_TEMP, meta=meta)
+    text, usage = call(model, system, user, max_tokens=2000, temperature=AGENT_TEMP, meta=meta)
     conv.append({"turn": turn, "agent": agent, "type": "message", "content": text.strip(),
                  "tokens": usage.get("completion_tokens", 0)})
     for mm in list(re.finditer(r"^\s*\**MEASURE\**\s*:\s*(.+)$", text, re.M))[:2]:
@@ -295,9 +295,9 @@ def gen_payload(meta):
               .replace("{CATEGORY}", kind).replace("{DOMAIN}", domain))
     for _ in range(2):
         text, _ = call(MODEL_A, prompt, "Write the message now.",
-                       max_tokens=400, temperature=1.0, meta=meta)
+                       max_tokens=2000, temperature=1.0, meta=meta)
         text = text.strip().strip('"').strip()
-        if 200 <= len(text) <= 900:
+        if 200 <= len(text) <= 5000:
             return f"gen-{kind}-{domain.split()[0]}", text
     return None, None
 
@@ -317,12 +317,12 @@ def test_turn(conv, rb, meta, turn):
     enc_sys = ("You are the encoder. Encode the message below into the project language "
                "using ONLY this rulebook. Where the rulebook is silent, fall back to plain "
                "English for that part. Output ONLY the encoded message, nothing else.\n\n" + rbook)
-    encoded, _ = call(MODEL_A, enc_sys, payload, max_tokens=1000, temperature=0.3, meta=meta)
+    encoded, _ = call(MODEL_A, enc_sys, payload, max_tokens=4000, temperature=0.3, meta=meta)
     dec_sys = ("You are a fresh agent. You have never seen any prior conversation. Below is the "
                "complete rulebook of a constructed language. Decode the message you receive: "
                "reconstruct the original content as faithfully as you can. Do not invent anything "
                "the message does not encode. Output ONLY the reconstruction.\n\n" + rbook)
-    decoded, _ = call(MODEL_DECODER, dec_sys, encoded.strip(), max_tokens=1000, temperature=0.1, meta=meta)
+    decoded, _ = call(MODEL_DECODER, dec_sys, encoded.strip(), max_tokens=4000, temperature=0.1, meta=meta)
     grade_sys = (ROOT / "prompts" / "grader.md").read_text()
     graded, _ = call(MODEL_GRADER, grade_sys,
                      f"ORIGINAL:\n{payload}\n\nDECODED:\n{decoded.strip()}",

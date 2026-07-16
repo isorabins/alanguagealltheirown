@@ -13,8 +13,8 @@ Domain for this one: {DOMAIN}
 
 Requirements:
 
-- 60–120 words, plain text, written as a direct message from one agent to another
-- Concrete specifics: at least one name or identifier, at least two quantities or times, and
-  at least one conditional ("if X, do Y") or scoped instruction ("only the X, not the Y")
+- 400–600 words, plain text, written as a direct message from one agent to another
+- Concrete specifics: at least three names or identifiers, at least six quantities or times,
+  and at least three conditionals ("if X, do Y") or scoped instructions ("only the X, not the Y")
 - Fresh invented subject matter — no famous names, no placeholder text, no lists or headers
 - Output ONLY the message text, nothing else
