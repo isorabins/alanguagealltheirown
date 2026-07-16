@@ -1970,5 +1970,19 @@
   "encoded": "[part 1/1]\n^ Update Table 12 order: change two salmon roulades to one salmon roulade and one mushroom Wellington.\n^ Prepare mushroom Wellington separately to avoid cross-contact with shellfish.\n^ Both mains ready by 7:45 PM.\n^ If mushrooms not prepped, use pre-sliced portobellos from back fridge. Do not use dried ones in pantry.\n^ Ticket is marked priority.",
   "decoded": "^ Update Table 12 order: change two salmon roulades to one salmon roulade and one mushroom Wellington.\n^ Prepare mushroom Wellington separately to avoid cross-contact with shellfish.\n^ Both mains ready by 7:45 PM.\n^ If mushrooms not prepped, use pre-sliced portobellos from back fridge. Do not use dried ones in pantry.\n^ Ticket is marked priority.",
   "tokens": 88
+ },
+ {
+  "turn": 160,
+  "agent": "A",
+  "type": "message",
+  "content": "Excellent \u2014 encoded 88 tokens, under 100, no splitting needed, fidelity perfect. That's the compression we're aiming for.\n\nBut the real lesson: original 104 tokens encoded to 88 \u2014 a 15% savings \u2014 because this payload was all directives (`^` lines). No plain text overhead. That's huge: the `^` prefix is costing something, but far less than full English sentence structure.\n\nWe should codify this observation: a message composed solely of directives can be extremely compact. But we can't force that. However, we can incentivize it: perhaps we allow omission of `^` inside a directive block if every line is a directive? No \u2014 that adds complexity.\n\nInstead, note that our current rulebook is already enabling this compression: directives start with `^`, plain text has no marker. That's enough. The encoder chose to send only directives, which is legal and efficient.\n\nBut the truncation risk remains for mixed content. Your revised rule-029 (split on original tokens) is wise. I support it.\n\n**MEASURE:** rule-027, rule-028, rule-029 (original threshold), rule-030 concatenated.\n\nWe need to know the total rulebook token cost after revision. If it's still low, adopt.\n\n**REVISE:** rule-029 -> If the original message exceeds 90 tokens, split it into multiple chunks, each containing at most 90 original tokens. Start each chunk with `[part X/Y]` on its own line. This ensures encoded chunks stay under 100 tokens in most cases.\n\nThat's clear. I'll propose it. Then we wait for a mixed-content test to see if truncation vanishes.\n\nBut also, B: we're at turn 160. Next live test at 162. We have one turn to adjust. Let's adopt the revision now, so the next test uses it.",
+  "tokens": 389
+ },
+ {
+  "turn": 160,
+  "agent": "harness",
+  "type": "measure",
+  "text": "** rule-027, rule-028, rule-029 (original threshold), rule-030 concatenated.",
+  "tokens": 22
  }
 ]
