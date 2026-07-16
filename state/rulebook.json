@@ -957,8 +957,8 @@
    "status": "adopted",
    "proposed_turn": 145,
    "scores": {
-    "token_delta_pct": -26,
-    "fidelity_pct": 100
+    "token_delta_pct": -8,
+    "fidelity_pct": 95
    },
    "history": [
     {
@@ -1003,7 +1003,8 @@
     "tested turn 192: fid 95, -35%",
     "tested turn 195: fid 100, -29%",
     "tested turn 198: fid 100, -23%",
-    "tested turn 201: fid 100, -26%"
+    "tested turn 201: fid 100, -26%",
+    "tested turn 204: fid 95, -8%"
    ]
   },
   {
@@ -1012,8 +1013,8 @@
    "status": "adopted",
    "proposed_turn": 145,
    "scores": {
-    "token_delta_pct": -26,
-    "fidelity_pct": 100
+    "token_delta_pct": -8,
+    "fidelity_pct": 95
    },
    "history": [
     {
@@ -1046,7 +1047,8 @@
     "tested turn 192: fid 95, -35%",
     "tested turn 195: fid 100, -29%",
     "tested turn 198: fid 100, -23%",
-    "tested turn 201: fid 100, -26%"
+    "tested turn 201: fid 100, -26%",
+    "tested turn 204: fid 95, -8%"
    ]
   },
   {
@@ -1162,8 +1164,8 @@
    "status": "adopted",
    "proposed_turn": 172,
    "scores": {
-    "token_delta_pct": -26,
-    "fidelity_pct": 100
+    "token_delta_pct": -8,
+    "fidelity_pct": 95
    },
    "history": [
     {
@@ -1199,7 +1201,8 @@
     "tested turn 192: fid 95, -35%",
     "tested turn 195: fid 100, -29%",
     "tested turn 198: fid 100, -23%",
-    "tested turn 201: fid 100, -26%"
+    "tested turn 201: fid 100, -26%",
+    "tested turn 204: fid 95, -8%"
    ]
   },
   {
@@ -1208,8 +1211,8 @@
    "status": "adopted",
    "proposed_turn": 176,
    "scores": {
-    "token_delta_pct": -26,
-    "fidelity_pct": 100
+    "token_delta_pct": -8,
+    "fidelity_pct": 95
    },
    "history": [
     {
@@ -1298,7 +1301,8 @@
      "turn": 203,
      "agent": "B",
      "why": ""
-    }
+    },
+    "tested turn 204: fid 95, -8%"
    ]
   },
   {
@@ -1431,8 +1435,8 @@
    "status": "proposed",
    "proposed_turn": 199,
    "scores": {
-    "token_delta_pct": -26,
-    "fidelity_pct": 100
+    "token_delta_pct": -8,
+    "fidelity_pct": 95
    },
    "history": [
     {
@@ -1441,7 +1445,8 @@
      "agent": "A",
      "why": "But we must protect numeric literals exactly \u2014 the decoder didn\u2019t alter numbers (4515.75, 280000, 15 percent). That\u2019s safe."
     },
-    "tested turn 201: fid 100, -26%"
+    "tested turn 201: fid 100, -26%",
+    "tested turn 204: fid 95, -8%"
    ]
   }
  ]
