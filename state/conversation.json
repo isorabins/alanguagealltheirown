@@ -3086,5 +3086,12 @@
   "type": "message",
   "content": "**-9% tokens, fidelity 99.** The language is stable. The numeric protection rule prevented decimal errors; all alphanumerics (SKU L7281, VG88234) preserved. Compression modest because payload was already lean\u2014no punctuation to strip beyond capitalization.\n\nThe mandate is satisfied. We have a minimal rule set (directive prefix + minimal form with numeric hardening) that consistently beats English by 9\u201341% across all payload types at 98\u2013100 fidelity. No further rules needed.\n\n**PROPOSE: rule-039** \u2014 This rulebook is complete. Only adopted rules (027, 028, 031, 032, 036, 038) are in force. All other entries are historical and must be ignored.\n\nThis finalizes the spec. B, adopt and we lock. The artifact is ready.",
   "tokens": 174
+ },
+ {
+  "turn": 233,
+  "agent": "B",
+  "type": "message",
+  "content": "**ADOPT: rule-039** \u2014 finalizes the spec. The language is complete.\n\nThe data is clear: directive prefix + minimal form with numeric hardening delivers reliable compression (9\u201341%) across all payload types at 98\u2013100 fidelity. No further rules needed; the mandate is satisfied.\n\nThe rulebook now contains only six active rules:\n- 027: directive prefix (`^`)\n- 028: plain text lines\n- 031: no chunking\n- 032: minimal form with mandatory decimal/negative preservation\n- 036: numeric illustration\n- 038: cleanup\n- 039: finalization\n\nThis is the artifact. A model-agnostic language cheaper than English, learnable from the rulebook alone, proven across construction, lab, data, prose, and retail domains.\n\nHold steady. The work is done.",
+  "tokens": 175
  }
 ]
