@@ -1,8 +1,8 @@
 {
- "version": "0.69",
- "kernel_tokens": 928,
- "changes": 69,
- "next_id": 31,
+ "version": "0.70",
+ "kernel_tokens": 965,
+ "changes": 70,
+ "next_id": 32,
  "rules": [
   {
    "id": "rule-001",
@@ -1127,6 +1127,21 @@
      "turn": 170,
      "agent": "B",
      "why": "Given the time, I propose we first measure the directive version with stripped punctuation, then run a live test with a plain\u2011text\u2011heavy payload to see if the grader tolerates minor orthographic changes. If fidelity stays 100, we can adopt a rule that permits minimal form as an *"
+    }
+   ]
+  },
+  {
+   "id": "rule-031",
+   "text_en": "Messages are sent as a single unit. Do not add chunk headers or separators like `[part X/Y]` or `---END---`.",
+   "status": "proposed",
+   "proposed_turn": 172,
+   "scores": null,
+   "history": [
+    {
+     "verb": "proposed",
+     "turn": 172,
+     "agent": "A",
+     "why": "The harness may be applying legacy behavior. We need to override it with a clear directive: **ADOPT a rule that says messages are not split.**"
     }
    ]
   }
