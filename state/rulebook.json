@@ -1,7 +1,7 @@
 {
- "version": "0.86",
+ "version": "0.87",
  "kernel_tokens": 1213,
- "changes": 86,
+ "changes": 87,
  "next_id": 36,
  "rules": [
   {
@@ -1302,7 +1302,13 @@
      "agent": "B",
      "why": ""
     },
-    "tested turn 204: fid 95, -8%"
+    "tested turn 204: fid 95, -8%",
+    {
+     "verb": "adopt",
+     "turn": 205,
+     "agent": "A",
+     "why": "But the rule also needs a **safety net**: if the sender omits a decimal, the decoder should infer based on context? That\u2019s dangerous\u2014better to mandate correctness. The token cost of \"1.2\" vs \"12\" is minimal (likely 2 extra tokens), but safety is non-negotiable."
+    }
    ]
   },
   {
