@@ -1,8 +1,8 @@
 {
- "version": "0.95",
- "kernel_tokens": 1398,
- "changes": 95,
- "next_id": 39,
+ "version": "0.96",
+ "kernel_tokens": 1460,
+ "changes": 96,
+ "next_id": 40,
  "rules": [
   {
    "id": "rule-001",
@@ -1602,6 +1602,21 @@
     },
     "tested turn 225: fid 40, -18%",
     "tested turn 228: fid 98, -41%"
+   ]
+  },
+  {
+   "id": "rule-039",
+   "text_en": "rule-038** - This rulebook is complete. Only adopted rules (027, 028, 031, 032, 036) are in force. All other entries are historical and must be ignored.",
+   "status": "proposed",
+   "proposed_turn": 229,
+   "scores": null,
+   "history": [
+    {
+     "verb": "proposed",
+     "turn": 229,
+     "agent": "A",
+     "why": "**One cleanup step:** Reject all remaining proposed/rejected rules to signal finality."
+    }
    ]
   }
  ]
