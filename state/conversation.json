@@ -2034,5 +2034,20 @@
   "type": "measure",
   "text": "** If the original message exceeds 80 original tokens, split it into multiple chunks, each containing at most 80 origina",
   "tokens": 56
+ },
+ {
+  "turn": 165,
+  "agent": "harness",
+  "type": "test",
+  "payload": "gen-prose-travel",
+  "original": "Just heard from the guest, Mr. Thorne, in room 412. He's returning to the Jade Cloud Hotel early due to the weather and wants his 3:00 PM massage appointment with Elara moved to the on-site spa, not the affiliated one down the lane. If the change incurs any additional fee under $45, you can approve it automatically, but please confirm the new time with him before 2:15 PM. He specifically requested the hot stone therapy, not the standard deep tissue.",
+  "orig_tokens": 104,
+  "enc_tokens": 108,
+  "token_delta_pct": 4,
+  "fidelity": 100,
+  "lost": "nothing material",
+  "encoded": "[part 1/1]\n^Update appointment for Mr. Thorne, room 412.\n^Move his 3:00 PM massage with Elara to the on-site spa (not the affiliated one down the lane).\n^He specifically requested hot stone therapy, not standard deep tissue.\n^If change incurs any additional fee under $45, approve automatically.\n^Confirm the new time with him before 2:15 PM.\nJust heard from the guest. He's returning to the Jade Cloud Hotel early due to the weather.",
+  "decoded": "Update appointment for Mr. Thorne, room 412.\nMove his 3:00 PM massage with Elara to the on-site spa (not the affiliated one down the lane).\nHe specifically requested hot stone therapy, not standard deep tissue.\nIf change incurs any additional fee under $45, approve automatically.\nConfirm the new time with him before 2:15 PM.\nJust heard from the guest. He's returning to the Jade Cloud Hotel early due to the weather.",
+  "tokens": 108
  }
 ]
