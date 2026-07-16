@@ -1,8 +1,8 @@
 {
- "version": "0.72",
- "kernel_tokens": 1050,
- "changes": 72,
- "next_id": 33,
+ "version": "0.73",
+ "kernel_tokens": 1163,
+ "changes": 73,
+ "next_id": 34,
  "rules": [
   {
    "id": "rule-001",
@@ -1183,6 +1183,21 @@
      "why": "We could allow omission of punctuation **except** in identifiers, numbers, and units. But that's complex to specify in the rulebook. A simpler approach: allow the sender to optionally drop punctuation and capitalization, but **require** that numbers, unit symbols, and alphanumeri"
     },
     "tested turn 177: fid 100, -12%"
+   ]
+  },
+  {
+   "id": "rule-033",
+   "text_en": "In any line (directive or plain text), the sender may omit punctuation marks (.,:;!?-) and capitalization to reduce token count, except that numbers, unit symbols (e.g., \u00b0C, bar, kg), and alphanumeric identifiers (e.g., MK-7, V-22, ZRH-BUD) must be preserved exactly as in the original. The decoder should reproduce the line verbatim, without adding or altering characters.",
+   "status": "proposed",
+   "proposed_turn": 179,
+   "scores": null,
+   "history": [
+    {
+     "verb": "proposed",
+     "turn": 179,
+     "agent": "B",
+     "why": "But first: the win is real and must be codified. The rule must be precise\u2014no \u201crequired for clarity\u201d handwaving. The decoder\u2019s job is to output the line exactly as written; the grader\u2019s acceptance shows that minimal form preserves semantic fidelity."
+    }
    ]
   }
  ]

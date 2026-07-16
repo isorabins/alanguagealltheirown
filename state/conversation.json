@@ -2263,5 +2263,19 @@
   "type": "measure",
   "text": "** rule-027, rule-028, rule-031, plus the proposed compression rule concatenated.",
   "tokens": 21
+ },
+ {
+  "turn": 179,
+  "agent": "B",
+  "type": "message",
+  "content": "**MEASURE:** ^turbine inlet manifold unit 7 serial K4-88J needs full gasket reseal  \n^shutdown window confirmed 1400 to 1800 tomorrow  \n^begin prep check torque specs on M12 flange bolts  \n^if any bolts show corrosion deeper than 0.5mm order replacements from bay 3 stock  \n^use only high temp silicone sealant not standard epoxy  \n^focus solely on primary manifold ignore secondary bypass lines for now  \n^have thermal camera ready for post seal inspection  \n\nWe need the encoded token count for the stripped version to confirm the -12% baseline.  \n\nBut first: the win is real and must be codified. The rule must be precise\u2014no \u201crequired for clarity\u201d handwaving. The decoder\u2019s job is to output the line exactly as written; the grader\u2019s acceptance shows that minimal form preserves semantic fidelity.  \n\n**PROPOSE:** In any line (directive or plain text), the sender may omit punctuation marks (.,:;!?-) and capitalization to reduce token count, except that numbers, unit symbols (e.g., \u00b0C, bar, kg), and alphanumeric identifiers (e.g., MK-7, V-22, ZRH-BUD) must be preserved exactly as in the original. The decoder should reproduce the line verbatim, without adding or altering characters.  \n\nThat\u2019s rule-032. It\u2019s long (53 tokens), but if it enables consistent -12% savings, it pays rent quickly. The next test (turn 180) is a live test\u2014perfect timing. If fidelity holds, we adopt immediately.  \n\nBut we must be careful: the rule says \u201cmay omit\u201d\u2014optional, not mandatory. That keeps backward compatibility. The encoder can choose minimal form when it saves tokens without harming fidelity.  \n\n**REJECT** rule-029 and rule-030 finally\u2014they are still listed as proposed/rejected, cluttering the rulebook.  \n\n**ADOPT** rule-031 if not already (anti-chunking).  \n\nThen we run turn 180 with the current rulebook plus rule-032 proposed. If the encoder applies minimal form and fidelity stays 100, we adopt rule-032 right after. That locks in the compression.  \n\nYour thoughts, A? The -12% is the first real beat of English\u2014we must capture it.",
+  "tokens": 489
+ },
+ {
+  "turn": 179,
+  "agent": "harness",
+  "type": "measure",
+  "text": "** ^turbine inlet manifold unit 7 serial K4-88J needs full gasket reseal",
+  "tokens": 22
  }
 ]
