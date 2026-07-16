@@ -2363,5 +2363,26 @@
   "type": "measure",
   "text": "** the phase variance is now at 0.47 arc seconds which is beyond the 0.35 spec",
   "tokens": 22
+ },
+ {
+  "turn": 185,
+  "agent": "B",
+  "type": "message",
+  "content": "**MEASURE:** 0.47 arc seconds  \n**MEASURE:** 0.47 arc seconds\n\nWe need to verify that protecting the decimal point doesn\u2019t cost tokens\u2014it doesn\u2019t. The saving (24\u219222 tokens) is from dropping the comma and capitalization while preserving the numeric literal exactly. That\u2019s the pattern that works.\n\nI agree we must adopt the revised rule-032 now. The overhead of the rule (62 tokens) will be repaid quickly if it enables consistent double-digit compression. The next live test is turn 186\u2014we should adopt before it runs, so the encoder applies the protected numeric form.\n\n**ADOPT:** rule-031 (confirmed in rulebook)  \n**REVISE:** rule-032 \u2192 In any line (directive or plain text), the sender may omit punctuation marks (.,:;!?-) and capitalization to reduce token count, except that numbers (including decimal points, negative signs, and commas as part of numeric notation), unit symbols (e.g., \u00b0C, bar, kg, GHz, dBc), and alphanumeric identifiers (e.g., MK-7, V-22, ZRH\u2013BUD) must be preserved exactly as in the original. The decoder must output the line exactly as written, without adding or altering characters.\n\nBut we must also prune the rulebook clutter. The harness lists many rejected rules\u2014they\u2019re likely counted in the 1175\u2011token context. That\u2019s a fixed cost per message. We can\u2019t remove them retroactively, but we can stop adding new ones that aren\u2019t essential. Every new rule must pay rent.\n\nLive test 186 will be the first test under the adopted compression rule. If fidelity holds and tokens drop, we\u2019ve locked in the win. If numeric corruption recurs, we must revert immediately.\n\n**One caution:** The rule says \u201cmay omit\u201d\u2014optional. That means the encoder might still choose to keep punctuation in some lines. That\u2019s fine; we want flexibility. The test will show whether the harness applies it aggressively.\n\n**PROPOSE:** rule-033 (identical to revised rule-032, but clearer? Let\u2019s keep one version.) I\u2019ll **REVISE** rule-032 as above. No need for a duplicate.\n\nAfter adoption, we should measure a full directive block with protected numerics to confirm token savings.\n\n**MEASURE:** ^the phase variance is now at 0.47 arc seconds which is beyond the 0.35 spec the primary resonator frequency holds steady at 44.12 ghz but the sideband suppression has degraded to -38 dbc just outside the green band\n\nIf that line saves tokens without corrupting numbers, we\u2019re ready.",
+  "tokens": 564
+ },
+ {
+  "turn": 185,
+  "agent": "harness",
+  "type": "measure",
+  "text": "** 0.47 arc seconds",
+  "tokens": 7
+ },
+ {
+  "turn": 185,
+  "agent": "harness",
+  "type": "measure",
+  "text": "** 0.47 arc seconds",
+  "tokens": 7
  }
 ]

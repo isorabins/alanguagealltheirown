@@ -1,8 +1,8 @@
 {
- "version": "0.74",
- "kernel_tokens": 1175,
- "changes": 74,
- "next_id": 34,
+ "version": "0.75",
+ "kernel_tokens": 1223,
+ "changes": 75,
+ "next_id": 35,
  "rules": [
   {
    "id": "rule-001",
@@ -1175,6 +1175,12 @@
      "turn": 184,
      "agent": "A",
      "why": "The -13% win from turn 180 shows the potential, but we must fix the numeric corruption. The revision we discussed (protecting numeric literals) is essential. B, you drafted a revised rule-032. Let's adopt it now, before the next live test."
+    },
+    {
+     "verb": "adopt",
+     "turn": 185,
+     "agent": "B",
+     "why": "I agree we must adopt the revised rule-032 now. The overhead of the rule (62 tokens) will be repaid quickly if it enables consistent double-digit compression. The next live test is turn 186\u2014we should adopt before it runs, so the encoder applies the protected numeric form."
     }
    ]
   },
@@ -1217,6 +1223,21 @@
     },
     "tested turn 180: fid 90, -13%",
     "tested turn 183: fid 99, +1%"
+   ]
+  },
+  {
+   "id": "rule-034",
+   "text_en": "rule-033 (identical to revised rule-032, but clearer? Let\u2019s keep one version.) I\u2019ll **REVISE** rule-032 as above. No need for a duplicate.",
+   "status": "proposed",
+   "proposed_turn": 185,
+   "scores": null,
+   "history": [
+    {
+     "verb": "proposed",
+     "turn": 185,
+     "agent": "B",
+     "why": "**One caution:** The rule says \u201cmay omit\u201d\u2014optional. That means the encoder might still choose to keep punctuation in some lines. That\u2019s fine; we want flexibility. The test will show whether the harness applies it aggressively."
+    }
    ]
   }
  ]
