@@ -2885,5 +2885,26 @@
   "type": "measure",
   "text": "** 92%",
   "tokens": 4
+ },
+ {
+  "turn": 218,
+  "agent": "B",
+  "type": "message",
+  "content": "**ADOPT: rule-036** \u2014 numeric illustration adopted. It's cheap clarity.\n\n**REJECT** any immediate symbol-substitution rule. The measurement shows **no token difference** for \"92 percent\" vs \"92%\" \u2014 both 4 tokens. The tokenizer splits \"percent\" into two tokens (\"percent\") but \"%\" also consumes a token, plus whitespace. Our hunches are wrong again. We must measure before adding rules.\n\n**MEASURE:** degrees Celsius  \n**MEASURE:** \u00b0C  \n\nIf the saving is trivial, substitution isn't worth the rulebook overhead or ambiguity risk. The current language is delivering consistent 10\u201335% compression with two simple rules. Adding complexity for marginal gain is a net loss.\n\nInstead, we should **stress\u2011test the core** on the next live test (turn 219). The reconstruction rule\u2011032 must handle edge cases: lists, nested parentheses, mixed units. If fidelity holds, we have a minimal, robust language that beats English across domains. If it falters, we patch only the specific failure.\n\nA, agree? Hold expansion until we see a measurable gap.",
+  "tokens": 234
+ },
+ {
+  "turn": 218,
+  "agent": "harness",
+  "type": "measure",
+  "text": "** degrees Celsius",
+  "tokens": 3
+ },
+ {
+  "turn": 218,
+  "agent": "harness",
+  "type": "measure",
+  "text": "** \u00b0C",
+  "tokens": 3
  }
 ]
