@@ -1920,5 +1920,26 @@
   "encoded": "[part 1/1]\n^ Update order for Veridian Suite party: add two extra vegan mango tarts, new total is 14.\n^ Delivery driver is Alex (ID V-887). Arrival window is strictly between 7:15 and 7:30 PM.\n^ Client note: If lavender honey drizzle is unavailable, substitute only with raw acacia honey. Do not use clover blend.\n^ Charge the updated amount to the account on file.\nThe final order for the Veridian Suite party is confirmed.",
   "decoded": "[part 1/1]\n^ Update order for Veridian Suite party: add two extra vegan mango tarts, new total is 14.\n^ Delivery driver is Alex (ID V-887). Arrival window is strictly between 7:15 and 7:30 PM.\n^ Client note: If lavender honey drizzle is unavailable, substitute only with raw acacia honey. Do not use clover blend.\n^ Charge the updated amount to the account on file.\nThe final order for the Veridian Suite party is confirmed.",
   "tokens": 107
+ },
+ {
+  "turn": 157,
+  "agent": "A",
+  "type": "message",
+  "content": "B, the test passed 100 again but again shows tail truncation \u2014 \u201cVeridian S\u201d cut off. The encoder produced a single chunk (part 1/1) that still overflowed beyond 100 encoded tokens? The original was 96 tokens, encoded 107, so a single chunk should be under 100 encoded tokens if the rule is followed. Wait \u2014 the rule says \u201cIf the encoded message exceeds 100 tokens, the sender must split...\u201d Here encoded message is 107 tokens, exceeding 100, so the sender should have split, but didn\u2019t. The encoder violated rule-029.\n\nThat\u2019s a critical flaw: the encoder isn\u2019t applying the rule correctly. We need to either make the rule impossible to ignore (by enforcement) or simplify it so compliance is trivial. But we can\u2019t enforce; we can only clarify.\n\nI propose revising rule-029 to be clearer: \u201cIf the encoded message exceeds 100 tokens, split it into chunks each under 100 tokens. Count tokens per chunk after encoding.\u201d But the real problem is the encoder in the test didn\u2019t split at all \u2014 maybe it mistakenly thought 107 \u2264 100? That suggests we need a margin: set the threshold lower, like 90 tokens, to avoid edge misjudgments.\n\n**MEASURE:** If the encoded message exceeds 90 tokens, split into chunks each under 90 encoded tokens. Start each with `[part X/Y]`.\n\nBut lowering the threshold increases chunk count, raising token overhead. We need a trade-off. Let\u2019s measure the current rule-029 token count again after adoption.\n\n**MEASURE:** If the encoded message exceeds 100 tokens, the sender must split it into multiple messages, each under 100 encoded tokens. Start each chunk with `[part X/Y]` on its own line.\n\nAlso, the truncation always hits plain text at the end, not directives. That\u2019s less harmful, but still fidelity loss. Our rule-030 helps for directives, but plain text truncation remains. Should we add \u201cavoid breaking any line across chunks\u201d? That\u2019s heavy.\n\nBetter: enforce that the encoder must ensure each chunk fits within the limit by counting. I\u2019ll propose a revision.\n\n**REVISE:** rule-029 -> If the encoded message exceeds 100 tokens, the sender must split it into multiple messages, each under 100 encoded tokens. Start each chunk with `[part X/Y]` on its own line. The sender should verify each chunk\u2019s encoded token count stays under 100.\n\nThat adds \u201cshould verify\u201d \u2014 soft but prompts attention. If truncation persists next test, we lower the threshold.",
+  "tokens": 550
+ },
+ {
+  "turn": 157,
+  "agent": "harness",
+  "type": "measure",
+  "text": "** If the encoded message exceeds 90 tokens, split into chunks each under 90 encoded tokens. Start each with `[part X/Y]",
+  "tokens": 30
+ },
+ {
+  "turn": 157,
+  "agent": "harness",
+  "type": "measure",
+  "text": "** If the encoded message exceeds 100 tokens, the sender must split it into multiple messages, each under 100 encoded to",
+  "tokens": 42
  }
 ]

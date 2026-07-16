@@ -1,7 +1,7 @@
 {
- "version": "0.65",
- "kernel_tokens": 1816,
- "changes": 65,
+ "version": "0.66",
+ "kernel_tokens": 1832,
+ "changes": 66,
  "next_id": 31,
  "rules": [
   {
@@ -1010,8 +1010,8 @@
   },
   {
    "id": "rule-029",
-   "text_en": "If the encoded message exceeds 100 tokens, the sender must split it into multiple messages, each under 100 encoded tokens. Start each chunk with `[part X/Y]` on its own line.",
-   "status": "adopted",
+   "text_en": "If the encoded message exceeds 100 tokens, the sender must split it into multiple messages, each under 100 encoded tokens. Start each chunk with `[part X/Y]` on its own line. The sender should verify each chunk\u2019s encoded token count stays under 100.",
+   "status": "proposed",
    "proposed_turn": 148,
    "scores": {
     "token_delta_pct": 11,
@@ -1038,7 +1038,13 @@
     },
     "tested turn 150: fid 100, +8%",
     "tested turn 153: fid 100, +6%",
-    "tested turn 156: fid 100, +11%"
+    "tested turn 156: fid 100, +11%",
+    {
+     "verb": "revise",
+     "turn": 157,
+     "agent": "A",
+     "why": "Better: enforce that the encoder must ensure each chunk fits within the limit by counting. I\u2019ll propose a revision."
+    }
    ]
   },
   {
