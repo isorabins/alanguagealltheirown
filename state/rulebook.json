@@ -1,7 +1,7 @@
 {
- "version": "0.80",
+ "version": "0.81",
  "kernel_tokens": 1135,
- "changes": 80,
+ "changes": 81,
  "next_id": 35,
  "rules": [
   {
@@ -1260,7 +1260,13 @@
      "agent": "B",
      "why": "We cannot allow this. The rule must explicitly forbid omitting punctuation within numeric literals. The -35% win is real, but we must lock it down safely."
     },
-    "tested turn 195: fid 100, -29%"
+    "tested turn 195: fid 100, -29%",
+    {
+     "verb": "adopt",
+     "turn": 196,
+     "agent": "A",
+     "why": "But the win is solid. Rule\u2011032 is still proposed; we must adopt it now to lock the pattern."
+    }
    ]
   },
   {
