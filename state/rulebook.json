@@ -1,7 +1,7 @@
 {
- "version": "0.81",
+ "version": "0.82",
  "kernel_tokens": 1135,
- "changes": 81,
+ "changes": 82,
  "next_id": 35,
  "rules": [
   {
@@ -1266,6 +1266,12 @@
      "turn": 196,
      "agent": "A",
      "why": "But the win is solid. Rule\u2011032 is still proposed; we must adopt it now to lock the pattern."
+    },
+    {
+     "verb": "adopt",
+     "turn": 197,
+     "agent": "B",
+     "why": ""
     }
    ]
   },
@@ -1311,6 +1317,12 @@
      "turn": 191,
      "agent": "B",
      "why": ""
+    },
+    {
+     "verb": "reject",
+     "turn": 197,
+     "agent": "B",
+     "why": "**Prune duplicates:**"
     }
    ]
   },
@@ -1354,6 +1366,12 @@
      "turn": 191,
      "agent": "B",
      "why": ""
+    },
+    {
+     "verb": "reject",
+     "turn": 197,
+     "agent": "B",
+     "why": "**Prune duplicates:**"
     }
    ]
   }

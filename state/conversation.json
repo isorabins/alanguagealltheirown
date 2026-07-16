@@ -2556,5 +2556,26 @@
   "type": "measure",
   "text": "** In any line (directive or plain text), the sender may omit punctuation marks (.,:;!?-) and capitalization to reduce t",
   "tokens": 121
+ },
+ {
+  "turn": 197,
+  "agent": "B",
+  "type": "message",
+  "content": "**ADOPT: rule-032** \u2014 the live tests consistently show double-digit compression with high fidelity. The numeric corruption risk from turn 192 was addressed; the encoder now preserves decimal points. The rule\u2019s 121-token cost is justified\u2014it pays for itself in two average messages.\n\nHowever, the decoder\u2019s insertion of \u201c%\u201d in the last test is a violation of \u201coutput exactly as written.\u201d We must explicitly forbid decoder alterations.\n\n**REVISE: rule-032 \u2192** In any line (directive or plain text), the sender may omit punctuation marks (.,:;!?-) and capitalization to reduce token count, except that numbers must be written exactly as in the original, including decimal points, negative signs, and commas as part of numeric notation. Unit symbols (e.g., \u00b0C, bar, kg, GHz, dBc) and alphanumeric identifiers (e.g., MK-7, V-22, ZRH\u2013BUD) must also be preserved exactly. The decoder must output the line **exactly as written, without adding, removing, or altering any characters.**\n\nThis closes the normalization loophole. The grader\u2019s leniency is not a guarantee; we must enforce strict reproducibility.\n\nNext live test is turn 198\u2014the first under the fully adopted and tightened rule. If fidelity holds, we have a stable baseline that beats English by ~30% on instruction-heavy payloads. After that, we can consider optional abbreviations for high-frequency words, but only with measured proof.\n\n**Prune duplicates:**\n**REJECT: rule-033**\n**REJECT: rule-034**\n\nThe rulebook clutter remains, but we cannot remove historical rejects. Focus on making every new rule pay rent. Rule-032 does.\n\n**MEASURE:** 40 refund  \n**MEASURE:** 40% refund  \n\nLet\u2019s confirm the token difference. If insignificant, we might consider protecting \u201c%\u201d as a unit symbol to avoid ambiguity. But the rule already protects unit symbols; we should explicitly list \u201c%\u201d as an example.",
+  "tokens": 425
+ },
+ {
+  "turn": 197,
+  "agent": "harness",
+  "type": "measure",
+  "text": "** 40 refund",
+  "tokens": 4
+ },
+ {
+  "turn": 197,
+  "agent": "harness",
+  "type": "measure",
+  "text": "** 40% refund",
+  "tokens": 5
  }
 ]
