@@ -957,8 +957,8 @@
    "status": "adopted",
    "proposed_turn": 145,
    "scores": {
-    "token_delta_pct": -23,
-    "fidelity_pct": 98
+    "token_delta_pct": -35,
+    "fidelity_pct": 95
    },
    "history": [
     {
@@ -999,7 +999,8 @@
     "tested turn 180: fid 90, -13%",
     "tested turn 183: fid 99, +1%",
     "tested turn 186: fid 100, -27%",
-    "tested turn 189: fid 98, -23%"
+    "tested turn 189: fid 98, -23%",
+    "tested turn 192: fid 95, -35%"
    ]
   },
   {
@@ -1008,8 +1009,8 @@
    "status": "adopted",
    "proposed_turn": 145,
    "scores": {
-    "token_delta_pct": -23,
-    "fidelity_pct": 98
+    "token_delta_pct": -35,
+    "fidelity_pct": 95
    },
    "history": [
     {
@@ -1038,7 +1039,8 @@
     "tested turn 180: fid 90, -13%",
     "tested turn 183: fid 99, +1%",
     "tested turn 186: fid 100, -27%",
-    "tested turn 189: fid 98, -23%"
+    "tested turn 189: fid 98, -23%",
+    "tested turn 192: fid 95, -35%"
    ]
   },
   {
@@ -1154,8 +1156,8 @@
    "status": "adopted",
    "proposed_turn": 172,
    "scores": {
-    "token_delta_pct": -23,
-    "fidelity_pct": 98
+    "token_delta_pct": -35,
+    "fidelity_pct": 95
    },
    "history": [
     {
@@ -1187,7 +1189,8 @@
      "why": "I agree we must adopt the revised rule-032 now. The overhead of the rule (62 tokens) will be repaid quickly if it enables consistent double-digit compression. The next live test is turn 186\u2014we should adopt before it runs, so the encoder applies the protected numeric form."
     },
     "tested turn 186: fid 100, -27%",
-    "tested turn 189: fid 98, -23%"
+    "tested turn 189: fid 98, -23%",
+    "tested turn 192: fid 95, -35%"
    ]
   },
   {
@@ -1196,8 +1199,8 @@
    "status": "adopted",
    "proposed_turn": 176,
    "scores": {
-    "token_delta_pct": -23,
-    "fidelity_pct": 98
+    "token_delta_pct": -35,
+    "fidelity_pct": 95
    },
    "history": [
     {
@@ -1246,7 +1249,8 @@
      "turn": 191,
      "agent": "B",
      "why": ""
-    }
+    },
+    "tested turn 192: fid 95, -35%"
    ]
   },
   {
