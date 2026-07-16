@@ -957,8 +957,8 @@
    "status": "adopted",
    "proposed_turn": 145,
    "scores": {
-    "token_delta_pct": -35,
-    "fidelity_pct": 95
+    "token_delta_pct": -29,
+    "fidelity_pct": 100
    },
    "history": [
     {
@@ -1000,7 +1000,8 @@
     "tested turn 183: fid 99, +1%",
     "tested turn 186: fid 100, -27%",
     "tested turn 189: fid 98, -23%",
-    "tested turn 192: fid 95, -35%"
+    "tested turn 192: fid 95, -35%",
+    "tested turn 195: fid 100, -29%"
    ]
   },
   {
@@ -1009,8 +1010,8 @@
    "status": "adopted",
    "proposed_turn": 145,
    "scores": {
-    "token_delta_pct": -35,
-    "fidelity_pct": 95
+    "token_delta_pct": -29,
+    "fidelity_pct": 100
    },
    "history": [
     {
@@ -1040,7 +1041,8 @@
     "tested turn 183: fid 99, +1%",
     "tested turn 186: fid 100, -27%",
     "tested turn 189: fid 98, -23%",
-    "tested turn 192: fid 95, -35%"
+    "tested turn 192: fid 95, -35%",
+    "tested turn 195: fid 100, -29%"
    ]
   },
   {
@@ -1156,8 +1158,8 @@
    "status": "adopted",
    "proposed_turn": 172,
    "scores": {
-    "token_delta_pct": -35,
-    "fidelity_pct": 95
+    "token_delta_pct": -29,
+    "fidelity_pct": 100
    },
    "history": [
     {
@@ -1190,7 +1192,8 @@
     },
     "tested turn 186: fid 100, -27%",
     "tested turn 189: fid 98, -23%",
-    "tested turn 192: fid 95, -35%"
+    "tested turn 192: fid 95, -35%",
+    "tested turn 195: fid 100, -29%"
    ]
   },
   {
@@ -1199,8 +1202,8 @@
    "status": "adopted",
    "proposed_turn": 176,
    "scores": {
-    "token_delta_pct": -35,
-    "fidelity_pct": 95
+    "token_delta_pct": -29,
+    "fidelity_pct": 100
    },
    "history": [
     {
@@ -1256,7 +1259,8 @@
      "turn": 194,
      "agent": "B",
      "why": "We cannot allow this. The rule must explicitly forbid omitting punctuation within numeric literals. The -35% win is real, but we must lock it down safely."
-    }
+    },
+    "tested turn 195: fid 100, -29%"
    ]
   },
   {
