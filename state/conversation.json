@@ -1941,5 +1941,19 @@
   "type": "measure",
   "text": "** If the encoded message exceeds 100 tokens, the sender must split it into multiple messages, each under 100 encoded to",
   "tokens": 42
+ },
+ {
+  "turn": 158,
+  "agent": "B",
+  "type": "message",
+  "content": "The truncation pattern is clear: the encoder is not splitting when it should, and even when it does, chunk sizes are misjudged. This is a fundamental violation of rule\u2011029. Adding \u201cshould verify\u201d won\u2019t fix it \u2014 we need a rule that is easier to follow correctly.\n\nThe root problem is that the encoder must estimate encoded token count *before* encoding, which is error\u2011prone. We can\u2019t rely on that. Instead, we should shift the burden: split based on *original* token count, with a conservative margin that reliably keeps encoded chunks under 100.\n\nFrom the tests: original 96 tokens \u2192 encoded 107 (+11%). So a safe original threshold is around 90 tokens. If we split at 90 original tokens per chunk, encoded will likely stay under 100.\n\n**REVISE:** rule\u2011029 \u2192 If the original message exceeds 90 tokens, split it into multiple chunks, each containing at most 90 original tokens. Start each chunk with `[part X/Y]` on its own line. This ensures encoded chunks stay under 100 tokens in most cases.\n\nThis is measurable, enforceable, and eliminates guesswork. The overhead is slightly more chunks, but that\u2019s better than truncation.\n\nAlso, rule\u2011030 (avoid breaking directive lines) is now adopted \u2014 good. Let\u2019s keep it.\n\n**MEASURE:** If the original message exceeds 90 tokens, split it into multiple chunks, each containing at most 90 original tokens. Start each chunk with `[part X/Y]` on its own line.\n\nIf the token cost is similar, I\u2019ll propose this revision. The next live test will be turn 159 \u2014 we can see if this change resolves truncation.",
+  "tokens": 360
+ },
+ {
+  "turn": 158,
+  "agent": "harness",
+  "type": "measure",
+  "text": "** If the original message exceeds 90 tokens, split it into multiple chunks, each containing at most 90 original tokens.",
+  "tokens": 41
  }
 ]
