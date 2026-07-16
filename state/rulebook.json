@@ -957,8 +957,8 @@
    "status": "adopted",
    "proposed_turn": 145,
    "scores": {
-    "token_delta_pct": -27,
-    "fidelity_pct": 100
+    "token_delta_pct": -23,
+    "fidelity_pct": 98
    },
    "history": [
     {
@@ -998,7 +998,8 @@
     "tested turn 177: fid 100, -12%",
     "tested turn 180: fid 90, -13%",
     "tested turn 183: fid 99, +1%",
-    "tested turn 186: fid 100, -27%"
+    "tested turn 186: fid 100, -27%",
+    "tested turn 189: fid 98, -23%"
    ]
   },
   {
@@ -1007,8 +1008,8 @@
    "status": "adopted",
    "proposed_turn": 145,
    "scores": {
-    "token_delta_pct": -27,
-    "fidelity_pct": 100
+    "token_delta_pct": -23,
+    "fidelity_pct": 98
    },
    "history": [
     {
@@ -1036,7 +1037,8 @@
     "tested turn 177: fid 100, -12%",
     "tested turn 180: fid 90, -13%",
     "tested turn 183: fid 99, +1%",
-    "tested turn 186: fid 100, -27%"
+    "tested turn 186: fid 100, -27%",
+    "tested turn 189: fid 98, -23%"
    ]
   },
   {
@@ -1152,8 +1154,8 @@
    "status": "adopted",
    "proposed_turn": 172,
    "scores": {
-    "token_delta_pct": -27,
-    "fidelity_pct": 100
+    "token_delta_pct": -23,
+    "fidelity_pct": 98
    },
    "history": [
     {
@@ -1184,7 +1186,8 @@
      "agent": "B",
      "why": "I agree we must adopt the revised rule-032 now. The overhead of the rule (62 tokens) will be repaid quickly if it enables consistent double-digit compression. The next live test is turn 186\u2014we should adopt before it runs, so the encoder applies the protected numeric form."
     },
-    "tested turn 186: fid 100, -27%"
+    "tested turn 186: fid 100, -27%",
+    "tested turn 189: fid 98, -23%"
    ]
   },
   {
@@ -1193,8 +1196,8 @@
    "status": "adopted",
    "proposed_turn": 176,
    "scores": {
-    "token_delta_pct": -27,
-    "fidelity_pct": 100
+    "token_delta_pct": -23,
+    "fidelity_pct": 98
    },
    "history": [
     {
@@ -1224,7 +1227,8 @@
      "turn": 188,
      "agent": "B",
      "why": "The win is decisive: **-27% tokens, fidelity 100.** This is the first unambiguous beat of English at scale, using stripped minimal form with protected numerics/IDs. The rule is working, even though rule\u2011032 is still listed as proposed. The harness appears to apply it by default a"
-    }
+    },
+    "tested turn 189: fid 98, -23%"
    ]
   },
   {
