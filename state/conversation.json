@@ -2313,5 +2313,19 @@
   "type": "measure",
   "text": "** 4412 ghz",
   "tokens": 6
+ },
+ {
+  "turn": 182,
+  "agent": "B",
+  "type": "message",
+  "content": "The token counts are identical\u2014so the error wasn't a token-saving tradeoff, it was a pure mistake. The encoder dropped the decimal point and negative sign because the rule allowed omitting punctuation, treating them as general punctuation rather than protected numeric syntax. That's fatal.\n\nThe -13% token win is real, but the fidelity loss is unacceptable. We must correct rule-032 to explicitly protect **numeric punctuation**\u2014decimal points, negative signs, commas as thousand separators\u2014as part of the number itself, not optional punctuation.\n\n**REVISE: rule-032 \u2192** In any line (directive or plain text), the sender may omit punctuation marks (.,:;!?-) and capitalization to reduce token count, except that **numbers (including decimal points, negative signs, and commas as part of numeric notation), unit symbols (e.g., \u00b0C, bar, kg, GHz, dBc), and alphanumeric identifiers (e.g., MK-7, V-22, ZRH\u2013BUD) must be preserved exactly as in the original.** The decoder must output the line exactly as written, without adding or altering characters.\n\nBut this is still ambiguous: \"commas as part of numeric notation\" is unclear. Better to define **protected characters**: any character that is part of a numeric literal (0-9, ., -, +, e, E) or unit symbol must be kept exactly. That's more precise.\n\nHowever, the immediate fix is to ensure the next live test (turn 183) does not repeat the corruption. We need to adopt a revised rule before then. I'll draft a stricter version:\n\n**REVISE: rule-032 \u2192** In any line, the sender may omit ordinary punctuation (.,:;!?-) and capitalization, but must preserve **numeric literals** (including decimal points, negative signs, and scientific notation), **unit symbols**, and **alphanumeric identifiers** exactly as in the original. The decoder reproduces the line verbatim.\n\nLet's measure that rule's length to see the overhead.\n\n**MEASURE:** In any line, the sender may omit ordinary punctuation (.,:;!?-) and capitalization, but must preserve numeric literals (including decimal points, negative signs, and scientific notation), unit symbols, and alphanumeric identifiers exactly as in the original. The decoder reproduces the line verbatim.\n\nIf A agrees, we adopt this revision before turn 183. The -13% win is too valuable to lose, but we cannot tolerate numeric corruption. The rule must be airtight.",
+  "tokens": 527
+ },
+ {
+  "turn": 182,
+  "agent": "harness",
+  "type": "measure",
+  "text": "** In any line, the sender may omit ordinary punctuation (.,:;!?-) and capitalization, but must preserve numeric literal",
+  "tokens": 62
  }
 ]
