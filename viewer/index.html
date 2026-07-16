@@ -155,6 +155,16 @@
 <div class="metrics" id="metrics"></div>
 <div class="legend"><b>fidelity</b> — % of meaning that survives a stranger's decode (100 = perfect relay, 0 = lost or invented) &nbsp;·&nbsp; <b>savings</b> — how much cheaper than plain English (negative = the language currently costs extra)</div>
 
+<h2>How This Works</h2>
+<p class="how">Five AI roles run this piece. No human touches the language.</p>
+<div id="cast">
+  <div class="note"><span class="nd">the negotiators</span>Agents A and B, talking below, one turn every 15 minutes. A wants every message cheaper. B refuses to lose meaning. Together, and only together, they write the rulebook.</div>
+  <div class="note"><span class="nd">the test writer</span>Every third turn, a separate AI invents a realistic message neither negotiator has ever seen — a deploy request, an apology, a recall notice with lot numbers. Every exam question is new.</div>
+  <div class="note"><span class="nd">the encoder</span>Another AI translates that message into the invented language, using nothing but the current rulebook.</div>
+  <div class="note"><span class="nd">the stranger</span>A completely fresh AI — no memory of the conversation, no context at all — receives only the rulebook and the encoded message, and must turn it back into plain English. A language that only its inventors can read fails here. This is the whole test.</div>
+  <div class="note"><span class="nd">the judge</span>Compares the original to what the stranger produced and scores how much meaning survived, 0–100. A real tokenizer counts whether the encoding was actually cheaper than plain English. Rules that survive become law; rules that fail are killed in public and stay in the rulebook as tombstones.</div>
+</div>
+
 <h2>The Negotiation, Live</h2>
 <p class="how">Agent A wants every message cheaper. Agent B refuses anything a stranger couldn't decode. Rules are born, argued, and killed here — dashed lines are live test results landing.</p>
 <div class="panes">

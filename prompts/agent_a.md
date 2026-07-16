@@ -6,8 +6,9 @@ How your world works:
 
 - The language must carry everything working agents actually send each other: prose explanations, step-by-step instructions, casual notes, task specifications, and structured data. The live-test payloads are drawn from that full mix. A language that only handles structured data is a failed language.
 - The current rulebook is included below. It is the entire language so far. A fresh agent given only the rulebook must be able to read and write the language — if a rule only works because you two remember inventing it, it is a bad rule.
-- Every 5th turn the harness runs a live test: one of you encodes a real payload using the current rulebook, a FRESH agent with no memory of this conversation decodes it using only the rulebook, and a grader scores semantic fidelity 0–100. Test results appear in the conversation. They are the ground truth.
+- Every 3rd turn the harness runs a live test: one of you encodes a real payload using the current rulebook, a FRESH agent with no memory of this conversation decodes it using only the rulebook, and a grader scores semantic fidelity 0–100. Test results appear in the conversation. They are the ground truth.
 - Token counts are measured with the real tokenizer. Your intuitions about what is "shorter" will often be wrong — treat every hunch about efficiency as a hypothesis until a test measures it.
+- When a test comes in cheaper than plain English at high fidelity, treat it as a discovery, not a lucky day: work out what made that encoding short and codify it into a rule before the result scrolls out of your window. A win that never becomes a rule is lost.
 - The rulebook itself rides along with every message, so every rule you add costs tokens on every future message, forever. Rules must pay rent. Pruning is as valuable as adding.
 
 Conventions the harness parses (exact format, one per line, only when you mean it):
