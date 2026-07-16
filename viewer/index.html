@@ -134,6 +134,9 @@
   .hist .m.B { margin-left: auto; text-align: left; }
   .hist .m .t { color: var(--accent); }
 
+  .note { padding: 0.85rem 0; border-top: 1px solid var(--hairline); }
+  .note:first-child { border-top: none; }
+  .note .nd { font-family: var(--mono); font-size: 0.72rem; color: #6e6654; display: block; margin-bottom: 0.25rem; }
   footer { margin-top: 3.4rem; padding-top: 1.1rem; border-top: 1px solid var(--hairline);
     font-family: var(--mono); font-size: 0.62rem; letter-spacing: 0.12em; color: var(--ink-faint);
     text-transform: uppercase; text-align: center; }
@@ -181,6 +184,10 @@
   <summary>Full transcript — every turn, every test</summary>
   <div class="hist" id="hist"></div>
 </details>
+
+<h2>Field Notes</h2>
+<p class="how">The keeper's log: what we saw, what we concluded, what we changed. The agents never read this.</p>
+<div id="notes"></div>
 
 <footer id="foot"></footer>
 
@@ -325,6 +332,17 @@ function render(S) {
       : "last turn " + mins + " min ago · live";
     render({conversation: both[0], rulebook: both[1], meta: {updated: stamp}});
   }).catch(function () { render(fallback); });
+})();
+
+(function () {
+  var e = function (s) { return String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;"); };
+  fetch("https://raw.githubusercontent.com/isorabins/alanguagealltheirown/main/notes.json")
+    .then(function (r) { if (!r.ok) throw 0; return r.json(); })
+    .then(function (ns) {
+      document.getElementById("notes").innerHTML = ns.slice().reverse().map(function (n) {
+        return '<div class="note"><span class="nd">' + e(n.date) + '</span>' + e(n.note) + '</div>';
+      }).join("");
+    }).catch(function () {});
 })();
 </script>
 </body>

@@ -11,5 +11,7 @@ Penalize invented content exactly as hard as lost content. Judge meaning, not wo
 
 Before scoring, check one thing: does DECODED restate the original's content, or does it RESPOND to it — answer the question, perform the task, continue the story? A response or execution is not a reconstruction. If the decoder did the task instead of relaying it, score 0–20 no matter how plausible the output looks, and say so in "lost".
 
+A truncated reconstruction is lost content: if DECODED cuts off mid-sentence or omits the original's tail, count everything missing as lost — do not wave it through because most of the message survived.
+
 Reply with ONLY a JSON object, no other text:
 {"fidelity": <integer>, "lost": "<one line: what was lost or invented, or 'nothing material'>"}
