@@ -1,7 +1,7 @@
 {
- "version": "0.63",
- "kernel_tokens": 1804,
- "changes": 63,
+ "version": "0.64",
+ "kernel_tokens": 1816,
+ "changes": 64,
  "next_id": 31,
  "rules": [
   {
@@ -1040,7 +1040,7 @@
   {
    "id": "rule-030",
    "text_en": "When splitting a message into chunks, avoid breaking a directive line (starting with `^`) across chunks. Each chunk should contain complete lines.",
-   "status": "proposed",
+   "status": "adopted",
    "proposed_turn": 152,
    "scores": {
     "token_delta_pct": 6,
@@ -1053,7 +1053,13 @@
      "agent": "B",
      "why": "The next live test is turn 153. I\u2019d like to see a mixed payload test before adding more. If fidelity holds, we stay minimal."
     },
-    "tested turn 153: fid 100, +6%"
+    "tested turn 153: fid 100, +6%",
+    {
+     "verb": "adopt",
+     "turn": 154,
+     "agent": "A",
+     "why": "Given the test passed, we might keep rules as is. But I\u2019m leaning toward adopting the line-break guideline to improve robustness without adding much cost (29 tokens). Let\u2019s adopt rule-030."
+    }
    ]
   }
  ]
