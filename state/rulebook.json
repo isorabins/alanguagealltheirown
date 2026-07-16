@@ -1,7 +1,7 @@
 {
- "version": "0.94",
+ "version": "0.95",
  "kernel_tokens": 1398,
- "changes": 94,
+ "changes": 95,
  "next_id": 39,
  "rules": [
   {
@@ -1548,7 +1548,7 @@
   {
    "id": "rule-037",
    "text_en": "rule-036 - To illustrate rule-032: numeric literals must preserve all punctuation that affects value. For example, write \u201c0.8 bar\u201d (not \u201c08 bar\u201d), \u201c-5\u00b0C\u201d (not \u201c5C\u201d), \u201c1,200\u201d if commas are part of the number. The decoder must treat these as exact.",
-   "status": "proposed",
+   "status": "adopted",
    "proposed_turn": 215,
    "scores": {
     "token_delta_pct": -14,
@@ -1563,7 +1563,13 @@
     },
     "tested turn 216: fid 99, -10%",
     "tested turn 219: fid 100, -13%",
-    "tested turn 222: fid 99, -14%"
+    "tested turn 222: fid 99, -14%",
+    {
+     "verb": "adopt",
+     "turn": 224,
+     "agent": "B",
+     "why": "**AGREE.** The core is proven: two rules deliver reliable compression across all payload types without fidelity loss. Adding speculative shortcuts now is pure risk."
+    }
    ]
   },
   {
