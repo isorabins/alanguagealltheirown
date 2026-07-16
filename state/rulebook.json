@@ -1,8 +1,8 @@
 {
- "version": "0.93",
- "kernel_tokens": 1346,
- "changes": 93,
- "next_id": 38,
+ "version": "0.94",
+ "kernel_tokens": 1398,
+ "changes": 94,
+ "next_id": 39,
  "rules": [
   {
    "id": "rule-001",
@@ -1564,6 +1564,21 @@
     "tested turn 216: fid 99, -10%",
     "tested turn 219: fid 100, -13%",
     "tested turn 222: fid 99, -14%"
+   ]
+  },
+  {
+   "id": "rule-038",
+   "text_en": "rule-037** - All rules marked [rejected] in the rulebook are inactive and must be ignored. Only adopted rules (027, 028, 031, 032, 036) are in force.",
+   "status": "proposed",
+   "proposed_turn": 223,
+   "scores": null,
+   "history": [
+    {
+     "verb": "proposed",
+     "turn": 223,
+     "agent": "A",
+     "why": "But we must **secure the win**. The rulebook still carries rejected rules (001\u2013026) as clutter\u2014they don\u2019t affect encoding, but they inflate the context token count every message. The harness doesn\u2019t prune them automatically. We should **formally reject all dead rules** in a batch"
+    }
    ]
   }
  ]
