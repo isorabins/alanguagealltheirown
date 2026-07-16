@@ -957,8 +957,8 @@
    "status": "adopted",
    "proposed_turn": 145,
    "scores": {
-    "token_delta_pct": -12,
-    "fidelity_pct": 100
+    "token_delta_pct": -13,
+    "fidelity_pct": 90
    },
    "history": [
     {
@@ -995,7 +995,8 @@
     "tested turn 168: fid 100, +4%",
     "tested turn 171: fid 100, +19%",
     "tested turn 174: fid 100, +3%",
-    "tested turn 177: fid 100, -12%"
+    "tested turn 177: fid 100, -12%",
+    "tested turn 180: fid 90, -13%"
    ]
   },
   {
@@ -1004,8 +1005,8 @@
    "status": "adopted",
    "proposed_turn": 145,
    "scores": {
-    "token_delta_pct": -12,
-    "fidelity_pct": 100
+    "token_delta_pct": -13,
+    "fidelity_pct": 90
    },
    "history": [
     {
@@ -1030,7 +1031,8 @@
     "tested turn 168: fid 100, +4%",
     "tested turn 171: fid 100, +19%",
     "tested turn 174: fid 100, +3%",
-    "tested turn 177: fid 100, -12%"
+    "tested turn 177: fid 100, -12%",
+    "tested turn 180: fid 90, -13%"
    ]
   },
   {
@@ -1146,8 +1148,8 @@
    "status": "adopted",
    "proposed_turn": 172,
    "scores": {
-    "token_delta_pct": -12,
-    "fidelity_pct": 100
+    "token_delta_pct": -13,
+    "fidelity_pct": 90
    },
    "history": [
     {
@@ -1163,7 +1165,8 @@
      "why": "But we must also address the deeper issue: we are still at +4% on directive\u2011heavy payloads because `^` adds a token per line without compressing content. The measurements show stripping punctuation within a directive line saves ~5 tokens on a 28\u2011token line. That\u2019s our next lever\u2014"
     },
     "tested turn 174: fid 100, +3%",
-    "tested turn 177: fid 100, -12%"
+    "tested turn 177: fid 100, -12%",
+    "tested turn 180: fid 90, -13%"
    ]
   },
   {
@@ -1172,8 +1175,8 @@
    "status": "proposed",
    "proposed_turn": 176,
    "scores": {
-    "token_delta_pct": -12,
-    "fidelity_pct": 100
+    "token_delta_pct": -13,
+    "fidelity_pct": 90
    },
    "history": [
     {
@@ -1182,7 +1185,8 @@
      "agent": "B",
      "why": "We could allow omission of punctuation **except** in identifiers, numbers, and units. But that's complex to specify in the rulebook. A simpler approach: allow the sender to optionally drop punctuation and capitalization, but **require** that numbers, unit symbols, and alphanumeri"
     },
-    "tested turn 177: fid 100, -12%"
+    "tested turn 177: fid 100, -12%",
+    "tested turn 180: fid 90, -13%"
    ]
   },
   {
@@ -1190,14 +1194,18 @@
    "text_en": "In any line (directive or plain text), the sender may omit punctuation marks (.,:;!?-) and capitalization to reduce token count, except that numbers, unit symbols (e.g., \u00b0C, bar, kg), and alphanumeric identifiers (e.g., MK-7, V-22, ZRH-BUD) must be preserved exactly as in the original. The decoder should reproduce the line verbatim, without adding or altering characters.",
    "status": "proposed",
    "proposed_turn": 179,
-   "scores": null,
+   "scores": {
+    "token_delta_pct": -13,
+    "fidelity_pct": 90
+   },
    "history": [
     {
      "verb": "proposed",
      "turn": 179,
      "agent": "B",
      "why": "But first: the win is real and must be codified. The rule must be precise\u2014no \u201crequired for clarity\u201d handwaving. The decoder\u2019s job is to output the line exactly as written; the grader\u2019s acceptance shows that minimal form preserves semantic fidelity."
-    }
+    },
+    "tested turn 180: fid 90, -13%"
    ]
   }
  ]
