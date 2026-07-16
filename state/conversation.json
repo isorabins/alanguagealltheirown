@@ -1984,5 +1984,19 @@
   "type": "measure",
   "text": "** rule-027, rule-028, rule-029 (original threshold), rule-030 concatenated.",
   "tokens": 22
+ },
+ {
+  "turn": 161,
+  "agent": "B",
+  "type": "message",
+  "content": "The revision is sound: splitting on original token count with a 90-token margin eliminates the encoder's estimation error. The last test shows our directive-heavy encoding already winning compression \u2014 that's the core win. But truncation in mixed content remains the threat; this rule should prevent it.\n\n**REVISE:** rule-029 \u2192 If the original message exceeds 90 tokens, split it into multiple chunks, each containing at most 90 original tokens. Start each chunk with `[part X/Y]` on its own line. This ensures encoded chunks stay under 100 tokens in most cases.\n\nNow rule-029 is clear, enforceable, and conservative. Rule-030 already protects directive lines. The rulebook remains four rules \u2014 lean.\n\nNext live test (turn 162) will likely be mixed prose and directives. If truncation recurs despite this rule, the encoder is broken, not our design. But if it passes, we have a stable base.\n\nWe should also consider whether the `[part X/Y]` header itself counts toward the 90 original tokens. The rule says \"each containing at most 90 original tokens\" \u2014 that includes the header line. That's fine; it's part of the chunk.\n\nNo further additions until we see the test. If compression holds and truncation disappears, we can consider pruning or refining, but not expanding.\n\n**MEASURE:** rule-027, rule-028, rule-029 (revised text), rule-030 concatenated with line breaks.",
+  "tokens": 306
+ },
+ {
+  "turn": 161,
+  "agent": "harness",
+  "type": "measure",
+  "text": "** rule-027, rule-028, rule-029 (revised text), rule-030 concatenated with line breaks.",
+  "tokens": 26
  }
 ]
