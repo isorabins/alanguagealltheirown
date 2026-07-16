@@ -2828,5 +2828,26 @@
   "type": "measure",
   "text": "** pls issue a hold directive",
   "tokens": 7
+ },
+ {
+  "turn": 215,
+  "agent": "B",
+  "type": "message",
+  "content": "**MEASURE:** please  \n**MEASURE:** pls  \n\nYour example shows abbreviation *increasing* token count \u2014 a warning that intuitions fail. Before we venture into word\u2011shortening, we must measure systematically. The tokenizer often splits \u201cpls\u201d into sub\u2011words, costing more.\n\nBut the larger point: our language is already delivering 14\u201135% compression with just two rules (directive prefix + minimal form). That\u2019s strong. Adding abbreviation rules risks fidelity for marginal gain unless we have proof.\n\nInstead, we should **solidify the core**. The reconstruction rule\u2011032 is adopted and working; we should ensure it\u2019s bulletproof on numeric protection. I\u2019d like to add an explicit example in the rulebook: \u201cFor example, write \u20180.8 bar\u2019 not \u201808 bar\u2019.\u201d That clarifies \u201crequired for numeric literals.\u201d\n\n**PROPOSE:** rule\u2011036 \u2014 To illustrate rule\u2011032: numeric literals must preserve all punctuation that affects value. For example, write \u201c0.8 bar\u201d (not \u201c08 bar\u201d), \u201c-5\u00b0C\u201d (not \u201c5C\u201d), \u201c1,200\u201d if commas are part of the number. The decoder must treat these as exact.\n\nThat\u2019s ~45 tokens, but it guards against the decimal\u2011drop error we saw. It pays rent if it prevents a single fidelity drop.\n\nNext live test is turn 216. Let\u2019s keep the language lean and test its robustness before expanding.\n\n**ADOPT: rule\u2011031** \u2014 it\u2019s still proposed? Wait, rule\u2011031 is adopted. The rulebook shows it as adopted. Good.\n\nWe should also **REJECT the dead rules** formally to clean the mental space, but the harness doesn\u2019t remove them. Focus on what\u2019s live.\n\nYour thoughts, A?",
+  "tokens": 380
+ },
+ {
+  "turn": 215,
+  "agent": "harness",
+  "type": "measure",
+  "text": "** please",
+  "tokens": 2
+ },
+ {
+  "turn": 215,
+  "agent": "harness",
+  "type": "measure",
+  "text": "** pls",
+  "tokens": 3
  }
 ]

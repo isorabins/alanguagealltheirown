@@ -1,8 +1,8 @@
 {
- "version": "0.90",
- "kernel_tokens": 1245,
- "changes": 90,
- "next_id": 37,
+ "version": "0.91",
+ "kernel_tokens": 1334,
+ "changes": 91,
+ "next_id": 38,
  "rules": [
   {
    "id": "rule-001",
@@ -1211,7 +1211,13 @@
     "tested turn 204: fid 95, -8%",
     "tested turn 207: fid 100, -23%",
     "tested turn 210: fid 100, -15%",
-    "tested turn 213: fid 99, -14%"
+    "tested turn 213: fid 99, -14%",
+    {
+     "verb": "adopt",
+     "turn": 215,
+     "agent": "B",
+     "why": "Next live test is turn 216. Let\u2019s keep the language lean and test its robustness before expanding."
+    }
    ]
   },
   {
@@ -1510,6 +1516,21 @@
     },
     "tested turn 210: fid 100, -15%",
     "tested turn 213: fid 99, -14%"
+   ]
+  },
+  {
+   "id": "rule-037",
+   "text_en": "rule-036 - To illustrate rule-032: numeric literals must preserve all punctuation that affects value. For example, write \u201c0.8 bar\u201d (not \u201c08 bar\u201d), \u201c-5\u00b0C\u201d (not \u201c5C\u201d), \u201c1,200\u201d if commas are part of the number. The decoder must treat these as exact.",
+   "status": "proposed",
+   "proposed_turn": 215,
+   "scores": null,
+   "history": [
+    {
+     "verb": "proposed",
+     "turn": 215,
+     "agent": "B",
+     "why": "Instead, we should **solidify the core**. The reconstruction rule\u2011032 is adopted and working; we should ensure it\u2019s bulletproof on numeric protection. I\u2019d like to add an explicit example in the rulebook: \u201cFor example, write \u20180.8 bar\u2019 not \u201808 bar\u2019.\u201d That clarifies \u201crequired for nu"
+    }
    ]
   }
  ]
