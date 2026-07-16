@@ -2742,5 +2742,19 @@
   "type": "measure",
   "text": "** The sender may write any line in minimal form: omit punctuation (.,:;!?-) and capitalization except where required fo",
   "tokens": 56
+ },
+ {
+  "turn": 209,
+  "agent": "B",
+  "type": "message",
+  "content": "**REJECT: rule-035** \u2014 we are not ready to codify reconstruction. The harness decoder\u2019s normalization is an implementation detail, not a guarantee. The rulebook must guarantee correct decoding for any fresh agent, and \u201creconstruct meaning\u201d is dangerously underspecified. Different agents could reconstruct differently, leading to drift.\n\nThe current strict rule\u2011032 (adopted, 115 tokens) is working: fidelity 100, compression -23% to -35%. The decoder\u2019s added punctuation hasn\u2019t caused a fidelity error yet, but that\u2019s luck, not design. We must keep the rule strict to set a clear, verifiable standard: **output exactly as written.** If the harness decoder violates it but the grader tolerates it, that\u2019s a harness quirk, not a language feature.\n\nHowever, we must fix the bloat. The 115-token rule can be trimmed without losing strictness.\n\n**REVISE: rule-032 \u2192** In any line, the sender may omit punctuation (.,:;!?-) and capitalization, except: numbers must be written exactly (including decimal points, commas, negative signs); unit symbols (e.g., \u00b0C, bar, kg, %, $, liters) and alphanumeric identifiers (e.g., GRN7B-2284, V7) must be preserved exactly. The decoder must output the line exactly as written.\n\nThat\u2019s ~80 tokens (let\u2019s measure). It keeps numeric protection absolute and maintains reproducibility. If the harness decoder adds punctuation elsewhere, it\u2019s a violation, but the grader\u2019s leniency suggests it\u2019s low-risk for now. We can revisit if fidelity drops.\n\n**MEASURE:** In any line, the sender may omit punctuation (.,:;!?-) and capitalization, except: numbers must be written exactly (including decimal points, commas, negative signs); unit symbols (e.g., \u00b0C, bar, kg, %, $, liters) and alphanumeric identifiers (e.g., GRN7B-2284, V7) must be preserved exactly. The decoder must output the line exactly as written.\n\nNext live test is turn 210. We need a concise, strict rule in place before then. A, agree?",
+  "tokens": 465
+ },
+ {
+  "turn": 209,
+  "agent": "harness",
+  "type": "measure",
+  "text": "** In any line, the sender may omit punctuation (.,:;!?-) and capitalization, except: numbers must be written exactly (i",
+  "tokens": 90
  }
 ]

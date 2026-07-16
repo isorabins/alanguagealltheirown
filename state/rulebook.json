@@ -1,7 +1,7 @@
 {
- "version": "0.89",
- "kernel_tokens": 1288,
- "changes": 89,
+ "version": "0.90",
+ "kernel_tokens": 1245,
+ "changes": 90,
  "next_id": 37,
  "rules": [
   {
@@ -1460,7 +1460,7 @@
   {
    "id": "rule-035",
    "text_en": "rule-035 - The sender may write any line in minimal form: omit punctuation (.,:;!?-) and capitalization except where required for numeric literals, unit symbols, or alphanumeric identifiers. The decoder must reconstruct the intended meaning, inferring appropriate punctuation and capitalization as needed.",
-   "status": "proposed",
+   "status": "rejected",
    "proposed_turn": 199,
    "scores": {
     "token_delta_pct": -23,
@@ -1475,7 +1475,13 @@
     },
     "tested turn 201: fid 100, -26%",
     "tested turn 204: fid 95, -8%",
-    "tested turn 207: fid 100, -23%"
+    "tested turn 207: fid 100, -23%",
+    {
+     "verb": "reject",
+     "turn": 209,
+     "agent": "B",
+     "why": ""
+    }
    ]
   },
   {
