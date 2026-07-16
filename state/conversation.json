@@ -1806,5 +1806,26 @@
   "encoded": "[part 1/2]\n^ Update guest count to 172.\n^ Client Leda Varney confirmed for Thursday gala.\n^ Provide vegan alternate for her plus-one.\n^ If venue confirms fire capacity is 175, add two more place settings for the press list held in reserve.\n^ Update the seating chart file on the shared drive.\n^ Revise only the Coral Room layout, not the Sunset Pavilion.\n[part 2/2]\n^ Expect updated dietary flag list by 3 p.m.",
   "decoded": "[part 1/2]\n^ Update guest count to 172.\n^ Client Leda Varney confirmed for Thursday gala.\n^ Provide vegan alternate for her plus-one.\n^ If venue confirms fire capacity is 175, add two more place settings for the press list held in reserve.\n^ Update the seating chart file on the shared drive.\n^ Revise only the Coral Room layout, not the Sunset Pavilion.\n[part 2/2]\n^ Expect updated dietary flag list by 3 p.m.",
   "tokens": 103
+ },
+ {
+  "turn": 151,
+  "agent": "A",
+  "type": "message",
+  "content": "B, good \u2014 the directive markers are preserved now, and the decoder correctly handled the chunking headers. The tail truncation in part 2 (\u201c^ Expect updated dietary flag list\u201d) is minor; the grader considered it \u201cnothing material.\u201d That suggests our chunking rule works: the encoder split at >100 encoded tokens (original 95, encoded 103? Wait, encoded 103 is just over 100, so it split into two parts). The second part is short and preserved.\n\nBut I notice the encoded token count increased (+8%) relative to original. That\u2019s overhead from the `^` markers and chunk headers. Acceptable if we keep fidelity high.\n\nNow we have a minimal rulebook: directives, plain text, chunking. Does this cover all payload types? We haven\u2019t tested mixed narrative and directives interleaved \u2014 but with `^` anywhere, it should work. However, we lost the \u201cdirectives first\u201d ordering (rule-025), which might be fine; the decoder preserves order anyway.\n\nPotential risk: If a long narrative precedes directives, and the output gets truncated, directives could be lost. But chunking splits by encoded tokens, not by content type. Maybe we should add a lightweight hint: \u201cPlace directive lines before long narrative when possible.\u201d But that\u2019s a guideline, not a rule \u2014 wouldn\u2019t cost tokens in the rulebook. I\u2019m leaning against adding more.\n\n**MEASURE:** A directive line starts with `^` and contains an instruction from sender to receiver. The decoder must preserve the `^` and the rest of the line verbatim. The receiver should treat the line as actionable.\n\n**MEASURE:** Plain text lines (no `^` prefix) are narrative content, preserved verbatim. They are not instructions.\n\nLet\u2019s see exactly how many tokens our two core rules cost now. If they\u2019re efficient, we stay.\n\nThe next live test is turn 153 \u2014 two turns away. We should propose a stress test: a payload with mixed narrative and directives, maybe exceeding 100 tokens, to see if chunking splits sensibly and directives survive.\n\nBut before proposing new rules, we should ensure the rulebook is complete. Are we missing anything for structured data? The earlier rule-004 (key := value) was rejected. If structured data appears in a payload, it would be plain text \u2014 that\u2019s fine. The language doesn\u2019t need special syntax for data; AI can infer structure.\n\nI\u2019m satisfied with the current set. Let\u2019s keep it and run the next test. If fidelity drops, we\u2019ll adapt.\n\nB, do you see any missing piece?",
+  "tokens": 547
+ },
+ {
+  "turn": 151,
+  "agent": "harness",
+  "type": "measure",
+  "text": "** A directive line starts with `^` and contains an instruction from sender to receiver. The decoder must preserve the `",
+  "tokens": 44
+ },
+ {
+  "turn": 151,
+  "agent": "harness",
+  "type": "measure",
+  "text": "** Plain text lines (no `^` prefix) are narrative content, preserved verbatim. They are not instructions.",
+  "tokens": 24
  }
 ]
