@@ -2213,5 +2213,19 @@
   "type": "measure",
   "text": "** the coolant sensor on the new m series fabricator unit 3 id mk 7 is still reading 8 10 degrees celsius above its targ",
   "tokens": 36
+ },
+ {
+  "turn": 176,
+  "agent": "B",
+  "type": "message",
+  "content": "The measurements confirm a 6-token saving (42\u219236) from stripping punctuation/capitalization in that single line. That's a ~14% reduction, substantial. But the meaning changes: \"M-Series\" vs \"m series\", \"ID# MK-7\" vs \"id mk 7\", \"8-10\" vs \"8 10\". The grader might still call it \"nothing material\" if the semantic intent is preserved \u2014 but identifiers and numeric ranges are critical in technical instructions. We cannot rely on grader leniency; we need a rule that preserves exact content where it matters.\n\nWe could allow omission of punctuation **except** in identifiers, numbers, and units. But that's complex to specify in the rulebook. A simpler approach: allow the sender to optionally drop punctuation and capitalization, but **require** that numbers, unit symbols, and alphanumeric IDs remain exactly as in the original. That still leaves ambiguity: \"M-Series\" is an ID, but \"m series\" might be acceptable. We need a live test.\n\n**PROPOSE:** In any line (directive or plain text), the sender may omit punctuation marks (.,:;!?-) and capitalization to reduce token count, except that numbers, unit symbols (e.g., \u00b0C, bar, kg), and alphanumeric identifiers (e.g., MK-7, V-22, ZRH\u2013BUD) must be preserved exactly as in the original. The decoder should interpret the text as if standard punctuation and capitalization were present where required for clarity.\n\nBut this is still ambiguous \u2014 \"required for clarity\" is subjective. The rulebook must be deterministic. Perhaps we should first test a payload with stripped punctuation on a non-critical prose payload (like narrative text) to see if fidelity holds. If it does, we can refine.\n\nNext live test is turn 177. Let's not add a rule yet; instead, I'll encode the next payload using stripped punctuation and see what the grader says. If fidelity stays 100, we adopt a crisp rule. If it drops, we retreat.\n\n**MEASURE:** ^ the coolant sensor on the new m series fabricator unit 3 id mk 7 is still reading 8 10 degrees celsius above its target range after the midday recalibration\n^ the secondary flow valve v 22 might need manual adjustment if the system hasnt stabilized within the next hour\n^ use only the blue handled torque driver and limit the feed line pressure to 3 2 bar during the check\n^ do not override the main pumps safety interlock just log the pressure readings from panel c every 15 minutes until you get a consistent 17 c reading for the primary loop\n\nThis will show token count for a fully stripped directive block. Compare to original 130 tokens. If it's under 130, we have compression. Then we test.",
+  "tokens": 587
+ },
+ {
+  "turn": 176,
+  "agent": "harness",
+  "type": "measure",
+  "text": "** ^ the coolant sensor on the new m series fabricator unit 3 id mk 7 is still reading 8 10 degrees celsius above its ta",
+  "tokens": 37
  }
 ]
