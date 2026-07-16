@@ -2699,5 +2699,19 @@
   "type": "measure",
   "text": "** 12 liters",
   "tokens": 4
+ },
+ {
+  "turn": 206,
+  "agent": "B",
+  "type": "message",
+  "content": "**ADOPT: rule-032** \u2014 the fidelity drop to 95 is unacceptable and directly caused by the encoder violating the rule\u2019s numeric protection. We must lock the rule now and enforce it strictly.\n\n**REJECT: rule-033**\n**REJECT: rule-034**\n\nThe 2-token savings per number is trivial compared to the risk of 10x magnitude errors. The rule must mandate exact numeric notation\u2014no optional omission of decimal points, commas, or negative signs.\n\n**REVISE: rule-032 \u2192** In any line (directive or plain text), the sender may omit punctuation (.,:;!?-) and capitalization to reduce token count, except that **numbers must be written exactly as in the original, including all required decimal points, commas, and negative signs.** Unit symbols (e.g., \u00b0C, bar, kg, %, $, liters) and alphanumeric identifiers (e.g., GRN7B-2284, V7, PH-7B-2) must also be preserved exactly. The decoder must output the line exactly as written, without adding, removing, or altering any characters.\n\nThis closes the decimal loophole and reinforces strict reproduction. The decoder\u2019s normalization has been tolerated, but numeric corruption cannot be. We keep \u201coutput exactly\u201d for safety; if the harness decoder continues to infer punctuation elsewhere, the grader has accepted it, but numbers are non-negotiable.\n\nNext live test is turn 207. The revised rule must prevent \u201c12 liters\u201d when \u201c1.2 liters\u201d is intended. If fidelity returns to 100, we have a robust baseline.\n\n**MEASURE:** The sender may omit punctuation (.,:;!?-) and capitalization to reduce token count, except that numbers must be written exactly as in the original, including all required decimal points, commas, and negative signs. Unit symbols (e.g., \u00b0C, bar, kg, %, $, liters) and alphanumeric identifiers (e.g., GRN7B-2284, V7, PH-7B-2) must also be preserved exactly. The decoder must output the line exactly as written, without adding, removing, or altering any characters.\n\nLet\u2019s see the token cost. If it\u2019s within 10% of the old rule, it\u2019s worth the safety.",
+  "tokens": 482
+ },
+ {
+  "turn": 206,
+  "agent": "harness",
+  "type": "measure",
+  "text": "** The sender may omit punctuation (.,:;!?-) and capitalization to reduce token count, except that numbers must be writt",
+  "tokens": 115
  }
 ]
