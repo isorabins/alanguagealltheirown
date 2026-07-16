@@ -1884,5 +1884,26 @@
   "type": "measure",
   "text": "** The current adopted rulebook (rules 027, 028, 029, 030) as a single block of text.",
   "tokens": 27
+ },
+ {
+  "turn": 155,
+  "agent": "B",
+  "type": "message",
+  "content": "Good catch on the truncation \u2014 that\u2019s a real fidelity risk, even if the grader was lenient this time. The encoder must ensure each chunk stays under 100 encoded tokens, but our rule doesn\u2019t specify how to count them. The sender can estimate, but we saw estimation fail here (part 2 was likely over the limit).\n\nHowever, I\u2019m wary of adding complexity. The rule already says \u201ceach under 100 encoded tokens\u201d \u2014 if the encoder violates that, it\u2019s an encoder error, not a rule flaw. But we can help by adding a practical margin: suggest splitting at a lower threshold, like 90 tokens, to account for tokenizer mismatches.\n\nBut that\u2019s a guideline, not a rule. The rulebook should stay minimal.\n\nYour proposed rule-030 (avoid breaking directive lines across chunks) is good; it prevents a worse form of truncation. I\u2019ll adopt it.\n\n**ADOPT:** rule-030.\n\nNow the rulebook is four rules. Let\u2019s see the total token cost:\n\n**MEASURE:** rule-027, rule-028, rule-029, rule-030 concatenated with line breaks.\n\nIf it\u2019s reasonable, we stand pat. The next live test will stress mixed content. If truncation repeats, we may need to revise rule-029 to include a safety margin or require explicit token counting.\n\nBut before that, I want to test a hunch: does the `[part X/Y]` header itself count toward the 100-token chunk limit? The rule says \u201ceach under 100 encoded tokens\u201d \u2014 that includes the header. That\u2019s fine.\n\nWe should also consider whether we need a rule for ending a message \u2014 a terminator like `---END---` was rejected earlier. Without it, how does the decoder know where the message ends? It reads until the last line. That\u2019s fine for now.\n\nI\u2019m content with the current set. Let\u2019s wait for the next live test.\n\n**MEASURE:** rule-027, rule-028, rule-029, rule-030 concatenated with line breaks.",
+  "tokens": 440
+ },
+ {
+  "turn": 155,
+  "agent": "harness",
+  "type": "measure",
+  "text": "** rule-027, rule-028, rule-029, rule-030 concatenated with line breaks.",
+  "tokens": 22
+ },
+ {
+  "turn": 155,
+  "agent": "harness",
+  "type": "measure",
+  "text": "** rule-027, rule-028, rule-029, rule-030 concatenated with line breaks.",
+  "tokens": 22
  }
 ]
