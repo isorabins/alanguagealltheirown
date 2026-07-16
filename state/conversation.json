@@ -1955,5 +1955,20 @@
   "type": "measure",
   "text": "** If the original message exceeds 90 tokens, split it into multiple chunks, each containing at most 90 original tokens.",
   "tokens": 41
+ },
+ {
+  "turn": 159,
+  "agent": "harness",
+  "type": "test",
+  "payload": "gen-task-food",
+  "original": "Update on the Table 12 order: The original request for two salmon roulades has been modified to one salmon and one mushroom Wellington, due to a guest's dietary restriction. The Wellington will need to be prepared separately to avoid any cross-contact with shellfish. We need both mains ready by 7:45 PM. If the mushrooms aren\u2019t prepped yet, use the pre-sliced portobellos from the back fridge, but not the dried ones in pantry storage. The ticket is marked priority.",
+  "orig_tokens": 104,
+  "enc_tokens": 88,
+  "token_delta_pct": -15,
+  "fidelity": 100,
+  "lost": "nothing material",
+  "encoded": "[part 1/1]\n^ Update Table 12 order: change two salmon roulades to one salmon roulade and one mushroom Wellington.\n^ Prepare mushroom Wellington separately to avoid cross-contact with shellfish.\n^ Both mains ready by 7:45 PM.\n^ If mushrooms not prepped, use pre-sliced portobellos from back fridge. Do not use dried ones in pantry.\n^ Ticket is marked priority.",
+  "decoded": "^ Update Table 12 order: change two salmon roulades to one salmon roulade and one mushroom Wellington.\n^ Prepare mushroom Wellington separately to avoid cross-contact with shellfish.\n^ Both mains ready by 7:45 PM.\n^ If mushrooms not prepped, use pre-sliced portobellos from back fridge. Do not use dried ones in pantry.\n^ Ticket is marked priority.",
+  "tokens": 88
  }
 ]
