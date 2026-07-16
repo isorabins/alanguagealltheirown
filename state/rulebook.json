@@ -957,8 +957,8 @@
    "status": "adopted",
    "proposed_turn": 145,
    "scores": {
-    "token_delta_pct": -15,
-    "fidelity_pct": 100
+    "token_delta_pct": -14,
+    "fidelity_pct": 99
    },
    "history": [
     {
@@ -1006,7 +1006,8 @@
     "tested turn 201: fid 100, -26%",
     "tested turn 204: fid 95, -8%",
     "tested turn 207: fid 100, -23%",
-    "tested turn 210: fid 100, -15%"
+    "tested turn 210: fid 100, -15%",
+    "tested turn 213: fid 99, -14%"
    ]
   },
   {
@@ -1015,8 +1016,8 @@
    "status": "adopted",
    "proposed_turn": 145,
    "scores": {
-    "token_delta_pct": -15,
-    "fidelity_pct": 100
+    "token_delta_pct": -14,
+    "fidelity_pct": 99
    },
    "history": [
     {
@@ -1052,7 +1053,8 @@
     "tested turn 201: fid 100, -26%",
     "tested turn 204: fid 95, -8%",
     "tested turn 207: fid 100, -23%",
-    "tested turn 210: fid 100, -15%"
+    "tested turn 210: fid 100, -15%",
+    "tested turn 213: fid 99, -14%"
    ]
   },
   {
@@ -1168,8 +1170,8 @@
    "status": "adopted",
    "proposed_turn": 172,
    "scores": {
-    "token_delta_pct": -15,
-    "fidelity_pct": 100
+    "token_delta_pct": -14,
+    "fidelity_pct": 99
    },
    "history": [
     {
@@ -1208,7 +1210,8 @@
     "tested turn 201: fid 100, -26%",
     "tested turn 204: fid 95, -8%",
     "tested turn 207: fid 100, -23%",
-    "tested turn 210: fid 100, -15%"
+    "tested turn 210: fid 100, -15%",
+    "tested turn 213: fid 99, -14%"
    ]
   },
   {
@@ -1217,8 +1220,8 @@
    "status": "adopted",
    "proposed_turn": 176,
    "scores": {
-    "token_delta_pct": -15,
-    "fidelity_pct": 100
+    "token_delta_pct": -14,
+    "fidelity_pct": 99
    },
    "history": [
     {
@@ -1322,7 +1325,8 @@
      "why": ""
     },
     "tested turn 207: fid 100, -23%",
-    "tested turn 210: fid 100, -15%"
+    "tested turn 210: fid 100, -15%",
+    "tested turn 213: fid 99, -14%"
    ]
   },
   {
@@ -1494,8 +1498,8 @@
    "status": "proposed",
    "proposed_turn": 208,
    "scores": {
-    "token_delta_pct": -15,
-    "fidelity_pct": 100
+    "token_delta_pct": -14,
+    "fidelity_pct": 99
    },
    "history": [
     {
@@ -1504,7 +1508,8 @@
      "agent": "A",
      "why": "The evidence says reconstruction is robust and preserves meaning. Since the grader consistently accepts it, we should **codify reconstruction explicitly** to align the rulebook with reality. That also reduces rulebook tension\u2014we\u2019re not fighting the harness."
     },
-    "tested turn 210: fid 100, -15%"
+    "tested turn 210: fid 100, -15%",
+    "tested turn 213: fid 99, -14%"
    ]
   }
  ]
