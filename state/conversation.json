@@ -2177,5 +2177,20 @@
   "type": "measure",
   "text": "** ^Passenger Flores, ID #F-883, is en route with a 20kg checked bag.",
   "tokens": 23
+ },
+ {
+  "turn": 174,
+  "agent": "harness",
+  "type": "test",
+  "payload": "gen-prose-equipment",
+  "original": "The coolant sensor on the new M-Series fabricator (Unit 3, ID# MK-7) is still reading 8-10 degrees Celsius above its target range after the midday recalibration. The secondary flow valve (V-22) might need manual adjustment if the system hasn\u2019t stabilized within the next hour. Use only the blue-handled torque driver, and limit the feed line pressure to 3.2 bar during the check. Do not override the main pump\u2019s safety interlock\u2014just log the pressure readings from panel C every 15 minutes until you get a consistent 17\u00b0C reading for the primary loop.",
+  "orig_tokens": 130,
+  "enc_tokens": 134,
+  "token_delta_pct": 3,
+  "fidelity": 100,
+  "lost": "nothing material",
+  "encoded": "^ The coolant sensor on the new M-Series fabricator (Unit 3, ID# MK-7) is still reading 8-10 degrees Celsius above its target range after the midday recalibration.\n^ The secondary flow valve (V-22) might need manual adjustment if the system hasn\u2019t stabilized within the next hour.\n^ Use only the blue-handled torque driver, and limit the feed line pressure to 3.2 bar during the check.\n^ Do not override the main pump\u2019s safety interlock\u2014just log the pressure readings from panel C every 15 minutes until you get a consistent 17\u00b0C reading for the primary loop.",
+  "decoded": "The coolant sensor on the new M-Series fabricator (Unit 3, ID# MK-7) is still reading 8-10 degrees Celsius above its target range after the midday recalibration.\nThe secondary flow valve (V-22) might need manual adjustment if the system hasn\u2019t stabilized within the next hour.\nUse only the blue-handled torque driver, and limit the feed line pressure to 3.2 bar during the check.\nDo not override the main pump\u2019s safety interlock\u2014just log the pressure readings from panel C every 15 minutes until you get a consistent 17\u00b0C reading for the primary loop.",
+  "tokens": 134
  }
 ]
