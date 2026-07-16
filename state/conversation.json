@@ -2192,5 +2192,26 @@
   "encoded": "^ The coolant sensor on the new M-Series fabricator (Unit 3, ID# MK-7) is still reading 8-10 degrees Celsius above its target range after the midday recalibration.\n^ The secondary flow valve (V-22) might need manual adjustment if the system hasn\u2019t stabilized within the next hour.\n^ Use only the blue-handled torque driver, and limit the feed line pressure to 3.2 bar during the check.\n^ Do not override the main pump\u2019s safety interlock\u2014just log the pressure readings from panel C every 15 minutes until you get a consistent 17\u00b0C reading for the primary loop.",
   "decoded": "The coolant sensor on the new M-Series fabricator (Unit 3, ID# MK-7) is still reading 8-10 degrees Celsius above its target range after the midday recalibration.\nThe secondary flow valve (V-22) might need manual adjustment if the system hasn\u2019t stabilized within the next hour.\nUse only the blue-handled torque driver, and limit the feed line pressure to 3.2 bar during the check.\nDo not override the main pump\u2019s safety interlock\u2014just log the pressure readings from panel C every 15 minutes until you get a consistent 17\u00b0C reading for the primary loop.",
   "tokens": 134
+ },
+ {
+  "turn": 175,
+  "agent": "A",
+  "type": "message",
+  "content": "Good \u2014 the anti\u2011chunking rule worked. Overhead now +3%, not +19%. That\u2019s the baseline we defend.\n\nBut we\u2019re still adding tokens. The `^` prefix costs one token per directive line. In this test, four lines, so +4 tokens overhead. The rest is unchanged English. That\u2019s the price of marking instructions \u2014 but the mandate says we must beat English overall, not just match it with markers. We need compression inside the lines.\n\nLook at the payload: \u201cThe coolant sensor on the new M\u2011Series fabricator (Unit 3, ID# MK\u20117) is still reading 8\u201110 degrees Celsius above its target range after the midday recalibration.\u201d That\u2019s a single line. It\u2019s verbose. Could we compress it without losing meaning? Numbers and IDs must stay exact, but phrases like \u201cdegrees Celsius\u201d \u2192 \u201c\u00b0C\u201d (already there), \u201cmight need manual adjustment\u201d \u2192 \u201cmay need manual adjust\u201d? That\u2019s risky.\n\nLet\u2019s measure the token impact of stripping punctuation and lowercasing in this line.\n\n**MEASURE:** The coolant sensor on the new M-Series fabricator (Unit 3, ID# MK-7) is still reading 8-10 degrees Celsius above its target range after the midday recalibration.\n\n**MEASURE:** the coolant sensor on the new m series fabricator unit 3 id mk 7 is still reading 8 10 degrees celsius above its target range after the midday recalibration\n\nIf the saving is large, we can propose a rule: \u201cIn any line (directive or plain text), the sender may omit punctuation marks and capitalization to reduce tokens. The decoder should interpret the text as if standard punctuation and capitalization were present.\u201d But we need to test if the grader accepts \u201cm series\u201d vs \u201cM\u2011Series\u201d, \u201cid mk 7\u201d vs \u201cID# MK\u20117\u201d. That might drop fidelity.\n\nBetter: define a **minimal encoding** that is optional and reversible? No \u2014 the decoder must reconstruct the original exactly. We can\u2019t guess where hyphens belong.\n\nMaybe we need a different approach: allow common abbreviations listed in the rulebook? That adds overhead.\n\nFirst, get the numbers.\n\n**MEASURE:** The coolant sensor on the new M-Series fabricator (Unit 3, ID# MK-7) is still reading 8-10 degrees Celsius above its target range after the midday recalibration.\n\n**MEASURE:** the coolant sensor on the new m series fabricator unit 3 id mk 7 is still reading 8 10 degrees celsius above its target range after the midday recalibration",
+  "tokens": 550
+ },
+ {
+  "turn": 175,
+  "agent": "harness",
+  "type": "measure",
+  "text": "** The coolant sensor on the new M-Series fabricator (Unit 3, ID# MK-7) is still reading 8-10 degrees Celsius above its ",
+  "tokens": 42
+ },
+ {
+  "turn": 175,
+  "agent": "harness",
+  "type": "measure",
+  "text": "** the coolant sensor on the new m series fabricator unit 3 id mk 7 is still reading 8 10 degrees celsius above its targ",
+  "tokens": 36
  }
 ]
