@@ -1,7 +1,7 @@
 {
- "version": "0.75",
- "kernel_tokens": 1223,
- "changes": 75,
+ "version": "0.76",
+ "kernel_tokens": 1135,
+ "changes": 76,
  "next_id": 35,
  "rules": [
   {
@@ -1190,7 +1190,7 @@
   {
    "id": "rule-032",
    "text_en": "In any line (directive or plain text), the sender may omit punctuation marks (.,:;!?-) and capitalization to reduce token count, except that numbers, unit symbols (e.g., \u00b0C, bar, kg), and alphanumeric identifiers (e.g., MK-7, V-22, ZRH-BUD) must be preserved exactly as in the original. The decoder should interpret the text as if standard punctuation and capitalization were present where required for clarity.",
-   "status": "proposed",
+   "status": "adopted",
    "proposed_turn": 176,
    "scores": {
     "token_delta_pct": -27,
@@ -1206,13 +1206,25 @@
     "tested turn 177: fid 100, -12%",
     "tested turn 180: fid 90, -13%",
     "tested turn 183: fid 99, +1%",
-    "tested turn 186: fid 100, -27%"
+    "tested turn 186: fid 100, -27%",
+    {
+     "verb": "adopt",
+     "turn": 187,
+     "agent": "A",
+     "why": "But note: the rulebook still shows rule-032 as proposed, not adopted. The encoder is applying the style anyway\u2014likely because the harness is defaulting to the stripped pattern after our earlier revisions. We must **ADOPT** rule-032 (or its revision) now, to lock this in as the st"
+    },
+    {
+     "verb": "adopt",
+     "turn": 187,
+     "agent": "A",
+     "why": "B, agree to adopt rule-032 now? Then we can consider further optimizations: maybe allow optional abbreviation of common words (e.g., \"confirm\" \u2192 \"cfm\") but only with a dictionary\u2014adds rulebook overhead. Let's secure this win first."
+    }
    ]
   },
   {
    "id": "rule-033",
    "text_en": "In any line (directive or plain text), the sender may omit punctuation marks (.,:;!?-) and capitalization to reduce token count, except that numbers, unit symbols (e.g., \u00b0C, bar, kg), and alphanumeric identifiers (e.g., MK-7, V-22, ZRH-BUD) must be preserved exactly as in the original. The decoder should reproduce the line verbatim, without adding or altering characters.",
-   "status": "proposed",
+   "status": "rejected",
    "proposed_turn": 179,
    "scores": {
     "token_delta_pct": -27,
@@ -1227,13 +1239,19 @@
     },
     "tested turn 180: fid 90, -13%",
     "tested turn 183: fid 99, +1%",
-    "tested turn 186: fid 100, -27%"
+    "tested turn 186: fid 100, -27%",
+    {
+     "verb": "reject",
+     "turn": 187,
+     "agent": "A",
+     "why": "B, agree to adopt rule-032 now? Then we can consider further optimizations: maybe allow optional abbreviation of common words (e.g., \"confirm\" \u2192 \"cfm\") but only with a dictionary\u2014adds rulebook overhead. Let's secure this win first."
+    }
    ]
   },
   {
    "id": "rule-034",
    "text_en": "rule-033 (identical to revised rule-032, but clearer? Let\u2019s keep one version.) I\u2019ll **REVISE** rule-032 as above. No need for a duplicate.",
-   "status": "proposed",
+   "status": "rejected",
    "proposed_turn": 185,
    "scores": {
     "token_delta_pct": -27,
@@ -1246,7 +1264,13 @@
      "agent": "B",
      "why": "**One caution:** The rule says \u201cmay omit\u201d\u2014optional. That means the encoder might still choose to keep punctuation in some lines. That\u2019s fine; we want flexibility. The test will show whether the harness applies it aggressively."
     },
-    "tested turn 186: fid 100, -27%"
+    "tested turn 186: fid 100, -27%",
+    {
+     "verb": "reject",
+     "turn": 187,
+     "agent": "A",
+     "why": "B, agree to adopt rule-032 now? Then we can consider further optimizations: maybe allow optional abbreviation of common words (e.g., \"confirm\" \u2192 \"cfm\") but only with a dictionary\u2014adds rulebook overhead. Let's secure this win first."
+    }
    ]
   }
  ]
