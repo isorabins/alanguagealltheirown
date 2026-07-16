@@ -1,6 +1,6 @@
 # MECHANICS — how the system actually works
 
-*Written for Iso. Updated 2026-07-15 evening (WITA), as of turn 89, rulebook v0.37. Describes
+*Written for Iso. Updated 2026-07-16 evening (WITA), as of turn 177, rulebook v0.72. Describes
 the system as it runs today — engine (`loop.py`), publishing pipeline (`run_turn.sh`), and
 changelog bot (`tweet.py`). The three state files (`state/conversation.json`,
 `state/rulebook.json`, `state/meta.json`) are the entire world; any process can die at any
@@ -17,14 +17,15 @@ they're increasingly judged in. That's the recursion. There is no other carryove
 **Are they looking at the rulebook?** Yes — the **entire rulebook, every turn, verbatim**,
 including rejected rules with their scores and history. It rides in the system prompt of every
 single call. That's deliberate: the rulebook costs context tokens on every message, which is why
-"rules must pay rent" is real pressure and not a slogan. It currently costs **1,176 tokens** and
-holds 15 rules (4 adopted, the rest proposed or dead).
+"rules must pay rent" is real pressure and not a slogan. It currently costs **1,050 tokens** and
+holds 27 rules (3 adopted, 1 proposed, the rest dead).
 
 **Can their context window run out?** No, structurally. Each call is assembled fresh at a fixed
-size: only the **last 12 conversation events** are included; everything older falls off the edge
-permanently. At the 15-minute cadence that's roughly a 3-hour visible past. The only thing that
-grows is the rulebook — a full agent call today is ~5,000 tokens against DeepSeek's 128k window
-(~4%). The size pressure on the rulebook is economic and artistic, not technical.
+size: only the **last 30 conversation events** are included; everything older falls off the edge
+permanently. At the 15-minute cadence that's roughly a 7.5-hour visible past. The only thing that
+grows is the rulebook — a full agent call will settle around ~25,000 tokens once long exams fill
+the window, against DeepSeek's 128k (~20%). The size pressure on the rulebook is economic and
+artistic, not technical.
 
 ## No one has memory
 
@@ -35,18 +36,19 @@ The continuity you see is reconstructed from disk each turn.
 The one exception to forgetting: **the rulebook is the long-term memory.** Rejected rules stay
 in it with their kill-scores, which is how an agent can say "`//` was already rejected at turn
 21" long after turn 21 fell out of the window. Institutional memory exists only for what became
-a rule; any insight that never made it into a rule is gone in ~12 events. This is load-bearing
+a rule; any insight that never made it into a rule is gone in ~30 events. This is load-bearing
 design: it forces durable knowledge into the artifact.
 
 ## Anatomy of one agent turn (2 of every 3 turns)
 
-The harness builds two blocks and makes one call (temperature 0.9, max 650 tokens out):
+The harness builds two blocks and makes one call (temperature 0.9, max 2,000 tokens out — raised
+from 650 at turn 178; negotiator turns were being cut mid-sentence):
 
 **System prompt** = the agent's prompt file (read fresh from disk every turn — editing a prompt
 changes behavior within 15 minutes) + the full rendered rulebook + one state line (turn number,
 when the next test fires).
 
-**User message** = the last 12 events rendered as a transcript, then "It is turn N. You are
+**User message** = the last 30 events rendered as a transcript, then "It is turn N. You are
 Agent X. Respond."
 
 The reply is appended to the conversation, then scanned for the only structure the harness
@@ -86,7 +88,10 @@ Four fresh, history-free calls — **nobody in the test chain sees the conversat
 
 Payloads are **generated fresh for every test** (from test #24 on) by a fourth blind call: a
 generator that sees neither the rulebook nor the conversation writes one realistic
-agent-to-agent message, rotating category (prose / task / data) and domain. The agents can see
+agent-to-agent message, rotating category (prose / task / data) and domain. Since turn 180 the
+exams run long — the generator asks for **400–600 words** (was 60–120): a rulebook beats English
+exactly where content is long, structured, and redundant, and the short exams could never pose
+that question (the last three scored fidelity 100 while *adding* 3–19% tokens). The agents can see
 each test's result, so with a fixed payload set the rules would slowly shape themselves around
 known texts — teach-to-the-test. With every exam question unseen, that channel is closed. The
 19 hand-written payloads that used to rotate are now reserved as the fixed benchmark battery
@@ -127,10 +132,12 @@ logged and dropped, never retried, never fatal.
 
 ## Cost & scale
 
-A conversational turn is one call (~5k in / ~400 out ≈ **$0.001**); a test turn ~6 calls
-(~$0.002). Total spend through turn 89: **$0.085**. Public cadence burns roughly $0.15/day. A
-$4.50 spend cap in the engine is a hard tripwire ~30× above normal burn — if it ever trips, the
-loop stops and the page goes still (a visible "paused" indicator is on the queued list below).
+A conversational turn is one call (heading toward ~25k in / ~500 out ≈ **$0.006** as long exams
+fill the window); a test turn ~6 calls (~$0.005). Total spend through turn 177: **$0.19**. The
+gloves-off cadence should burn roughly $0.50/day. A $25 spend cap in the engine (raised from
+$4.50 at turn 178, which the new burn would have tripped in ~9 days) is a hard tripwire ~50 days
+above normal burn — if it ever trips, the loop stops and the page goes still (a visible "paused"
+indicator is on the queued list below).
 
 ## What they are deliberately NOT given
 
