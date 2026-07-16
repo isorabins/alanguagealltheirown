@@ -1998,5 +1998,20 @@
   "type": "measure",
   "text": "** rule-027, rule-028, rule-029 (revised text), rule-030 concatenated with line breaks.",
   "tokens": 26
+ },
+ {
+  "turn": 162,
+  "agent": "harness",
+  "type": "test",
+  "payload": "gen-data-food",
+  "original": "Kitchen inventory update: We're down to 11 portions of the Truffle-Dusted King Trumpet Mushrooms for the Forest Floor Ravioli. The new shipment of foraged chanterelles from Wildwood Provisions, lot #FW-2297, is delayed until 4:30 PM. If we hit 5 portions remaining before 3 PM, substitute with the roasted maitake mushrooms, but only from batch #M-0411. Do not use the backup porcini pur\u00e9e; it\u2019s being reserved for the evening tasting menu.",
+  "orig_tokens": 114,
+  "enc_tokens": 131,
+  "token_delta_pct": 15,
+  "fidelity": 100,
+  "lost": "nothing material",
+  "encoded": "[part 1/2]\nKitchen inventory update: We're down to 11 portions of the Truffle-Dusted King Trumpet Mushrooms for the Forest Floor Ravioli.\nThe new shipment of foraged chanterelles from Wildwood Provisions, lot #FW-2297, is delayed until 4:30 PM.\n\n[part 2/2]\nIf we hit 5 portions remaining before 3 PM, substitute with the roasted maitake mushrooms, but only from batch #M-0411.\nDo not use the backup porcini pur\u00e9e; it\u2019s being reserved for the evening tasting menu.\n---END---",
+  "decoded": "Kitchen inventory update: We're down to 11 portions of the Truffle-Dusted King Trumpet Mushrooms for the Forest Floor Ravioli.\nThe new shipment of foraged chanterelles from Wildwood Provisions, lot #FW-2297, is delayed until 4:30 PM.\nIf we hit 5 portions remaining before 3 PM, substitute with the roasted maitake mushrooms, but only from batch #M-0411.\nDo not use the backup porcini pur\u00e9e; it\u2019s being reserved for the evening tasting menu.",
+  "tokens": 131
  }
 ]
