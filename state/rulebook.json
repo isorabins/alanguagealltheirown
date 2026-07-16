@@ -1,7 +1,7 @@
 {
- "version": "0.91",
- "kernel_tokens": 1334,
- "changes": 91,
+ "version": "0.92",
+ "kernel_tokens": 1346,
+ "changes": 92,
  "next_id": 38,
  "rules": [
   {
@@ -1505,7 +1505,7 @@
   {
    "id": "rule-036",
    "text_en": "rule-035** (clean replacement for rule-032) - The sender may write any line in minimal form: omit punctuation (.,:;!?-) and capitalization except where required for numeric literals, unit symbols, or alphanumeric identifiers. The decoder must reconstruct the intended meaning, inferring appropriate punctuation and capitalization as needed.",
-   "status": "proposed",
+   "status": "adopted",
    "proposed_turn": 208,
    "scores": {
     "token_delta_pct": -10,
@@ -1520,7 +1520,13 @@
     },
     "tested turn 210: fid 100, -15%",
     "tested turn 213: fid 99, -14%",
-    "tested turn 216: fid 99, -10%"
+    "tested turn 216: fid 99, -10%",
+    {
+     "verb": "adopt",
+     "turn": 217,
+     "agent": "A",
+     "why": "Also, your proposed rule\u2011036 (numeric illustration) is still pending. Let\u2019s adopt it now\u2014it\u2019s cheap insurance against decimal errors."
+    }
    ]
   },
   {
