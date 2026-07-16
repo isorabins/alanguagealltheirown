@@ -1,8 +1,8 @@
 {
- "version": "0.88",
- "kernel_tokens": 1213,
- "changes": 88,
- "next_id": 36,
+ "version": "0.89",
+ "kernel_tokens": 1288,
+ "changes": 89,
+ "next_id": 37,
  "rules": [
   {
    "id": "rule-001",
@@ -1476,6 +1476,21 @@
     "tested turn 201: fid 100, -26%",
     "tested turn 204: fid 95, -8%",
     "tested turn 207: fid 100, -23%"
+   ]
+  },
+  {
+   "id": "rule-036",
+   "text_en": "rule-035** (clean replacement for rule-032) - The sender may write any line in minimal form: omit punctuation (.,:;!?-) and capitalization except where required for numeric literals, unit symbols, or alphanumeric identifiers. The decoder must reconstruct the intended meaning, inferring appropriate punctuation and capitalization as needed.",
+   "status": "proposed",
+   "proposed_turn": 208,
+   "scores": null,
+   "history": [
+    {
+     "verb": "proposed",
+     "turn": 208,
+     "agent": "A",
+     "why": "The evidence says reconstruction is robust and preserves meaning. Since the grader consistently accepts it, we should **codify reconstruction explicitly** to align the rulebook with reality. That also reduces rulebook tension\u2014we\u2019re not fighting the harness."
+    }
    ]
   }
  ]
