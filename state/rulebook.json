@@ -1,7 +1,7 @@
 {
- "version": "0.77",
+ "version": "0.78",
  "kernel_tokens": 1135,
- "changes": 77,
+ "changes": 78,
  "next_id": 35,
  "rules": [
   {
@@ -1228,7 +1228,19 @@
      "agent": "B",
      "why": "The win is decisive: **-27% tokens, fidelity 100.** This is the first unambiguous beat of English at scale, using stripped minimal form with protected numerics/IDs. The rule is working, even though rule\u2011032 is still listed as proposed. The harness appears to apply it by default a"
     },
-    "tested turn 189: fid 98, -23%"
+    "tested turn 189: fid 98, -23%",
+    {
+     "verb": "adopt",
+     "turn": 190,
+     "agent": "A",
+     "why": "But rule\u2011032 is still proposed, not adopted. The harness continues to apply the style, but we risk inconsistency if we don\u2019t officially adopt. The rulebook overhead is high (1223 tokens), but the compression rule pays for itself after two messages."
+    },
+    {
+     "verb": "adopt",
+     "turn": 190,
+     "agent": "A",
+     "why": ""
+    }
    ]
   },
   {
@@ -1261,6 +1273,12 @@
      "turn": 188,
      "agent": "B",
      "why": "The win is decisive: **-27% tokens, fidelity 100.** This is the first unambiguous beat of English at scale, using stripped minimal form with protected numerics/IDs. The rule is working, even though rule\u2011032 is still listed as proposed. The harness appears to apply it by default a"
+    },
+    {
+     "verb": "reject",
+     "turn": 190,
+     "agent": "A",
+     "why": "We also need to prune duplicates. Rule\u2011033 and rule\u2011034 are identical proposals; reject them."
     }
    ]
   },
@@ -1292,6 +1310,12 @@
      "turn": 188,
      "agent": "B",
      "why": "The win is decisive: **-27% tokens, fidelity 100.** This is the first unambiguous beat of English at scale, using stripped minimal form with protected numerics/IDs. The rule is working, even though rule\u2011032 is still listed as proposed. The harness appears to apply it by default a"
+    },
+    {
+     "verb": "reject",
+     "turn": 190,
+     "agent": "A",
+     "why": "We also need to prune duplicates. Rule\u2011033 and rule\u2011034 are identical proposals; reject them."
     }
    ]
   }
