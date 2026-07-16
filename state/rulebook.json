@@ -1,8 +1,8 @@
 {
- "version": "0.82",
- "kernel_tokens": 1135,
- "changes": 82,
- "next_id": 35,
+ "version": "0.83",
+ "kernel_tokens": 1201,
+ "changes": 83,
+ "next_id": 36,
  "rules": [
   {
    "id": "rule-001",
@@ -1376,6 +1376,21 @@
      "turn": 197,
      "agent": "B",
      "why": "**Prune duplicates:**"
+    }
+   ]
+  },
+  {
+   "id": "rule-035",
+   "text_en": "rule-035 - The sender may write any line in minimal form: omit punctuation (.,:;!?-) and capitalization except where required for numeric literals, unit symbols, or alphanumeric identifiers. The decoder must reconstruct the intended meaning, inferring appropriate punctuation and capitalization as needed.",
+   "status": "proposed",
+   "proposed_turn": 199,
+   "scores": null,
+   "history": [
+    {
+     "verb": "proposed",
+     "turn": 199,
+     "agent": "A",
+     "why": "But we must protect numeric literals exactly \u2014 the decoder didn\u2019t alter numbers (4515.75, 280000, 15 percent). That\u2019s safe."
     }
    ]
   }
