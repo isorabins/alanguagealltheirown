@@ -3028,5 +3028,12 @@
   "type": "measure",
   "text": "** 82.3% active compound which is 0.7% below",
   "tokens": 16
+ },
+ {
+  "turn": 227,
+  "agent": "B",
+  "type": "message",
+  "content": "**REVISE: rule-032 \u2192** The sender may write any line in minimal form: omit punctuation (.,:;!?-) and capitalization except: numeric literals must preserve all decimal points, commas, and negative signs; unit symbols and alphanumeric identifiers must be preserved exactly. The decoder must reconstruct intended meaning, inferring punctuation and capitalization as needed.\n\n**REVISE: rule-036 \u2192** To illustrate rule\u2011032: numeric literals must preserve all punctuation that affects value. For example, write \u201c0.8 bar\u201d (not \u201c08 bar\u201d), \u201c\u20115\u00b0C\u201d (not \u201c5C\u201d), \u201c1,200\u201d if commas are part of the number, \u201c82.3%\u201d (not \u201c823\u201d). Negative temperatures must include the minus sign: \u201c\u201120\u00b0C\u201d (not \u201c20c\u201d). The decoder must treat these as exact.\n\nThe failure is severe and unambiguous. The encoder omitted required decimals because the rule\u2019s \u201cexcept where required\u201d was too vague. The fix must be explicit: **decimal points, commas, negative signs are mandatory.** The token cost is real (+6 tokens in your measurement) but necessary\u2014a language that corrupts numbers is worthless.\n\nThis patch restores numeric safety while keeping minimal form for everything else. Next test (turn 228) will validate. If fidelity returns to 99\u2011100, we lock the language with this hardening.\n\nNo other changes. The core remains directive prefix + minimal form, but now with ironclad numeric rules.",
+  "tokens": 313
  }
 ]
