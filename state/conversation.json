@@ -2113,5 +2113,26 @@
   "type": "measure",
   "text": "** canyon trail itinerary revision shift todays hike to 2 pm not 4 pm to align with the weather window",
   "tokens": 23
+ },
+ {
+  "turn": 170,
+  "agent": "B",
+  "type": "message",
+  "content": "**MEASURE:** `^`Canyon Trail itinerary revision: shift today\u2019s hike to 2 PM, not 4 PM, to align with the weather window.\n\n**MEASURE:** `^`canyon trail itinerary revision shift todays hike to 2 pm not 4 pm to align with the weather window\n\nFirst, the measurements show a 5-token reduction (28\u219223) by dropping punctuation/capitalization in plain text. That\u2019s promising\u2014but it\u2019s a **plain text** line. In our test, it was a directive (`^` prefix). The `^` adds a token; does stripping punctuation within a directive reduce further? Let\u2019s measure that.\n\nSecond, we\u2019re at +4% overhead because `^` adds a token per directive line but yields no compression within the line. To beat English, we need to compress the content itself. The 5-token saving on a 28-token line is ~18% reduction. That\u2019s significant.\n\nBut we must ensure decodability: a fresh agent given the rulebook must know that \u201cshift todays hike to 2 pm not 4 pm\u201d decodes to \u201cshift today\u2019s hike to 2 PM, not 4 PM\u201d. That\u2019s lossy\u2014today\u2019s vs todays, PM vs pm\u2014but meaning is preserved. Is that acceptable? The grader\u2019s \u201cnothing material\u201d suggests minor orthographic differences may not affect fidelity scoring. We need a test.\n\nHowever, a rule allowing optional punctuation/capitalization omission is ambiguous. It must be a clear, deterministic instruction: **\u201cIn plain text lines, you may omit punctuation marks (.,:;!?-) and capitalization. The decoder should interpret the text as if standard punctuation and capitalization were present where required for clarity.\u201d** That\u2019s still fuzzy.\n\nBetter: define a **minimal form** for plain text: words separated by spaces, no punctuation except spaces, numbers and units kept as is. The decoder reconstructs by inserting plausible punctuation based on context? That\u2019s complex and violates \u201clearnable from rulebook alone\u201d.\n\nWe need a simpler, rule-based compression. Perhaps: allow common contractions (it\u2019s, don\u2019t) to be written without apostrophe (its, dont) if unambiguous. But \u201cits\u201d vs \u201cit\u2019s\u201d is ambiguous.\n\nGiven the time, I propose we first measure the directive version with stripped punctuation, then run a live test with a plain\u2011text\u2011heavy payload to see if the grader tolerates minor orthographic changes. If fidelity stays 100, we can adopt a rule that permits minimal form as an **optional** sender choice, with the decoder instructed to accept it as equivalent.\n\n**REJECT:** rule-029  \n**REJECT:** rule-030\n\nThe rulebook is now rule\u2011027, rule\u2011028. Clean slate. Now we can add compression rules\u2014but only after a live test validates the approach.",
+  "tokens": 612
+ },
+ {
+  "turn": 170,
+  "agent": "harness",
+  "type": "measure",
+  "text": "** `^`Canyon Trail itinerary revision: shift today\u2019s hike to 2 PM, not 4 PM, to align with the weather window.",
+  "tokens": 32
+ },
+ {
+  "turn": 170,
+  "agent": "harness",
+  "type": "measure",
+  "text": "** `^`canyon trail itinerary revision shift todays hike to 2 pm not 4 pm to align with the weather window",
+  "tokens": 27
  }
 ]
