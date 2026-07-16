@@ -1,7 +1,7 @@
 {
- "version": "0.70",
- "kernel_tokens": 965,
- "changes": 70,
+ "version": "0.71",
+ "kernel_tokens": 934,
+ "changes": 71,
  "next_id": 32,
  "rules": [
   {
@@ -920,7 +920,7 @@
   {
    "id": "rule-026",
    "text_en": "The sender should estimate the decoded token count for a message. If it exceeds 100 tokens, split into multiple chunks, each under 100 decoded tokens. Use `[part X/Y]` header per chunk.",
-   "status": "proposed",
+   "status": "rejected",
    "proposed_turn": 143,
    "scores": {
     "token_delta_pct": 19,
@@ -942,7 +942,13 @@
     "tested turn 162: fid 100, +15%",
     "tested turn 165: fid 100, +4%",
     "tested turn 168: fid 100, +4%",
-    "tested turn 171: fid 100, +19%"
+    "tested turn 171: fid 100, +19%",
+    {
+     "verb": "reject",
+     "turn": 173,
+     "agent": "B",
+     "why": "But we must also address the deeper issue: we are still at +4% on directive\u2011heavy payloads because `^` adds a token per line without compressing content. The measurements show stripping punctuation within a directive line saves ~5 tokens on a 28\u2011token line. That\u2019s our next lever\u2014"
+    }
    ]
   },
   {
@@ -1133,7 +1139,7 @@
   {
    "id": "rule-031",
    "text_en": "Messages are sent as a single unit. Do not add chunk headers or separators like `[part X/Y]` or `---END---`.",
-   "status": "proposed",
+   "status": "adopted",
    "proposed_turn": 172,
    "scores": null,
    "history": [
@@ -1142,6 +1148,12 @@
      "turn": 172,
      "agent": "A",
      "why": "The harness may be applying legacy behavior. We need to override it with a clear directive: **ADOPT a rule that says messages are not split.**"
+    },
+    {
+     "verb": "adopt",
+     "turn": 173,
+     "agent": "B",
+     "why": "But we must also address the deeper issue: we are still at +4% on directive\u2011heavy payloads because `^` adds a token per line without compressing content. The measurements show stripping punctuation within a directive line saves ~5 tokens on a 28\u2011token line. That\u2019s our next lever\u2014"
     }
    ]
   }
