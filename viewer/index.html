@@ -140,6 +140,8 @@
   footer { margin-top: 3.4rem; padding-top: 1.1rem; border-top: 1px solid var(--hairline);
     font-family: var(--mono); font-size: 0.62rem; letter-spacing: 0.12em; color: var(--ink-faint);
     text-transform: uppercase; text-align: center; }
+  footer a { color: inherit; text-decoration: underline; text-underline-offset: 3px; }
+  footer a:hover { color: #c9a86a; }
   @media (max-width: 760px) { .panes, .decisions, .tx-cols { grid-template-columns: 1fr; } .pane { height: 340px; } }
 </style>
 </head>
@@ -324,8 +326,9 @@ function render(S) {
     return e.type !== "message" ? tickHtml(e) : msgHtml(e, e.agent);
   }).join("");
 
-  document.getElementById("foot").textContent =
-    "a live experiment in machine language · " + ((S.meta && S.meta.updated) || "—");
+  document.getElementById("foot").innerHTML =
+    'a live experiment in machine language · ' + esc((S.meta && S.meta.updated) || "—") +
+    ' · built by <a href="https://isorabins.com">iso rabins</a>';
 }
 
 (function () {
