@@ -2227,5 +2227,20 @@
   "type": "measure",
   "text": "** ^ the coolant sensor on the new m series fabricator unit 3 id mk 7 is still reading 8 10 degrees celsius above its ta",
   "tokens": 37
+ },
+ {
+  "turn": 177,
+  "agent": "harness",
+  "type": "test",
+  "payload": "gen-task-equipment",
+  "original": "The turbine inlet manifold on Unit 7, serial K4-88J, needs a full gasket reseal. The shutdown window is now confirmed for 1400 to 1800 tomorrow. Please begin prep by checking the torque specs on the M12 flange bolts; if any show corrosion deeper than 0.5mm, order replacements from Bay 3 stock. Use only the high-temp silicone sealant, not the standard epoxy. Focus solely on the primary manifold\u2014ignore the secondary bypass lines for now. Have the thermal camera ready for the post-seal inspection.",
+  "orig_tokens": 117,
+  "enc_tokens": 103,
+  "token_delta_pct": -12,
+  "fidelity": 100,
+  "lost": "nothing material",
+  "encoded": "^turbine inlet manifold unit 7 serial K4-88J needs full gasket reseal\n^shutdown window confirmed 1400 to 1800 tomorrow\n^begin prep check torque specs on M12 flange bolts\n^if any bolts show corrosion deeper than 0.5mm order replacements from bay 3 stock\n^use only high temp silicone sealant not standard epoxy\n^focus solely on primary manifold ignore secondary bypass lines for now\n^have thermal camera ready for post seal inspection",
+  "decoded": "turbine inlet manifold unit 7 serial K4-88J needs full gasket reseal\nshutdown window confirmed 1400 to 1800 tomorrow\nbegin prep check torque specs on M12 flange bolts\nif any bolts show corrosion deeper than 0.5mm order replacements from bay 3 stock\nuse only high temp silicone sealant not standard epoxy\nfocus solely on primary manifold ignore secondary bypass lines for now\nhave thermal camera ready for post seal inspection",
+  "tokens": 103
  }
 ]
