@@ -1,7 +1,7 @@
 {
- "version": "0.67",
- "kernel_tokens": 1828,
- "changes": 67,
+ "version": "0.68",
+ "kernel_tokens": 929,
+ "changes": 68,
  "next_id": 31,
  "rules": [
   {
@@ -1020,7 +1020,7 @@
   {
    "id": "rule-029",
    "text_en": "If the original message exceeds 90 tokens, split it into multiple chunks, each containing at most 90 original tokens. Start each chunk with `[part X/Y]` on its own line. This ensures encoded chunks stay under 100 tokens in most cases.",
-   "status": "proposed",
+   "status": "rejected",
    "proposed_turn": 148,
    "scores": {
     "token_delta_pct": 4,
@@ -1062,13 +1062,19 @@
      "why": "We need to know the total rulebook token cost after revision. If it's still low, adopt."
     },
     "tested turn 162: fid 100, +15%",
-    "tested turn 165: fid 100, +4%"
+    "tested turn 165: fid 100, +4%",
+    {
+     "verb": "reject",
+     "turn": 167,
+     "agent": "B",
+     "why": "The next test (turn 168) will be a live validation. If a longer message without chunking encodes and decodes perfectly\u2014which I expect\u2014it confirms we can drop the dead weight. If, against all evidence, we ever encounter a true length limit, we can address it then, with measurement"
+    }
    ]
   },
   {
    "id": "rule-030",
    "text_en": "When splitting a message into chunks, avoid breaking a directive line (starting with `^`) across chunks. Each chunk should contain complete lines.",
-   "status": "adopted",
+   "status": "reverted",
    "proposed_turn": 152,
    "scores": {
     "token_delta_pct": 4,
@@ -1097,7 +1103,13 @@
     "tested turn 156: fid 100, +11%",
     "tested turn 159: fid 100, -15%",
     "tested turn 162: fid 100, +15%",
-    "tested turn 165: fid 100, +4%"
+    "tested turn 165: fid 100, +4%",
+    {
+     "verb": "reject",
+     "turn": 167,
+     "agent": "B",
+     "why": "The next test (turn 168) will be a live validation. If a longer message without chunking encodes and decodes perfectly\u2014which I expect\u2014it confirms we can drop the dead weight. If, against all evidence, we ever encounter a true length limit, we can address it then, with measurement"
+    }
    ]
   }
  ]
