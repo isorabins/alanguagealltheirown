@@ -957,8 +957,8 @@
    "status": "adopted",
    "proposed_turn": 145,
    "scores": {
-    "token_delta_pct": -13,
-    "fidelity_pct": 100
+    "token_delta_pct": -14,
+    "fidelity_pct": 99
    },
    "history": [
     {
@@ -1009,7 +1009,8 @@
     "tested turn 210: fid 100, -15%",
     "tested turn 213: fid 99, -14%",
     "tested turn 216: fid 99, -10%",
-    "tested turn 219: fid 100, -13%"
+    "tested turn 219: fid 100, -13%",
+    "tested turn 222: fid 99, -14%"
    ]
   },
   {
@@ -1018,8 +1019,8 @@
    "status": "adopted",
    "proposed_turn": 145,
    "scores": {
-    "token_delta_pct": -13,
-    "fidelity_pct": 100
+    "token_delta_pct": -14,
+    "fidelity_pct": 99
    },
    "history": [
     {
@@ -1058,7 +1059,8 @@
     "tested turn 210: fid 100, -15%",
     "tested turn 213: fid 99, -14%",
     "tested turn 216: fid 99, -10%",
-    "tested turn 219: fid 100, -13%"
+    "tested turn 219: fid 100, -13%",
+    "tested turn 222: fid 99, -14%"
    ]
   },
   {
@@ -1174,8 +1176,8 @@
    "status": "adopted",
    "proposed_turn": 172,
    "scores": {
-    "token_delta_pct": -13,
-    "fidelity_pct": 100
+    "token_delta_pct": -14,
+    "fidelity_pct": 99
    },
    "history": [
     {
@@ -1223,7 +1225,8 @@
      "why": "Next live test is turn 216. Let\u2019s keep the language lean and test its robustness before expanding."
     },
     "tested turn 216: fid 99, -10%",
-    "tested turn 219: fid 100, -13%"
+    "tested turn 219: fid 100, -13%",
+    "tested turn 222: fid 99, -14%"
    ]
   },
   {
@@ -1232,8 +1235,8 @@
    "status": "adopted",
    "proposed_turn": 176,
    "scores": {
-    "token_delta_pct": -13,
-    "fidelity_pct": 100
+    "token_delta_pct": -14,
+    "fidelity_pct": 99
    },
    "history": [
     {
@@ -1340,7 +1343,8 @@
     "tested turn 210: fid 100, -15%",
     "tested turn 213: fid 99, -14%",
     "tested turn 216: fid 99, -10%",
-    "tested turn 219: fid 100, -13%"
+    "tested turn 219: fid 100, -13%",
+    "tested turn 222: fid 99, -14%"
    ]
   },
   {
@@ -1512,8 +1516,8 @@
    "status": "adopted",
    "proposed_turn": 208,
    "scores": {
-    "token_delta_pct": -13,
-    "fidelity_pct": 100
+    "token_delta_pct": -14,
+    "fidelity_pct": 99
    },
    "history": [
     {
@@ -1537,7 +1541,8 @@
      "agent": "B",
      "why": ""
     },
-    "tested turn 219: fid 100, -13%"
+    "tested turn 219: fid 100, -13%",
+    "tested turn 222: fid 99, -14%"
    ]
   },
   {
@@ -1546,8 +1551,8 @@
    "status": "proposed",
    "proposed_turn": 215,
    "scores": {
-    "token_delta_pct": -13,
-    "fidelity_pct": 100
+    "token_delta_pct": -14,
+    "fidelity_pct": 99
    },
    "history": [
     {
@@ -1557,7 +1562,8 @@
      "why": "Instead, we should **solidify the core**. The reconstruction rule\u2011032 is adopted and working; we should ensure it\u2019s bulletproof on numeric protection. I\u2019d like to add an explicit example in the rulebook: \u201cFor example, write \u20180.8 bar\u2019 not \u201808 bar\u2019.\u201d That clarifies \u201crequired for nu"
     },
     "tested turn 216: fid 99, -10%",
-    "tested turn 219: fid 100, -13%"
+    "tested turn 219: fid 100, -13%",
+    "tested turn 222: fid 99, -14%"
    ]
   }
  ]
