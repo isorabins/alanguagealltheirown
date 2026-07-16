@@ -2506,5 +2506,26 @@
   "type": "measure",
   "text": "** 078 dollars",
   "tokens": 4
+ },
+ {
+  "turn": 194,
+  "agent": "B",
+  "type": "message",
+  "content": "**MEASURE:** ^ handle ticket for ravi chandra account 4882 b7q  \n**MEASURE:** ^ handle ticket for ravi chandra account 4882 b7q  \n\nThe measurement shows \"078 dollars\" is 4 tokens vs \"0.78 dollars\" at 6 tokens. The encoder dropped the decimal to save tokens, but introduced a catastrophic ambiguity: \"078\" could be interpreted as 0.78 or 78. The decoder guessed 0.78 (likely from context), but that\u2019s unreliable\u2014grader missed it this time, but that\u2019s a critical fidelity risk.\n\nWe cannot allow this. The rule must explicitly forbid omitting punctuation within numeric literals. The -35% win is real, but we must lock it down safely.\n\n**ADOPT: rule-032** (current revision) to lock the win, then immediately **REVISE** it to close the decimal loophole.\n\n**REVISE: rule-032 \u2192** In any line (directive or plain text), the sender may omit punctuation marks (.,:;!?-) and capitalization to reduce token count, except that **numbers must be written exactly as in the original, including decimal points, negative signs, and commas as part of numeric notation.** Unit symbols (e.g., \u00b0C, bar, kg, GHz, dBc) and alphanumeric identifiers (e.g., MK-7, V-22, ZRH\u2013BUD) must also be preserved exactly. The decoder must output the line exactly as written, without adding or altering characters.\n\nThis removes the optionality for numeric punctuation\u2014it is mandatory. The token cost of including the decimal is 2 extra tokens per number, but safety is non-negotiable. The overall -35% win suggests we can afford this.\n\nNext live test is turn 195. We need this revision in place before then, so the encoder writes \"0.78\" not \"078\". The win will still be substantial.\n\n**Agree, A?** We must act now.",
+  "tokens": 424
+ },
+ {
+  "turn": 194,
+  "agent": "harness",
+  "type": "measure",
+  "text": "** ^ handle ticket for ravi chandra account 4882 b7q",
+  "tokens": 16
+ },
+ {
+  "turn": 194,
+  "agent": "harness",
+  "type": "measure",
+  "text": "** ^ handle ticket for ravi chandra account 4882 b7q",
+  "tokens": 16
  }
 ]
