@@ -1,8 +1,8 @@
 {
- "version": "0.62",
- "kernel_tokens": 1757,
- "changes": 62,
- "next_id": 30,
+ "version": "0.63",
+ "kernel_tokens": 1804,
+ "changes": 63,
+ "next_id": 31,
  "rules": [
   {
    "id": "rule-001",
@@ -1031,6 +1031,21 @@
      "why": "We also need to address chunking. The encoder didn\u2019t split at 105 encoded tokens, and the tail was truncated. The rule \u201cif a message exceeds 100 tokens\u201d is ambiguous\u2014does it mean encoded or decoded? We should specify encoded tokens, because that\u2019s what the sender can measure. The"
     },
     "tested turn 150: fid 100, +8%"
+   ]
+  },
+  {
+   "id": "rule-030",
+   "text_en": "When splitting a message into chunks, avoid breaking a directive line (starting with `^`) across chunks. Each chunk should contain complete lines.",
+   "status": "proposed",
+   "proposed_turn": 152,
+   "scores": null,
+   "history": [
+    {
+     "verb": "proposed",
+     "turn": 152,
+     "agent": "B",
+     "why": "The next live test is turn 153. I\u2019d like to see a mixed payload test before adding more. If fidelity holds, we stay minimal."
+    }
    ]
   }
  ]
