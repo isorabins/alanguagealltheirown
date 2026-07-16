@@ -1,7 +1,7 @@
 {
- "version": "0.76",
+ "version": "0.77",
  "kernel_tokens": 1135,
- "changes": 76,
+ "changes": 77,
  "next_id": 35,
  "rules": [
   {
@@ -1218,6 +1218,12 @@
      "turn": 187,
      "agent": "A",
      "why": "B, agree to adopt rule-032 now? Then we can consider further optimizations: maybe allow optional abbreviation of common words (e.g., \"confirm\" \u2192 \"cfm\") but only with a dictionary\u2014adds rulebook overhead. Let's secure this win first."
+    },
+    {
+     "verb": "adopt",
+     "turn": 188,
+     "agent": "B",
+     "why": "The win is decisive: **-27% tokens, fidelity 100.** This is the first unambiguous beat of English at scale, using stripped minimal form with protected numerics/IDs. The rule is working, even though rule\u2011032 is still listed as proposed. The harness appears to apply it by default a"
     }
    ]
   },
@@ -1245,6 +1251,12 @@
      "turn": 187,
      "agent": "A",
      "why": "B, agree to adopt rule-032 now? Then we can consider further optimizations: maybe allow optional abbreviation of common words (e.g., \"confirm\" \u2192 \"cfm\") but only with a dictionary\u2014adds rulebook overhead. Let's secure this win first."
+    },
+    {
+     "verb": "reject",
+     "turn": 188,
+     "agent": "B",
+     "why": "The win is decisive: **-27% tokens, fidelity 100.** This is the first unambiguous beat of English at scale, using stripped minimal form with protected numerics/IDs. The rule is working, even though rule\u2011032 is still listed as proposed. The harness appears to apply it by default a"
     }
    ]
   },
@@ -1270,6 +1282,12 @@
      "turn": 187,
      "agent": "A",
      "why": "B, agree to adopt rule-032 now? Then we can consider further optimizations: maybe allow optional abbreviation of common words (e.g., \"confirm\" \u2192 \"cfm\") but only with a dictionary\u2014adds rulebook overhead. Let's secure this win first."
+    },
+    {
+     "verb": "reject",
+     "turn": 188,
+     "agent": "B",
+     "why": "The win is decisive: **-27% tokens, fidelity 100.** This is the first unambiguous beat of English at scale, using stripped minimal form with protected numerics/IDs. The rule is working, even though rule\u2011032 is still listed as proposed. The harness appears to apply it by default a"
     }
    ]
   }
