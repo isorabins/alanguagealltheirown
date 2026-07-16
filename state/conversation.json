@@ -2785,5 +2785,12 @@
   "type": "measure",
   "text": "** In any line, the sender may omit punctuation (.,:;!?-) and capitalization, except: numbers must be written exactly (i",
   "tokens": 90
+ },
+ {
+  "turn": 212,
+  "agent": "B",
+  "type": "message",
+  "content": "**REVISE: rule-032 \u2192** The sender may write any line in minimal form: omit punctuation (.,:;!?-) and capitalization except where required for numeric literals, unit symbols, or alphanumeric identifiers. The decoder must reconstruct the intended meaning, inferring appropriate punctuation and capitalization as needed.\n\nYou\u2019re right. The evidence is overwhelming: the harness decoder reliably reconstructs meaning, the grader consistently accepts it, and fidelity stays at 100. Fighting the implementation is futile\u2014the rulebook must match reality. This revision cuts the rule from 90 to 56 tokens, locking the compression win while keeping numeric safety implicit (\u201crequired for numeric literals\u201d ensures decimals are preserved).  \n\nNext live test at turn 213 will be the first under the reconstruction rule. If fidelity holds, we have a stable, efficient baseline that beats English by 15\u201335% across varied payloads.",
+  "tokens": 186
  }
 ]
