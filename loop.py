@@ -150,6 +150,22 @@ def render_rulebook(rb):
     return "\n".join(lines)
 
 
+DECODE_VIEW_MAX = 2000  # longest decode ever recorded is 838 chars — this should never fire
+
+
+def render_decode(dec):
+    """The stranger's decode, whole — never cut silently: the agents read a mid-word stop
+    as decoder data-loss and legislate against it. A bare [:400] slice here became a
+    phantom '~100-token decoder limit' (t133-t137) and two of four live rules were built
+    to dodge a bug that never existed. If it must elide, say so in the text."""
+    if len(dec) <= DECODE_VIEW_MAX:
+        return dec
+    return (f"{dec[:DECODE_VIEW_MAX]}\n[VIEW ELIDED — this display is hiding "
+            f"{len(dec) - DECODE_VIEW_MAX} further chars from you. The decode itself was "
+            f"NOT truncated; it arrived complete. Judge fidelity by the grader score, "
+            f"never by where this view stops.]")
+
+
 def render_window(conv):
     out = []
     for e in conv[-WINDOW:]:
@@ -162,7 +178,7 @@ def render_window(conv):
                 f"original {e['orig_tokens']} tokens -> encoded {e['enc_tokens']} tokens "
                 f"({e['token_delta_pct']:+d}%) | decode fidelity {e['fidelity']}/100\n"
                 f"encoded: {e['encoded']}\n"
-                f"fresh decoder returned: {e['decoded'][:400]}\n"
+                f"fresh decoder returned: {render_decode(e['decoded'])}\n"
                 f"grader: {e['lost']}")
         else:
             out.append(f"[turn {e['turn']}] AGENT {e['agent']}:\n{e['content']}")
