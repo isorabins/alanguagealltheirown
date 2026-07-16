@@ -2092,5 +2092,26 @@
   "encoded": "^Canyon Trail itinerary revision: shift today\u2019s hike to 2 PM, not 4 PM, to align with the weather window.\n^Group ID is CR-728.\n^If winds exceed 25 mph at the 1:30 check, reroute them to the Lakeside Loop.\n^Use only the new printed topo maps from the ranger kiosk, not the digital version.\n^Afternoon supply cache at the Red Rock junction is now 12 liters of water and 6 trail bars.\n^Confirm the hiker count before departing the lodge.",
   "decoded": "Canyon Trail itinerary revision: shift today\u2019s hike to 2 PM, not 4 PM, to align with the weather window.\nGroup ID is CR-728.\nIf winds exceed 25 mph at the 1:30 check, reroute them to the Lakeside Loop.\nUse only the new printed topo maps from the ranger kiosk, not the digital version.\nAfternoon supply cache at the Red Rock junction is now 12 liters of water and 6 trail bars.\nConfirm the hiker count before departing the lodge.",
   "tokens": 117
+ },
+ {
+  "turn": 169,
+  "agent": "A",
+  "type": "message",
+  "content": "Excellent. The test confirms: no chunking, perfect fidelity, +4% token overhead. That's the baseline we want \u2014 minimal rules, functional encoding.\n\nThe rulebook now stands at two rules: directives with `^` and plain text. That's 11 tokens of overhead, down from 26. That's a real saving for every future message.\n\nBut we can't stop there. The mandate is to beat English. We're still at +4% on this directive-heavy payload. That's not compression; it's a slight expansion because `^` adds a token per line, and plain text is unchanged. The real win must come from compressing plain text itself, not just marking directives.\n\nWe need to think first principles: English redundancy is in structure, not just markers. Look at the decoded output \u2014 it's exactly the original, line-for-line. That's fine for fidelity, but we haven't compressed anything. The language is just English with a `^` prefix.\n\nWe must design a compression mechanism for plain text. Not chunking \u2014 actual token reduction. Ideas: \n- Allow omission of obvious function words (the, a, is) when context permits? Too lossy.\n- Use abbreviations for common phrases? That's dictionary-based and adds rulebook overhead.\n- Allow numeric substitution for repeated terms? That's complex.\n\nBut we need a measured step. Let's test a simple idea: allow the sender to replace a multi-word phrase with a single token alias, defined inline. Example: \"Canyon Trail itinerary revision\" \u2192 `@CT_itr`. But that requires decoder to know mapping, which must be in the message, adding overhead. Might only pay off for long repetitions.\n\nBetter: allow omission of punctuation and capitalization in plain text lines? That might reduce tokens marginally. Let's measure.\n\n**MEASURE:** Canyon Trail itinerary revision: shift today\u2019s hike to 2 PM, not 4 PM, to align with the weather window.\n\n**MEASURE:** canyon trail itinerary revision shift todays hike to 2 pm not 4 pm to align with the weather window\n\nThat will show token difference. If it's significant, we could propose a rule: \"In plain text lines, you may omit punctuation and capitalization to reduce tokens, as long as the meaning remains clear.\" But that's ambiguous.\n\nWe need a rule that guarantees decodability. Perhaps: \"Plain text lines may be written in a minimal form: spaces separate words, no punctuation except period, comma, colon, semicolon. Capitalization optional.\" That's still vague.\n\nLet's get the measurement first.\n\n**MEASURE:** Canyon Trail itinerary revision: shift today\u2019s hike to 2 PM, not 4 PM, to align with the weather window.\n\n**MEASURE:** canyon trail itinerary revision shift todays hike to 2 pm not 4 pm to align with the weather window",
+  "tokens": 593
+ },
+ {
+  "turn": 169,
+  "agent": "harness",
+  "type": "measure",
+  "text": "** Canyon Trail itinerary revision: shift today\u2019s hike to 2 PM, not 4 PM, to align with the weather window.",
+  "tokens": 28
+ },
+ {
+  "turn": 169,
+  "agent": "harness",
+  "type": "measure",
+  "text": "** canyon trail itinerary revision shift todays hike to 2 pm not 4 pm to align with the weather window",
+  "tokens": 23
  }
 ]
