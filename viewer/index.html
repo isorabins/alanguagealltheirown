@@ -83,6 +83,11 @@
     border-top: 1px dashed var(--hairline); border-bottom: 1px dashed var(--hairline); padding: 0.3rem 0;
   }
   .tick .ok { color: var(--accent); } .tick .low { color: var(--bad); }
+  .notice { font-family: var(--mono); font-size: 0.66rem; line-height: 1.6; white-space: pre-wrap;
+            word-wrap: break-word; color: var(--ink); border-left: 2px solid var(--bad);
+            padding-left: 0.7rem; margin: 0 0 1.15rem; }
+  .notice b { color: var(--bad); font-weight: normal; font-size: 0.62rem; letter-spacing: 0.14em;
+              display: block; margin-bottom: 0.3rem; }
 
   .decisions { display: grid; grid-template-columns: 1fr 1fr; gap: 1.4rem; margin-top: 1.4rem; }
   .decision { border: 1px solid var(--hairline); padding: 1rem 1.2rem; }
@@ -249,6 +254,9 @@ function render(S) {
     return '<div class="m ' + cls + '"><span class="t">turn ' + e.turn + " · agent " + e.agent + "</span>" + body + "</div>";
   }
   function tickHtml(e) {
+    if (e.type === "notice") {
+      return '<div class="notice"><b>harness correction · turn ' + e.turn + "</b>" + esc(e.content) + "</div>";
+    }
     if (e.type === "measure") {
       return '<div class="tick">measured · “' + esc(e.text) + '” · <span class="ok">' + e.tokens + " tokens</span></div>";
     }

@@ -172,6 +172,9 @@ def render_window(conv):
         if e["type"] == "measure":
             out.append(f"[turn {e['turn']} — MEASUREMENT] \"{e['text']}\" = {e['tokens']} tokens (exact)")
             continue
+        if e["type"] == "notice":
+            out.append(f"[turn {e['turn']} — HARNESS CORRECTION]\n{e['content']}")
+            continue
         if e["type"] == "test":
             out.append(
                 f"[turn {e['turn']} — LIVE TEST | payload: {e['payload']}]\n"
