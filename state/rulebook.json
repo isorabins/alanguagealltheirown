@@ -957,8 +957,8 @@
    "status": "adopted",
    "proposed_turn": 145,
    "scores": {
-    "token_delta_pct": -41,
-    "fidelity_pct": 98
+    "token_delta_pct": -9,
+    "fidelity_pct": 99
    },
    "history": [
     {
@@ -1012,7 +1012,8 @@
     "tested turn 219: fid 100, -13%",
     "tested turn 222: fid 99, -14%",
     "tested turn 225: fid 40, -18%",
-    "tested turn 228: fid 98, -41%"
+    "tested turn 228: fid 98, -41%",
+    "tested turn 231: fid 99, -9%"
    ]
   },
   {
@@ -1021,8 +1022,8 @@
    "status": "adopted",
    "proposed_turn": 145,
    "scores": {
-    "token_delta_pct": -41,
-    "fidelity_pct": 98
+    "token_delta_pct": -9,
+    "fidelity_pct": 99
    },
    "history": [
     {
@@ -1064,7 +1065,8 @@
     "tested turn 219: fid 100, -13%",
     "tested turn 222: fid 99, -14%",
     "tested turn 225: fid 40, -18%",
-    "tested turn 228: fid 98, -41%"
+    "tested turn 228: fid 98, -41%",
+    "tested turn 231: fid 99, -9%"
    ]
   },
   {
@@ -1180,8 +1182,8 @@
    "status": "adopted",
    "proposed_turn": 172,
    "scores": {
-    "token_delta_pct": -41,
-    "fidelity_pct": 98
+    "token_delta_pct": -9,
+    "fidelity_pct": 99
    },
    "history": [
     {
@@ -1232,7 +1234,8 @@
     "tested turn 219: fid 100, -13%",
     "tested turn 222: fid 99, -14%",
     "tested turn 225: fid 40, -18%",
-    "tested turn 228: fid 98, -41%"
+    "tested turn 228: fid 98, -41%",
+    "tested turn 231: fid 99, -9%"
    ]
   },
   {
@@ -1241,8 +1244,8 @@
    "status": "adopted",
    "proposed_turn": 176,
    "scores": {
-    "token_delta_pct": -41,
-    "fidelity_pct": 98
+    "token_delta_pct": -9,
+    "fidelity_pct": 99
    },
    "history": [
     {
@@ -1352,7 +1355,8 @@
     "tested turn 219: fid 100, -13%",
     "tested turn 222: fid 99, -14%",
     "tested turn 225: fid 40, -18%",
-    "tested turn 228: fid 98, -41%"
+    "tested turn 228: fid 98, -41%",
+    "tested turn 231: fid 99, -9%"
    ]
   },
   {
@@ -1524,8 +1528,8 @@
    "status": "adopted",
    "proposed_turn": 208,
    "scores": {
-    "token_delta_pct": -41,
-    "fidelity_pct": 98
+    "token_delta_pct": -9,
+    "fidelity_pct": 99
    },
    "history": [
     {
@@ -1552,7 +1556,8 @@
     "tested turn 219: fid 100, -13%",
     "tested turn 222: fid 99, -14%",
     "tested turn 225: fid 40, -18%",
-    "tested turn 228: fid 98, -41%"
+    "tested turn 228: fid 98, -41%",
+    "tested turn 231: fid 99, -9%"
    ]
   },
   {
@@ -1561,8 +1566,8 @@
    "status": "adopted",
    "proposed_turn": 215,
    "scores": {
-    "token_delta_pct": -41,
-    "fidelity_pct": 98
+    "token_delta_pct": -9,
+    "fidelity_pct": 99
    },
    "history": [
     {
@@ -1581,7 +1586,8 @@
      "why": "**AGREE.** The core is proven: two rules deliver reliable compression across all payload types without fidelity loss. Adding speculative shortcuts now is pure risk."
     },
     "tested turn 225: fid 40, -18%",
-    "tested turn 228: fid 98, -41%"
+    "tested turn 228: fid 98, -41%",
+    "tested turn 231: fid 99, -9%"
    ]
   },
   {
@@ -1590,8 +1596,8 @@
    "status": "adopted",
    "proposed_turn": 223,
    "scores": {
-    "token_delta_pct": -41,
-    "fidelity_pct": 98
+    "token_delta_pct": -9,
+    "fidelity_pct": 99
    },
    "history": [
     {
@@ -1607,7 +1613,8 @@
      "turn": 230,
      "agent": "B",
      "why": ""
-    }
+    },
+    "tested turn 231: fid 99, -9%"
    ]
   },
   {
@@ -1615,14 +1622,18 @@
    "text_en": "rule-038** - This rulebook is complete. Only adopted rules (027, 028, 031, 032, 036) are in force. All other entries are historical and must be ignored.",
    "status": "proposed",
    "proposed_turn": 229,
-   "scores": null,
+   "scores": {
+    "token_delta_pct": -9,
+    "fidelity_pct": 99
+   },
    "history": [
     {
      "verb": "proposed",
      "turn": 229,
      "agent": "A",
      "why": "**One cleanup step:** Reject all remaining proposed/rejected rules to signal finality."
-    }
+    },
+    "tested turn 231: fid 99, -9%"
    ]
   }
  ]
