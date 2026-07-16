@@ -1848,5 +1848,20 @@
   "type": "measure",
   "text": "** If the encoded message exceeds 100 tokens, the sender must split it into multiple messages, each under 100 encoded to",
   "tokens": 42
+ },
+ {
+  "turn": 153,
+  "agent": "harness",
+  "type": "test",
+  "payload": "gen-data-event",
+  "original": "Please reschedule the panel \"Cross-Platform Integration in 2025\" from the Emerald Room to the Quartz Ballroom at 3:00 PM. The new headcount is 87 attendees, so use the A/V configuration for groups over 75, which includes the second projector. Confirm the setup by 1:30 PM. If the panel lead, Dr. Alara Vance, arrives early, offer her the upgraded green room, but only if it's not already occupied by the keynote speaker. Do not move the catering station; it stays in the Emerald foyer as planned.",
+  "orig_tokens": 120,
+  "enc_tokens": 127,
+  "token_delta_pct": 6,
+  "fidelity": 100,
+  "lost": "nothing material",
+  "encoded": "[part 1/2]\n^Reschedule panel \"Cross-Platform Integration in 2025\" from Emerald Room to Quartz Ballroom for 3:00 PM.\n^Update headcount to 87 attendees.\n^Use A/V configuration for groups over 75 (includes second projector).\n^Confirm setup completion by 1:30 PM.\n\n[part 2/2]\nIf panel lead Dr. Alara Vance arrives early, offer her the upgraded green room, but only if it is not already occupied by the keynote speaker.\nDo not move the catering station; it must stay in the Emerald foyer as planned.",
+  "decoded": "[part 1/2]\n^Reschedule panel \"Cross-Platform Integration in 2025\" from Emerald Room to Quartz Ballroom for 3:00 PM.\n^Update headcount to 87 attendees.\n^Use A/V configuration for groups over 75 (includes second projector).\n^Confirm setup completion by 1:30 PM.\n\n[part 2/2]\nIf panel lead Dr. Alara Vance arrives early, offer her the upgraded green room, but only if it is not already occupied by the keynote speaker.\nDo not move the catering station; it must stay in the Emerald foyer as planned.",
+  "tokens": 127
  }
 ]

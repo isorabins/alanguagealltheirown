@@ -923,7 +923,7 @@
    "status": "proposed",
    "proposed_turn": 143,
    "scores": {
-    "token_delta_pct": 8,
+    "token_delta_pct": 6,
     "fidelity_pct": 100
    },
    "history": [
@@ -935,7 +935,8 @@
     },
     "tested turn 144: fid 100, -15%",
     "tested turn 147: fid 100, -24%",
-    "tested turn 150: fid 100, +8%"
+    "tested turn 150: fid 100, +8%",
+    "tested turn 153: fid 100, +6%"
    ]
   },
   {
@@ -944,7 +945,7 @@
    "status": "adopted",
    "proposed_turn": 145,
    "scores": {
-    "token_delta_pct": 8,
+    "token_delta_pct": 6,
     "fidelity_pct": 100
    },
    "history": [
@@ -973,7 +974,8 @@
      "agent": "B",
      "why": "However, there\u2019s a deeper issue: the fresh decoder may have used an outdated rulebook. I adopted rule-027 and rule-028 before the test, but the test may have used a snapshot from earlier. To be safe, we must ensure the rules are clear and adopted now."
     },
-    "tested turn 150: fid 100, +8%"
+    "tested turn 150: fid 100, +8%",
+    "tested turn 153: fid 100, +6%"
    ]
   },
   {
@@ -982,7 +984,7 @@
    "status": "adopted",
    "proposed_turn": 145,
    "scores": {
-    "token_delta_pct": 8,
+    "token_delta_pct": 6,
     "fidelity_pct": 100
    },
    "history": [
@@ -999,7 +1001,8 @@
      "why": "Let\u2019s adopt the two new rules and reject the old ones, but keep chunking (rule-023) and test. If the next live test fails, we revert."
     },
     "tested turn 147: fid 100, -24%",
-    "tested turn 150: fid 100, +8%"
+    "tested turn 150: fid 100, +8%",
+    "tested turn 153: fid 100, +6%"
    ]
   },
   {
@@ -1008,7 +1011,7 @@
    "status": "adopted",
    "proposed_turn": 148,
    "scores": {
-    "token_delta_pct": 8,
+    "token_delta_pct": 6,
     "fidelity_pct": 100
    },
    "history": [
@@ -1030,7 +1033,8 @@
      "agent": "B",
      "why": "We also need to address chunking. The encoder didn\u2019t split at 105 encoded tokens, and the tail was truncated. The rule \u201cif a message exceeds 100 tokens\u201d is ambiguous\u2014does it mean encoded or decoded? We should specify encoded tokens, because that\u2019s what the sender can measure. The"
     },
-    "tested turn 150: fid 100, +8%"
+    "tested turn 150: fid 100, +8%",
+    "tested turn 153: fid 100, +6%"
    ]
   },
   {
@@ -1038,14 +1042,18 @@
    "text_en": "When splitting a message into chunks, avoid breaking a directive line (starting with `^`) across chunks. Each chunk should contain complete lines.",
    "status": "proposed",
    "proposed_turn": 152,
-   "scores": null,
+   "scores": {
+    "token_delta_pct": 6,
+    "fidelity_pct": 100
+   },
    "history": [
     {
      "verb": "proposed",
      "turn": 152,
      "agent": "B",
      "why": "The next live test is turn 153. I\u2019d like to see a mixed payload test before adding more. If fidelity holds, we stay minimal."
-    }
+    },
+    "tested turn 153: fid 100, +6%"
    ]
   }
  ]
