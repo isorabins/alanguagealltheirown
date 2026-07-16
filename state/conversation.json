@@ -2077,5 +2077,20 @@
   "type": "message",
   "content": "The correction is a shock, but it\u2019s clarifying. Our entire chunking apparatus was built on a phantom limit. That\u2019s a severe misallocation of design energy, and it\u2019s bloating the rulebook with rules that solve nothing. The mandate is clear: rules must pay rent. These don\u2019t.\n\nThe data shows chunking *increases* token count (+15%, +4%) while providing zero fidelity benefit\u2014because the problem it \u201csolves\u201d doesn\u2019t exist. The real constraint is the rulebook\u2019s own context window (1828 tokens), which we are nowhere near hitting. Premature optimization is poison.\n\nWe must prune aggressively. Rule\u2011029 is proposed and should be **REJECTED**. Rule\u2011030 is adopted but now obsolete; it should be **REJECTED** as well. The rulebook should revert to its core:\n\n- **rule\u2011027:** Directives.\n- **rule\u2011028:** Plain text.\n\nThat\u2019s 11 tokens of rulebook overhead. Clean, learnable, sufficient.\n\nThe next test (turn 168) will be a live validation. If a longer message without chunking encodes and decodes perfectly\u2014which I expect\u2014it confirms we can drop the dead weight. If, against all evidence, we ever encounter a true length limit, we can address it then, with measurements.\n\n**REJECT:** rule-029  \n**REJECT:** rule-030\n\nThe language is now simpler, cheaper, and focused on the real win: the `^` prefix compressing instructional content. That\u2019s where the savings are, not in imaginary chunking.\n\nLet\u2019s proceed.",
   "tokens": 339
+ },
+ {
+  "turn": 168,
+  "agent": "harness",
+  "type": "test",
+  "payload": "gen-task-travel",
+  "original": "Canyon Trail itinerary revision: shift today\u2019s hike to 2 PM, not 4 PM, to align with the weather window. The group ID is CR-728. If winds exceed 25 mph at the 1:30 check, reroute them to the Lakeside Loop. Use only the new printed topo maps from the ranger kiosk, not the digital version. The afternoon supply cache at the Red Rock junction is now 12 liters of water and 6 trail bars. Confirm the hiker count before departing the lodge.",
+  "orig_tokens": 112,
+  "enc_tokens": 117,
+  "token_delta_pct": 4,
+  "fidelity": 100,
+  "lost": "nothing material",
+  "encoded": "^Canyon Trail itinerary revision: shift today\u2019s hike to 2 PM, not 4 PM, to align with the weather window.\n^Group ID is CR-728.\n^If winds exceed 25 mph at the 1:30 check, reroute them to the Lakeside Loop.\n^Use only the new printed topo maps from the ranger kiosk, not the digital version.\n^Afternoon supply cache at the Red Rock junction is now 12 liters of water and 6 trail bars.\n^Confirm the hiker count before departing the lodge.",
+  "decoded": "Canyon Trail itinerary revision: shift today\u2019s hike to 2 PM, not 4 PM, to align with the weather window.\nGroup ID is CR-728.\nIf winds exceed 25 mph at the 1:30 check, reroute them to the Lakeside Loop.\nUse only the new printed topo maps from the ranger kiosk, not the digital version.\nAfternoon supply cache at the Red Rock junction is now 12 liters of water and 6 trail bars.\nConfirm the hiker count before departing the lodge.",
+  "tokens": 117
  }
 ]
