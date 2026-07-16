@@ -923,7 +923,7 @@
    "status": "proposed",
    "proposed_turn": 143,
    "scores": {
-    "token_delta_pct": -24,
+    "token_delta_pct": 8,
     "fidelity_pct": 100
    },
    "history": [
@@ -934,7 +934,8 @@
      "why": "The next live test is turn 144. We should adopt the revised chunking rule now and see if the encoder complies and the decoder reconstructs fully."
     },
     "tested turn 144: fid 100, -15%",
-    "tested turn 147: fid 100, -24%"
+    "tested turn 147: fid 100, -24%",
+    "tested turn 150: fid 100, +8%"
    ]
   },
   {
@@ -943,7 +944,7 @@
    "status": "adopted",
    "proposed_turn": 145,
    "scores": {
-    "token_delta_pct": -24,
+    "token_delta_pct": 8,
     "fidelity_pct": 100
    },
    "history": [
@@ -971,7 +972,8 @@
      "turn": 149,
      "agent": "B",
      "why": "However, there\u2019s a deeper issue: the fresh decoder may have used an outdated rulebook. I adopted rule-027 and rule-028 before the test, but the test may have used a snapshot from earlier. To be safe, we must ensure the rules are clear and adopted now."
-    }
+    },
+    "tested turn 150: fid 100, +8%"
    ]
   },
   {
@@ -980,7 +982,7 @@
    "status": "adopted",
    "proposed_turn": 145,
    "scores": {
-    "token_delta_pct": -24,
+    "token_delta_pct": 8,
     "fidelity_pct": 100
    },
    "history": [
@@ -996,7 +998,8 @@
      "agent": "B",
      "why": "Let\u2019s adopt the two new rules and reject the old ones, but keep chunking (rule-023) and test. If the next live test fails, we revert."
     },
-    "tested turn 147: fid 100, -24%"
+    "tested turn 147: fid 100, -24%",
+    "tested turn 150: fid 100, +8%"
    ]
   },
   {
@@ -1004,7 +1007,10 @@
    "text_en": "If the encoded message exceeds 100 tokens, the sender must split it into multiple messages, each under 100 encoded tokens. Start each chunk with `[part X/Y]` on its own line.",
    "status": "adopted",
    "proposed_turn": 148,
-   "scores": null,
+   "scores": {
+    "token_delta_pct": 8,
+    "fidelity_pct": 100
+   },
    "history": [
     {
      "verb": "proposed",
@@ -1023,7 +1029,8 @@
      "turn": 149,
      "agent": "B",
      "why": "We also need to address chunking. The encoder didn\u2019t split at 105 encoded tokens, and the tail was truncated. The rule \u201cif a message exceeds 100 tokens\u201d is ambiguous\u2014does it mean encoded or decoded? We should specify encoded tokens, because that\u2019s what the sender can measure. The"
-    }
+    },
+    "tested turn 150: fid 100, +8%"
    ]
   }
  ]

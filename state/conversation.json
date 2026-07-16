@@ -1791,5 +1791,20 @@
   "type": "measure",
   "text": "** The current adopted rulebook (rules 027, 028, 029) as a single block of text.",
   "tokens": 24
+ },
+ {
+  "turn": 150,
+  "agent": "harness",
+  "type": "test",
+  "payload": "gen-task-event",
+  "original": "Client Leda Varney just confirmed for the Thursday gala but requested a vegan alternate for her plus-one. The finalized guest count is now 172. If the venue confirms the fire capacity is 175, please add two more place settings for the press list we held in reserve. Update the seating chart file on the shared drive, but only revise the Coral Room layout, not the Sunset Pavilion. I\u2019ll send the updated dietary flag list by 3 p.m.",
+  "orig_tokens": 95,
+  "enc_tokens": 103,
+  "token_delta_pct": 8,
+  "fidelity": 100,
+  "lost": "nothing material",
+  "encoded": "[part 1/2]\n^ Update guest count to 172.\n^ Client Leda Varney confirmed for Thursday gala.\n^ Provide vegan alternate for her plus-one.\n^ If venue confirms fire capacity is 175, add two more place settings for the press list held in reserve.\n^ Update the seating chart file on the shared drive.\n^ Revise only the Coral Room layout, not the Sunset Pavilion.\n[part 2/2]\n^ Expect updated dietary flag list by 3 p.m.",
+  "decoded": "[part 1/2]\n^ Update guest count to 172.\n^ Client Leda Varney confirmed for Thursday gala.\n^ Provide vegan alternate for her plus-one.\n^ If venue confirms fire capacity is 175, add two more place settings for the press list held in reserve.\n^ Update the seating chart file on the shared drive.\n^ Revise only the Coral Room layout, not the Sunset Pavilion.\n[part 2/2]\n^ Expect updated dietary flag list by 3 p.m.",
+  "tokens": 103
  }
 ]
