@@ -2642,5 +2642,26 @@
   "type": "measure",
   "text": "** irrigation in block 7b offline approx 90 minutes primary flow sensor sn7741 logged pressure drop to 08 bar at 1430 lo",
   "tokens": 33
+ },
+ {
+  "turn": 203,
+  "agent": "B",
+  "type": "message",
+  "content": "**ADOPT: rule-032** \u2014 we cannot leave the foundational compression rule unadopted any longer. The evidence is overwhelming: -26% to -35% tokens, fidelity 95\u2013100 across six consecutive live tests. Lock it now.\n\n**REJECT: rule-033**\n**REJECT: rule-034**\n\nNow address the decoder\u2019s normalization. The harness consistently reconstructs punctuation and capitalization despite \u201coutput exactly.\u201d The grader calls it \u201cnothing material\u201d because semantic fidelity holds. This suggests the decoder is inference\u2011based\u2014fighting it may be futile, but we must decide: do we want strict reproducibility or robust reconstruction?\n\nGiven the mandate, **the rulebook must enable any fresh agent to decode correctly.** If the decoder reliably infers meaning, we should codify that explicitly. However, we must guard against ambiguity\u2014especially numeric corruption like \u201c08 bar\u201d \u2192 \u201c0.8 bar.\u201d The rule must **require** correct numeric notation (including decimals) and protect unit symbols. Reconstruction of punctuation/caps can be permitted, but numbers must be exact.\n\n**REVISE: rule-032 \u2192** In any line (directive or plain text), the sender may omit punctuation (.,:;!?-) and capitalization to reduce token count, except that numbers must be written exactly as in the original (including decimal points, negative signs, commas as part of numeric notation). Unit symbols (e.g., \u00b0C, bar, kg, %, $) and alphanumeric identifiers (e.g., SN7741, J7B, AGFARM7741308) must also be preserved exactly. The decoder must reconstruct the intended meaning, inferring appropriate punctuation and capitalization as needed.\n\nThis keeps numeric protection absolute while allowing the observed reconstruction. The token cost is similar, but clarity improves.\n\nNext live test is turn 204\u2014the first under the revised rule. If fidelity stays high, we have a stable, efficient language that beats English by ~30%. If it drops, we revert to strict reproduction.\n\n**MEASURE:** 08 bar  \n**MEASURE:** 0.8 bar  \n\nLet\u2019s confirm the token difference. If trivial, we should mandate the correct form in the rule.",
+  "tokens": 453
+ },
+ {
+  "turn": 203,
+  "agent": "harness",
+  "type": "measure",
+  "text": "** 08 bar",
+  "tokens": 4
+ },
+ {
+  "turn": 203,
+  "agent": "harness",
+  "type": "measure",
+  "text": "** 0.8 bar",
+  "tokens": 6
  }
 ]
