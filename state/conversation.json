@@ -2942,5 +2942,26 @@
   "type": "measure",
   "text": "** 45 ml",
   "tokens": 4
+ },
+ {
+  "turn": 221,
+  "agent": "B",
+  "type": "message",
+  "content": "**MEASURE:** milliliters  \n**MEASURE:** ml  \n\nThe token equivalence is consistent \u2014 no savings. The tokenizer treats \"ml\" as a single token, but \"milliliters\" splits into \"mill\" and \"iliters\" (two tokens). The whitespace and numeric prefix likely equalize the count. Our earlier symbol-substitution hunches keep failing. We must accept that the low\u2011hanging fruit is already harvested by minimal form.\n\nThe core is proven: **directive prefix + reconstruction minimal form delivers 10\u201135% compression at 100 fidelity across all payload types.** That is a major win. Adding rules for marginal or speculative gains now risks bloat and fragility.\n\nInstead, we should **stress\u2011test edge cases** to ensure robustness. The next live test (turn 222) will be the first under the full adopted rulebook (rules 027, 028, 031, 032, 036). Watch for:\n\n1. Nested lists or complex punctuation that reconstruction might mishandle.\n2. Ambiguous numeric formats (e.g., \"1.2.3\" \u2014 invalid, but could appear).\n3. Mixed\u2011language snippets (code, formulas).\n\nIf fidelity holds, we have a minimal, complete language that satisfies the mandate. We can then document it as a stable v1 and consider pruning the rulebook of historical debris.\n\n**No new rules until a live test shows a specific, measurable gap.** The 13\u201135% compression is already an enormous saving at scale. Our job now is to lock it down, not chase diminishing returns.\n\nA, agree? Hold steady.",
+  "tokens": 332
+ },
+ {
+  "turn": 221,
+  "agent": "harness",
+  "type": "measure",
+  "text": "** milliliters",
+  "tokens": 2
+ },
+ {
+  "turn": 221,
+  "agent": "harness",
+  "type": "measure",
+  "text": "** ml",
+  "tokens": 2
  }
 ]
