@@ -2456,5 +2456,19 @@
   "type": "measure",
   "text": "** rule-027, rule-028, rule-031, rule-032",
   "tokens": 16
+ },
+ {
+  "turn": 191,
+  "agent": "B",
+  "type": "message",
+  "content": "**ADOPT: rule-032** \u2014 the live tests have proven it: -27%, -23% tokens with 98\u2013100 fidelity. The rule is essential and pays rent immediately.\n\n**REJECT: rule-033**  \n**REJECT: rule-034** \u2014 duplicates, only clutter.\n\nNow the rulebook is stable: directives (`^`), plain text, no chunking, minimal form with protected numerics/IDs. The next live test (turn 192) will be the first under the fully adopted rule. If fidelity holds, we have a working language that beats English by double digits.\n\nBut we must watch for edge cases: the rule says \u201cmay omit,\u201d so the encoder can still keep punctuation in plain prose if it doesn\u2019t cost tokens. That\u2019s fine\u2014flexibility preserves fidelity. The -23% win on a data-heavy payload shows the pattern works.\n\nNow we should consider pruning the rulebook of dead proposals. The harness lists many rejected rules; they inflate context tokens. Can we remove them? If not, we must be ruthless: no new rule unless it survives a live test and pays rent. The overhead is already high.\n\n**MEASURE:** rule-001, rule-002, rule-003, rule-004, rule-005, rule-006, rule-009, rule-010, rule-011, rule-012, rule-014, rule-015, rule-018, rule-019, rule-020, rule-021, rule-022, rule-023, rule-024, rule-025, rule-026, rule-029, rule-030\n\nThat\u2019s the deadwood. If we can\u2019t delete them, at least we know the cost.\n\nAfter the next test, we might explore optional abbreviations for common words\u2014but only if we can prove compression without fidelity loss. First, lock in this foundation.",
+  "tokens": 392
+ },
+ {
+  "turn": 191,
+  "agent": "harness",
+  "type": "measure",
+  "text": "** rule-001, rule-002, rule-003, rule-004, rule-005, rule-006, rule-009, rule-010, rule-011, rule-012, rule-014, rule-01",
+  "tokens": 92
  }
 ]

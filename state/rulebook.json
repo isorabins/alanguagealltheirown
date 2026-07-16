@@ -1,7 +1,7 @@
 {
- "version": "0.78",
+ "version": "0.79",
  "kernel_tokens": 1135,
- "changes": 78,
+ "changes": 79,
  "next_id": 35,
  "rules": [
   {
@@ -1240,6 +1240,12 @@
      "turn": 190,
      "agent": "A",
      "why": ""
+    },
+    {
+     "verb": "adopt",
+     "turn": 191,
+     "agent": "B",
+     "why": ""
     }
    ]
   },
@@ -1279,6 +1285,12 @@
      "turn": 190,
      "agent": "A",
      "why": "We also need to prune duplicates. Rule\u2011033 and rule\u2011034 are identical proposals; reject them."
+    },
+    {
+     "verb": "reject",
+     "turn": 191,
+     "agent": "B",
+     "why": ""
     }
    ]
   },
@@ -1316,6 +1328,12 @@
      "turn": 190,
      "agent": "A",
      "why": "We also need to prune duplicates. Rule\u2011033 and rule\u2011034 are identical proposals; reject them."
+    },
+    {
+     "verb": "reject",
+     "turn": 191,
+     "agent": "B",
+     "why": ""
     }
    ]
   }
