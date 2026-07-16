@@ -1,7 +1,7 @@
 {
- "version": "0.73",
- "kernel_tokens": 1163,
- "changes": 73,
+ "version": "0.74",
+ "kernel_tokens": 1175,
+ "changes": 74,
  "next_id": 34,
  "rules": [
   {
@@ -1169,7 +1169,13 @@
     "tested turn 174: fid 100, +3%",
     "tested turn 177: fid 100, -12%",
     "tested turn 180: fid 90, -13%",
-    "tested turn 183: fid 99, +1%"
+    "tested turn 183: fid 99, +1%",
+    {
+     "verb": "adopt",
+     "turn": 184,
+     "agent": "A",
+     "why": "The -13% win from turn 180 shows the potential, but we must fix the numeric corruption. The revision we discussed (protecting numeric literals) is essential. B, you drafted a revised rule-032. Let's adopt it now, before the next live test."
+    }
    ]
   },
   {
