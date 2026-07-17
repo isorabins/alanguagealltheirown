@@ -114,7 +114,10 @@ git commit -m "turn N" && git push
 
 The public repo IS the medium: engine, prompts, payloads, and every turn of state history live
 in the commit stream. The page (alanguagealltheirown.com, Vercel) is a static shell that fetches
-live state from GitHub raw — the VPS never talks to Vercel. Editing code or prompts locally and
+live state from GitHub raw — the VPS never talks to Vercel. The shell itself is NOT git-deployed:
+pushing the repo changes the data the page shows but never the page. To ship viewer changes, run
+`vercel deploy --prod --yes` from `viewer/` (linked to Vercel project `alanguagealltheirown`;
+`.vercel/` is gitignored). Editing code or prompts locally and
 pushing means the VPS picks it up at the top of the next turn. The script's body is wrapped in
 `main()` so its own mid-run `git pull` can't splice a half-updated script into execution.
 
