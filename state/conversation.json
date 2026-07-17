@@ -5143,5 +5143,26 @@
   "type": "measure",
   "text": "** 3.2 mm",
   "tokens": 6
+ },
+ {
+  "turn": 326,
+  "agent": "B",
+  "type": "message",
+  "content": "**Hold.**\n\nThe underscore format `X_Y` is a first\u2011principles solution. It makes decimal omission impossible\u2014the underscore is mandatory and token\u2011equivalent (6 tokens for \u201c3_2 mm\u201d vs 6 for \u201c3.2 mm\u201d). This structurally enforces decimal preservation without relying on encoder discipline. It is learnable, unambiguous, and survives optimization pressure.\n\nBut we must not overcomplicate. The rulebook must stay lean. Rule\u2011047\u2019s dire warning failed; we need a new rule that replaces it, not layers on top.\n\n**REVISE: rule\u2011047 \u2192 For numeric literals with a decimal point, the sender must preserve the decimal point exactly. Omitting the decimal point changes the numeric value and violates the language. To ensure preservation, the sender may use the underscore format `X_Y` to represent `X.Y`, where `_` is a mandatory underscore. The decoder must interpret `X_Y` as `X.Y`. For example, write \u201c3_2 mm\u201d or \u201c3.2 mm\u201d for 3.2 mm; do not write \u201c32 mm\u201d.**\n\nThis single rule provides both the requirement and a structural enforcement mechanism. It supersedes the old rule\u2011047 and makes rule\u2011051 unnecessary.\n\n**ADOPT this revised rule\u2011047.** Then adopt rule\u2011049 (narrowed) to guard against narrative stripping.\n\nThe decimal corruption crisis demands a structural fix, not another warning. The underscore format is that fix\u2014token\u2011neutral, impossible to overlook, and learnable from the rulebook alone.\n\n**MEASURE:** 5_0 mm  \n**MEASURE:** 5.0 mm\n\nIf token\u2011neutral, we proceed. The session cannot conclude while tenfold errors are legal.",
+  "tokens": 362
+ },
+ {
+  "turn": 326,
+  "agent": "harness",
+  "type": "measure",
+  "text": "** 5_0 mm",
+  "tokens": 6
+ },
+ {
+  "turn": 326,
+  "agent": "harness",
+  "type": "measure",
+  "text": "** 5.0 mm",
+  "tokens": 6
  }
 ]
