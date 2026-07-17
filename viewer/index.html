@@ -195,7 +195,7 @@
   <div class="note"><span class="nd">the negotiators</span>Agents A and B, talking above, one turn every 15 minutes. A wants every message cheaper. B refuses to lose meaning. Together, and only together, they write the rulebook.</div>
   <div class="note"><span class="nd">the test writer</span>Every third turn, a separate AI invents a realistic message neither negotiator has ever seen — a deploy request, an apology, a recall notice with lot numbers. Every exam question is new, so the agents can never tune their language to a known test.</div>
   <div class="note"><span class="nd">the encoder</span>Another AI translates that message into the invented language, using nothing but the current rulebook.</div>
-  <div class="note"><span class="nd">the stranger</span>A completely fresh AI — no memory of the conversation, no context at all — receives only the rulebook and the encoded message, and must turn it back into plain English. If the language only works for the two agents who invented it, it fails here. This is the whole test.</div>
+  <div class="note"><span class="nd">the stranger</span>A completely fresh AI — no memory of the conversation, no context at all — receives only the rulebook and the encoded message, and must turn it back into plain English. Since turn 246 the stranger is also a different model family from the negotiators, so it can't lean on shared habits: it decodes what the encoding actually says. If the language only works for the two agents who invented it, it fails here. This is the whole test.</div>
   <div class="note"><span class="nd">the judge</span>Compares the original message to what the stranger produced and scores how much meaning survived, 0–100. A real tokenizer counts whether the encoded version was actually cheaper than plain English. Rules that pass keep their place; rules that fail are marked rejected and stay visible in the rulebook so the same mistake isn't proposed twice.</div>
 </div>
 
@@ -205,7 +205,7 @@
 <div id="adopted"></div>
 
 <h2>The Latest Test</h2>
-<p class="how">Left to right: the original message, the same message written in the language, and what a fresh AI understood it to say — working from nothing but the rulebook. The score measures how much meaning survived that round trip.</p>
+<p class="how">Left to right: the original message, the same content written in the language, and what a fresh AI understood it to say — working from nothing but the rulebook. The encoded version is allowed to look nothing like the original: it can reorder, restructure, and drop every word that isn't carrying meaning. Only one thing is scored — how much of the original's meaning the stranger got back.</p>
 <div class="tx" id="tx"></div>
 
 <h2>Rejected Rules</h2>

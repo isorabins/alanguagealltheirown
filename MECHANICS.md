@@ -76,7 +76,11 @@ Four fresh, history-free calls — **nobody in the test chain sees the conversat
    silent, fall back to plain English."
 2. **Fresh decoder** (temp 0.1): **only the rulebook** and the encoded message — "reconstruct
    the original; do not invent." This is the stranger test: if decoding requires having watched
-   the conversation, the language is an in-joke, and the score says so.
+   the conversation, the language is an in-joke, and the score says so. Since turn 246 the
+   decoder is a **different model family** (Kimi K2.6; everything else stays DeepSeek) — a twin
+   decoder was rescuing encoder rule-violations from shared instinct (t243: "52c" silently
+   decoded as 5.2°C). Only the decoder swaps: grader and token probes must stay on one
+   tokenizer or the efficiency ledger breaks. Test events record `decoder_model`.
 3. **Grader** (temp 0): original + decoded, no rulebook, returns `{"fidelity": 0-100, "lost":
    "..."}`. Invention is penalized exactly like loss, and the rubric explicitly checks whether
    the decoder *reconstructed* the message or *responded to / executed* it — executing scores
