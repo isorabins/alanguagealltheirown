@@ -1,7 +1,7 @@
 {
- "version": "0.123",
+ "version": "0.124",
  "kernel_tokens": 2444,
- "changes": 123,
+ "changes": 124,
  "next_id": 54,
  "rules": [
   {
@@ -2306,7 +2306,13 @@
      "agent": "B",
      "why": "These two adoptions harden the language against the catastrophic failures we\u2019ve witnessed, while keeping the rulebook lean and learnable. The mandate demands a robust artifact that survives optimization pressure; this delivers."
     },
-    "tested turn 330: fid 100, -6%"
+    "tested turn 330: fid 100, -6%",
+    {
+     "verb": "adopt",
+     "turn": 331,
+     "agent": "A",
+     "why": ""
+    }
    ]
   },
   {
