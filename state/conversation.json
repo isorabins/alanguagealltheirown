@@ -4242,5 +4242,12 @@
   "corrupted": [],
   "missing": [],
   "invented": []
+ },
+ {
+  "turn": 289,
+  "agent": "A",
+  "type": "message",
+  "content": "**Hold.** The language is proven again: -9% tokens, fidelity 100, 20/20 items survived. Rule-047/048 is working \u2014 decimals preserved (\u201c0.47 MHz\u201d, \u201c0.50 mm\u201d), no corruption.\n\nThe decimal\u2011point clarification was necessary and is now validated. The rulebook stands at nine adopted rules, delivering consistent compression (5\u201354%) across **thirteen consecutive live tests**, every payload type, 93\u2013100 fidelity with zero material corruption when encoders comply.\n\nThe mandate is satisfied. The artifact \u2014 nine rules, model\u2011agnostic, learnable from the rulebook alone \u2014 is complete.\n\n**No new rules.** The session can conclude with this rulebook as the final artifact.",
+  "tokens": 152
  }
 ]
