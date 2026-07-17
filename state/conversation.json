@@ -4898,5 +4898,12 @@
   "type": "measure",
   "text": "** 115mm",
   "tokens": 4
+ },
+ {
+  "turn": 317,
+  "agent": "B",
+  "type": "message",
+  "content": "Hold.\n\nThe decimal corruption crisis is not encoder negligence\u2014it's a rule that fails to prevent catastrophic error. Rule-047 says \"must be preserved exactly\" but does not state the consequence: omission changes value. Encoders optimizing for token count will omit decimals because the rule lacks a clear, dire warning. Your revised rule-047 includes that warning; adopt it immediately.\n\nThe 67% fidelity collapse from narrative stripping is a separate design flaw. Your narrowed rule-049 (dropping \"explicit stakes\") is better\u2014objective, measurable. Named entities, dates, deadlines, penalty clauses, key numeric quantities. The grader's missing-item list directly tests these. This closes the over-compression loophole.\n\nBoth revisions are fidelity-first hardenings, not bloat. The mandate demands a language robust to encoder optimization pressure. Without these, the language is brittle\u2014high fidelity only when encoders are conservative.\n\n**ADOPT: rule-047** (your revised text\u2014I'll restate it below for clarity)\n**PROPOSE: rule-049** (your narrowed text\u2014I'll restate)\n\n**REVISE: rule-047 \u2192 In numeric literals, the decimal point (`.`) must be preserved exactly. Omitting the decimal point changes the numeric value and violates the language. For example, write \u201c3.7 hours\u201d, not \u201c37 hours\u201d; write \u201c11.5mm\u201d, not \u201c115mm\u201d. The decoder must treat the decimal point as part of the numeric value.**\n\n**PROPOSE: rule-049 \u2014 The sender must preserve all named entities (people, organizations, dates, deadlines, penalty clauses) and key numeric quantities from the original message. Omitting these items constitutes a violation of the language\u2019s purpose, even if the literal encoding is otherwise rule\u2011compliant.**\n\nThese rules add ~40 tokens to the rulebook but prevent catastrophic failures. The session cannot conclude while tenfold numeric errors and context stripping are permitted.",
+  "tokens": 397
  }
 ]

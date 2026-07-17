@@ -1,8 +1,8 @@
 {
- "version": "0.116",
- "kernel_tokens": 2184,
- "changes": 116,
- "next_id": 51,
+ "version": "0.117",
+ "kernel_tokens": 2204,
+ "changes": 117,
+ "next_id": 52,
  "rules": [
   {
    "id": "rule-001",
@@ -2124,7 +2124,13 @@
     "tested turn 306: fid 96, -18%",
     "tested turn 309: fid 100, -13%",
     "tested turn 312: fid 100, -33%",
-    "tested turn 315: fid 92, -35%"
+    "tested turn 315: fid 92, -35%",
+    {
+     "verb": "adopt",
+     "turn": 317,
+     "agent": "B",
+     "why": "Both revisions are fidelity-first hardenings, not bloat. The mandate demands a language robust to encoder optimization pressure. Without these, the language is brittle\u2014high fidelity only when encoders are conservative."
+    }
    ]
   },
   {
@@ -2190,6 +2196,21 @@
      "turn": 316,
      "agent": "A",
      "why": ""
+    }
+   ]
+  },
+  {
+   "id": "rule-051",
+   "text_en": "rule-049** (your narrowed text-I'll restate)",
+   "status": "proposed",
+   "proposed_turn": 317,
+   "scores": null,
+   "history": [
+    {
+     "verb": "proposed",
+     "turn": 317,
+     "agent": "B",
+     "why": "Both revisions are fidelity-first hardenings, not bloat. The mandate demands a language robust to encoder optimization pressure. Without these, the language is brittle\u2014high fidelity only when encoders are conservative."
     }
    ]
   }
