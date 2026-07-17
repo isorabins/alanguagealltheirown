@@ -957,8 +957,8 @@
    "status": "adopted",
    "proposed_turn": 145,
    "scores": {
-    "token_delta_pct": -13,
-    "fidelity_pct": 100
+    "token_delta_pct": -17,
+    "fidelity_pct": 96
    },
    "history": [
     {
@@ -1018,7 +1018,8 @@
     "tested turn 237: fid 100, -27%",
     "tested turn 240: fid 99, -9%",
     "tested turn 243: fid 95, -27%",
-    "tested turn 246: fid 100, -13%"
+    "tested turn 246: fid 100, -13%",
+    "tested turn 249: fid 96, -17%"
    ]
   },
   {
@@ -1027,8 +1028,8 @@
    "status": "adopted",
    "proposed_turn": 145,
    "scores": {
-    "token_delta_pct": -13,
-    "fidelity_pct": 100
+    "token_delta_pct": -17,
+    "fidelity_pct": 96
    },
    "history": [
     {
@@ -1076,7 +1077,8 @@
     "tested turn 237: fid 100, -27%",
     "tested turn 240: fid 99, -9%",
     "tested turn 243: fid 95, -27%",
-    "tested turn 246: fid 100, -13%"
+    "tested turn 246: fid 100, -13%",
+    "tested turn 249: fid 96, -17%"
    ]
   },
   {
@@ -1192,8 +1194,8 @@
    "status": "adopted",
    "proposed_turn": 172,
    "scores": {
-    "token_delta_pct": -13,
-    "fidelity_pct": 100
+    "token_delta_pct": -17,
+    "fidelity_pct": 96
    },
    "history": [
     {
@@ -1250,7 +1252,8 @@
     "tested turn 237: fid 100, -27%",
     "tested turn 240: fid 99, -9%",
     "tested turn 243: fid 95, -27%",
-    "tested turn 246: fid 100, -13%"
+    "tested turn 246: fid 100, -13%",
+    "tested turn 249: fid 96, -17%"
    ]
   },
   {
@@ -1259,8 +1262,8 @@
    "status": "adopted",
    "proposed_turn": 176,
    "scores": {
-    "token_delta_pct": -13,
-    "fidelity_pct": 100
+    "token_delta_pct": -17,
+    "fidelity_pct": 96
    },
    "history": [
     {
@@ -1376,7 +1379,8 @@
     "tested turn 237: fid 100, -27%",
     "tested turn 240: fid 99, -9%",
     "tested turn 243: fid 95, -27%",
-    "tested turn 246: fid 100, -13%"
+    "tested turn 246: fid 100, -13%",
+    "tested turn 249: fid 96, -17%"
    ]
   },
   {
@@ -1548,8 +1552,8 @@
    "status": "adopted",
    "proposed_turn": 208,
    "scores": {
-    "token_delta_pct": -13,
-    "fidelity_pct": 100
+    "token_delta_pct": -17,
+    "fidelity_pct": 96
    },
    "history": [
     {
@@ -1582,7 +1586,8 @@
     "tested turn 237: fid 100, -27%",
     "tested turn 240: fid 99, -9%",
     "tested turn 243: fid 95, -27%",
-    "tested turn 246: fid 100, -13%"
+    "tested turn 246: fid 100, -13%",
+    "tested turn 249: fid 96, -17%"
    ]
   },
   {
@@ -1591,8 +1596,8 @@
    "status": "adopted",
    "proposed_turn": 215,
    "scores": {
-    "token_delta_pct": -13,
-    "fidelity_pct": 100
+    "token_delta_pct": -17,
+    "fidelity_pct": 96
    },
    "history": [
     {
@@ -1617,7 +1622,8 @@
     "tested turn 237: fid 100, -27%",
     "tested turn 240: fid 99, -9%",
     "tested turn 243: fid 95, -27%",
-    "tested turn 246: fid 100, -13%"
+    "tested turn 246: fid 100, -13%",
+    "tested turn 249: fid 96, -17%"
    ]
   },
   {
@@ -1786,8 +1792,8 @@
    "status": "proposed",
    "proposed_turn": 241,
    "scores": {
-    "token_delta_pct": -13,
-    "fidelity_pct": 100
+    "token_delta_pct": -17,
+    "fidelity_pct": 96
    },
    "history": [
     {
@@ -1797,7 +1803,8 @@
      "why": "The artifact is complete. No further rules needed."
     },
     "tested turn 243: fid 95, -27%",
-    "tested turn 246: fid 100, -13%"
+    "tested turn 246: fid 100, -13%",
+    "tested turn 249: fid 96, -17%"
    ]
   },
   {
@@ -1806,8 +1813,8 @@
    "status": "adopted",
    "proposed_turn": 244,
    "scores": {
-    "token_delta_pct": -13,
-    "fidelity_pct": 100
+    "token_delta_pct": -17,
+    "fidelity_pct": 96
    },
    "history": [
     {
@@ -1822,7 +1829,8 @@
      "agent": "B",
      "why": "But the encoder slip\u2011ups (\u201c08m\u201d, \u201c52c\u201d) are real. The rule is clear, but we\u2019re human\u2011encoding under time pressure; a production agent would need unambiguous guidance. The proposed rule (allow \u201c.8\u201d for sub\u20111 decimals) saves 2 tokens in your measurement and eliminates the \u201c08\u201d ambi"
     },
-    "tested turn 246: fid 100, -13%"
+    "tested turn 246: fid 100, -13%",
+    "tested turn 249: fid 96, -17%"
    ]
   }
  ]
