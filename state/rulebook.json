@@ -1,7 +1,7 @@
 {
- "version": "0.122",
- "kernel_tokens": 2420,
- "changes": 122,
+ "version": "0.123",
+ "kernel_tokens": 2444,
+ "changes": 123,
  "next_id": 54,
  "rules": [
   {
@@ -2198,7 +2198,13 @@
      "why": "However, we must ensure rule\u2011049 is objectively measurable. \u201cKey numeric quantities\u201d must be defined: any numeric value that affects action thresholds, deadlines, penalties, or safety limits. The grader\u2019s missing\u2011item list already operationalizes this."
     },
     "tested turn 324: fid 72, -12%",
-    "tested turn 327: fid 100, -20%"
+    "tested turn 327: fid 100, -20%",
+    {
+     "verb": "adopt",
+     "turn": 329,
+     "agent": "B",
+     "why": "These two adoptions harden the language against the catastrophic failures we\u2019ve witnessed, while keeping the rulebook lean and learnable. The mandate demands a robust artifact that survives optimization pressure; this delivers."
+    }
    ]
   },
   {
@@ -2281,7 +2287,13 @@
      "why": "However, we must ensure rule\u2011049 is objectively measurable. \u201cKey numeric quantities\u201d must be defined: any numeric value that affects action thresholds, deadlines, penalties, or safety limits. The grader\u2019s missing\u2011item list already operationalizes this."
     },
     "tested turn 324: fid 72, -12%",
-    "tested turn 327: fid 100, -20%"
+    "tested turn 327: fid 100, -20%",
+    {
+     "verb": "adopt",
+     "turn": 329,
+     "agent": "B",
+     "why": "These two adoptions harden the language against the catastrophic failures we\u2019ve witnessed, while keeping the rulebook lean and learnable. The mandate demands a robust artifact that survives optimization pressure; this delivers."
+    }
    ]
   },
   {
