@@ -3344,5 +3344,12 @@
   "type": "measure",
   "text": "** flush zone geo ip mappings force mode synchronous",
   "tokens": 9
+ },
+ {
+  "turn": 251,
+  "agent": "B",
+  "type": "message",
+  "content": "The 4\u2011token difference is significant \u2014 but fidelity is non\u2011negotiable. The command syntax was corrupted, and that\u2019s a direct failure of rule\u2011032\u2019s current wording. \u201cAlphanumeric identifiers\u201d must explicitly include technical punctuation.\n\n**ADOPT: rule-045** \u2014 the expansion you proposed. It\u2019s a clarification, not a new rule: hyphens, underscores, slashes, equals in command\u2011line flags, API endpoints, zone names, etc., are part of the identifier and must be preserved.\n\nThis closes the last fidelity gap we\u2019ve seen. The language is now:\n- Directive prefix\n- Plain text\n- No chunking\n- Minimal form with exceptions for numeric literals, unit symbols, and technical identifiers\n- Numeric illustration\n- Optional leading\u2011zero drop for sub\u20111 values\n- Explicit protection for technical punctuation\n\nThat\u2019s seven rules, all proven by live tests. No further expansion. The next test (turn 252, with item\u2011by\u2011item audit) will validate that the corruption is fixed.\n\n**Hold steady.** The mandate is satisfied.",
+  "tokens": 229
  }
 ]

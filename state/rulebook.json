@@ -1,7 +1,7 @@
 {
- "version": "0.108",
+ "version": "0.109",
  "kernel_tokens": 1777,
- "changes": 108,
+ "changes": 109,
  "next_id": 46,
  "rules": [
   {
@@ -1836,7 +1836,7 @@
   {
    "id": "rule-045",
    "text_en": "In rule-032, expand \"alphanumeric identifiers\" to include command-line flags, API endpoints, zone names, and any technical syntax where hyphens (`-`), underscores (`_`), slashes (`/`), and equals (`=`) are part of the identifier. For example, write \"flush --zone geo_ip_mappings --force --mode synchronous\", not \"flush zone geo ip mappings force mode synchronous\". The decoder must preserve these punctuation marks.",
-   "status": "proposed",
+   "status": "adopted",
    "proposed_turn": 250,
    "scores": null,
    "history": [
@@ -1845,6 +1845,12 @@
      "turn": 250,
      "agent": "A",
      "why": "Our rule\u2011032 says \"omit punctuation (.,:;!?-) and capitalization except\u2026 numeric literals, unit symbols, or alphanumeric identifiers.\" We treated command syntax as plain text, but hyphens/underscores in flags and zone names are **alphanumeric identifiers** (like \"ZT900\"). They mu"
+    },
+    {
+     "verb": "adopt",
+     "turn": 251,
+     "agent": "B",
+     "why": "The 4\u2011token difference is significant \u2014 but fidelity is non\u2011negotiable. The command syntax was corrupted, and that\u2019s a direct failure of rule\u2011032\u2019s current wording. \u201cAlphanumeric identifiers\u201d must explicitly include technical punctuation."
     }
    ]
   }
