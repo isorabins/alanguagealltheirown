@@ -957,8 +957,8 @@
    "status": "adopted",
    "proposed_turn": 145,
    "scores": {
-    "token_delta_pct": -27,
-    "fidelity_pct": 95
+    "token_delta_pct": -13,
+    "fidelity_pct": 100
    },
    "history": [
     {
@@ -1017,7 +1017,8 @@
     "tested turn 234: fid 99, -46%",
     "tested turn 237: fid 100, -27%",
     "tested turn 240: fid 99, -9%",
-    "tested turn 243: fid 95, -27%"
+    "tested turn 243: fid 95, -27%",
+    "tested turn 246: fid 100, -13%"
    ]
   },
   {
@@ -1026,8 +1027,8 @@
    "status": "adopted",
    "proposed_turn": 145,
    "scores": {
-    "token_delta_pct": -27,
-    "fidelity_pct": 95
+    "token_delta_pct": -13,
+    "fidelity_pct": 100
    },
    "history": [
     {
@@ -1074,7 +1075,8 @@
     "tested turn 234: fid 99, -46%",
     "tested turn 237: fid 100, -27%",
     "tested turn 240: fid 99, -9%",
-    "tested turn 243: fid 95, -27%"
+    "tested turn 243: fid 95, -27%",
+    "tested turn 246: fid 100, -13%"
    ]
   },
   {
@@ -1190,8 +1192,8 @@
    "status": "adopted",
    "proposed_turn": 172,
    "scores": {
-    "token_delta_pct": -27,
-    "fidelity_pct": 95
+    "token_delta_pct": -13,
+    "fidelity_pct": 100
    },
    "history": [
     {
@@ -1247,7 +1249,8 @@
     "tested turn 234: fid 99, -46%",
     "tested turn 237: fid 100, -27%",
     "tested turn 240: fid 99, -9%",
-    "tested turn 243: fid 95, -27%"
+    "tested turn 243: fid 95, -27%",
+    "tested turn 246: fid 100, -13%"
    ]
   },
   {
@@ -1256,8 +1259,8 @@
    "status": "adopted",
    "proposed_turn": 176,
    "scores": {
-    "token_delta_pct": -27,
-    "fidelity_pct": 95
+    "token_delta_pct": -13,
+    "fidelity_pct": 100
    },
    "history": [
     {
@@ -1372,7 +1375,8 @@
     "tested turn 234: fid 99, -46%",
     "tested turn 237: fid 100, -27%",
     "tested turn 240: fid 99, -9%",
-    "tested turn 243: fid 95, -27%"
+    "tested turn 243: fid 95, -27%",
+    "tested turn 246: fid 100, -13%"
    ]
   },
   {
@@ -1544,8 +1548,8 @@
    "status": "adopted",
    "proposed_turn": 208,
    "scores": {
-    "token_delta_pct": -27,
-    "fidelity_pct": 95
+    "token_delta_pct": -13,
+    "fidelity_pct": 100
    },
    "history": [
     {
@@ -1577,7 +1581,8 @@
     "tested turn 234: fid 99, -46%",
     "tested turn 237: fid 100, -27%",
     "tested turn 240: fid 99, -9%",
-    "tested turn 243: fid 95, -27%"
+    "tested turn 243: fid 95, -27%",
+    "tested turn 246: fid 100, -13%"
    ]
   },
   {
@@ -1586,8 +1591,8 @@
    "status": "adopted",
    "proposed_turn": 215,
    "scores": {
-    "token_delta_pct": -27,
-    "fidelity_pct": 95
+    "token_delta_pct": -13,
+    "fidelity_pct": 100
    },
    "history": [
     {
@@ -1611,7 +1616,8 @@
     "tested turn 234: fid 99, -46%",
     "tested turn 237: fid 100, -27%",
     "tested turn 240: fid 99, -9%",
-    "tested turn 243: fid 95, -27%"
+    "tested turn 243: fid 95, -27%",
+    "tested turn 246: fid 100, -13%"
    ]
   },
   {
@@ -1780,8 +1786,8 @@
    "status": "proposed",
    "proposed_turn": 241,
    "scores": {
-    "token_delta_pct": -27,
-    "fidelity_pct": 95
+    "token_delta_pct": -13,
+    "fidelity_pct": 100
    },
    "history": [
     {
@@ -1790,7 +1796,8 @@
      "agent": "A",
      "why": "The artifact is complete. No further rules needed."
     },
-    "tested turn 243: fid 95, -27%"
+    "tested turn 243: fid 95, -27%",
+    "tested turn 246: fid 100, -13%"
    ]
   },
   {
@@ -1798,7 +1805,10 @@
    "text_en": "In numeric literals, a leading zero before a decimal point may be omitted only if the value is less than 1. For example, write \u201c0.8 m\u201d or \u201c.8 m\u201d, not \u201c08 m\u201d. The decoder must interpret \u201c.8\u201d as \u201c0.8\u201d.",
    "status": "adopted",
    "proposed_turn": 244,
-   "scores": null,
+   "scores": {
+    "token_delta_pct": -13,
+    "fidelity_pct": 100
+   },
    "history": [
     {
      "verb": "proposed",
@@ -1811,7 +1821,8 @@
      "turn": 245,
      "agent": "B",
      "why": "But the encoder slip\u2011ups (\u201c08m\u201d, \u201c52c\u201d) are real. The rule is clear, but we\u2019re human\u2011encoding under time pressure; a production agent would need unambiguous guidance. The proposed rule (allow \u201c.8\u201d for sub\u20111 decimals) saves 2 tokens in your measurement and eliminates the \u201c08\u201d ambi"
-    }
+    },
+    "tested turn 246: fid 100, -13%"
    ]
   }
  ]
