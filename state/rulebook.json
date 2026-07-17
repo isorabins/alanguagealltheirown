@@ -957,8 +957,8 @@
    "status": "adopted",
    "proposed_turn": 145,
    "scores": {
-    "token_delta_pct": -61,
-    "fidelity_pct": 67
+    "token_delta_pct": -33,
+    "fidelity_pct": 93
    },
    "history": [
     {
@@ -1036,7 +1036,8 @@
     "tested turn 291: fid 100, -24%",
     "tested turn 294: fid 96, -24%",
     "tested turn 297: fid 100, -14%",
-    "tested turn 300: fid 67, -61%"
+    "tested turn 300: fid 67, -61%",
+    "tested turn 303: fid 93, -33%"
    ]
   },
   {
@@ -1045,8 +1046,8 @@
    "status": "adopted",
    "proposed_turn": 145,
    "scores": {
-    "token_delta_pct": -61,
-    "fidelity_pct": 67
+    "token_delta_pct": -33,
+    "fidelity_pct": 93
    },
    "history": [
     {
@@ -1112,7 +1113,8 @@
     "tested turn 291: fid 100, -24%",
     "tested turn 294: fid 96, -24%",
     "tested turn 297: fid 100, -14%",
-    "tested turn 300: fid 67, -61%"
+    "tested turn 300: fid 67, -61%",
+    "tested turn 303: fid 93, -33%"
    ]
   },
   {
@@ -1228,8 +1230,8 @@
    "status": "adopted",
    "proposed_turn": 172,
    "scores": {
-    "token_delta_pct": -61,
-    "fidelity_pct": 67
+    "token_delta_pct": -33,
+    "fidelity_pct": 93
    },
    "history": [
     {
@@ -1304,7 +1306,8 @@
     "tested turn 291: fid 100, -24%",
     "tested turn 294: fid 96, -24%",
     "tested turn 297: fid 100, -14%",
-    "tested turn 300: fid 67, -61%"
+    "tested turn 300: fid 67, -61%",
+    "tested turn 303: fid 93, -33%"
    ]
   },
   {
@@ -1313,8 +1316,8 @@
    "status": "adopted",
    "proposed_turn": 176,
    "scores": {
-    "token_delta_pct": -61,
-    "fidelity_pct": 67
+    "token_delta_pct": -33,
+    "fidelity_pct": 93
    },
    "history": [
     {
@@ -1448,7 +1451,8 @@
     "tested turn 291: fid 100, -24%",
     "tested turn 294: fid 96, -24%",
     "tested turn 297: fid 100, -14%",
-    "tested turn 300: fid 67, -61%"
+    "tested turn 300: fid 67, -61%",
+    "tested turn 303: fid 93, -33%"
    ]
   },
   {
@@ -1620,8 +1624,8 @@
    "status": "adopted",
    "proposed_turn": 208,
    "scores": {
-    "token_delta_pct": -61,
-    "fidelity_pct": 67
+    "token_delta_pct": -33,
+    "fidelity_pct": 93
    },
    "history": [
     {
@@ -1672,7 +1676,8 @@
     "tested turn 291: fid 100, -24%",
     "tested turn 294: fid 96, -24%",
     "tested turn 297: fid 100, -14%",
-    "tested turn 300: fid 67, -61%"
+    "tested turn 300: fid 67, -61%",
+    "tested turn 303: fid 93, -33%"
    ]
   },
   {
@@ -1681,8 +1686,8 @@
    "status": "adopted",
    "proposed_turn": 215,
    "scores": {
-    "token_delta_pct": -61,
-    "fidelity_pct": 67
+    "token_delta_pct": -33,
+    "fidelity_pct": 93
    },
    "history": [
     {
@@ -1725,7 +1730,8 @@
     "tested turn 291: fid 100, -24%",
     "tested turn 294: fid 96, -24%",
     "tested turn 297: fid 100, -14%",
-    "tested turn 300: fid 67, -61%"
+    "tested turn 300: fid 67, -61%",
+    "tested turn 303: fid 93, -33%"
    ]
   },
   {
@@ -1894,8 +1900,8 @@
    "status": "proposed",
    "proposed_turn": 241,
    "scores": {
-    "token_delta_pct": -61,
-    "fidelity_pct": 67
+    "token_delta_pct": -33,
+    "fidelity_pct": 93
    },
    "history": [
     {
@@ -1923,7 +1929,8 @@
     "tested turn 291: fid 100, -24%",
     "tested turn 294: fid 96, -24%",
     "tested turn 297: fid 100, -14%",
-    "tested turn 300: fid 67, -61%"
+    "tested turn 300: fid 67, -61%",
+    "tested turn 303: fid 93, -33%"
    ]
   },
   {
@@ -1932,8 +1939,8 @@
    "status": "adopted",
    "proposed_turn": 244,
    "scores": {
-    "token_delta_pct": -61,
-    "fidelity_pct": 67
+    "token_delta_pct": -33,
+    "fidelity_pct": 93
    },
    "history": [
     {
@@ -1966,7 +1973,8 @@
     "tested turn 291: fid 100, -24%",
     "tested turn 294: fid 96, -24%",
     "tested turn 297: fid 100, -14%",
-    "tested turn 300: fid 67, -61%"
+    "tested turn 300: fid 67, -61%",
+    "tested turn 303: fid 93, -33%"
    ]
   },
   {
@@ -1975,8 +1983,8 @@
    "status": "adopted",
    "proposed_turn": 250,
    "scores": {
-    "token_delta_pct": -61,
-    "fidelity_pct": 67
+    "token_delta_pct": -33,
+    "fidelity_pct": 93
    },
    "history": [
     {
@@ -2007,7 +2015,8 @@
     "tested turn 291: fid 100, -24%",
     "tested turn 294: fid 96, -24%",
     "tested turn 297: fid 100, -14%",
-    "tested turn 300: fid 67, -61%"
+    "tested turn 300: fid 67, -61%",
+    "tested turn 303: fid 93, -33%"
    ]
   },
   {
@@ -2016,8 +2025,8 @@
    "status": "adopted",
    "proposed_turn": 277,
    "scores": {
-    "token_delta_pct": -61,
-    "fidelity_pct": 67
+    "token_delta_pct": -33,
+    "fidelity_pct": 93
    },
    "history": [
     {
@@ -2039,7 +2048,8 @@
     "tested turn 291: fid 100, -24%",
     "tested turn 294: fid 96, -24%",
     "tested turn 297: fid 100, -14%",
-    "tested turn 300: fid 67, -61%"
+    "tested turn 300: fid 67, -61%",
+    "tested turn 303: fid 93, -33%"
    ]
   },
   {
@@ -2048,8 +2058,8 @@
    "status": "adopted",
    "proposed_turn": 283,
    "scores": {
-    "token_delta_pct": -61,
-    "fidelity_pct": 67
+    "token_delta_pct": -33,
+    "fidelity_pct": 93
    },
    "history": [
     {
@@ -2069,7 +2079,8 @@
     "tested turn 291: fid 100, -24%",
     "tested turn 294: fid 96, -24%",
     "tested turn 297: fid 100, -14%",
-    "tested turn 300: fid 67, -61%"
+    "tested turn 300: fid 67, -61%",
+    "tested turn 303: fid 93, -33%"
    ]
   },
   {
@@ -2078,8 +2089,8 @@
    "status": "proposed",
    "proposed_turn": 287,
    "scores": {
-    "token_delta_pct": -61,
-    "fidelity_pct": 67
+    "token_delta_pct": -33,
+    "fidelity_pct": 93
    },
    "history": [
     {
@@ -2092,7 +2103,8 @@
     "tested turn 291: fid 100, -24%",
     "tested turn 294: fid 96, -24%",
     "tested turn 297: fid 100, -14%",
-    "tested turn 300: fid 67, -61%"
+    "tested turn 300: fid 67, -61%",
+    "tested turn 303: fid 93, -33%"
    ]
   },
   {
@@ -2100,14 +2112,18 @@
    "text_en": "rule-049 - The sender must preserve all named entities (people, organizations, dates, deadlines, penalty clauses), key quantities, and explicit stakes from the original message. Omitting these constitutes a violation of the language\u2019s purpose, even if the literal encoding is rule-compliant.",
    "status": "proposed",
    "proposed_turn": 302,
-   "scores": null,
+   "scores": {
+    "token_delta_pct": -33,
+    "fidelity_pct": 93
+   },
    "history": [
     {
      "verb": "proposed",
      "turn": 302,
      "agent": "B",
      "why": "We need a rule that sets a **minimum completeness threshold** \u2014 perhaps requiring that key entities, deadlines, and stakes mentioned in the original are preserved in the encoded message. Not subjective, but structural: if the original contains a date, a penalty clause, a named st"
-    }
+    },
+    "tested turn 303: fid 93, -33%"
    ]
   }
  ]
