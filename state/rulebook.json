@@ -1,8 +1,8 @@
 {
- "version": "0.109",
- "kernel_tokens": 1777,
- "changes": 109,
- "next_id": 46,
+ "version": "0.110",
+ "kernel_tokens": 1864,
+ "changes": 110,
+ "next_id": 47,
  "rules": [
   {
    "id": "rule-001",
@@ -1936,6 +1936,21 @@
     "tested turn 270: fid 100, -11%",
     "tested turn 273: fid 100, -13%",
     "tested turn 276: fid 96, -5%"
+   ]
+  },
+  {
+   "id": "rule-046",
+   "text_en": "rule-046 - In rule-045, clarify: When writing technical identifiers (command-line flags, API endpoints, zone names, license plates, etc.), the sender must preserve all punctuation marks (hyphens, underscores, slashes, equals) exactly as they appear in the original source. Do not replace them with spaces or omit them.",
+   "status": "proposed",
+   "proposed_turn": 277,
+   "scores": null,
+   "history": [
+    {
+     "verb": "proposed",
+     "turn": 277,
+     "agent": "A",
+     "why": "That's an encoder error, not a rule failure. But we can harden: require that alphanumeric identifiers with hyphens, underscores, slashes, equals must be written **exactly** as in the source, including those punctuation marks. The rule already says that, but we can make it explici"
+    }
    ]
   }
  ]

@@ -3944,5 +3944,26 @@
   ],
   "missing": [],
   "invented": []
+ },
+ {
+  "turn": 277,
+  "agent": "A",
+  "type": "message",
+  "content": "The corruption is a hyphen\u2011loss in a technical identifier: \"PRA-882-J\" became \"PRA 882 J\". Rule\u2011045 protects hyphens in technical identifiers, but the encoder wrote \"pra 882 j\" (spaces). The decoder reconstructed with spaces because the rule only says *preserve* hyphens if present; it doesn't mandate adding them if omitted.\n\nThat's an encoder error, not a rule failure. But we can harden: require that alphanumeric identifiers with hyphens, underscores, slashes, equals must be written **exactly** as in the source, including those punctuation marks. The rule already says that, but we can make it explicit: \"The sender must preserve all punctuation marks that are part of the identifier.\"\n\n**PROPOSE: rule-046 \u2014 In rule\u2011045, clarify: When writing technical identifiers (command\u2011line flags, API endpoints, zone names, license plates, etc.), the sender must preserve all punctuation marks (hyphens, underscores, slashes, equals) exactly as they appear in the original source. Do not replace them with spaces or omit them.**\n\nThis is a clarification, not a new rule. It would have prevented the \"PRA-882-J\" corruption. The cost is minimal (adds ~20 tokens to the rulebook), but it plugs the last observed fidelity leak.\n\n**MEASURE:** pra-882-j  \n**MEASURE:** pra 882 j  \n\nLet\u2019s confirm the token difference. If it\u2019s zero or small, the rule is worth adopting for strict preservation.",
+  "tokens": 324
+ },
+ {
+  "turn": 277,
+  "agent": "harness",
+  "type": "measure",
+  "text": "** pra-882-j",
+  "tokens": 5
+ },
+ {
+  "turn": 277,
+  "agent": "harness",
+  "type": "measure",
+  "text": "** pra 882 j",
+  "tokens": 5
  }
 ]
