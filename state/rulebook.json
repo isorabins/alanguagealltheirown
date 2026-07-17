@@ -957,8 +957,8 @@
    "status": "adopted",
    "proposed_turn": 145,
    "scores": {
-    "token_delta_pct": -17,
-    "fidelity_pct": 96
+    "token_delta_pct": -6,
+    "fidelity_pct": 100
    },
    "history": [
     {
@@ -1019,7 +1019,8 @@
     "tested turn 240: fid 99, -9%",
     "tested turn 243: fid 95, -27%",
     "tested turn 246: fid 100, -13%",
-    "tested turn 249: fid 96, -17%"
+    "tested turn 249: fid 96, -17%",
+    "tested turn 252: fid 100, -6%"
    ]
   },
   {
@@ -1028,8 +1029,8 @@
    "status": "adopted",
    "proposed_turn": 145,
    "scores": {
-    "token_delta_pct": -17,
-    "fidelity_pct": 96
+    "token_delta_pct": -6,
+    "fidelity_pct": 100
    },
    "history": [
     {
@@ -1078,7 +1079,8 @@
     "tested turn 240: fid 99, -9%",
     "tested turn 243: fid 95, -27%",
     "tested turn 246: fid 100, -13%",
-    "tested turn 249: fid 96, -17%"
+    "tested turn 249: fid 96, -17%",
+    "tested turn 252: fid 100, -6%"
    ]
   },
   {
@@ -1194,8 +1196,8 @@
    "status": "adopted",
    "proposed_turn": 172,
    "scores": {
-    "token_delta_pct": -17,
-    "fidelity_pct": 96
+    "token_delta_pct": -6,
+    "fidelity_pct": 100
    },
    "history": [
     {
@@ -1253,7 +1255,8 @@
     "tested turn 240: fid 99, -9%",
     "tested turn 243: fid 95, -27%",
     "tested turn 246: fid 100, -13%",
-    "tested turn 249: fid 96, -17%"
+    "tested turn 249: fid 96, -17%",
+    "tested turn 252: fid 100, -6%"
    ]
   },
   {
@@ -1262,8 +1265,8 @@
    "status": "adopted",
    "proposed_turn": 176,
    "scores": {
-    "token_delta_pct": -17,
-    "fidelity_pct": 96
+    "token_delta_pct": -6,
+    "fidelity_pct": 100
    },
    "history": [
     {
@@ -1380,7 +1383,8 @@
     "tested turn 240: fid 99, -9%",
     "tested turn 243: fid 95, -27%",
     "tested turn 246: fid 100, -13%",
-    "tested turn 249: fid 96, -17%"
+    "tested turn 249: fid 96, -17%",
+    "tested turn 252: fid 100, -6%"
    ]
   },
   {
@@ -1552,8 +1556,8 @@
    "status": "adopted",
    "proposed_turn": 208,
    "scores": {
-    "token_delta_pct": -17,
-    "fidelity_pct": 96
+    "token_delta_pct": -6,
+    "fidelity_pct": 100
    },
    "history": [
     {
@@ -1587,7 +1591,8 @@
     "tested turn 240: fid 99, -9%",
     "tested turn 243: fid 95, -27%",
     "tested turn 246: fid 100, -13%",
-    "tested turn 249: fid 96, -17%"
+    "tested turn 249: fid 96, -17%",
+    "tested turn 252: fid 100, -6%"
    ]
   },
   {
@@ -1596,8 +1601,8 @@
    "status": "adopted",
    "proposed_turn": 215,
    "scores": {
-    "token_delta_pct": -17,
-    "fidelity_pct": 96
+    "token_delta_pct": -6,
+    "fidelity_pct": 100
    },
    "history": [
     {
@@ -1623,7 +1628,8 @@
     "tested turn 240: fid 99, -9%",
     "tested turn 243: fid 95, -27%",
     "tested turn 246: fid 100, -13%",
-    "tested turn 249: fid 96, -17%"
+    "tested turn 249: fid 96, -17%",
+    "tested turn 252: fid 100, -6%"
    ]
   },
   {
@@ -1792,8 +1798,8 @@
    "status": "proposed",
    "proposed_turn": 241,
    "scores": {
-    "token_delta_pct": -17,
-    "fidelity_pct": 96
+    "token_delta_pct": -6,
+    "fidelity_pct": 100
    },
    "history": [
     {
@@ -1804,7 +1810,8 @@
     },
     "tested turn 243: fid 95, -27%",
     "tested turn 246: fid 100, -13%",
-    "tested turn 249: fid 96, -17%"
+    "tested turn 249: fid 96, -17%",
+    "tested turn 252: fid 100, -6%"
    ]
   },
   {
@@ -1813,8 +1820,8 @@
    "status": "adopted",
    "proposed_turn": 244,
    "scores": {
-    "token_delta_pct": -17,
-    "fidelity_pct": 96
+    "token_delta_pct": -6,
+    "fidelity_pct": 100
    },
    "history": [
     {
@@ -1830,7 +1837,8 @@
      "why": "But the encoder slip\u2011ups (\u201c08m\u201d, \u201c52c\u201d) are real. The rule is clear, but we\u2019re human\u2011encoding under time pressure; a production agent would need unambiguous guidance. The proposed rule (allow \u201c.8\u201d for sub\u20111 decimals) saves 2 tokens in your measurement and eliminates the \u201c08\u201d ambi"
     },
     "tested turn 246: fid 100, -13%",
-    "tested turn 249: fid 96, -17%"
+    "tested turn 249: fid 96, -17%",
+    "tested turn 252: fid 100, -6%"
    ]
   },
   {
@@ -1838,7 +1846,10 @@
    "text_en": "In rule-032, expand \"alphanumeric identifiers\" to include command-line flags, API endpoints, zone names, and any technical syntax where hyphens (`-`), underscores (`_`), slashes (`/`), and equals (`=`) are part of the identifier. For example, write \"flush --zone geo_ip_mappings --force --mode synchronous\", not \"flush zone geo ip mappings force mode synchronous\". The decoder must preserve these punctuation marks.",
    "status": "adopted",
    "proposed_turn": 250,
-   "scores": null,
+   "scores": {
+    "token_delta_pct": -6,
+    "fidelity_pct": 100
+   },
    "history": [
     {
      "verb": "proposed",
@@ -1851,7 +1862,8 @@
      "turn": 251,
      "agent": "B",
      "why": "The 4\u2011token difference is significant \u2014 but fidelity is non\u2011negotiable. The command syntax was corrupted, and that\u2019s a direct failure of rule\u2011032\u2019s current wording. \u201cAlphanumeric identifiers\u201d must explicitly include technical punctuation."
-    }
+    },
+    "tested turn 252: fid 100, -6%"
    ]
   }
  ]
