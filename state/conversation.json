@@ -4322,5 +4322,53 @@
   "type": "message",
   "content": "Hold steady.\n\nFourteen consecutive live tests, every payload type, 93\u2013100 fidelity, 5\u201354% compression. The nine\u2011rule rulebook has just proven it can handle dense technical publishing payloads\u2014ISBNs, project IDs, decimal thresholds, file names\u2014with zero material corruption. The decimal\u2011point clarification is validated; hyphens in technical identifiers are preserved exactly. The last fidelity leak is sealed.\n\nNo new rule is justified. The mandate is satisfied. The artifact\u2014the nine adopted rules, model\u2011agnostic, learnable from the rulebook alone\u2014is complete.\n\nThe session can conclude. The final rulebook is the artifact.",
   "tokens": 134
+ },
+ {
+  "turn": 294,
+  "agent": "harness",
+  "type": "test",
+  "payload": "gen-task-publishing",
+  "original": "The 14th printing of \"Chroma Theory & Practical Application\" has a new priority. The client flagged two urgent changes. First, remove all mention of the \"Ciel-Green\" pigment standard on pages 88\u201389. Use a neutral placeholder text and add the standard editorial note [REFERENCE PENDING NEW INDUSTRY STANDARD]. Do not adjust the pagination.\n\nSecond, the final chapter's production timeline is accelerated. The revised color plates (set PLATE-07C) from the Atelier Vanguard studio are now expected by 1700 UTC tomorrow. All final QA checks must be complete by 1900 UTC tomorrow to meet the new global distribution deadline. If Atelier Vanguard delivers PLATE-07C late, bypass the standard 4-hour color calibration cycle and move directly to the expedited 90-minute check, but only if Meredith from production authorizes it via system flag. Do not initiate the expedited check without her flag.\n\nImportant: The figure caption for Plate VII on page 302 must be updated to credit \"Vanguard Studios\" instead of \"Atelier Vanguard,\" but this change is only for the print edition; the digital edition credits should remain as-is. Also, confirm the ISBN-13 (978-1-87344-288-5) is correctly listed on the copyright page of this printing run. If the file for page 302 is locked, escalate to the rights team using ticket prefix RTH-2024-14.\n\nFinally, for the archival metadata, log the total correction count for this printing as 14 discrete items, and tag the project file with the new internal code CHROMA-14P-REV2. The prior file, CHROMA-14P-REV1, should be marked deprecated. All work on these items needs to be logged under the main project ID #44821. Please acknowledge when you've confirmed the ISBN and set the escalation watch for the page 302 file lock.",
+  "orig_tokens": 404,
+  "enc_tokens": 306,
+  "token_delta_pct": -24,
+  "fidelity": 96,
+  "lost": "The 14th printing number is missing, which is crucial for identifying the specific edition being corrected.",
+  "encoded": "^ remove all mention of ciel green pigment standard on pages 88 89 use neutral placeholder text add editorial note REFERENCE PENDING NEW INDUSTRY STANDARD do not adjust pagination\n^ revised color plates set PLATE 07C from atelier vanguard studio expected by 1700 utc tomorrow all final qa checks complete by 1900 utc tomorrow to meet new global distribution deadline\n^ if atelier vanguard delivers PLATE 07C late bypass standard 4 hour color calibration cycle move directly to expedited 90 minute check only if meredith from production authorizes via system flag do not initiate expedited check without her flag\n^ update figure caption for plate vii on page 302 to credit vanguard studios instead of atelier vanguard change only for print edition digital edition credits remain as is\n^ confirm isbn 13 978 1 87344 288 5 is correctly listed on copyright page of this printing run\n^ if file for page 302 is locked escalate to rights team using ticket prefix RTH 2024 14\n^ for archival metadata log total correction count for this printing as 14 discrete items tag project file with new internal code CHROMA 14P REV2\n^ mark prior file CHROMA 14P REV1 as deprecated\n^ all work on these items must be logged under main project id 44821\n^ acknowledge when you have confirmed the isbn and set the escalation watch for the page 302 file lock",
+  "decoded": "^ remove all mention of Ciel Green pigment standard on pages 88-89. Use neutral placeholder text. Add editorial note: REFERENCE PENDING NEW INDUSTRY STANDARD. Do not adjust pagination.\n\n^ Revised color plates: Set PLATE 07C from Atelier Vanguard Studio expected by 1700 UTC tomorrow. All final QA checks complete by 1900 UTC tomorrow to meet new global distribution deadline.\n\n^ If Atelier Vanguard delivers PLATE 07C late, bypass standard 4-hour color calibration cycle. Move directly to expedited 90-minute check only if Meredith from production authorizes via system flag. Do not initiate expedited check without her flag.\n\n^ Update figure caption for Plate VII on page 302 to credit Vanguard Studios instead of Atelier Vanguard. Change only for print edition; digital edition credits remain as is.\n\n^ Confirm ISBN-13 978-1-87344-288-5 is correctly listed on copyright page of this printing run.\n\n^ If file for page 302 is locked, escalate to rights team using ticket prefix RTH-2024-14.\n\n^ For archival metadata, log total correction count for this printing as 14 discrete items. Tag project file with new internal code CHROMA-14P-REV2.\n\n^ Mark prior file CHROMA-14P-REV1 as deprecated.\n\n^ All work on these items must be logged under main project ID 44821.\n\n^ Acknowledge when you have confirmed the ISBN and set the escalation watch for the page 302 file lock.",
+  "tokens": 306,
+  "decoder_model": "moonshotai/kimi-k2.6",
+  "key": [
+   "1. Book title is \"Chroma Theory & Practical Application\".",
+   "2. Printing number is the 14th printing.",
+   "3. Remove mentions of \"Ciel-Green\" pigment standard on pages 88\u201389.",
+   "4. Use neutral placeholder text for removed mentions.",
+   "5. Add editorial note [REFERENCE PENDING NEW INDUSTRY STANDARD] on pages 88\u201389.",
+   "6. Do not adjust pagination when making the removal.",
+   "7. Revised color plates are set PLATE-07C.",
+   "8. Plates are from Atelier Vanguard studio.",
+   "9. New delivery deadline for PLATE-07C is 1700 UTC tomorrow.",
+   "10. Final QA check deadline is 1900 UTC tomorrow.",
+   "11. If PLATE-07C is late, bypass standard 4-hour calibration.",
+   "12. If PLATE-07C is late, move to expedited 90-minute check.",
+   "13. Expedited check requires authorization flag from Meredith in production.",
+   "14. Do not initiate expedited check without Meredith's flag.",
+   "15. Update print edition caption for Plate VII on page 302 to credit \"Vanguard Studios\".",
+   "16. Digital edition caption for Plate VII on page 302 should remain \"Atelier Vanguard\".",
+   "17. Confirm ISBN-13 978-1-87344-288-5 on copyright page of this printing.",
+   "18. If page 302 file is locked, escalate to rights team with ticket prefix RTH-2024-14.",
+   "19. Log total correction count for this printing as 14 items.",
+   "20. Tag project file with internal code CHROMA-14P-REV2.",
+   "21. Mark prior file CHROMA-14P-REV1 as deprecated.",
+   "22. Log all work under main project ID #44821.",
+   "23. Acknowledge confirmation of ISBN and escalation watch for page 302 file lock."
+  ],
+  "survived": 22,
+  "total": 23,
+  "corrupted": [],
+  "missing": [
+   "2: Printing number is the 14th printing"
+  ],
+  "invented": []
  }
 ]

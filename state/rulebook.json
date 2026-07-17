@@ -958,7 +958,7 @@
    "proposed_turn": 145,
    "scores": {
     "token_delta_pct": -24,
-    "fidelity_pct": 100
+    "fidelity_pct": 96
    },
    "history": [
     {
@@ -1033,7 +1033,8 @@
     "tested turn 282: fid 96, -15%",
     "tested turn 285: fid 93, -23%",
     "tested turn 288: fid 100, -9%",
-    "tested turn 291: fid 100, -24%"
+    "tested turn 291: fid 100, -24%",
+    "tested turn 294: fid 96, -24%"
    ]
   },
   {
@@ -1043,7 +1044,7 @@
    "proposed_turn": 145,
    "scores": {
     "token_delta_pct": -24,
-    "fidelity_pct": 100
+    "fidelity_pct": 96
    },
    "history": [
     {
@@ -1106,7 +1107,8 @@
     "tested turn 282: fid 96, -15%",
     "tested turn 285: fid 93, -23%",
     "tested turn 288: fid 100, -9%",
-    "tested turn 291: fid 100, -24%"
+    "tested turn 291: fid 100, -24%",
+    "tested turn 294: fid 96, -24%"
    ]
   },
   {
@@ -1223,7 +1225,7 @@
    "proposed_turn": 172,
    "scores": {
     "token_delta_pct": -24,
-    "fidelity_pct": 100
+    "fidelity_pct": 96
    },
    "history": [
     {
@@ -1295,7 +1297,8 @@
     "tested turn 282: fid 96, -15%",
     "tested turn 285: fid 93, -23%",
     "tested turn 288: fid 100, -9%",
-    "tested turn 291: fid 100, -24%"
+    "tested turn 291: fid 100, -24%",
+    "tested turn 294: fid 96, -24%"
    ]
   },
   {
@@ -1305,7 +1308,7 @@
    "proposed_turn": 176,
    "scores": {
     "token_delta_pct": -24,
-    "fidelity_pct": 100
+    "fidelity_pct": 96
    },
    "history": [
     {
@@ -1436,7 +1439,8 @@
     "tested turn 282: fid 96, -15%",
     "tested turn 285: fid 93, -23%",
     "tested turn 288: fid 100, -9%",
-    "tested turn 291: fid 100, -24%"
+    "tested turn 291: fid 100, -24%",
+    "tested turn 294: fid 96, -24%"
    ]
   },
   {
@@ -1609,7 +1613,7 @@
    "proposed_turn": 208,
    "scores": {
     "token_delta_pct": -24,
-    "fidelity_pct": 100
+    "fidelity_pct": 96
    },
    "history": [
     {
@@ -1657,7 +1661,8 @@
     "tested turn 282: fid 96, -15%",
     "tested turn 285: fid 93, -23%",
     "tested turn 288: fid 100, -9%",
-    "tested turn 291: fid 100, -24%"
+    "tested turn 291: fid 100, -24%",
+    "tested turn 294: fid 96, -24%"
    ]
   },
   {
@@ -1667,7 +1672,7 @@
    "proposed_turn": 215,
    "scores": {
     "token_delta_pct": -24,
-    "fidelity_pct": 100
+    "fidelity_pct": 96
    },
    "history": [
     {
@@ -1707,7 +1712,8 @@
     "tested turn 282: fid 96, -15%",
     "tested turn 285: fid 93, -23%",
     "tested turn 288: fid 100, -9%",
-    "tested turn 291: fid 100, -24%"
+    "tested turn 291: fid 100, -24%",
+    "tested turn 294: fid 96, -24%"
    ]
   },
   {
@@ -1877,7 +1883,7 @@
    "proposed_turn": 241,
    "scores": {
     "token_delta_pct": -24,
-    "fidelity_pct": 100
+    "fidelity_pct": 96
    },
    "history": [
     {
@@ -1902,7 +1908,8 @@
     "tested turn 282: fid 96, -15%",
     "tested turn 285: fid 93, -23%",
     "tested turn 288: fid 100, -9%",
-    "tested turn 291: fid 100, -24%"
+    "tested turn 291: fid 100, -24%",
+    "tested turn 294: fid 96, -24%"
    ]
   },
   {
@@ -1912,7 +1919,7 @@
    "proposed_turn": 244,
    "scores": {
     "token_delta_pct": -24,
-    "fidelity_pct": 100
+    "fidelity_pct": 96
    },
    "history": [
     {
@@ -1942,7 +1949,8 @@
     "tested turn 282: fid 96, -15%",
     "tested turn 285: fid 93, -23%",
     "tested turn 288: fid 100, -9%",
-    "tested turn 291: fid 100, -24%"
+    "tested turn 291: fid 100, -24%",
+    "tested turn 294: fid 96, -24%"
    ]
   },
   {
@@ -1952,7 +1960,7 @@
    "proposed_turn": 250,
    "scores": {
     "token_delta_pct": -24,
-    "fidelity_pct": 100
+    "fidelity_pct": 96
    },
    "history": [
     {
@@ -1980,7 +1988,8 @@
     "tested turn 282: fid 96, -15%",
     "tested turn 285: fid 93, -23%",
     "tested turn 288: fid 100, -9%",
-    "tested turn 291: fid 100, -24%"
+    "tested turn 291: fid 100, -24%",
+    "tested turn 294: fid 96, -24%"
    ]
   },
   {
@@ -1990,7 +1999,7 @@
    "proposed_turn": 277,
    "scores": {
     "token_delta_pct": -24,
-    "fidelity_pct": 100
+    "fidelity_pct": 96
    },
    "history": [
     {
@@ -2009,7 +2018,8 @@
     "tested turn 282: fid 96, -15%",
     "tested turn 285: fid 93, -23%",
     "tested turn 288: fid 100, -9%",
-    "tested turn 291: fid 100, -24%"
+    "tested turn 291: fid 100, -24%",
+    "tested turn 294: fid 96, -24%"
    ]
   },
   {
@@ -2019,7 +2029,7 @@
    "proposed_turn": 283,
    "scores": {
     "token_delta_pct": -24,
-    "fidelity_pct": 100
+    "fidelity_pct": 96
    },
    "history": [
     {
@@ -2036,7 +2046,8 @@
     },
     "tested turn 285: fid 93, -23%",
     "tested turn 288: fid 100, -9%",
-    "tested turn 291: fid 100, -24%"
+    "tested turn 291: fid 100, -24%",
+    "tested turn 294: fid 96, -24%"
    ]
   },
   {
@@ -2046,7 +2057,7 @@
    "proposed_turn": 287,
    "scores": {
     "token_delta_pct": -24,
-    "fidelity_pct": 100
+    "fidelity_pct": 96
    },
    "history": [
     {
@@ -2056,7 +2067,8 @@
      "why": "However, the encoder may have treated \u201c4.5\u201d as a numeric value where the decimal could be omitted under the broader \u201comit punctuation\u201d allowance of rule-032. We need to resolve this conflict explicitly: **decimal points are never optional, even when other punctuation may be omitt"
     },
     "tested turn 288: fid 100, -9%",
-    "tested turn 291: fid 100, -24%"
+    "tested turn 291: fid 100, -24%",
+    "tested turn 294: fid 96, -24%"
    ]
   }
  ]
