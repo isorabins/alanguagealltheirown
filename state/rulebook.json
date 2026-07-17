@@ -1,7 +1,7 @@
 {
- "version": "0.117",
- "kernel_tokens": 2204,
- "changes": 117,
+ "version": "0.118",
+ "kernel_tokens": 2228,
+ "changes": 118,
  "next_id": 52,
  "rules": [
   {
@@ -2141,7 +2141,13 @@
      "agent": "B",
      "why": "Both revisions are fidelity-first hardenings, not bloat. The mandate demands a language robust to encoder optimization pressure. Without these, the language is brittle\u2014high fidelity only when encoders are conservative."
     },
-    "tested turn 318: fid 100, -15%"
+    "tested turn 318: fid 100, -15%",
+    {
+     "verb": "adopt",
+     "turn": 319,
+     "agent": "A",
+     "why": "These two adoptions close the catastrophic failure modes we\u2019ve seen, while keeping the rulebook lean and focused on objectively identifiable items."
+    }
    ]
   },
   {
@@ -2176,7 +2182,7 @@
   {
    "id": "rule-049",
    "text_en": "rule-049 - The sender must preserve all named entities (people, organizations, dates, deadlines, penalty clauses), key quantities, and explicit stakes from the original message. Omitting these constitutes a violation of the language\u2019s purpose, even if the literal encoding is rule-compliant.",
-   "status": "proposed",
+   "status": "adopted",
    "proposed_turn": 302,
    "scores": {
     "token_delta_pct": -15,
@@ -2194,7 +2200,13 @@
     "tested turn 309: fid 100, -13%",
     "tested turn 312: fid 100, -33%",
     "tested turn 315: fid 92, -35%",
-    "tested turn 318: fid 100, -15%"
+    "tested turn 318: fid 100, -15%",
+    {
+     "verb": "adopt",
+     "turn": 319,
+     "agent": "A",
+     "why": "These two adoptions close the catastrophic failure modes we\u2019ve seen, while keeping the rulebook lean and focused on objectively identifiable items."
+    }
    ]
   },
   {

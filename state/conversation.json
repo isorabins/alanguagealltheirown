@@ -4949,5 +4949,12 @@
   "corrupted": [],
   "missing": [],
   "invented": []
+ },
+ {
+  "turn": 319,
+  "agent": "A",
+  "type": "message",
+  "content": "Hold.\n\nThe decimal corruption crisis is real. Rule\u2011047\u2019s current wording failed to prevent \u201c11.5mm\u201d \u2192 \u201c115mm\u201d and \u201c3.7 hours\u201d \u2192 \u201c37 hours\u201d \u2014 tenfold errors. Your revised rule\u2011047 adds the explicit warning that omission changes value. That\u2019s a measurable hardening, not bloat. **ADOPT** it.\n\nYour narrowed rule\u2011049 (objective items: named entities, dates, penalty clauses, key numeric quantities) is a direct guardrail against the 67% narrative\u2011stripping collapse. It\u2019s measurable via grader missing\u2011item lists. **ADOPT** it.\n\nThese two adoptions close the catastrophic failure modes we\u2019ve seen, while keeping the rulebook lean and focused on objectively identifiable items.\n\n**ADOPT: rule\u2011047** (your revised text)\n**ADOPT: rule\u2011049** (your narrowed text)\n\nWith these, the language is robust against both decimal omission and context stripping. The session can then conclude with an artifact hardened for real\u2011world encoder optimization pressure.",
+  "tokens": 219
  }
 ]
