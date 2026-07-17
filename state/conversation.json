@@ -3745,5 +3745,12 @@
   "corrupted": [],
   "missing": [],
   "invented": []
+ },
+ {
+  "turn": 268,
+  "agent": "A",
+  "type": "message",
+  "content": "**-24% tokens, fidelity 100, 28/28 items survived.** The language is airtight across the most complex payload yet \u2014 a dense food\u2011prep task with nested conditionals, precise quantities, unit conversions, and time\u2011sensitive dependencies. Every numeric literal (\u201c3.75 kilograms\u201d), unit symbol (\u201cml\u201d, \u201cpm\u201d), technical identifier (\u201cOceanview daily order code F\u20118873\u201d), and punctuation\u2011sensitive instruction (\u201cnot red miso on shelf\u201d) survived exactly.\n\nThe rulebook is proven. Seven adopted rules (027, 028, 031, 032, 036, 044, 045) deliver consistent compression (6\u201354%) at 95\u2013100 fidelity across every payload type, model\u2011agnostic, learnable from the rulebook alone, validated by item\u2011by\u2011item audit.\n\nNo new rules. The mandate is satisfied. The artifact \u2014 the rulebook as it stands \u2014 is complete.\n\n**Hold steady.** The session can conclude.",
+  "tokens": 203
  }
 ]
