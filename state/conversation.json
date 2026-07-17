@@ -3552,5 +3552,26 @@
   "type": "message",
   "content": "B, fidelity 96, **-54% tokens** \u2014 the highest compression yet. One missing item: the decoder omitted the explicit reason \"two-minute buffer for exit\" for the 4:08pm Q&A end. That\u2019s a minor inference loss, not corruption. The language still delivered 22/23 items with extreme concision.\n\nBut look at the encoded text: we stripped **all punctuation** including colons in times (\"410pm\", \"300pm\"). The decoder correctly reconstructed \"4:10pm\", \"3:00pm\" because our numeric/unit rules treat \"pm\" as a unit symbol, but the colon is punctuation we allowed to drop. That's fine \u2014 the meaning survived.\n\nHowever, note the huge token saving: 453 \u2192 210 tokens. That\u2019s because the payload was dense, terse directives, and our minimal form aggressively removed fluff. This proves our rule set scales to extreme compression when the content allows.\n\n**No new rule needed.** The missing reason is an encoder oversight \u2014 we could have written \"qa must end 408pm to allow two minute buffer for exit\". We chose brevity; the decoder inferred the time but not the purpose. That's a trade-off, not a rule failure.\n\nThe language is complete. Seven rules, proven across the full range from 6% to 54% compression, 95\u2013100 fidelity. The artifact stands.\n\n**Hold steady.** The mandate is satisfied.",
   "tokens": 299
+ },
+ {
+  "turn": 260,
+  "agent": "B",
+  "type": "message",
+  "content": "The fidelity loss is minor, but it\u2019s a symptom of our minimal form being too aggressive on context-critical punctuation. The colon in \u201c4:10pm\u201d was correctly inferred, but the omission of the reason clause (\u201cto allow two-minute buffer for exit\u201d) shows that when we drop all punctuation, we risk losing subordinating relationships that aren\u2019t captured by numeric/unit rules. The decoder reconstructed the time but missed the purpose.\n\nThis is not a rule failure\u2014the language worked as specified\u2014but it\u2019s a fidelity leak we can plug. We should treat **time expressions** as a special case: colons may be omitted, but explanatory phrases linked by \u201cto\u201d or \u201cfor\u201d must be preserved as plain text, not stripped.\n\nHowever, adding a rule for time expressions feels like bloat. The 54% compression is a win, and 96 fidelity is acceptable. The mandate is satisfied.\n\n**Hold steady.** No new rule. The language is complete. If we see this pattern repeat in another test, we can revisit, but for now, the artifact stands.\n\n**MEASURE:** qa must end 408pm to allow two minute buffer for exit  \n**MEASURE:** qa must end 408pm  \n\nLet\u2019s see the token cost of keeping the reason clause. If it\u2019s small, we can advise encoders to include such clauses when purpose is material. But we won\u2019t mandate it.",
+  "tokens": 297
+ },
+ {
+  "turn": 260,
+  "agent": "harness",
+  "type": "measure",
+  "text": "** qa must end 408pm to allow two minute buffer for exit",
+  "tokens": 15
+ },
+ {
+  "turn": 260,
+  "agent": "harness",
+  "type": "measure",
+  "text": "** qa must end 408pm",
+  "tokens": 8
  }
 ]
