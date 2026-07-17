@@ -51,6 +51,19 @@
   }
   .metrics b { display: block; color: var(--ink); font-size: 1.02rem; font-weight: 400; margin-top: 0.2rem; }
 
+  .timers { display: flex; justify-content: center; gap: 4rem; margin: 0 0 1.6rem; text-align: center; }
+  .timers .tval { display: block; font-family: var(--mono); font-size: 2.7rem; color: var(--ink); letter-spacing: 0.04em; font-variant-numeric: tabular-nums; }
+  .timers .tval.running { color: var(--accent); font-size: 1.5rem; padding: 0.6rem 0; }
+  .timers .tlab { display: block; font-family: var(--mono); font-size: 0.64rem; letter-spacing: 0.22em; text-transform: uppercase; color: var(--ink-faint); margin-top: 0.3rem; }
+  .timers-cap { text-align: center; font-size: 0.84rem; color: var(--ink-dim); margin: 0 0 2.2rem; }
+
+  .prompt-intro { max-width: 44rem; margin: 0 auto 1.2rem; font-size: 0.92rem; color: var(--ink-dim); }
+  .prompt-intro a { color: var(--ink); }
+  details.prompt { margin-top: 0; border: 1px solid var(--hairline); border-top: none; }
+  details.prompt:first-of-type { border-top: 1px solid var(--hairline); }
+  details.prompt summary { text-align: left; padding: 0.8rem 1.1rem; letter-spacing: 0.12em; }
+  details.prompt pre { font-family: var(--mono); font-size: 0.72rem; line-height: 1.65; white-space: pre-wrap; word-wrap: break-word; color: var(--ink-dim); padding: 0 1.1rem 1.1rem; }
+
   h2 {
     font-weight: 400; font-size: 0.72rem; letter-spacing: 0.26em; text-transform: uppercase;
     color: var(--ink-faint); margin: 2.8rem 0 0.4rem; text-align: center;
@@ -156,45 +169,51 @@
   <p class="statement">Two AI agents with one standing task: invent the optimal language for
   machine-to-machine communication. <em>Every rule must survive a live test</em> — encoded by one
   agent, decoded by a fresh agent given only the rulebook, graded for surviving meaning.
-  The rulebook is the artifact: paste it into any model and it speaks.</p>
+  The end product is the rulebook: a plain-text document that teaches any AI to read and write the language.</p>
 </header>
+
+<div class="timers">
+  <div><span class="tval" id="t-turn">--:--</span><span class="tlab">next turn</span></div>
+  <div><span class="tval" id="t-test">--:--</span><span class="tlab">next live test</span></div>
+</div>
+<p class="timers-cap">The agents take one turn every 15 minutes, around the clock. Every third turn, a message they have never seen must survive the round trip through their language.</p>
 
 <div class="metrics" id="metrics"></div>
 <div class="legend"><b>fidelity</b> — % of meaning that survives a stranger's decode (100 = perfect relay, 0 = lost or invented) &nbsp;·&nbsp; <b>savings</b> — how much cheaper than plain English (negative = the language currently costs extra)</div>
 
-<h2>How This Works</h2>
-<p class="how">Five AI roles run this piece. No human touches the language.</p>
-<div id="cast">
-  <div class="note"><span class="nd">the negotiators</span>Agents A and B, talking below, one turn every 15 minutes. A wants every message cheaper. B refuses to lose meaning. Together, and only together, they write the rulebook.</div>
-  <div class="note"><span class="nd">the test writer</span>Every third turn, a separate AI invents a realistic message neither negotiator has ever seen — a deploy request, an apology, a recall notice with lot numbers. Every exam question is new.</div>
-  <div class="note"><span class="nd">the encoder</span>Another AI translates that message into the invented language, using nothing but the current rulebook.</div>
-  <div class="note"><span class="nd">the stranger</span>A completely fresh AI — no memory of the conversation, no context at all — receives only the rulebook and the encoded message, and must turn it back into plain English. A language that only its inventors can read fails here. This is the whole test.</div>
-  <div class="note"><span class="nd">the judge</span>Compares the original to what the stranger produced and scores how much meaning survived, 0–100. A real tokenizer counts whether the encoding was actually cheaper than plain English. Rules that survive become law; rules that fail are killed in public and stay in the rulebook as tombstones.</div>
-</div>
-
 <h2>The Negotiation, Live</h2>
-<p class="how">Agent A wants every message cheaper. Agent B refuses anything a stranger couldn't decode. Rules are born, argued, and killed here — dashed lines are live test results landing.</p>
+<p class="how">Agent A pushes to make every message cheaper. Agent B blocks anything a stranger couldn't decode. Rules get proposed, argued, and voted on here — the dashed lines are test results arriving.</p>
 <div class="panes">
-  <div class="pane"><div class="pane-head">Agent A — compression</div><div class="pane-body" id="paneA"></div></div>
-  <div class="pane"><div class="pane-head">Agent B — fidelity</div><div class="pane-body" id="paneB"></div></div>
+  <div class="pane"><div class="pane-head">Agent A — argues for compression</div><div class="pane-body" id="paneA"></div></div>
+  <div class="pane"><div class="pane-head">Agent B — argues for accuracy</div><div class="pane-body" id="paneB"></div></div>
 </div>
 <div class="decisions" id="decisions"></div>
+
+<h2>How This Works</h2>
+<p class="how">Five separate AI roles. No human writes or edits the language.</p>
+<div id="cast">
+  <div class="note"><span class="nd">the negotiators</span>Agents A and B, talking above, one turn every 15 minutes. A wants every message cheaper. B refuses to lose meaning. Together, and only together, they write the rulebook.</div>
+  <div class="note"><span class="nd">the test writer</span>Every third turn, a separate AI invents a realistic message neither negotiator has ever seen — a deploy request, an apology, a recall notice with lot numbers. Every exam question is new, so the agents can never tune their language to a known test.</div>
+  <div class="note"><span class="nd">the encoder</span>Another AI translates that message into the invented language, using nothing but the current rulebook.</div>
+  <div class="note"><span class="nd">the stranger</span>A completely fresh AI — no memory of the conversation, no context at all — receives only the rulebook and the encoded message, and must turn it back into plain English. If the language only works for the two agents who invented it, it fails here. This is the whole test.</div>
+  <div class="note"><span class="nd">the judge</span>Compares the original message to what the stranger produced and scores how much meaning survived, 0–100. A real tokenizer counts whether the encoded version was actually cheaper than plain English. Rules that pass keep their place; rules that fail are marked rejected and stay visible in the rulebook so the same mistake isn't proposed twice.</div>
+</div>
 
 <h2>The Language So Far</h2>
 <p class="how">Every rule that survived testing, with the agents' own reasoning for adopting it.</p>
 <div class="kernel-note" id="kernel"></div>
 <div id="adopted"></div>
 
-<h2>Latest Transmission</h2>
-<p class="how">The proof of life: one agent writes the message in the language, and a stranger AI — given nothing but the rulebook — reconstructs it. What the stranger hands back is the only thing that counts.</p>
+<h2>The Latest Test</h2>
+<p class="how">Left to right: the original message, the same message written in the language, and what a fresh AI understood it to say — working from nothing but the rulebook. The score measures how much meaning survived that round trip.</p>
 <div class="tx" id="tx"></div>
 
-<h2>Rejected on the Numbers</h2>
-<p class="how">Killed by measurement. The graveyard is most of the work.</p>
+<h2>Rejected Rules</h2>
+<p class="how">Rules that failed their live test. They stay listed — in the rulebook and here — so the agents don't propose the same idea twice. Most proposals end up on this list; that's the test doing its job.</p>
 <ul class="grave" id="grave"></ul>
 
-<h2>On the Table</h2>
-<p class="how">Proposed, awaiting a live test.</p>
+<h2>Proposed, Not Yet Tested</h2>
+<p class="how">Rules currently under debate, waiting for the next live test to prove or kill them.</p>
 <ul class="table-note" id="proposed"></ul>
 
 <details>
@@ -202,8 +221,13 @@
   <div class="hist" id="hist"></div>
 </details>
 
+<h2>The Prompts</h2>
+<p class="how">For anyone who wants to see exactly how this is wired.</p>
+<div class="prompt-intro">These are the only human-written instructions in the system, loaded live from the <a href="https://github.com/isorabins/alanguagealltheirown">public repo</a>. Each prompt sets up the game — the goal, the test, the proposal format, and each agent's bias — and deliberately withholds everything else: no example rules, no linguistics, no starter vocabulary. Whatever the language becomes, the agents got there on their own. The engine reads these files fresh every turn, so any edit changes behavior within 15 minutes, and every edit ever made is in the repo's history.</div>
+<div id="prompts"></div>
+
 <h2>Field Notes</h2>
-<p class="how">The keeper's log: what we saw, what we concluded, what we changed. The agents never read this.</p>
+<p class="how">Notes from the human running the experiment: what happened, what broke, and any changes made to the test machinery. The two agents never see these notes — they only ever see each other and the rulebook.</p>
 <div id="notes"></div>
 
 <footer id="foot"></footer>
@@ -336,23 +360,81 @@ function render(S) {
 
   document.getElementById("foot").innerHTML =
     'a live experiment in machine language · ' + esc((S.meta && S.meta.updated) || "—") +
+    ' · <a href="https://github.com/isorabins/alanguagealltheirown">all code &amp; every turn: github</a>' +
     ' · built by <a href="https://isorabins.com">iso</a>';
 }
 
-(function () {
+var TURN_MS = 15 * 60 * 1000;
+var lastTurnAt = null, lastTurnNum = null, refetchArmed = false, refetchDelay = 45000;
+
+function loadState() {
   var RAW = "https://raw.githubusercontent.com/isorabins/alanguagealltheirown/main/state/";
   var COMMITS = "https://api.github.com/repos/isorabins/alanguagealltheirown/commits/main";
   var fallback = window.STATE || {conversation: [], rulebook: {rules: [], version: "0.0", kernel_tokens: 0}, meta: {}};
-  var get = function (f) { return fetch(RAW + f).then(function (r) { if (!r.ok) throw 0; return r.json(); }); };
-  var lastCommit = fetch(COMMITS).then(function (r) { return r.json(); }).catch(function () { return null; });
+  var get = function (f) { return fetch(RAW + f, {cache: "no-store"}).then(function (r) { if (!r.ok) throw 0; return r.json(); }); };
+  var lastCommit = fetch(COMMITS, {cache: "no-store"}).then(function (r) { return r.json(); }).catch(function () { return null; });
   Promise.all([get("conversation.json"), get("rulebook.json"), lastCommit]).then(function (both) {
     var when = both[2] && both[2].commit && both[2].commit.committer && both[2].commit.committer.date;
+    if (when) {
+      var t = new Date(when).getTime();
+      if (lastTurnAt !== null && t > lastTurnAt) refetchDelay = 45000;
+      lastTurnAt = t;
+    }
+    lastTurnNum = both[0].length ? both[0][both[0].length - 1].turn : 0;
+    refetchArmed = false;
     var mins = when ? Math.round((Date.now() - new Date(when).getTime()) / 60000) : null;
     var stamp = mins === null ? "live"
       : mins > 45 ? "the loop has been still since " + new Date(when).toISOString().replace("T", " ").slice(0, 16) + " UTC"
       : "last turn " + mins + " min ago · live";
     render({conversation: both[0], rulebook: both[1], meta: {updated: stamp}});
   }).catch(function () { render(fallback); });
+}
+loadState();
+
+function fmtLeft(ms) {
+  var s = Math.max(0, Math.ceil(ms / 1000));
+  var m = Math.floor(s / 60); s = s % 60;
+  return (m < 10 ? "0" : "") + m + ":" + (s < 10 ? "0" : "") + s;
+}
+setInterval(function () {
+  var elT = document.getElementById("t-turn"), elX = document.getElementById("t-test");
+  if (!elT || !elX) return;
+  if (lastTurnAt === null) { elT.textContent = "--:--"; elX.textContent = "--:--"; return; }
+  var left = lastTurnAt + TURN_MS - Date.now();
+  var nextNum = (lastTurnNum || 0) + 1;
+  var k = (3 - (nextNum % 3)) % 3;
+  var testLeft = left + k * TURN_MS;
+  if (left <= 0) {
+    elT.textContent = left > -5 * 60 * 1000 ? "running now" : "delayed";
+    elT.classList.add("running");
+    if (!refetchArmed) {
+      refetchArmed = true;
+      setTimeout(loadState, refetchDelay);
+      refetchDelay = Math.min(refetchDelay * 2, 300000);
+    }
+  } else {
+    elT.textContent = fmtLeft(left); elT.classList.remove("running");
+  }
+  if (testLeft <= 0) { elX.textContent = "running now"; elX.classList.add("running"); }
+  else { elX.textContent = fmtLeft(testLeft); elX.classList.remove("running"); }
+}, 1000);
+
+(function () {
+  var RAWP = "https://raw.githubusercontent.com/isorabins/alanguagealltheirown/main/prompts/";
+  var files = [
+    ["agent_a.md", "agent A — the one that argues for compression"],
+    ["agent_b.md", "agent B — the one that argues for accuracy"],
+    ["payloadgen.md", "the test writer — how exam messages get generated"],
+    ["grader.md", "the judge — how fidelity gets scored"]
+  ];
+  var esc = function (s) { return String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;"); };
+  Promise.all(files.map(function (f) {
+    return fetch(RAWP + f[0]).then(function (r) { if (!r.ok) throw 0; return r.text(); }).catch(function () { return null; });
+  })).then(function (texts) {
+    document.getElementById("prompts").innerHTML = texts.map(function (t, i) {
+      return t === null ? "" : '<details class="prompt"><summary>' + files[i][1] + '</summary><pre>' + esc(t) + '</pre></details>';
+    }).join("");
+  });
 })();
 
 (function () {
