@@ -32,12 +32,12 @@
   "rule-035": "rejected",
   "rule-036": "adopted",
   "rule-037": "adopted",
-  "rule-038": "adopted",
-  "rule-039": "adopted",
-  "rule-040": "adopted",
-  "rule-041": "adopted",
-  "rule-042": "proposed",
+  "rule-038": "reverted",
+  "rule-039": "reverted",
+  "rule-040": "reverted",
+  "rule-041": "reverted",
+  "rule-042": "rejected",
   "rule-043": "proposed"
  },
- "tweets_sent": 15
+ "tweets_sent": 16
 }

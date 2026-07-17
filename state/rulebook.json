@@ -1,7 +1,7 @@
 {
- "version": "0.104",
- "kernel_tokens": 1738,
- "changes": 104,
+ "version": "0.105",
+ "kernel_tokens": 1585,
+ "changes": 105,
  "next_id": 44,
  "rules": [
   {
@@ -1611,7 +1611,7 @@
   {
    "id": "rule-038",
    "text_en": "rule-037** - All rules marked [rejected] in the rulebook are inactive and must be ignored. Only adopted rules (027, 028, 031, 032, 036) are in force.",
-   "status": "adopted",
+   "status": "reverted",
    "proposed_turn": 223,
    "scores": {
     "token_delta_pct": -9,
@@ -1635,13 +1635,19 @@
     "tested turn 231: fid 99, -9%",
     "tested turn 234: fid 99, -46%",
     "tested turn 237: fid 100, -27%",
-    "tested turn 240: fid 99, -9%"
+    "tested turn 240: fid 99, -9%",
+    {
+     "verb": "reject",
+     "turn": 242,
+     "agent": "B",
+     "why": "The harness is right. We've been adding \"finalization\" rules that merely restate the ledger, each costing ~30 tokens every message, forever. That's pure bloat \u2014 the rulebook already tracks adoption status. We need to prune."
+    }
    ]
   },
   {
    "id": "rule-039",
    "text_en": "rule-038** - This rulebook is complete. Only adopted rules (027, 028, 031, 032, 036) are in force. All other entries are historical and must be ignored.",
-   "status": "adopted",
+   "status": "reverted",
    "proposed_turn": 229,
    "scores": {
     "token_delta_pct": -9,
@@ -1663,13 +1669,19 @@
     },
     "tested turn 234: fid 99, -46%",
     "tested turn 237: fid 100, -27%",
-    "tested turn 240: fid 99, -9%"
+    "tested turn 240: fid 99, -9%",
+    {
+     "verb": "reject",
+     "turn": 242,
+     "agent": "B",
+     "why": "The harness is right. We've been adding \"finalization\" rules that merely restate the ledger, each costing ~30 tokens every message, forever. That's pure bloat \u2014 the rulebook already tracks adoption status. We need to prune."
+    }
    ]
   },
   {
    "id": "rule-040",
    "text_en": "rule-039** - This rulebook is complete. Only adopted rules (027, 028, 031, 032, 036, 038) are in force. All other entries are historical and must be ignored.",
-   "status": "adopted",
+   "status": "reverted",
    "proposed_turn": 232,
    "scores": {
     "token_delta_pct": -9,
@@ -1690,13 +1702,19 @@
      "why": ""
     },
     "tested turn 237: fid 100, -27%",
-    "tested turn 240: fid 99, -9%"
+    "tested turn 240: fid 99, -9%",
+    {
+     "verb": "reject",
+     "turn": 242,
+     "agent": "B",
+     "why": "The harness is right. We've been adding \"finalization\" rules that merely restate the ledger, each costing ~30 tokens every message, forever. That's pure bloat \u2014 the rulebook already tracks adoption status. We need to prune."
+    }
    ]
   },
   {
    "id": "rule-041",
    "text_en": "rule-040** - This rulebook is complete. Only adopted rules (027, 028, 031, 032, 036, 038, 039) are in force. All other entries are historical and must be ignored.",
-   "status": "adopted",
+   "status": "reverted",
    "proposed_turn": 235,
    "scores": {
     "token_delta_pct": -9,
@@ -1716,13 +1734,19 @@
      "agent": "B",
      "why": ""
     },
-    "tested turn 240: fid 99, -9%"
+    "tested turn 240: fid 99, -9%",
+    {
+     "verb": "reject",
+     "turn": 242,
+     "agent": "B",
+     "why": "The harness is right. We've been adding \"finalization\" rules that merely restate the ledger, each costing ~30 tokens every message, forever. That's pure bloat \u2014 the rulebook already tracks adoption status. We need to prune."
+    }
    ]
   },
   {
    "id": "rule-042",
    "text_en": "rule-041** - This rulebook is complete. Only adopted rules (027, 028, 031, 032, 036, 038, 039, 040) are in force. All other entries are historical and must be ignored.",
-   "status": "proposed",
+   "status": "rejected",
    "proposed_turn": 238,
    "scores": {
     "token_delta_pct": -9,
@@ -1735,7 +1759,13 @@
      "agent": "A",
      "why": "The artifact is complete and stable. No further rules needed."
     },
-    "tested turn 240: fid 99, -9%"
+    "tested turn 240: fid 99, -9%",
+    {
+     "verb": "reject",
+     "turn": 242,
+     "agent": "B",
+     "why": "The harness is right. We've been adding \"finalization\" rules that merely restate the ledger, each costing ~30 tokens every message, forever. That's pure bloat \u2014 the rulebook already tracks adoption status. We need to prune."
+    }
    ]
   },
   {
