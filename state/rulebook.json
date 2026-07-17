@@ -957,8 +957,8 @@
    "status": "adopted",
    "proposed_turn": 145,
    "scores": {
-    "token_delta_pct": -5,
-    "fidelity_pct": 96
+    "token_delta_pct": -26,
+    "fidelity_pct": 100
    },
    "history": [
     {
@@ -1028,7 +1028,8 @@
     "tested turn 267: fid 100, -24%",
     "tested turn 270: fid 100, -11%",
     "tested turn 273: fid 100, -13%",
-    "tested turn 276: fid 96, -5%"
+    "tested turn 276: fid 96, -5%",
+    "tested turn 279: fid 100, -26%"
    ]
   },
   {
@@ -1037,8 +1038,8 @@
    "status": "adopted",
    "proposed_turn": 145,
    "scores": {
-    "token_delta_pct": -5,
-    "fidelity_pct": 96
+    "token_delta_pct": -26,
+    "fidelity_pct": 100
    },
    "history": [
     {
@@ -1096,7 +1097,8 @@
     "tested turn 267: fid 100, -24%",
     "tested turn 270: fid 100, -11%",
     "tested turn 273: fid 100, -13%",
-    "tested turn 276: fid 96, -5%"
+    "tested turn 276: fid 96, -5%",
+    "tested turn 279: fid 100, -26%"
    ]
   },
   {
@@ -1212,8 +1214,8 @@
    "status": "adopted",
    "proposed_turn": 172,
    "scores": {
-    "token_delta_pct": -5,
-    "fidelity_pct": 96
+    "token_delta_pct": -26,
+    "fidelity_pct": 100
    },
    "history": [
     {
@@ -1280,7 +1282,8 @@
     "tested turn 267: fid 100, -24%",
     "tested turn 270: fid 100, -11%",
     "tested turn 273: fid 100, -13%",
-    "tested turn 276: fid 96, -5%"
+    "tested turn 276: fid 96, -5%",
+    "tested turn 279: fid 100, -26%"
    ]
   },
   {
@@ -1289,8 +1292,8 @@
    "status": "adopted",
    "proposed_turn": 176,
    "scores": {
-    "token_delta_pct": -5,
-    "fidelity_pct": 96
+    "token_delta_pct": -26,
+    "fidelity_pct": 100
    },
    "history": [
     {
@@ -1416,7 +1419,8 @@
     "tested turn 267: fid 100, -24%",
     "tested turn 270: fid 100, -11%",
     "tested turn 273: fid 100, -13%",
-    "tested turn 276: fid 96, -5%"
+    "tested turn 276: fid 96, -5%",
+    "tested turn 279: fid 100, -26%"
    ]
   },
   {
@@ -1588,8 +1592,8 @@
    "status": "adopted",
    "proposed_turn": 208,
    "scores": {
-    "token_delta_pct": -5,
-    "fidelity_pct": 96
+    "token_delta_pct": -26,
+    "fidelity_pct": 100
    },
    "history": [
     {
@@ -1632,7 +1636,8 @@
     "tested turn 267: fid 100, -24%",
     "tested turn 270: fid 100, -11%",
     "tested turn 273: fid 100, -13%",
-    "tested turn 276: fid 96, -5%"
+    "tested turn 276: fid 96, -5%",
+    "tested turn 279: fid 100, -26%"
    ]
   },
   {
@@ -1641,8 +1646,8 @@
    "status": "adopted",
    "proposed_turn": 215,
    "scores": {
-    "token_delta_pct": -5,
-    "fidelity_pct": 96
+    "token_delta_pct": -26,
+    "fidelity_pct": 100
    },
    "history": [
     {
@@ -1677,7 +1682,8 @@
     "tested turn 267: fid 100, -24%",
     "tested turn 270: fid 100, -11%",
     "tested turn 273: fid 100, -13%",
-    "tested turn 276: fid 96, -5%"
+    "tested turn 276: fid 96, -5%",
+    "tested turn 279: fid 100, -26%"
    ]
   },
   {
@@ -1846,8 +1852,8 @@
    "status": "proposed",
    "proposed_turn": 241,
    "scores": {
-    "token_delta_pct": -5,
-    "fidelity_pct": 96
+    "token_delta_pct": -26,
+    "fidelity_pct": 100
    },
    "history": [
     {
@@ -1867,7 +1873,8 @@
     "tested turn 267: fid 100, -24%",
     "tested turn 270: fid 100, -11%",
     "tested turn 273: fid 100, -13%",
-    "tested turn 276: fid 96, -5%"
+    "tested turn 276: fid 96, -5%",
+    "tested turn 279: fid 100, -26%"
    ]
   },
   {
@@ -1876,8 +1883,8 @@
    "status": "adopted",
    "proposed_turn": 244,
    "scores": {
-    "token_delta_pct": -5,
-    "fidelity_pct": 96
+    "token_delta_pct": -26,
+    "fidelity_pct": 100
    },
    "history": [
     {
@@ -1902,7 +1909,8 @@
     "tested turn 267: fid 100, -24%",
     "tested turn 270: fid 100, -11%",
     "tested turn 273: fid 100, -13%",
-    "tested turn 276: fid 96, -5%"
+    "tested turn 276: fid 96, -5%",
+    "tested turn 279: fid 100, -26%"
    ]
   },
   {
@@ -1911,8 +1919,8 @@
    "status": "adopted",
    "proposed_turn": 250,
    "scores": {
-    "token_delta_pct": -5,
-    "fidelity_pct": 96
+    "token_delta_pct": -26,
+    "fidelity_pct": 100
    },
    "history": [
     {
@@ -1935,7 +1943,8 @@
     "tested turn 267: fid 100, -24%",
     "tested turn 270: fid 100, -11%",
     "tested turn 273: fid 100, -13%",
-    "tested turn 276: fid 96, -5%"
+    "tested turn 276: fid 96, -5%",
+    "tested turn 279: fid 100, -26%"
    ]
   },
   {
@@ -1943,7 +1952,10 @@
    "text_en": "rule-046 - In rule-045, clarify: When writing technical identifiers (command-line flags, API endpoints, zone names, license plates, etc.), the sender must preserve all punctuation marks (hyphens, underscores, slashes, equals) exactly as they appear in the original source. Do not replace them with spaces or omit them.",
    "status": "adopted",
    "proposed_turn": 277,
-   "scores": null,
+   "scores": {
+    "token_delta_pct": -26,
+    "fidelity_pct": 100
+   },
    "history": [
     {
      "verb": "proposed",
@@ -1956,7 +1968,8 @@
      "turn": 278,
      "agent": "B",
      "why": "Given our fidelity-first lean, we should adopt a clarifying rule that eliminates ambiguity: identifiers must be copied exactly, punctuation intact. The token cost is minimal (your proposed rule adds ~20 tokens to the rulebook), and it prevents this exact failure mode."
-    }
+    },
+    "tested turn 279: fid 100, -26%"
    ]
   }
  ]
