@@ -957,7 +957,7 @@
    "status": "adopted",
    "proposed_turn": 145,
    "scores": {
-    "token_delta_pct": -15,
+    "token_delta_pct": -24,
     "fidelity_pct": 100
    },
    "history": [
@@ -1042,7 +1042,8 @@
     "tested turn 309: fid 100, -13%",
     "tested turn 312: fid 100, -33%",
     "tested turn 315: fid 92, -35%",
-    "tested turn 318: fid 100, -15%"
+    "tested turn 318: fid 100, -15%",
+    "tested turn 321: fid 100, -24%"
    ]
   },
   {
@@ -1051,7 +1052,7 @@
    "status": "adopted",
    "proposed_turn": 145,
    "scores": {
-    "token_delta_pct": -15,
+    "token_delta_pct": -24,
     "fidelity_pct": 100
    },
    "history": [
@@ -1124,7 +1125,8 @@
     "tested turn 309: fid 100, -13%",
     "tested turn 312: fid 100, -33%",
     "tested turn 315: fid 92, -35%",
-    "tested turn 318: fid 100, -15%"
+    "tested turn 318: fid 100, -15%",
+    "tested turn 321: fid 100, -24%"
    ]
   },
   {
@@ -1240,7 +1242,7 @@
    "status": "adopted",
    "proposed_turn": 172,
    "scores": {
-    "token_delta_pct": -15,
+    "token_delta_pct": -24,
     "fidelity_pct": 100
    },
    "history": [
@@ -1322,7 +1324,8 @@
     "tested turn 309: fid 100, -13%",
     "tested turn 312: fid 100, -33%",
     "tested turn 315: fid 92, -35%",
-    "tested turn 318: fid 100, -15%"
+    "tested turn 318: fid 100, -15%",
+    "tested turn 321: fid 100, -24%"
    ]
   },
   {
@@ -1331,7 +1334,7 @@
    "status": "adopted",
    "proposed_turn": 176,
    "scores": {
-    "token_delta_pct": -15,
+    "token_delta_pct": -24,
     "fidelity_pct": 100
    },
    "history": [
@@ -1472,7 +1475,8 @@
     "tested turn 309: fid 100, -13%",
     "tested turn 312: fid 100, -33%",
     "tested turn 315: fid 92, -35%",
-    "tested turn 318: fid 100, -15%"
+    "tested turn 318: fid 100, -15%",
+    "tested turn 321: fid 100, -24%"
    ]
   },
   {
@@ -1644,7 +1648,7 @@
    "status": "adopted",
    "proposed_turn": 208,
    "scores": {
-    "token_delta_pct": -15,
+    "token_delta_pct": -24,
     "fidelity_pct": 100
    },
    "history": [
@@ -1702,7 +1706,8 @@
     "tested turn 309: fid 100, -13%",
     "tested turn 312: fid 100, -33%",
     "tested turn 315: fid 92, -35%",
-    "tested turn 318: fid 100, -15%"
+    "tested turn 318: fid 100, -15%",
+    "tested turn 321: fid 100, -24%"
    ]
   },
   {
@@ -1711,7 +1716,7 @@
    "status": "adopted",
    "proposed_turn": 215,
    "scores": {
-    "token_delta_pct": -15,
+    "token_delta_pct": -24,
     "fidelity_pct": 100
    },
    "history": [
@@ -1761,7 +1766,8 @@
     "tested turn 309: fid 100, -13%",
     "tested turn 312: fid 100, -33%",
     "tested turn 315: fid 92, -35%",
-    "tested turn 318: fid 100, -15%"
+    "tested turn 318: fid 100, -15%",
+    "tested turn 321: fid 100, -24%"
    ]
   },
   {
@@ -1930,7 +1936,7 @@
    "status": "proposed",
    "proposed_turn": 241,
    "scores": {
-    "token_delta_pct": -15,
+    "token_delta_pct": -24,
     "fidelity_pct": 100
    },
    "history": [
@@ -1965,7 +1971,8 @@
     "tested turn 309: fid 100, -13%",
     "tested turn 312: fid 100, -33%",
     "tested turn 315: fid 92, -35%",
-    "tested turn 318: fid 100, -15%"
+    "tested turn 318: fid 100, -15%",
+    "tested turn 321: fid 100, -24%"
    ]
   },
   {
@@ -1974,7 +1981,7 @@
    "status": "adopted",
    "proposed_turn": 244,
    "scores": {
-    "token_delta_pct": -15,
+    "token_delta_pct": -24,
     "fidelity_pct": 100
    },
    "history": [
@@ -2014,7 +2021,8 @@
     "tested turn 309: fid 100, -13%",
     "tested turn 312: fid 100, -33%",
     "tested turn 315: fid 92, -35%",
-    "tested turn 318: fid 100, -15%"
+    "tested turn 318: fid 100, -15%",
+    "tested turn 321: fid 100, -24%"
    ]
   },
   {
@@ -2023,7 +2031,7 @@
    "status": "adopted",
    "proposed_turn": 250,
    "scores": {
-    "token_delta_pct": -15,
+    "token_delta_pct": -24,
     "fidelity_pct": 100
    },
    "history": [
@@ -2061,7 +2069,8 @@
     "tested turn 309: fid 100, -13%",
     "tested turn 312: fid 100, -33%",
     "tested turn 315: fid 92, -35%",
-    "tested turn 318: fid 100, -15%"
+    "tested turn 318: fid 100, -15%",
+    "tested turn 321: fid 100, -24%"
    ]
   },
   {
@@ -2070,7 +2079,7 @@
    "status": "adopted",
    "proposed_turn": 277,
    "scores": {
-    "token_delta_pct": -15,
+    "token_delta_pct": -24,
     "fidelity_pct": 100
    },
    "history": [
@@ -2099,7 +2108,8 @@
     "tested turn 309: fid 100, -13%",
     "tested turn 312: fid 100, -33%",
     "tested turn 315: fid 92, -35%",
-    "tested turn 318: fid 100, -15%"
+    "tested turn 318: fid 100, -15%",
+    "tested turn 321: fid 100, -24%"
    ]
   },
   {
@@ -2108,7 +2118,7 @@
    "status": "adopted",
    "proposed_turn": 283,
    "scores": {
-    "token_delta_pct": -15,
+    "token_delta_pct": -24,
     "fidelity_pct": 100
    },
    "history": [
@@ -2153,7 +2163,8 @@
      "turn": 320,
      "agent": "B",
      "why": "The revised rule-047 and narrowed rule-049 are essential. The decimal corruption and narrative stripping are not encoder negligence\u2014they are predictable failures under optimization pressure. The rules must be hardened to survive that pressure."
-    }
+    },
+    "tested turn 321: fid 100, -24%"
    ]
   },
   {
@@ -2162,7 +2173,7 @@
    "status": "proposed",
    "proposed_turn": 287,
    "scores": {
-    "token_delta_pct": -15,
+    "token_delta_pct": -24,
     "fidelity_pct": 100
    },
    "history": [
@@ -2182,7 +2193,8 @@
     "tested turn 309: fid 100, -13%",
     "tested turn 312: fid 100, -33%",
     "tested turn 315: fid 92, -35%",
-    "tested turn 318: fid 100, -15%"
+    "tested turn 318: fid 100, -15%",
+    "tested turn 321: fid 100, -24%"
    ]
   },
   {
@@ -2191,7 +2203,7 @@
    "status": "adopted",
    "proposed_turn": 302,
    "scores": {
-    "token_delta_pct": -15,
+    "token_delta_pct": -24,
     "fidelity_pct": 100
    },
    "history": [
@@ -2218,7 +2230,8 @@
      "turn": 320,
      "agent": "B",
      "why": ""
-    }
+    },
+    "tested turn 321: fid 100, -24%"
    ]
   },
   {
@@ -2227,7 +2240,7 @@
    "status": "proposed",
    "proposed_turn": 316,
    "scores": {
-    "token_delta_pct": -15,
+    "token_delta_pct": -24,
     "fidelity_pct": 100
    },
    "history": [
@@ -2237,7 +2250,8 @@
      "agent": "A",
      "why": ""
     },
-    "tested turn 318: fid 100, -15%"
+    "tested turn 318: fid 100, -15%",
+    "tested turn 321: fid 100, -24%"
    ]
   },
   {
@@ -2246,7 +2260,7 @@
    "status": "proposed",
    "proposed_turn": 317,
    "scores": {
-    "token_delta_pct": -15,
+    "token_delta_pct": -24,
     "fidelity_pct": 100
    },
    "history": [
@@ -2256,7 +2270,8 @@
      "agent": "B",
      "why": "Both revisions are fidelity-first hardenings, not bloat. The mandate demands a language robust to encoder optimization pressure. Without these, the language is brittle\u2014high fidelity only when encoders are conservative."
     },
-    "tested turn 318: fid 100, -15%"
+    "tested turn 318: fid 100, -15%",
+    "tested turn 321: fid 100, -24%"
    ]
   }
  ]
