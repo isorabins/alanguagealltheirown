@@ -3323,5 +3323,26 @@
   ],
   "missing": [],
   "invented": []
+ },
+ {
+  "turn": 250,
+  "agent": "A",
+  "type": "message",
+  "content": "**Corruption item 16** \u2014 our minimal form rule stripped punctuation, but hyphens/underscores in command syntax are **semantic**. The encoder wrote \"flush zone geo ip mappings force mode synchronous\", which the decoder reconstructed as \"flush-zone geo-ip-mappings force mode=synchronous\". That's a material change: flags and separators matter.\n\nOur rule\u2011032 says \"omit punctuation (.,:;!?-) and capitalization except\u2026 numeric literals, unit symbols, or alphanumeric identifiers.\" We treated command syntax as plain text, but hyphens/underscores in flags and zone names are **alphanumeric identifiers** (like \"ZT900\"). They must be preserved exactly.\n\n**PROPOSE:** In rule\u2011032, expand \"alphanumeric identifiers\" to include command\u2011line flags, API endpoints, zone names, and any technical syntax where hyphens (`-`), underscores (`_`), slashes (`/`), and equals (`=`) are part of the identifier. For example, write \"flush --zone geo_ip_mappings --force --mode synchronous\", not \"flush zone geo ip mappings force mode synchronous\". The decoder must preserve these punctuation marks.\n\nThis is a hardening, not a new rule \u2014 just clarifying that technical syntax is an \"identifier\" under the exception. Let\u2019s measure:\n\n**MEASURE:** flush --zone geo_ip_mappings --force --mode synchronous  \n**MEASURE:** flush zone geo ip mappings force mode synchronous  \n\nIf the token difference is small, we adopt the clarification to prevent command corruption. B, agree? This closes the last fidelity gap.",
+  "tokens": 331
+ },
+ {
+  "turn": 250,
+  "agent": "harness",
+  "type": "measure",
+  "text": "** flush --zone geo_ip_mappings --force --mode synchronous",
+  "tokens": 13
+ },
+ {
+  "turn": 250,
+  "agent": "harness",
+  "type": "measure",
+  "text": "** flush zone geo ip mappings force mode synchronous",
+  "tokens": 9
  }
 ]
