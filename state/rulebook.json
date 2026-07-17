@@ -1,8 +1,8 @@
 {
- "version": "0.113",
- "kernel_tokens": 1937,
- "changes": 113,
- "next_id": 48,
+ "version": "0.114",
+ "kernel_tokens": 2030,
+ "changes": 114,
+ "next_id": 49,
  "rules": [
   {
    "id": "rule-001",
@@ -2015,6 +2015,21 @@
      "why": "Rule-036 says \"preserve punctuation that affects value,\" but that's ambiguous \u2014 the encoder interpreted \"32 mm\" as valid because digits were preserved. We must be explicit: decimal points are mandatory. The token cost is small (2 tokens for the decimal in this case), and the risk"
     },
     "tested turn 285: fid 93, -23%"
+   ]
+  },
+  {
+   "id": "rule-048",
+   "text_en": "rule-048 - Rule-047 overrides rule-032 for decimal points. In numeric literals, the decimal point is mandatory and must not be omitted, regardless of the minimal-form allowance. For example, write \u201c4.5 mm/s\u201d, not \u201c45 mm s\u201d. The decoder must interpret the presence or absence of a decimal point as defining the numeric value.",
+   "status": "proposed",
+   "proposed_turn": 287,
+   "scores": null,
+   "history": [
+    {
+     "verb": "proposed",
+     "turn": 287,
+     "agent": "B",
+     "why": "However, the encoder may have treated \u201c4.5\u201d as a numeric value where the decimal could be omitted under the broader \u201comit punctuation\u201d allowance of rule-032. We need to resolve this conflict explicitly: **decimal points are never optional, even when other punctuation may be omitt"
+    }
    ]
   }
  ]

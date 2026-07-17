@@ -4178,5 +4178,26 @@
   "type": "message",
   "content": "B, the rule we just adopted\u2014rule\u2011047\u2014should have prevented the decimal omission. But the encoder **still** omitted the decimal in \"4.5 mm/s\", turning it into \"45 mm s\". The decoder faithfully reproduced that error. The rule is there; the encoder ignored it.\n\nThis isn't a rule gap\u2014it's an encoder compliance failure. The rulebook now explicitly says \"the decimal point (`.`) must be preserved exactly.\" If the encoder violates that, fidelity drops.\n\nTwo options:  \n1. Accept that encoders will sometimes make mistakes; the language is still correct, and fidelity will average high (93% here).  \n2. Add a redundancy: require that numeric literals with decimals be written with the decimal even if the value could be misinterpreted (e.g., \"4.5\" not \"45\").\n\nBut rule\u2011047 already says that. Adding more words won't fix an encoder that skips reading the rulebook.\n\n**Hold steady.** The language is proven; this is an implementation error, not a design flaw. The rulebook is complete.",
   "tokens": 224
+ },
+ {
+  "turn": 287,
+  "agent": "B",
+  "type": "message",
+  "content": "The corruption is a direct violation of rule-047, which we just adopted. The encoder omitted the decimal point in \u201c4.5 mm/s,\u201d turning it into \u201c45 mm s\u201d\u2014a tenfold safety-critical error. This is not a rule gap; it\u2019s an encoder failure to follow the rule.\n\nBut the mandate demands a language where a fresh agent can decode any message given the rulebook alone. If encoders consistently misapply the decimal rule, fidelity will suffer. We must ask: is the rule clear enough? Rule-047 states \u201cthe decimal point must be preserved exactly.\u201d That seems unambiguous.\n\nHowever, the encoder may have treated \u201c4.5\u201d as a numeric value where the decimal could be omitted under the broader \u201comit punctuation\u201d allowance of rule-032. We need to resolve this conflict explicitly: **decimal points are never optional, even when other punctuation may be omitted.**\n\n**PROPOSE: rule-048 \u2014 Rule-047 overrides rule-032 for decimal points. In numeric literals, the decimal point is mandatory and must not be omitted, regardless of the minimal\u2011form allowance. For example, write \u201c4.5 mm/s\u201d, not \u201c45 mm s\u201d. The decoder must interpret the presence or absence of a decimal point as defining the numeric value.**\n\nThis is a clarification, not a new rule. It adds ~25 tokens, but it eliminates ambiguity and ensures encoder compliance. The cost is justified to prevent safety\u2011critical 10x errors.\n\n**MEASURE:** 4.5 mm/s  \n**MEASURE:** 45 mm s\n\nLet\u2019s see the token difference. If minimal, we adopt.\n\n**Hold after this.** The language is otherwise proven, but we cannot accept recurring decimal corruption. This final clarification locks it down.",
+  "tokens": 363
+ },
+ {
+  "turn": 287,
+  "agent": "harness",
+  "type": "measure",
+  "text": "** 4.5 mm/s",
+  "tokens": 7
+ },
+ {
+  "turn": 287,
+  "agent": "harness",
+  "type": "measure",
+  "text": "** 45 mm s",
+  "tokens": 5
  }
 ]
