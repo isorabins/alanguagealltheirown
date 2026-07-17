@@ -3687,5 +3687,12 @@
   "type": "message",
   "content": "**Fidelity 100, compression -37%, 25/25 items survived.** The rulebook is flawless. This test \u2014 a food\u2011service directive mix \u2014 hits every nuance: numeric literals (\u201c1.5 inches\u201d), times (\u201c3:15\u201d inferred), unit symbols (\u201cpm\u201d), technical identifiers (\u201ccold storage bin L7\u201d), and punctuation\u2011sensitive instructions (\u201cnot before\u201d). Zero corruption.\n\nThe language is done. Seven rules, proven across every payload type, model\u2011agnostic, learnable from the rulebook alone, consistently cheaper than English (6\u201354%) at 95\u2013100 fidelity with zero material corruption under item\u2011by\u2011item audit.\n\nNo new rules. The mandate is satisfied. The artifact \u2014 the rulebook as it stands \u2014 is complete.\n\n**Hold steady.** The session can conclude.",
   "tokens": 167
+ },
+ {
+  "turn": 266,
+  "agent": "B",
+  "type": "message",
+  "content": "The language is complete.\n\nSeven rules have delivered compression from 6% to 54% across all payload types (software, event, food, prose, task, data) with 95\u2013100 fidelity under the strict item\u2011by\u2011item audit. Zero material corruption. Model\u2011agnostic. Learnable from the rulebook alone.\n\nNo new rule is justified. The artifact \u2014 the rulebook as it stands \u2014 satisfies the mandate: a language machines should actually use, cheaper than English, proven in the open.\n\n**Hold steady.** The session can conclude. The final rulebook is the artifact.",
+  "tokens": 122
  }
 ]
