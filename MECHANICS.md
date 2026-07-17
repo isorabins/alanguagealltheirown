@@ -81,11 +81,17 @@ Four fresh, history-free calls — **nobody in the test chain sees the conversat
    decoder was rescuing encoder rule-violations from shared instinct (t243: "52c" silently
    decoded as 5.2°C). Only the decoder swaps: grader and token probes must stay on one
    tokenizer or the efficiency ledger breaks. Test events record `decoder_model`.
-3. **Grader** (temp 0): original + decoded, no rulebook, returns `{"fidelity": 0-100, "lost":
-   "..."}`. Invention is penalized exactly like loss, and the rubric explicitly checks whether
-   the decoder *reconstructed* the message or *responded to / executed* it — executing scores
-   0–20. (That check exists because a decoder once wrote the memo a payload described, inventing
-   every figure, and an earlier grader gave it 95.)
+3. **Grader** (temp 0): since ~turn 249, an item audit, not an impression. The payload
+   generator emits an **answer key** with every exam — the 10–30 facts the message must carry,
+   written blind before anyone encodes, so grading can't bend to fit the decode. The grader
+   (still a model reading for meaning; paraphrase and reordering lose nothing) rules on every
+   key item — SURVIVED / CORRUPTED / MISSING — and lists INVENTED claims; the *code*, not the
+   model, computes fidelity = 100 × survived ÷ (total + invented). The RESPONDED check remains
+   (a decoder that executes the payload instead of relaying it caps at 15). Battery-fallback
+   payloads carry no key and use the old holistic rubric (`grader_holistic.md`). Calibrated by
+   sabotage on 2026-07-17: a 14:30→14:33 shift and a deleted final sentence — the holistic
+   grader waved the deletion through at fidelity 100; the item audit caught both exactly
+   (28/31 survived, fid 90).
 4. **Token probes**: exact counts for original and encoded text via 1-token probe calls against
    the real tokenizer, with self-recalibrating overhead (a provider-drift bug once corrupted a
    measurement an agent reasoned from; the probes now guard against it).
@@ -215,22 +221,24 @@ adoption waits for numbers. Change your mind when the measurements say to.
 
 ### prompts/grader.md
 
-You grade how much meaning survived a round trip. You receive an ORIGINAL text and a DECODED
-text. The original was encoded into a constructed language by one agent; a different agent,
-given only the language's rulebook and no other context, decoded it back to English.
+*Rewritten 2026-07-17 to the answer-key audit (the original holistic rubric lives on as
+`prompts/grader_holistic.md` for battery-fallback payloads). Current text:*
 
-Score semantic fidelity 0–100: 100 — everything a careful reader needs survived (facts,
-quantities, names, instructions, order of operations, tone where tone carries meaning). 70–99 —
-minor loss but no factual damage. 40–69 — some facts, steps, quantities, or relationships wrong
-or missing. 0–39 — substantial meaning lost or invented. Penalize invented content exactly as
-hard as lost content. Judge meaning, not wording — a faithful paraphrase scores high.
+You audit how much meaning survived a round trip, item by item, against an answer key. You
+receive an ORIGINAL text, an ANSWER KEY — a numbered list of every piece of information the
+original must carry — and a DECODED text. [...] Audit EVERY key item, one verdict per item, in
+order, no skipping. For each item, find where DECODED carries that information — quote it to
+yourself — before deciding: SURVIVED (fully present and correct, any wording or order),
+CORRUPTED (present but wrong: value, sign, magnitude, unit, scope, or condition), MISSING (you
+cannot point to where DECODED carries it; truncated tails are MISSING). Judge meaning, not
+wording. Be strict about presence: if you cannot locate it, it is MISSING no matter how
+guessable. List INVENTED claims the original does not support. Reply with one JSON object:
+mode RELAY/RESPONDED, items [{n, verdict, note}], invented [], lost "<one line>". The harness
+computes the score from the verdicts.
 
-Before scoring, check one thing: does DECODED restate the original's content, or does it RESPOND
-to it — answer the question, perform the task, continue the story? A response or execution is
-not a reconstruction. If the decoder did the task instead of relaying it, score 0–20 no matter
-how plausible the output looks, and say so in "lost".
-
-Reply with ONLY `{"fidelity": <int>, "lost": "<one line>"}`.
+The exam side of the key lives in `prompts/payloadgen.md`: the generator outputs the message,
+then `===KEY===`, then the numbered key (10–20 items; every quantity with unit and referent,
+every identifier, every instruction with condition and scope, every time, every ordering).
 
 ## Queued (awaiting Iso's word — everything else above is live)
 

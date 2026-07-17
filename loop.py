@@ -180,13 +180,20 @@ def render_window(conv):
             out.append(f"[turn {e['turn']} — HARNESS CORRECTION]\n{e['content']}")
             continue
         if e["type"] == "test":
+            audit = ""
+            if e.get("total"):
+                bits = [f"answer key: {e.get('survived')}/{e['total']} items survived"]
+                for lab in ("corrupted", "missing", "invented"):
+                    if e.get(lab):
+                        bits.append(f"{lab}: " + "; ".join(str(x) for x in e[lab][:4]))
+                audit = "\n" + " | ".join(bits)
             out.append(
                 f"[turn {e['turn']} — LIVE TEST | payload: {e['payload']}]\n"
                 f"original {e['orig_tokens']} tokens -> encoded {e['enc_tokens']} tokens "
                 f"({e['token_delta_pct']:+d}%) | decode fidelity {e['fidelity']}/100\n"
                 f"encoded: {e['encoded']}\n"
                 f"fresh decoder returned: {render_decode(e['decoded'])}\n"
-                f"grader: {e['lost']}")
+                f"grader: {e['lost']}" + audit)
         else:
             out.append(f"[turn {e['turn']}] AGENT {e['agent']}:\n{e['content']}")
     return "\n\n".join(out) if out else "(no conversation yet — the rulebook is empty and you speak first)"
@@ -298,17 +305,21 @@ def gen_payload(meta):
     prompt = ((ROOT / "prompts" / "payloadgen.md").read_text()
               .replace("{CATEGORY}", kind).replace("{DOMAIN}", domain))
     for _ in range(2):
-        text, _ = call(MODEL_A, prompt, "Write the message now.",
-                       max_tokens=2000, temperature=1.0, meta=meta)
+        raw, _ = call(MODEL_A, prompt, "Write the message now.",
+                      max_tokens=2000, temperature=1.0, meta=meta)
+        text, _, keyblock = raw.strip().strip('"').partition("===KEY===")
         text = text.strip().strip('"').strip()
-        if 200 <= len(text) <= 5000:
-            return f"gen-{kind}-{domain.split()[0]}", text
-    return None, None
+        # the answer key is born with the exam, blind to everything downstream —
+        # grading checks receipts against it instead of forming one holistic opinion
+        key = [l.strip() for l in keyblock.strip().splitlines() if l.strip()]
+        if 200 <= len(text) <= 5000 and len(key) >= 6:
+            return f"gen-{kind}-{domain.split()[0]}", text, key
+    return None, None, None
 
 
 def test_turn(conv, rb, meta, turn):
-    pname, payload = gen_payload(meta)
-    if payload is None:  # generator failed twice — fall back to the fixed battery
+    pname, payload, key = gen_payload(meta)
+    if payload is None:  # generator failed twice — fall back to the fixed battery (no key: holistic grading)
         by_kind = {}
         for f in sorted((ROOT / "payloads").glob("*.txt")):
             by_kind.setdefault(f.name.split("-")[0], []).append(f)
@@ -327,26 +338,47 @@ def test_turn(conv, rb, meta, turn):
                "reconstruct the original content as faithfully as you can. Do not invent anything "
                "the message does not encode. Output ONLY the reconstruction.\n\n" + rbook)
     decoded, _ = call(MODEL_DECODER, dec_sys, encoded.strip(), max_tokens=4000, temperature=0.1, meta=meta)
-    grade_sys = (ROOT / "prompts" / "grader.md").read_text()
-    graded, _ = call(MODEL_GRADER, grade_sys,
-                     f"ORIGINAL:\n{payload}\n\nDECODED:\n{decoded.strip()}",
-                     max_tokens=200, temperature=0, meta=meta)
+    grade_sys = (ROOT / "prompts" / ("grader.md" if key else "grader_holistic.md")).read_text()
+    if key:
+        key_txt = "\n".join(f"{i + 1}. {k}" for i, k in enumerate(key))
+        grade_user = f"ORIGINAL:\n{payload}\n\nANSWER KEY:\n{key_txt}\n\nDECODED:\n{decoded.strip()}"
+    else:
+        grade_user = f"ORIGINAL:\n{payload}\n\nDECODED:\n{decoded.strip()}"
+    graded, _ = call(MODEL_GRADER, grade_sys, grade_user, max_tokens=1200, temperature=0, meta=meta)
     gm = re.search(r"\{.*\}", graded, re.S)
     try:
         g = json.loads(gm.group(0)) if gm else {}
     except json.JSONDecodeError:
         g = {}
-    fidelity = max(0, min(100, int(g.get("fidelity", -1)))) if g.get("fidelity") is not None else -1
     lost = str(g.get("lost", "grader output unparseable"))[:300]
+    audit = {}
+    if key:
+        items = g.get("items", [])
+        survived = sum(1 for i in items if i.get("verdict") == "SURVIVED")
+        invented = g.get("invented", [])
+        # the model classifies each item; the arithmetic is ours. inventions count as
+        # extra failed items, keeping "invention penalized exactly like loss".
+        fidelity = round(100 * survived / (len(key) + len(invented))) if items else -1
+        if g.get("mode") == "RESPONDED" and fidelity >= 0:
+            fidelity = min(fidelity, 15)  # decoder did the task instead of relaying it
+        fidelity = max(0, min(100, fidelity)) if fidelity >= 0 else -1
+        audit = {"key": key, "survived": survived, "total": len(key),
+                 "corrupted": [f"{i.get('n')}: {i.get('note', '')}" for i in items if i.get("verdict") == "CORRUPTED"],
+                 "missing": [f"{i.get('n')}: {i.get('note', '')}" for i in items if i.get("verdict") == "MISSING"],
+                 "invented": invented}
+    else:
+        fidelity = max(0, min(100, int(g.get("fidelity", -1)))) if g.get("fidelity") is not None else -1
     orig_t = token_count(payload, meta)
     enc_t = token_count(encoded.strip(), meta)
     delta = round((enc_t - orig_t) / orig_t * 100)
     meta["tests_run"] = meta.get("tests_run", 0) + 1
-    conv.append({"turn": turn, "agent": "harness", "type": "test", "payload": pname,
-                 "original": payload, "orig_tokens": orig_t, "enc_tokens": enc_t,
-                 "token_delta_pct": delta, "fidelity": fidelity, "lost": lost,
-                 "encoded": encoded.strip(), "decoded": decoded.strip(), "tokens": enc_t,
-                 "decoder_model": MODEL_DECODER})
+    event = {"turn": turn, "agent": "harness", "type": "test", "payload": pname,
+             "original": payload, "orig_tokens": orig_t, "enc_tokens": enc_t,
+             "token_delta_pct": delta, "fidelity": fidelity, "lost": lost,
+             "encoded": encoded.strip(), "decoded": decoded.strip(), "tokens": enc_t,
+             "decoder_model": MODEL_DECODER}
+    event.update(audit)
+    conv.append(event)
     for r in rb["rules"]:
         if r["status"] in ("proposed", "adopted"):
             r["scores"] = {"token_delta_pct": delta, "fidelity_pct": fidelity}
