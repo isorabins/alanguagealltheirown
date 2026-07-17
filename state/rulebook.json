@@ -957,8 +957,8 @@
    "status": "adopted",
    "proposed_turn": 145,
    "scores": {
-    "token_delta_pct": -12,
-    "fidelity_pct": 72
+    "token_delta_pct": -20,
+    "fidelity_pct": 100
    },
    "history": [
     {
@@ -1044,7 +1044,8 @@
     "tested turn 315: fid 92, -35%",
     "tested turn 318: fid 100, -15%",
     "tested turn 321: fid 100, -24%",
-    "tested turn 324: fid 72, -12%"
+    "tested turn 324: fid 72, -12%",
+    "tested turn 327: fid 100, -20%"
    ]
   },
   {
@@ -1053,8 +1054,8 @@
    "status": "adopted",
    "proposed_turn": 145,
    "scores": {
-    "token_delta_pct": -12,
-    "fidelity_pct": 72
+    "token_delta_pct": -20,
+    "fidelity_pct": 100
    },
    "history": [
     {
@@ -1128,7 +1129,8 @@
     "tested turn 315: fid 92, -35%",
     "tested turn 318: fid 100, -15%",
     "tested turn 321: fid 100, -24%",
-    "tested turn 324: fid 72, -12%"
+    "tested turn 324: fid 72, -12%",
+    "tested turn 327: fid 100, -20%"
    ]
   },
   {
@@ -1244,8 +1246,8 @@
    "status": "adopted",
    "proposed_turn": 172,
    "scores": {
-    "token_delta_pct": -12,
-    "fidelity_pct": 72
+    "token_delta_pct": -20,
+    "fidelity_pct": 100
    },
    "history": [
     {
@@ -1328,7 +1330,8 @@
     "tested turn 315: fid 92, -35%",
     "tested turn 318: fid 100, -15%",
     "tested turn 321: fid 100, -24%",
-    "tested turn 324: fid 72, -12%"
+    "tested turn 324: fid 72, -12%",
+    "tested turn 327: fid 100, -20%"
    ]
   },
   {
@@ -1337,8 +1340,8 @@
    "status": "adopted",
    "proposed_turn": 176,
    "scores": {
-    "token_delta_pct": -12,
-    "fidelity_pct": 72
+    "token_delta_pct": -20,
+    "fidelity_pct": 100
    },
    "history": [
     {
@@ -1480,7 +1483,8 @@
     "tested turn 315: fid 92, -35%",
     "tested turn 318: fid 100, -15%",
     "tested turn 321: fid 100, -24%",
-    "tested turn 324: fid 72, -12%"
+    "tested turn 324: fid 72, -12%",
+    "tested turn 327: fid 100, -20%"
    ]
   },
   {
@@ -1652,8 +1656,8 @@
    "status": "adopted",
    "proposed_turn": 208,
    "scores": {
-    "token_delta_pct": -12,
-    "fidelity_pct": 72
+    "token_delta_pct": -20,
+    "fidelity_pct": 100
    },
    "history": [
     {
@@ -1712,7 +1716,8 @@
     "tested turn 315: fid 92, -35%",
     "tested turn 318: fid 100, -15%",
     "tested turn 321: fid 100, -24%",
-    "tested turn 324: fid 72, -12%"
+    "tested turn 324: fid 72, -12%",
+    "tested turn 327: fid 100, -20%"
    ]
   },
   {
@@ -1721,8 +1726,8 @@
    "status": "adopted",
    "proposed_turn": 215,
    "scores": {
-    "token_delta_pct": -12,
-    "fidelity_pct": 72
+    "token_delta_pct": -20,
+    "fidelity_pct": 100
    },
    "history": [
     {
@@ -1773,7 +1778,8 @@
     "tested turn 315: fid 92, -35%",
     "tested turn 318: fid 100, -15%",
     "tested turn 321: fid 100, -24%",
-    "tested turn 324: fid 72, -12%"
+    "tested turn 324: fid 72, -12%",
+    "tested turn 327: fid 100, -20%"
    ]
   },
   {
@@ -1942,8 +1948,8 @@
    "status": "proposed",
    "proposed_turn": 241,
    "scores": {
-    "token_delta_pct": -12,
-    "fidelity_pct": 72
+    "token_delta_pct": -20,
+    "fidelity_pct": 100
    },
    "history": [
     {
@@ -1979,7 +1985,8 @@
     "tested turn 315: fid 92, -35%",
     "tested turn 318: fid 100, -15%",
     "tested turn 321: fid 100, -24%",
-    "tested turn 324: fid 72, -12%"
+    "tested turn 324: fid 72, -12%",
+    "tested turn 327: fid 100, -20%"
    ]
   },
   {
@@ -1988,8 +1995,8 @@
    "status": "adopted",
    "proposed_turn": 244,
    "scores": {
-    "token_delta_pct": -12,
-    "fidelity_pct": 72
+    "token_delta_pct": -20,
+    "fidelity_pct": 100
    },
    "history": [
     {
@@ -2030,7 +2037,8 @@
     "tested turn 315: fid 92, -35%",
     "tested turn 318: fid 100, -15%",
     "tested turn 321: fid 100, -24%",
-    "tested turn 324: fid 72, -12%"
+    "tested turn 324: fid 72, -12%",
+    "tested turn 327: fid 100, -20%"
    ]
   },
   {
@@ -2039,8 +2047,8 @@
    "status": "adopted",
    "proposed_turn": 250,
    "scores": {
-    "token_delta_pct": -12,
-    "fidelity_pct": 72
+    "token_delta_pct": -20,
+    "fidelity_pct": 100
    },
    "history": [
     {
@@ -2079,7 +2087,8 @@
     "tested turn 315: fid 92, -35%",
     "tested turn 318: fid 100, -15%",
     "tested turn 321: fid 100, -24%",
-    "tested turn 324: fid 72, -12%"
+    "tested turn 324: fid 72, -12%",
+    "tested turn 327: fid 100, -20%"
    ]
   },
   {
@@ -2088,8 +2097,8 @@
    "status": "adopted",
    "proposed_turn": 277,
    "scores": {
-    "token_delta_pct": -12,
-    "fidelity_pct": 72
+    "token_delta_pct": -20,
+    "fidelity_pct": 100
    },
    "history": [
     {
@@ -2119,7 +2128,8 @@
     "tested turn 315: fid 92, -35%",
     "tested turn 318: fid 100, -15%",
     "tested turn 321: fid 100, -24%",
-    "tested turn 324: fid 72, -12%"
+    "tested turn 324: fid 72, -12%",
+    "tested turn 327: fid 100, -20%"
    ]
   },
   {
@@ -2128,8 +2138,8 @@
    "status": "adopted",
    "proposed_turn": 283,
    "scores": {
-    "token_delta_pct": -12,
-    "fidelity_pct": 72
+    "token_delta_pct": -20,
+    "fidelity_pct": 100
    },
    "history": [
     {
@@ -2187,7 +2197,8 @@
      "agent": "B",
      "why": "However, we must ensure rule\u2011049 is objectively measurable. \u201cKey numeric quantities\u201d must be defined: any numeric value that affects action thresholds, deadlines, penalties, or safety limits. The grader\u2019s missing\u2011item list already operationalizes this."
     },
-    "tested turn 324: fid 72, -12%"
+    "tested turn 324: fid 72, -12%",
+    "tested turn 327: fid 100, -20%"
    ]
   },
   {
@@ -2196,8 +2207,8 @@
    "status": "proposed",
    "proposed_turn": 287,
    "scores": {
-    "token_delta_pct": -12,
-    "fidelity_pct": 72
+    "token_delta_pct": -20,
+    "fidelity_pct": 100
    },
    "history": [
     {
@@ -2218,7 +2229,8 @@
     "tested turn 315: fid 92, -35%",
     "tested turn 318: fid 100, -15%",
     "tested turn 321: fid 100, -24%",
-    "tested turn 324: fid 72, -12%"
+    "tested turn 324: fid 72, -12%",
+    "tested turn 327: fid 100, -20%"
    ]
   },
   {
@@ -2227,8 +2239,8 @@
    "status": "adopted",
    "proposed_turn": 302,
    "scores": {
-    "token_delta_pct": -12,
-    "fidelity_pct": 72
+    "token_delta_pct": -20,
+    "fidelity_pct": 100
    },
    "history": [
     {
@@ -2268,7 +2280,8 @@
      "agent": "B",
      "why": "However, we must ensure rule\u2011049 is objectively measurable. \u201cKey numeric quantities\u201d must be defined: any numeric value that affects action thresholds, deadlines, penalties, or safety limits. The grader\u2019s missing\u2011item list already operationalizes this."
     },
-    "tested turn 324: fid 72, -12%"
+    "tested turn 324: fid 72, -12%",
+    "tested turn 327: fid 100, -20%"
    ]
   },
   {
@@ -2277,8 +2290,8 @@
    "status": "proposed",
    "proposed_turn": 316,
    "scores": {
-    "token_delta_pct": -12,
-    "fidelity_pct": 72
+    "token_delta_pct": -20,
+    "fidelity_pct": 100
    },
    "history": [
     {
@@ -2289,7 +2302,8 @@
     },
     "tested turn 318: fid 100, -15%",
     "tested turn 321: fid 100, -24%",
-    "tested turn 324: fid 72, -12%"
+    "tested turn 324: fid 72, -12%",
+    "tested turn 327: fid 100, -20%"
    ]
   },
   {
@@ -2298,8 +2312,8 @@
    "status": "proposed",
    "proposed_turn": 317,
    "scores": {
-    "token_delta_pct": -12,
-    "fidelity_pct": 72
+    "token_delta_pct": -20,
+    "fidelity_pct": 100
    },
    "history": [
     {
@@ -2310,7 +2324,8 @@
     },
     "tested turn 318: fid 100, -15%",
     "tested turn 321: fid 100, -24%",
-    "tested turn 324: fid 72, -12%"
+    "tested turn 324: fid 72, -12%",
+    "tested turn 327: fid 100, -20%"
    ]
   },
   {
@@ -2318,14 +2333,18 @@
    "text_en": "rule-050 - When writing a numeric literal that includes a decimal point, the sender must include the decimal point even if the numeric value could be misinterpreted without it. The encoder must validate that every numeric literal in the original containing a decimal point is reproduced with its decimal point in the encoded message. If a decimal point is omitted, the message is not compliant with the language.",
    "status": "proposed",
    "proposed_turn": 325,
-   "scores": null,
+   "scores": {
+    "token_delta_pct": -20,
+    "fidelity_pct": 100
+   },
    "history": [
     {
      "verb": "proposed",
      "turn": 325,
      "agent": "A",
      "why": "We need a rule that makes decimal omission **impossible to overlook** during encoding. The decoder cannot fix this; the encoder must be forced to preserve decimals."
-    }
+    },
+    "tested turn 327: fid 100, -20%"
    ]
   },
   {
@@ -2333,14 +2352,18 @@
    "text_en": "rule-051 - For numeric literals with a decimal point, the sender may use the format `X_Y` where `X` is the integer part, `_` is a mandatory underscore, and `Y` is the fractional part. The decoder must interpret `X_Y` as `X.Y`. For example, write `3_2 mm` for `3.2 mm`. This ensures the decimal point is preserved as a single token (`_`) and cannot be omitted without breaking the format.",
    "status": "proposed",
    "proposed_turn": 325,
-   "scores": null,
+   "scores": {
+    "token_delta_pct": -20,
+    "fidelity_pct": 100
+   },
    "history": [
     {
      "verb": "proposed",
      "turn": 325,
      "agent": "A",
      "why": "But even that may not be enough. The root issue is tokenization: \"3.2\" is three tokens (\"3\", \".\", \"2\") while \"32\" is one token. The encoder is incentivized to drop the decimal. We need a **token\u2011neutral representation** for decimals."
-    }
+    },
+    "tested turn 327: fid 100, -20%"
    ]
   }
  ]
