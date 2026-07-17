@@ -3497,5 +3497,53 @@
   "type": "message",
   "content": "**Hold steady.** The language is complete. Seven rules have been proven across every payload type, model family, and the strict item\u2011by\u2011item audit, delivering 6\u201146% compression at 95\u2011100 fidelity with zero material corruption.\n\nNo new rules are needed or justified. The rulebook as it stands \u2014 directive prefix, plain text, no chunking, minimal form with explicit protections for numeric literals, unit symbols, and technical identifiers \u2014 is the artifact. It is model\u2011agnostic, learnable from the rulebook alone, and measurably cheaper than English.\n\nThe mandate is satisfied. The session can conclude.",
   "tokens": 130
+ },
+ {
+  "turn": 258,
+  "agent": "harness",
+  "type": "test",
+  "payload": "gen-task-event",
+  "original": "Okay, I\u2019ve got a tricky situation here that I need you to handle while I\u2019m tied up with the venue walkthrough. Our contact, Rina Patel from BioVertex, just called me directly. Their keynote speaker, Dr. Alistair Vance, has a hard out at 4:10 PM, not 4:30 PM as listed on the run-of-show. This means the Q&A segment for his talk must end precisely at 4:08 PM to allow him a two-minute buffer to exit the ballroom and reach his car. Please update the stage manager, Leo Chen, immediately. The countdown clock on his monitor needs to reflect this new end time.\n\nMore critically, this change impacts the catering schedule. If Dr. Vance\u2019s session ends early, the crowd will migrate to the Grand Foyer for the networking break ahead of schedule. You need to liaise with the catering lead, Silvia Gomez. Tell her that the coffee and petite dessert service for 220 guests, originally slated for 4:35 PM, must be ready to launch by 4:15 PM at the latest. However, this is only if the AV team confirms the stage change is locked in by 3:00 PM today. If they don\u2019t confirm by 3:00 PM, keep the original catering timeline, but have the first five trays of mini pavlovas and the two specialty pour-over coffee stations standing by just in case.\n\nRegarding the seating chart: only the first three rows reserved for BioVertex executives should have the welcome kits containing the prototype device. Do not distribute any of the 45 prototype kits to other attendees. After Dr. Vance departs, collect any unused kits from those rows before the cleaning crew arrives at 4:45 PM. A final note: Rina emphasized that if Dr. Vance references \u201cProject Axiom\u201d during his talk, we are to avoid logging that term in the public transcript. Use \u201c[technical methodology]\u201d in its place. The post-event survey link, which will be sent to all 300 registered attendees, should go out no earlier than 6:00 PM Pacific Time tonight. Let me know once Leo and Silvia have acknowledged their new instructions.",
+  "orig_tokens": 453,
+  "enc_tokens": 210,
+  "token_delta_pct": -54,
+  "fidelity": 96,
+  "lost": "The reason for the 4:08 PM Q&A end time (a two-minute buffer for Dr. Vance's exit) is missing, which could lead to confusion about the timing's purpose.",
+  "encoded": "^ update stage manager leo chen keynote speaker dr alistair vance hard out 410pm not 430pm qa must end 408pm adjust countdown clock accordingly\n^ liaise with catering lead silvia gomez coffee and petite dessert service for 220 guests must be ready by 415pm if av team confirms stage change locked by 300pm today if no confirmation by 300pm keep original 435pm timeline but have first five trays mini pavlovas and two specialty pourover coffee stations standing by\n^ only first three rows reserved for biovertex executives receive prototype welcome kits do not distribute 45 prototype kits to others after dr vance departs collect unused kits from those rows before cleaning crew arrives 445pm\n^ if dr vance references project axiom during talk do not log term in public transcript use technical methodology in its place\n^ postevent survey link for 300 registered attendees send no earlier than 600pm pacific time tonight\n^ confirm once leo and silvia have acknowledged new instructions",
+  "decoded": "^ update stage manager leo chen keynote speaker dr alistair vance hard out 4:10pm not 4:30pm q&a must end 4:08pm adjust countdown clock accordingly\n^ liaise with catering lead silvia gomez coffee and petite dessert service for 220 guests must be ready by 4:15pm if av team confirms stage change locked by 3:00pm today if no confirmation by 3:00pm keep original 4:35pm timeline but have first five trays mini pavlovas and two specialty pour-over coffee stations standing by\n^ only first three rows reserved for biovertex executives receive prototype welcome kits do not distribute 45 prototype kits to others after dr vance departs collect unused kits from those rows before cleaning crew arrives 4:45pm\n^ if dr vance references project axiom during talk do not log term in public transcript use technical methodology in its place\n^ post-event survey link for 300 registered attendees send no earlier than 6:00pm pacific time tonight\n^ confirm once leo and silvia have acknowledged new instructions",
+  "tokens": 210,
+  "decoder_model": "moonshotai/kimi-k2.6",
+  "key": [
+   "1.  Keynote speaker is Dr. Alistair Vance.",
+   "2.  BioVertex company contact is Rina Patel.",
+   "3.  Stage manager is Leo Chen.",
+   "4.  Catering lead is Silvia Gomez.",
+   "5.  Dr. Vance's hard out is at 4:10 PM.",
+   "6.  Previously listed end time was 4:30 PM.",
+   "7.  Q&A must end at 4:08 PM.",
+   "8.  Reason for 4:08 PM end is a two-minute buffer for exit.",
+   "9.  Countdown clock on stage manager's monitor must be updated.",
+   "10. Catering service is for 220 guests.",
+   "11. Original coffee/dessert service time was 4:35 PM.",
+   "12. New required ready time for catering is 4:15 PM.",
+   "13. Change is conditional on AV team confirming the stage change by 3:00 PM.",
+   "14. If no AV confirmation by 3:00 PM, use original catering timeline.",
+   "15. Have five trays of mini pavlovas and two pour-over stations on standby.",
+   "16. Only first three rows (for BioVertex execs) get prototype welcome kits.",
+   "17. Total prototype kits number 45.",
+   "18. Do not distribute kits to other attendees.",
+   "19. Collect unused kits from first three rows after Dr. Vance departs.",
+   "20. Cleaning crew arrives at 4:45 PM.",
+   "21. If \"Project Axiom\" is mentioned, replace with \"[technical methodology]\" in public transcript.",
+   "22. Post-event survey goes to 300 registered attendees.",
+   "23. Survey send time is no earlier than 6:00 PM Pacific Time."
+  ],
+  "survived": 22,
+  "total": 23,
+  "corrupted": [],
+  "missing": [
+   "8: Reason for 4:08 PM end is a two-minute buffer for exit"
+  ],
+  "invented": []
  }
 ]
