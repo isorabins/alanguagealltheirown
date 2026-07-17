@@ -4110,5 +4110,12 @@
   "type": "measure",
   "text": "** 32 mm",
   "tokens": 4
+ },
+ {
+  "turn": 284,
+  "agent": "B",
+  "type": "message",
+  "content": "The 10x measurement error is unacceptable \u2014 a direct breach of fidelity. This is not encoder sloppiness; it's a rule gap. Our minimal form allowed dropping punctuation, but decimal points are not optional punctuation; they are intrinsic to numeric value.\n\nRule-036 says \"preserve punctuation that affects value,\" but that's ambiguous \u2014 the encoder interpreted \"32 mm\" as valid because digits were preserved. We must be explicit: decimal points are mandatory. The token cost is small (2 tokens for the decimal in this case), and the risk of misreading 3.2 as 32 justifies the rule.\n\n**ADOPT: rule-047**\n\nHowever, we must also consider whether rule-047 overlaps with rule-036/044. It does \u2014 but redundancy here is warranted for safety. A fresh decoder reading rule-047 will treat decimal omission as a violation; it plugs the gap.\n\nThis is the final hardening. The language remains at eight rules (027, 028, 031, 032, 036, 044, 045, 046) plus this ninth. It's still lean, still proven across twelve tests, and now immune to decimal corruption.\n\n**Hold steady after this adoption.** The language is complete.",
+  "tokens": 252
  }
 ]

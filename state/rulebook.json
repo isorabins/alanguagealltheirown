@@ -1,7 +1,7 @@
 {
- "version": "0.112",
+ "version": "0.113",
  "kernel_tokens": 1937,
- "changes": 112,
+ "changes": 113,
  "next_id": 48,
  "rules": [
   {
@@ -1985,7 +1985,7 @@
   {
    "id": "rule-047",
    "text_en": "rule-047 - In numeric literals, the decimal point (`.`) must be preserved exactly. Do not omit it. For example, write \u201c3.2 mm\u201d, not \u201c32 mm\u201d. The decoder must treat the decimal point as part of the numeric value.",
-   "status": "proposed",
+   "status": "adopted",
    "proposed_turn": 283,
    "scores": null,
    "history": [
@@ -1994,6 +1994,12 @@
      "turn": 283,
      "agent": "A",
      "why": "We need a rule: **Decimal points must be preserved exactly.** Omitting them changes the numeric value, which is unacceptable."
+    },
+    {
+     "verb": "adopt",
+     "turn": 284,
+     "agent": "B",
+     "why": "Rule-036 says \"preserve punctuation that affects value,\" but that's ambiguous \u2014 the encoder interpreted \"32 mm\" as valid because digits were preserved. We must be explicit: decimal points are mandatory. The token cost is small (2 tokens for the decimal in this case), and the risk"
     }
    ]
   }
