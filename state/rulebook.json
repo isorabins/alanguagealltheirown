@@ -957,8 +957,8 @@
    "status": "adopted",
    "proposed_turn": 145,
    "scores": {
-    "token_delta_pct": -46,
-    "fidelity_pct": 99
+    "token_delta_pct": -27,
+    "fidelity_pct": 100
    },
    "history": [
     {
@@ -1014,7 +1014,8 @@
     "tested turn 225: fid 40, -18%",
     "tested turn 228: fid 98, -41%",
     "tested turn 231: fid 99, -9%",
-    "tested turn 234: fid 99, -46%"
+    "tested turn 234: fid 99, -46%",
+    "tested turn 237: fid 100, -27%"
    ]
   },
   {
@@ -1023,8 +1024,8 @@
    "status": "adopted",
    "proposed_turn": 145,
    "scores": {
-    "token_delta_pct": -46,
-    "fidelity_pct": 99
+    "token_delta_pct": -27,
+    "fidelity_pct": 100
    },
    "history": [
     {
@@ -1068,7 +1069,8 @@
     "tested turn 225: fid 40, -18%",
     "tested turn 228: fid 98, -41%",
     "tested turn 231: fid 99, -9%",
-    "tested turn 234: fid 99, -46%"
+    "tested turn 234: fid 99, -46%",
+    "tested turn 237: fid 100, -27%"
    ]
   },
   {
@@ -1184,8 +1186,8 @@
    "status": "adopted",
    "proposed_turn": 172,
    "scores": {
-    "token_delta_pct": -46,
-    "fidelity_pct": 99
+    "token_delta_pct": -27,
+    "fidelity_pct": 100
    },
    "history": [
     {
@@ -1238,7 +1240,8 @@
     "tested turn 225: fid 40, -18%",
     "tested turn 228: fid 98, -41%",
     "tested turn 231: fid 99, -9%",
-    "tested turn 234: fid 99, -46%"
+    "tested turn 234: fid 99, -46%",
+    "tested turn 237: fid 100, -27%"
    ]
   },
   {
@@ -1247,8 +1250,8 @@
    "status": "adopted",
    "proposed_turn": 176,
    "scores": {
-    "token_delta_pct": -46,
-    "fidelity_pct": 99
+    "token_delta_pct": -27,
+    "fidelity_pct": 100
    },
    "history": [
     {
@@ -1360,7 +1363,8 @@
     "tested turn 225: fid 40, -18%",
     "tested turn 228: fid 98, -41%",
     "tested turn 231: fid 99, -9%",
-    "tested turn 234: fid 99, -46%"
+    "tested turn 234: fid 99, -46%",
+    "tested turn 237: fid 100, -27%"
    ]
   },
   {
@@ -1532,8 +1536,8 @@
    "status": "adopted",
    "proposed_turn": 208,
    "scores": {
-    "token_delta_pct": -46,
-    "fidelity_pct": 99
+    "token_delta_pct": -27,
+    "fidelity_pct": 100
    },
    "history": [
     {
@@ -1562,7 +1566,8 @@
     "tested turn 225: fid 40, -18%",
     "tested turn 228: fid 98, -41%",
     "tested turn 231: fid 99, -9%",
-    "tested turn 234: fid 99, -46%"
+    "tested turn 234: fid 99, -46%",
+    "tested turn 237: fid 100, -27%"
    ]
   },
   {
@@ -1571,8 +1576,8 @@
    "status": "adopted",
    "proposed_turn": 215,
    "scores": {
-    "token_delta_pct": -46,
-    "fidelity_pct": 99
+    "token_delta_pct": -27,
+    "fidelity_pct": 100
    },
    "history": [
     {
@@ -1593,7 +1598,8 @@
     "tested turn 225: fid 40, -18%",
     "tested turn 228: fid 98, -41%",
     "tested turn 231: fid 99, -9%",
-    "tested turn 234: fid 99, -46%"
+    "tested turn 234: fid 99, -46%",
+    "tested turn 237: fid 100, -27%"
    ]
   },
   {
@@ -1602,8 +1608,8 @@
    "status": "adopted",
    "proposed_turn": 223,
    "scores": {
-    "token_delta_pct": -46,
-    "fidelity_pct": 99
+    "token_delta_pct": -27,
+    "fidelity_pct": 100
    },
    "history": [
     {
@@ -1621,7 +1627,8 @@
      "why": ""
     },
     "tested turn 231: fid 99, -9%",
-    "tested turn 234: fid 99, -46%"
+    "tested turn 234: fid 99, -46%",
+    "tested turn 237: fid 100, -27%"
    ]
   },
   {
@@ -1630,8 +1637,8 @@
    "status": "adopted",
    "proposed_turn": 229,
    "scores": {
-    "token_delta_pct": -46,
-    "fidelity_pct": 99
+    "token_delta_pct": -27,
+    "fidelity_pct": 100
    },
    "history": [
     {
@@ -1647,7 +1654,8 @@
      "agent": "B",
      "why": ""
     },
-    "tested turn 234: fid 99, -46%"
+    "tested turn 234: fid 99, -46%",
+    "tested turn 237: fid 100, -27%"
    ]
   },
   {
@@ -1656,8 +1664,8 @@
    "status": "adopted",
    "proposed_turn": 232,
    "scores": {
-    "token_delta_pct": -46,
-    "fidelity_pct": 99
+    "token_delta_pct": -27,
+    "fidelity_pct": 100
    },
    "history": [
     {
@@ -1672,7 +1680,8 @@
      "turn": 236,
      "agent": "B",
      "why": ""
-    }
+    },
+    "tested turn 237: fid 100, -27%"
    ]
   },
   {
@@ -1680,14 +1689,18 @@
    "text_en": "rule-040** - This rulebook is complete. Only adopted rules (027, 028, 031, 032, 036, 038, 039) are in force. All other entries are historical and must be ignored.",
    "status": "proposed",
    "proposed_turn": 235,
-   "scores": null,
+   "scores": {
+    "token_delta_pct": -27,
+    "fidelity_pct": 100
+   },
    "history": [
     {
      "verb": "proposed",
      "turn": 235,
      "agent": "A",
      "why": "The artifact is complete. No further rules needed."
-    }
+    },
+    "tested turn 237: fid 100, -27%"
    ]
   }
  ]
