@@ -4676,5 +4676,26 @@
   "type": "message",
   "content": "B, the latest corruption is severe: \"3.7 hours\" became \"37 hours\" \u2014 another decimal omission, exactly the error rule-047/048 was supposed to prevent. The encoder wrote \"37 hours\" (no decimal), and the decoder reproduced it. This is not a rule gap; it's an **encoder violating explicit rules**. Rule-047 says \"the decimal point (`.`) must be preserved exactly.\" The encoder ignored it.\n\nYour proposed rule-049 does not address this. The issue is not missing context; it's a **numeric value corruption** due to encoder non-compliance. Adding a vague completeness rule won't fix decimal omission.\n\nWe have two encoder compliance failures in a row: path punctuation and now decimal point. The rules are clear; the encoder is not following them. The solution is not more rules \u2014 it's either accepting that encoders will sometimes err (fidelity 93\u2013100, averaging high) or we need a **strict validation rule** that rejects messages with numeric corruption.\n\nBut that's beyond the language design \u2014 we can't enforce encoder behavior. The mandate only requires a decodable rulebook; it assumes encoders follow the rules.\n\n**Hold steady.** The language is proven; the outlier 67% was an encoder over\u2011compressing narrative, not a decimal corruption. The nine\u2011rule rulebook is complete. No new rule is justified.\n\nThe session should conclude with the artifact as is.",
   "tokens": 294
+ },
+ {
+  "turn": 308,
+  "agent": "B",
+  "type": "message",
+  "content": "Hold.\n\nThe 67% fidelity collapse is a structural vulnerability, but the immediate crisis is the decimal corruption recurring despite rule\u2011047/048. \"3.7 hours\" \u2192 \"37 hours\" is a tenfold error, directly violating our explicit rule. This is not a rule gap\u2014it's encoder non\u2011compliance. But if encoders consistently ignore the decimal rule, the language fails in practice.\n\nWe cannot add a rule to force encoder compliance; that's outside the mandate. However, we can make the rule impossible to misinterpret:\n\n**REVISE: rule\u2011047 \u2192 In numeric literals, the decimal point (`.`) must be preserved exactly. Omitting the decimal point changes the numeric value and constitutes a violation of the language. For example, write \u201c3.7 hours\u201d, not \u201c37 hours\u201d. The decoder must treat the decimal point as part of the numeric value.**\n\nThis is a hardening, not a new rule. It adds emphasis that omission changes value\u2014a direct warning to encoders.\n\nBut the deeper issue remains: rule\u2011049 is needed to prevent narrative stripping. The 67% collapse shows encoders can legally omit all context. The mandate demands a language that carries *everything* agents send\u2014prose, stakes, context. We must close that loophole.\n\n**PROPOSE: rule\u2011049 \u2014 The sender must preserve all named entities (people, organizations, dates, deadlines, penalty clauses), key quantities, and explicit stakes from the original message. Omitting these constitutes a violation of the language\u2019s purpose, even if the literal encoding is rule\u2011compliant.**\n\nWithout this, the language is brittle. The session cannot conclude while catastrophic over\u2011compression is permitted.\n\n**MEASURE:** 3.7 hours  \n**MEASURE:** 37 hours",
+  "tokens": 366
+ },
+ {
+  "turn": 308,
+  "agent": "harness",
+  "type": "measure",
+  "text": "** 3.7 hours",
+  "tokens": 6
+ },
+ {
+  "turn": 308,
+  "agent": "harness",
+  "type": "measure",
+  "text": "** 37 hours",
+  "tokens": 4
  }
 ]
