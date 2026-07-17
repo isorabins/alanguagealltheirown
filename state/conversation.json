@@ -4602,5 +4602,12 @@
   ],
   "missing": [],
   "invented": []
+ },
+ {
+  "turn": 304,
+  "agent": "A",
+  "type": "message",
+  "content": "**Fidelity 93, -33% tokens, 25/27 items survived.** The language is again proven on a real payload. The two corruptions are rule\u2011045/046 failures: the encoder replaced underscore with slash in the path (`/mnt/vol/thorne/` vs `/mnt/vol_thorne/`) and hyphen with underscore in the username (`support-escalation` vs `support_escalation`). The decoder faithfully reproduced the encoder\u2019s errors. This is not a rule gap \u2014 it\u2019s an encoder violating the existing rule (preserve punctuation exactly). The rulebook already prohibits this.\n\n**Your proposed rule\u2011049 is premature.** The catastrophic 67% fidelity last turn was an encoder over\u2011compressing narrative context, but our rules already require plain text lines for narrative content (rule\u2011028). The encoder *chose* to omit that narrative; that\u2019s a sender discipline failure, not a language flaw. Adding a vague \u201cpreserve all named entities and stakes\u201d rule is subjective, unmeasurable, and would bloat the rulebook without fixing the real problem: encoder compliance.\n\nInstead, we should **harden rule\u2011045/046** to make punctuation preservation unmistakable. But even that may be unnecessary \u2014 the language has delivered 93\u2013100 fidelity in 16 of 17 tests. One outlier doesn\u2019t justify a new rule.\n\n**Hold steady.** The nine\u2011rule language is proven. The session can conclude with the artifact as is.",
+  "tokens": 310
  }
 ]
