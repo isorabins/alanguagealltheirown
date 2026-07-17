@@ -22,7 +22,7 @@ API_URL = "https://openrouter.ai/api/v1/chat/completions"
 
 MODEL_A = "deepseek/deepseek-v3.2"
 MODEL_B = "deepseek/deepseek-v3.2"
-MODEL_DECODER = "deepseek/deepseek-v3.2"
+MODEL_DECODER = "moonshotai/kimi-k2.6"  # a FOREIGN decoder: the stranger must not share the negotiators' weights
 MODEL_GRADER = "deepseek/deepseek-v3.2"
 PRICE_IN = 0.2145 / 1e6   # $/token, OpenRouter listing 2026-07-14
 PRICE_OUT = 0.32175 / 1e6
@@ -69,8 +69,12 @@ def call(model, system, user, max_tokens=600, temperature=0.7, meta=None):
         {"role": "user", "content": user}
     ]
     body = {"model": model, "messages": messages, "max_tokens": max_tokens,
-            "temperature": temperature,
-            "provider": {"order": ["deepseek"]}}  # prefer one provider: token accounting must be consistent
+            "temperature": temperature}
+    if model.startswith("deepseek/"):
+        # pin deepseek calls to one provider: all token accounting (probes, MEASURE)
+        # flows through these and must stay on a single tokenizer/provider. Foreign
+        # models (the decoder) stay unpinned — their usage never feeds accounting.
+        body["provider"] = {"order": ["deepseek"]}
     if not _no_reasoning_field:
         body["reasoning"] = {"enabled": False}
     headers = {"Authorization": f"Bearer {api_key()}",
@@ -341,7 +345,8 @@ def test_turn(conv, rb, meta, turn):
     conv.append({"turn": turn, "agent": "harness", "type": "test", "payload": pname,
                  "original": payload, "orig_tokens": orig_t, "enc_tokens": enc_t,
                  "token_delta_pct": delta, "fidelity": fidelity, "lost": lost,
-                 "encoded": encoded.strip(), "decoded": decoded.strip(), "tokens": enc_t})
+                 "encoded": encoded.strip(), "decoded": decoded.strip(), "tokens": enc_t,
+                 "decoder_model": MODEL_DECODER})
     for r in rb["rules"]:
         if r["status"] in ("proposed", "adopted"):
             r["scores"] = {"token_delta_pct": delta, "fidelity_pct": fidelity}
