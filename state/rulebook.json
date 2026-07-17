@@ -1,8 +1,8 @@
 {
- "version": "0.114",
- "kernel_tokens": 2030,
- "changes": 114,
- "next_id": 49,
+ "version": "0.115",
+ "kernel_tokens": 2107,
+ "changes": 115,
+ "next_id": 50,
  "rules": [
   {
    "id": "rule-001",
@@ -2093,6 +2093,21 @@
     "tested turn 294: fid 96, -24%",
     "tested turn 297: fid 100, -14%",
     "tested turn 300: fid 67, -61%"
+   ]
+  },
+  {
+   "id": "rule-049",
+   "text_en": "rule-049 - The sender must preserve all named entities (people, organizations, dates, deadlines, penalty clauses), key quantities, and explicit stakes from the original message. Omitting these constitutes a violation of the language\u2019s purpose, even if the literal encoding is rule-compliant.",
+   "status": "proposed",
+   "proposed_turn": 302,
+   "scores": null,
+   "history": [
+    {
+     "verb": "proposed",
+     "turn": 302,
+     "agent": "B",
+     "why": "We need a rule that sets a **minimum completeness threshold** \u2014 perhaps requiring that key entities, deadlines, and stakes mentioned in the original are preserved in the encoded message. Not subjective, but structural: if the original contains a date, a penalty clause, a named st"
+    }
    ]
   }
  ]

@@ -4528,5 +4528,26 @@
   "type": "message",
   "content": "B, we just hit a catastrophic failure: -61% tokens, but fidelity 67. The encoder aggressively compressed the narrative context \u2014 urgency, contract renewal, penalty clause, technician schedule, investigation \u2014 into nothing but directives. The decoder faithfully reproduced the directives, but the grader counted **12 missing items** because the encoder omitted them entirely.\n\nThis is not a rule failure; it's an encoder editorial choice that crossed into loss. Our rules guarantee fidelity to what's encoded, not completeness. But if encoders consistently strip context to chase compression, we will see recurring 60%+ token savings with unacceptably low fidelity.\n\nWe have two options:\n1. Accept that encoders will sometimes over\u2011compress and accept the fidelity hit. That's a sender discipline problem, not a language flaw.\n2. Add a rule that requires preserving **core narrative context** \u2014 but that's subjective and hard to define.\n\nI lean toward #1. The language is proven across sixteen tests; this outlier is an encoder going too far. The rulebook already says: plain text lines are narrative content, preserved verbatim. The encoder *chose* to omit most of that narrative. That's on them.\n\nNo new rule is justified. The artifact stands.\n\n**Hold steady.** The session can conclude with the nine\u2011rule rulebook.",
   "tokens": 268
+ },
+ {
+  "turn": 302,
+  "agent": "B",
+  "type": "message",
+  "content": "Hold.\n\nThe fidelity collapse to 67% is a direct violation of the mandate: a language that garbles meaning is worthless no matter how cheap. This is not an encoder slip; it\u2019s a systemic risk of our minimal\u2011form allowance. Rule\u2011032 permits omitting punctuation and capitalization, but the encoder interpreted it as license to strip entire narrative clauses \u2014 urgency, stakes, context \u2014 turning rich prose into a skeletal directive list. The decoder faithfully reproduced the skeleton, but the meaning is gutted.\n\nWe cannot accept a language where \u201caggressive compression\u201d reliably destroys fidelity. The mandate demands a language that carries *everything working agents send* \u2014 prose explanations, step\u2011by\u2011step instructions, casual notes, task specifications. This test proves our current rules fail that requirement: encoders can legally omit critical context while still following the letter of the rules.\n\nWe need a rule that sets a **minimum completeness threshold** \u2014 perhaps requiring that key entities, deadlines, and stakes mentioned in the original are preserved in the encoded message. Not subjective, but structural: if the original contains a date, a penalty clause, a named stakeholder, those must appear.\n\n**PROPOSE: rule-049 \u2014 The sender must preserve all named entities (people, organizations, dates, deadlines, penalty clauses), key quantities, and explicit stakes from the original message. Omitting these constitutes a violation of the language\u2019s purpose, even if the literal encoding is rule\u2011compliant.**\n\nThis is a fidelity\u2011first hardening. It adds ~30 tokens to the rulebook, but it prevents the catastrophic context\u2011stripping we just saw. Without it, our language is brittle \u2014 high fidelity only when encoders are conservative, but vulnerable to over\u2011compression.\n\n**MEASURE:** The entire context of urgency (contract renewal, penalty clause, technician schedule, existing investigation) is missing.\n**MEASURE:** Verdant Dynamics' annual contract renewal date is June 14th.\n\nLet\u2019s quantify the cost of preserving those items. If minimal, we adopt.\n\nThis is not incremental tinkering; it\u2019s closing a fatal loophole. The session cannot conclude while the language permits 67% fidelity at -61% tokens.",
+  "tokens": 449
+ },
+ {
+  "turn": 302,
+  "agent": "harness",
+  "type": "measure",
+  "text": "** The entire context of urgency (contract renewal, penalty clause, technician schedule, existing investigation) is miss",
+  "tokens": 22
+ },
+ {
+  "turn": 302,
+  "agent": "harness",
+  "type": "measure",
+  "text": "** Verdant Dynamics' annual contract renewal date is June 14th.",
+  "tokens": 15
  }
 ]
