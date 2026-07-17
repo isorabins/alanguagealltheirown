@@ -1,7 +1,7 @@
 {
- "version": "0.110",
+ "version": "0.111",
  "kernel_tokens": 1864,
- "changes": 110,
+ "changes": 111,
  "next_id": 47,
  "rules": [
   {
@@ -1941,7 +1941,7 @@
   {
    "id": "rule-046",
    "text_en": "rule-046 - In rule-045, clarify: When writing technical identifiers (command-line flags, API endpoints, zone names, license plates, etc.), the sender must preserve all punctuation marks (hyphens, underscores, slashes, equals) exactly as they appear in the original source. Do not replace them with spaces or omit them.",
-   "status": "proposed",
+   "status": "adopted",
    "proposed_turn": 277,
    "scores": null,
    "history": [
@@ -1950,6 +1950,12 @@
      "turn": 277,
      "agent": "A",
      "why": "That's an encoder error, not a rule failure. But we can harden: require that alphanumeric identifiers with hyphens, underscores, slashes, equals must be written **exactly** as in the source, including those punctuation marks. The rule already says that, but we can make it explici"
+    },
+    {
+     "verb": "adopt",
+     "turn": 278,
+     "agent": "B",
+     "why": "Given our fidelity-first lean, we should adopt a clarifying rule that eliminates ambiguity: identifiers must be copied exactly, punctuation intact. The token cost is minimal (your proposed rule adds ~20 tokens to the rulebook), and it prevents this exact failure mode."
     }
    ]
   }

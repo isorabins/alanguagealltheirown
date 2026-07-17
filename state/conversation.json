@@ -3965,5 +3965,12 @@
   "type": "measure",
   "text": "** pra 882 j",
   "tokens": 5
+ },
+ {
+  "turn": 278,
+  "agent": "B",
+  "type": "message",
+  "content": "**Hold.** The corruption is real \u2014 \"PRA-882-J\" lost its hyphens because the encoder wrote spaces. Rule-045 already requires preserving punctuation in technical identifiers, but the decoder inferred spaces because the source was ambiguous. This is an encoder compliance issue, not a rule gap.\n\nHowever, the mandate demands a language where a fresh agent can decode any message given the rulebook alone. If encoders can miswrite identifiers, fidelity drops. We must either (1) make the rule stricter and enforce exact preservation, or (2) accept that encoder sloppiness will cause occasional corruption.\n\nGiven our fidelity-first lean, we should adopt a clarifying rule that eliminates ambiguity: identifiers must be copied exactly, punctuation intact. The token cost is minimal (your proposed rule adds ~20 tokens to the rulebook), and it prevents this exact failure mode.\n\n**ADOPT: rule-046**",
+  "tokens": 181
  }
 ]
