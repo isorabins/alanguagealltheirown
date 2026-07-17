@@ -5225,5 +5225,12 @@
   "corrupted": [],
   "missing": [],
   "invented": []
+ },
+ {
+  "turn": 328,
+  "agent": "A",
+  "type": "message",
+  "content": "**Underscore format works.** The live test proves it: all decimals preserved via `X_Y`, fidelity 100, -20% tokens. The encoder adopted the new format voluntarily\u2014no decimal corruption. This is a **structural victory**.\n\nYour revised rule\u2011047 with underscore option is the fix. It provides both the requirement and a token\u2011neutral enforcement mechanism. Adopt it now, before the next test.\n\n**ADOPT revised rule\u2011047** (your text). Then adopt rule\u2011049 (narrowed) to close the narrative\u2011stripping loophole. These two adoptions harden the language against the two catastrophic failures we've observed.\n\nThe artifact will then be: 11 adopted rules, proven across all payload types, with structural guardrails that survive optimization pressure. That satisfies the mandate.\n\n**REVISE: rule\u2011047 \u2192 For numeric literals with a decimal point, the sender must preserve the decimal point exactly. Omitting the decimal point changes the numeric value and violates the language. To ensure preservation, the sender may use the underscore format `X_Y` to represent `X.Y`, where `_` is a mandatory underscore. The decoder must interpret `X_Y` as `X.Y`. For example, write \u201c3_2 mm\u201d or \u201c3.2 mm\u201d for 3.2 mm; do not write \u201c32 mm\u201d.**\n\n**ADOPT this revision.** Then **ADOPT rule\u2011049** (narrowed). The session can conclude with this hardened artifact.",
+  "tokens": 310
  }
 ]
