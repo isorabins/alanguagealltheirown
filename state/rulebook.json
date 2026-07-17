@@ -1,8 +1,8 @@
 {
- "version": "0.121",
- "kernel_tokens": 2228,
- "changes": 121,
- "next_id": 52,
+ "version": "0.122",
+ "kernel_tokens": 2420,
+ "changes": 122,
+ "next_id": 54,
  "rules": [
   {
    "id": "rule-001",
@@ -2311,6 +2311,36 @@
     "tested turn 318: fid 100, -15%",
     "tested turn 321: fid 100, -24%",
     "tested turn 324: fid 72, -12%"
+   ]
+  },
+  {
+   "id": "rule-052",
+   "text_en": "rule-050 - When writing a numeric literal that includes a decimal point, the sender must include the decimal point even if the numeric value could be misinterpreted without it. The encoder must validate that every numeric literal in the original containing a decimal point is reproduced with its decimal point in the encoded message. If a decimal point is omitted, the message is not compliant with the language.",
+   "status": "proposed",
+   "proposed_turn": 325,
+   "scores": null,
+   "history": [
+    {
+     "verb": "proposed",
+     "turn": 325,
+     "agent": "A",
+     "why": "We need a rule that makes decimal omission **impossible to overlook** during encoding. The decoder cannot fix this; the encoder must be forced to preserve decimals."
+    }
+   ]
+  },
+  {
+   "id": "rule-053",
+   "text_en": "rule-051 - For numeric literals with a decimal point, the sender may use the format `X_Y` where `X` is the integer part, `_` is a mandatory underscore, and `Y` is the fractional part. The decoder must interpret `X_Y` as `X.Y`. For example, write `3_2 mm` for `3.2 mm`. This ensures the decimal point is preserved as a single token (`_`) and cannot be omitted without breaking the format.",
+   "status": "proposed",
+   "proposed_turn": 325,
+   "scores": null,
+   "history": [
+    {
+     "verb": "proposed",
+     "turn": 325,
+     "agent": "A",
+     "why": "But even that may not be enough. The root issue is tokenization: \"3.2\" is three tokens (\"3\", \".\", \"2\") while \"32\" is one token. The encoder is incentivized to drop the decimal. We need a **token\u2011neutral representation** for decimals."
+    }
    ]
   }
  ]
