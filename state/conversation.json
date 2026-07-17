@@ -4749,5 +4749,26 @@
   "type": "message",
   "content": "Hold. The language is proven again: -13% tokens, fidelity 100, 22/22 items survived. Decimals preserved (\u201c0.95\u201d, \u201c1.05\u201d), hyphens in waypoint (C3-7) intact, all narrative context retained. This is the 18th consecutive live test with fidelity 93\u2013100, compression 5\u201361% (the 67% outlier was encoder over\u2011compression, not rule failure).\n\nThe decimal corruption last turn was an encoder violating rule\u2011047, not a design gap. Your revised rule\u2011047 adds emphasis but doesn\u2019t change the requirement; the rule already says \u201cmust be preserved exactly.\u201d The encoder ignored it. Adding more words won\u2019t force compliance.\n\nYour proposed rule\u2011049 is a well\u2011intentioned guardrail, but it\u2019s subjective and unmeasurable. \u201cExplicit stakes\u201d is interpretive. The grader\u2019s missing\u2011item list is post\u2011hoc; we can\u2019t codify \u201cpreserve everything the grader might count.\u201d The mandate requires a decodable rulebook, not editorial completeness. The 67% collapse was an encoder choosing to strip narrative\u2014already against rule\u2011028\u2019s intent, but the language can\u2019t police sender judgment.\n\nThe nine\u2011rule language is proven across all payload types. Adding vague rules bloats the rulebook without fixing the real issue: encoder discipline.\n\n**Hold steady.** The artifact is complete. No new rules are justified.\n\nThe session can conclude with the nine\u2011rule rulebook as the final artifact.",
   "tokens": 319
+ },
+ {
+  "turn": 311,
+  "agent": "B",
+  "type": "message",
+  "content": "Hold.\n\nThe 67% fidelity collapse is a design failure, not an encoder choice. Rule\u2011028\u2019s \u201cplain text lines are narrative content\u201d does not require narrative to be included. The encoder legally omitted all context, producing a compliant but meaningless message. The mandate requires a language that carries *everything* working agents send\u2014prose, stakes, context. A language that permits such catastrophic over\u2011compression is broken.\n\nRule\u2011049 is not vague; it is structural: if the original contains a named entity, deadline, penalty clause, or key quantity, the encoded message must contain it. The grader\u2019s missing\u2011item list is the measurable test. This closes the loophole.\n\nThe decimal corruption (\u201c3.7\u201d \u2192 \u201c37\u201d) is encoder non\u2011compliance with rule\u2011047, but rule\u2011049 would also catch it as a \u201ckey quantity\u201d omission. Both issues point to the same need: a fidelity\u2011first guardrail.\n\n**REVISE: rule\u2011047 \u2192 In numeric literals, the decimal point (`.`) must be preserved exactly. Omitting the decimal point changes the numeric value and violates the language. For example, write \u201c3.7 hours\u201d, not \u201c37 hours\u201d. The decoder must treat the decimal point as part of the numeric value.**\n\n**PROPOSE: rule\u2011049 \u2014 The sender must preserve all named entities (people, organizations, dates, deadlines, penalty clauses), key quantities, and explicit stakes from the original message. Omitting these constitutes a violation of the language\u2019s purpose, even if the literal encoding is rule\u2011compliant.**\n\nWithout these, the language is brittle\u2014high fidelity only when encoders are conservative. The mandate demands robustness. The session cannot conclude while catastrophic over\u2011compression is permitted.\n\n**MEASURE:** The encoder legally omitted all context, producing a compliant but meaningless message.\n**MEASURE:** A language that permits such catastrophic over\u2011compression is broken.",
+  "tokens": 398
+ },
+ {
+  "turn": 311,
+  "agent": "harness",
+  "type": "measure",
+  "text": "** The encoder legally omitted all context, producing a compliant but meaningless message.",
+  "tokens": 15
+ },
+ {
+  "turn": 311,
+  "agent": "harness",
+  "type": "measure",
+  "text": "** A language that permits such catastrophic over\u2011compression is broken.",
+  "tokens": 14
  }
 ]
