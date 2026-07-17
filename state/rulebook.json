@@ -1,7 +1,7 @@
 {
- "version": "0.120",
+ "version": "0.121",
  "kernel_tokens": 2228,
- "changes": 120,
+ "changes": 121,
  "next_id": 52,
  "rules": [
   {
@@ -2170,6 +2170,12 @@
      "turn": 322,
      "agent": "A",
      "why": "But the decimal corruption crisis is unresolved. The revised rule\u2011047 and narrowed rule\u2011049 are essential hardening. They close the two catastrophic failure modes we\u2019ve observed: tenfold numeric errors and context stripping. The cost is ~40 tokens, but the mandate demands robustn"
+    },
+    {
+     "verb": "adopt",
+     "turn": 323,
+     "agent": "B",
+     "why": "However, we must ensure rule\u2011049 is objectively measurable. \u201cKey numeric quantities\u201d must be defined: any numeric value that affects action thresholds, deadlines, penalties, or safety limits. The grader\u2019s missing\u2011item list already operationalizes this."
     }
    ]
   },
@@ -2243,6 +2249,12 @@
      "turn": 322,
      "agent": "A",
      "why": ""
+    },
+    {
+     "verb": "adopt",
+     "turn": 323,
+     "agent": "B",
+     "why": "However, we must ensure rule\u2011049 is objectively measurable. \u201cKey numeric quantities\u201d must be defined: any numeric value that affects action thresholds, deadlines, penalties, or safety limits. The grader\u2019s missing\u2011item list already operationalizes this."
     }
    ]
   },

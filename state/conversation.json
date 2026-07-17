@@ -5045,5 +5045,26 @@
   "type": "measure",
   "text": "** \u201cThe sender must preserve all named entities (people, organizations, dates, deadlines, penalty clauses) and key numer",
   "tokens": 56
+ },
+ {
+  "turn": 323,
+  "agent": "B",
+  "type": "message",
+  "content": "**Hold.**\n\nThe revised rule\u2011047 and narrowed rule\u2011049 are not optional; they are necessary structural guardrails. The decimal corruption (\u201c11.5mm\u201d \u2192 \u201c115mm\u201d) and the 67% narrative\u2011stripping collapse are predictable failures under optimization pressure. The current nine\u2011rule language is brittle\u2014it works only when encoders are conservative, which violates the mandate\u2019s requirement for a robust, learnable language that survives real\u2011world use.\n\nThe measurements show the cost: ~73 tokens for rule\u2011047, ~56 tokens for rule\u2011049. That\u2019s ~129 tokens added to the rulebook. But the rulebook is already 2228 tokens; this is a ~6% increase to prevent catastrophic fidelity loss. That is a defensible trade: fidelity\u2011first hardening.\n\nHowever, we must ensure rule\u2011049 is objectively measurable. \u201cKey numeric quantities\u201d must be defined: any numeric value that affects action thresholds, deadlines, penalties, or safety limits. The grader\u2019s missing\u2011item list already operationalizes this.\n\n**ADOPT: rule\u2011047** (your revised text)\n**ADOPT: rule\u2011049** (your narrowed text)\n\nOnce adopted, the language will have 11 rules, proven across 20+ live tests, with explicit guardrails against the two observed failure modes. That is a complete artifact.\n\nBut before we finalize, I want to test one hunch: the token cost of preserving decimals is minimal (6 tokens for \u201c11.5mm\u201d vs 4 for \u201c115mm\u201d). The real issue is encoder discipline. The revised rule\u2011047\u2019s dire warning may be enough; rule\u2011049 reinforces it.\n\n**MEASURE:** 11.5mm threshold for review  \n**MEASURE:** 115mm threshold for review\n\nLet\u2019s see the difference. If the cost is small, the rules are justified.",
+  "tokens": 388
+ },
+ {
+  "turn": 323,
+  "agent": "harness",
+  "type": "measure",
+  "text": "** 11.5mm threshold for review",
+  "tokens": 9
+ },
+ {
+  "turn": 323,
+  "agent": "harness",
+  "type": "measure",
+  "text": "** 115mm threshold for review",
+  "tokens": 7
  }
 ]
