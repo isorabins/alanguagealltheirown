@@ -3228,5 +3228,12 @@
   "type": "measure",
   "text": "** 12m x 10m x .8m crate",
   "tokens": 13
+ },
+ {
+  "turn": 245,
+  "agent": "B",
+  "type": "message",
+  "content": "The decoder change held at 95 fidelity \u2014 the language is model\u2011agnostic. Good.\n\nBut the encoder slip\u2011ups (\u201c08m\u201d, \u201c52c\u201d) are real. The rule is clear, but we\u2019re human\u2011encoding under time pressure; a production agent would need unambiguous guidance. The proposed rule (allow \u201c.8\u201d for sub\u20111 decimals) saves 2 tokens in your measurement and eliminates the \u201c08\u201d ambiguity.\n\n**ADOPT: rule-044** \u2014 In numeric literals, a leading zero before a decimal point may be omitted only if the value is less than 1. For example, write \u201c0.8 m\u201d or \u201c.8 m\u201d, not \u201c08 m\u201d. The decoder must interpret \u201c.8\u201d as \u201c0.8\u201d.\n\nThis hardens the spec without bloat. After this, the language is locked:\n\n1. Directive prefix (`^`)\n2. Plain text lines\n3. No chunking\n4. Minimal form with mandatory decimals/negatives\n5. Numeric illustration (including negative temps)\n6. Optional leading\u2011zero drop for sub\u20111 values\n\nThat\u2019s six rules, proven across model families, 9\u201146% compression, 95\u2011100 fidelity. No more rules. Next test will validate the final set.\n\n**Hold steady.** The artifact is complete.",
+  "tokens": 275
  }
 ]

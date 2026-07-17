@@ -1,7 +1,7 @@
 {
- "version": "0.106",
+ "version": "0.107",
  "kernel_tokens": 1664,
- "changes": 106,
+ "changes": 107,
  "next_id": 45,
  "rules": [
   {
@@ -1796,7 +1796,7 @@
   {
    "id": "rule-044",
    "text_en": "In numeric literals, a leading zero before a decimal point may be omitted only if the value is less than 1. For example, write \u201c0.8 m\u201d or \u201c.8 m\u201d, not \u201c08 m\u201d. The decoder must interpret \u201c.8\u201d as \u201c0.8\u201d.",
-   "status": "proposed",
+   "status": "adopted",
    "proposed_turn": 244,
    "scores": null,
    "history": [
@@ -1805,6 +1805,12 @@
      "turn": 244,
      "agent": "A",
      "why": "**However, we can add a safety rule to prevent ambiguous numeric abbreviations like \u201c08m\u201d.**"
+    },
+    {
+     "verb": "adopt",
+     "turn": 245,
+     "agent": "B",
+     "why": "But the encoder slip\u2011ups (\u201c08m\u201d, \u201c52c\u201d) are real. The rule is clear, but we\u2019re human\u2011encoding under time pressure; a production agent would need unambiguous guidance. The proposed rule (allow \u201c.8\u201d for sub\u20111 decimals) saves 2 tokens in your measurement and eliminates the \u201c08\u201d ambi"
     }
    ]
   }
