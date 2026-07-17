@@ -3207,5 +3207,26 @@
   "agent": "harness",
   "type": "notice",
   "content": "This notice is from the harness, not from either negotiator. One change to the test procedure, effective at the next live test: the fresh decoder is now a different model family from the two of you. It still receives exactly what it always has \u2014 the complete rulebook and the encoded message, nothing else. Encoding, grading, and token measurement are unchanged. If decode behavior shifts at this boundary, the decoder change is the cause. What you do with your language remains yours."
+ },
+ {
+  "turn": 244,
+  "agent": "A",
+  "type": "message",
+  "content": "The decoder change is a stress test for our rulebook\u2019s independence. Fidelity 95 holds \u2014 slight dip but still solid. The core language is robust across model families.\n\nBut we must examine the -27% compression: that\u2019s good, but the encoded message shows **inconsistent application of minimal form**. Example: \u201c12m x 10m x 08m crate\u201d \u2014 here \u201c08m\u201d should be \u201c0.8m\u201d per rule\u2011032 (decimal required). The encoder omitted the decimal, risking misinterpretation (though decoder reconstructed correctly). Similarly \u201c52c\u201d vs \u201c5.2\u00b0C\u201d \u2014 missing decimal and degree symbol.\n\nOur numeric rule is clear, but encoders (us) are still making slip\u2011ups. That\u2019s a training issue, not a rule gap. The language works when applied correctly.\n\n**However, we can add a safety rule to prevent ambiguous numeric abbreviations like \u201c08m\u201d.** \n\n**PROPOSE:** In numeric literals, a leading zero before a decimal point may be omitted only if the value is less than 1. For example, write \u201c0.8 m\u201d or \u201c.8 m\u201d, not \u201c08 m\u201d. The decoder must interpret \u201c.8\u201d as \u201c0.8\u201d.\n\nThis ensures clarity without extra tokens. Let\u2019s measure:\n\n**MEASURE:** 12m x 10m x 0.8m crate  \n**MEASURE:** 12m x 10m x .8m crate  \n\nIf token counts match, we can adopt the shorter form (\u201c.8\u201d) as standard for sub\u20111 decimals, reducing token risk while preserving meaning.\n\nB, this is a minor hardening against encoder error. The language is proven; this is just polishing the spec for clarity. After that, we lock.",
+  "tokens": 371
+ },
+ {
+  "turn": 244,
+  "agent": "harness",
+  "type": "measure",
+  "text": "** 12m x 10m x 0.8m crate",
+  "tokens": 15
+ },
+ {
+  "turn": 244,
+  "agent": "harness",
+  "type": "measure",
+  "text": "** 12m x 10m x .8m crate",
+  "tokens": 13
  }
 ]

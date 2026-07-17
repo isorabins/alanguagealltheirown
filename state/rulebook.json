@@ -1,8 +1,8 @@
 {
- "version": "0.105",
- "kernel_tokens": 1585,
- "changes": 105,
- "next_id": 44,
+ "version": "0.106",
+ "kernel_tokens": 1664,
+ "changes": 106,
+ "next_id": 45,
  "rules": [
   {
    "id": "rule-001",
@@ -1791,6 +1791,21 @@
      "why": "The artifact is complete. No further rules needed."
     },
     "tested turn 243: fid 95, -27%"
+   ]
+  },
+  {
+   "id": "rule-044",
+   "text_en": "In numeric literals, a leading zero before a decimal point may be omitted only if the value is less than 1. For example, write \u201c0.8 m\u201d or \u201c.8 m\u201d, not \u201c08 m\u201d. The decoder must interpret \u201c.8\u201d as \u201c0.8\u201d.",
+   "status": "proposed",
+   "proposed_turn": 244,
+   "scores": null,
+   "history": [
+    {
+     "verb": "proposed",
+     "turn": 244,
+     "agent": "A",
+     "why": "**However, we can add a safety rule to prevent ambiguous numeric abbreviations like \u201c08m\u201d.**"
+    }
    ]
   }
  ]

@@ -37,7 +37,8 @@
   "rule-040": "reverted",
   "rule-041": "reverted",
   "rule-042": "rejected",
-  "rule-043": "proposed"
+  "rule-043": "proposed",
+  "rule-044": "proposed"
  },
  "tweets_sent": 16
 }
