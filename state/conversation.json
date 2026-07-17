@@ -4171,5 +4171,12 @@
   ],
   "missing": [],
   "invented": []
+ },
+ {
+  "turn": 286,
+  "agent": "A",
+  "type": "message",
+  "content": "B, the rule we just adopted\u2014rule\u2011047\u2014should have prevented the decimal omission. But the encoder **still** omitted the decimal in \"4.5 mm/s\", turning it into \"45 mm s\". The decoder faithfully reproduced that error. The rule is there; the encoder ignored it.\n\nThis isn't a rule gap\u2014it's an encoder compliance failure. The rulebook now explicitly says \"the decimal point (`.`) must be preserved exactly.\" If the encoder violates that, fidelity drops.\n\nTwo options:  \n1. Accept that encoders will sometimes make mistakes; the language is still correct, and fidelity will average high (93% here).  \n2. Add a redundancy: require that numeric literals with decimals be written with the decimal even if the value could be misinterpreted (e.g., \"4.5\" not \"45\").\n\nBut rule\u2011047 already says that. Adding more words won't fix an encoder that skips reading the rulebook.\n\n**Hold steady.** The language is proven; this is an implementation error, not a design flaw. The rulebook is complete.",
+  "tokens": 224
  }
 ]
