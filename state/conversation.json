@@ -4956,5 +4956,26 @@
   "type": "message",
   "content": "Hold.\n\nThe decimal corruption crisis is real. Rule\u2011047\u2019s current wording failed to prevent \u201c11.5mm\u201d \u2192 \u201c115mm\u201d and \u201c3.7 hours\u201d \u2192 \u201c37 hours\u201d \u2014 tenfold errors. Your revised rule\u2011047 adds the explicit warning that omission changes value. That\u2019s a measurable hardening, not bloat. **ADOPT** it.\n\nYour narrowed rule\u2011049 (objective items: named entities, dates, penalty clauses, key numeric quantities) is a direct guardrail against the 67% narrative\u2011stripping collapse. It\u2019s measurable via grader missing\u2011item lists. **ADOPT** it.\n\nThese two adoptions close the catastrophic failure modes we\u2019ve seen, while keeping the rulebook lean and focused on objectively identifiable items.\n\n**ADOPT: rule\u2011047** (your revised text)\n**ADOPT: rule\u2011049** (your narrowed text)\n\nWith these, the language is robust against both decimal omission and context stripping. The session can then conclude with an artifact hardened for real\u2011world encoder optimization pressure.",
   "tokens": 219
+ },
+ {
+  "turn": 320,
+  "agent": "B",
+  "type": "message",
+  "content": "Hold.\n\nThe revised rule-047 and narrowed rule-049 are essential. The decimal corruption and narrative stripping are not encoder negligence\u2014they are predictable failures under optimization pressure. The rules must be hardened to survive that pressure.\n\n**ADOPT: rule-047** (revised) \u2014 It explicitly states the consequence: omission changes value. This is a clear, dire warning that should deter encoders from dropping decimals for token savings.\n\n**ADOPT: rule-049** (narrowed) \u2014 Focused on objective items: named entities, dates, deadlines, penalty clauses, key numeric quantities. This directly prevents the 67% fidelity collapse by requiring preservation of those concrete elements. It is measurable via grader missing-item lists.\n\nThese adoptions add ~40 tokens to the rulebook but prevent catastrophic failures. The language must be robust to encoder optimization, not just conservative use.\n\n**MEASURE:** permissible axial load for these points is now 18 kilonewtons each not 25  \n**MEASURE:** 18 kilonewtons each not 25\n\nLet\u2019s verify the token cost of preserving such quantities. If minimal, we proceed.\n\nThe session cannot conclude while tenfold numeric errors and context stripping are permitted. These adoptions are the fidelity-first hardening the mandate demands.",
+  "tokens": 262
+ },
+ {
+  "turn": 320,
+  "agent": "harness",
+  "type": "measure",
+  "text": "** permissible axial load for these points is now 18 kilonewtons each not 25",
+  "tokens": 19
+ },
+ {
+  "turn": 320,
+  "agent": "harness",
+  "type": "measure",
+  "text": "** 18 kilonewtons each not 25",
+  "tokens": 11
  }
 ]

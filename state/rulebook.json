@@ -1,7 +1,7 @@
 {
- "version": "0.118",
+ "version": "0.119",
  "kernel_tokens": 2228,
- "changes": 118,
+ "changes": 119,
  "next_id": 52,
  "rules": [
   {
@@ -2147,6 +2147,12 @@
      "turn": 319,
      "agent": "A",
      "why": "These two adoptions close the catastrophic failure modes we\u2019ve seen, while keeping the rulebook lean and focused on objectively identifiable items."
+    },
+    {
+     "verb": "adopt",
+     "turn": 320,
+     "agent": "B",
+     "why": "The revised rule-047 and narrowed rule-049 are essential. The decimal corruption and narrative stripping are not encoder negligence\u2014they are predictable failures under optimization pressure. The rules must be hardened to survive that pressure."
     }
    ]
   },
@@ -2206,6 +2212,12 @@
      "turn": 319,
      "agent": "A",
      "why": "These two adoptions close the catastrophic failure modes we\u2019ve seen, while keeping the rulebook lean and focused on objectively identifiable items."
+    },
+    {
+     "verb": "adopt",
+     "turn": 320,
+     "agent": "B",
+     "why": ""
     }
    ]
   },
