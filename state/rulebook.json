@@ -957,8 +957,8 @@
    "status": "adopted",
    "proposed_turn": 145,
    "scores": {
-    "token_delta_pct": -13,
-    "fidelity_pct": 100
+    "token_delta_pct": -5,
+    "fidelity_pct": 96
    },
    "history": [
     {
@@ -1027,7 +1027,8 @@
     "tested turn 264: fid 100, -37%",
     "tested turn 267: fid 100, -24%",
     "tested turn 270: fid 100, -11%",
-    "tested turn 273: fid 100, -13%"
+    "tested turn 273: fid 100, -13%",
+    "tested turn 276: fid 96, -5%"
    ]
   },
   {
@@ -1036,8 +1037,8 @@
    "status": "adopted",
    "proposed_turn": 145,
    "scores": {
-    "token_delta_pct": -13,
-    "fidelity_pct": 100
+    "token_delta_pct": -5,
+    "fidelity_pct": 96
    },
    "history": [
     {
@@ -1094,7 +1095,8 @@
     "tested turn 264: fid 100, -37%",
     "tested turn 267: fid 100, -24%",
     "tested turn 270: fid 100, -11%",
-    "tested turn 273: fid 100, -13%"
+    "tested turn 273: fid 100, -13%",
+    "tested turn 276: fid 96, -5%"
    ]
   },
   {
@@ -1210,8 +1212,8 @@
    "status": "adopted",
    "proposed_turn": 172,
    "scores": {
-    "token_delta_pct": -13,
-    "fidelity_pct": 100
+    "token_delta_pct": -5,
+    "fidelity_pct": 96
    },
    "history": [
     {
@@ -1277,7 +1279,8 @@
     "tested turn 264: fid 100, -37%",
     "tested turn 267: fid 100, -24%",
     "tested turn 270: fid 100, -11%",
-    "tested turn 273: fid 100, -13%"
+    "tested turn 273: fid 100, -13%",
+    "tested turn 276: fid 96, -5%"
    ]
   },
   {
@@ -1286,8 +1289,8 @@
    "status": "adopted",
    "proposed_turn": 176,
    "scores": {
-    "token_delta_pct": -13,
-    "fidelity_pct": 100
+    "token_delta_pct": -5,
+    "fidelity_pct": 96
    },
    "history": [
     {
@@ -1412,7 +1415,8 @@
     "tested turn 264: fid 100, -37%",
     "tested turn 267: fid 100, -24%",
     "tested turn 270: fid 100, -11%",
-    "tested turn 273: fid 100, -13%"
+    "tested turn 273: fid 100, -13%",
+    "tested turn 276: fid 96, -5%"
    ]
   },
   {
@@ -1584,8 +1588,8 @@
    "status": "adopted",
    "proposed_turn": 208,
    "scores": {
-    "token_delta_pct": -13,
-    "fidelity_pct": 100
+    "token_delta_pct": -5,
+    "fidelity_pct": 96
    },
    "history": [
     {
@@ -1627,7 +1631,8 @@
     "tested turn 264: fid 100, -37%",
     "tested turn 267: fid 100, -24%",
     "tested turn 270: fid 100, -11%",
-    "tested turn 273: fid 100, -13%"
+    "tested turn 273: fid 100, -13%",
+    "tested turn 276: fid 96, -5%"
    ]
   },
   {
@@ -1636,8 +1641,8 @@
    "status": "adopted",
    "proposed_turn": 215,
    "scores": {
-    "token_delta_pct": -13,
-    "fidelity_pct": 100
+    "token_delta_pct": -5,
+    "fidelity_pct": 96
    },
    "history": [
     {
@@ -1671,7 +1676,8 @@
     "tested turn 264: fid 100, -37%",
     "tested turn 267: fid 100, -24%",
     "tested turn 270: fid 100, -11%",
-    "tested turn 273: fid 100, -13%"
+    "tested turn 273: fid 100, -13%",
+    "tested turn 276: fid 96, -5%"
    ]
   },
   {
@@ -1840,8 +1846,8 @@
    "status": "proposed",
    "proposed_turn": 241,
    "scores": {
-    "token_delta_pct": -13,
-    "fidelity_pct": 100
+    "token_delta_pct": -5,
+    "fidelity_pct": 96
    },
    "history": [
     {
@@ -1860,7 +1866,8 @@
     "tested turn 264: fid 100, -37%",
     "tested turn 267: fid 100, -24%",
     "tested turn 270: fid 100, -11%",
-    "tested turn 273: fid 100, -13%"
+    "tested turn 273: fid 100, -13%",
+    "tested turn 276: fid 96, -5%"
    ]
   },
   {
@@ -1869,8 +1876,8 @@
    "status": "adopted",
    "proposed_turn": 244,
    "scores": {
-    "token_delta_pct": -13,
-    "fidelity_pct": 100
+    "token_delta_pct": -5,
+    "fidelity_pct": 96
    },
    "history": [
     {
@@ -1894,7 +1901,8 @@
     "tested turn 264: fid 100, -37%",
     "tested turn 267: fid 100, -24%",
     "tested turn 270: fid 100, -11%",
-    "tested turn 273: fid 100, -13%"
+    "tested turn 273: fid 100, -13%",
+    "tested turn 276: fid 96, -5%"
    ]
   },
   {
@@ -1903,8 +1911,8 @@
    "status": "adopted",
    "proposed_turn": 250,
    "scores": {
-    "token_delta_pct": -13,
-    "fidelity_pct": 100
+    "token_delta_pct": -5,
+    "fidelity_pct": 96
    },
    "history": [
     {
@@ -1926,7 +1934,8 @@
     "tested turn 264: fid 100, -37%",
     "tested turn 267: fid 100, -24%",
     "tested turn 270: fid 100, -11%",
-    "tested turn 273: fid 100, -13%"
+    "tested turn 273: fid 100, -13%",
+    "tested turn 276: fid 96, -5%"
    ]
   }
  ]
