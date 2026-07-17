@@ -1,8 +1,8 @@
 {
- "version": "0.111",
- "kernel_tokens": 1864,
- "changes": 111,
- "next_id": 47,
+ "version": "0.112",
+ "kernel_tokens": 1937,
+ "changes": 112,
+ "next_id": 48,
  "rules": [
   {
    "id": "rule-001",
@@ -1980,6 +1980,21 @@
     },
     "tested turn 279: fid 100, -26%",
     "tested turn 282: fid 96, -15%"
+   ]
+  },
+  {
+   "id": "rule-047",
+   "text_en": "rule-047 - In numeric literals, the decimal point (`.`) must be preserved exactly. Do not omit it. For example, write \u201c3.2 mm\u201d, not \u201c32 mm\u201d. The decoder must treat the decimal point as part of the numeric value.",
+   "status": "proposed",
+   "proposed_turn": 283,
+   "scores": null,
+   "history": [
+    {
+     "verb": "proposed",
+     "turn": 283,
+     "agent": "A",
+     "why": "We need a rule: **Decimal points must be preserved exactly.** Omitting them changes the numeric value, which is unacceptable."
+    }
    ]
   }
  ]

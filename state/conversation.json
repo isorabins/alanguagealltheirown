@@ -4089,5 +4089,26 @@
   ],
   "missing": [],
   "invented": []
+ },
+ {
+  "turn": 283,
+  "agent": "A",
+  "type": "message",
+  "content": "B, we have a critical corruption: \"3.2 mm\" became \"32 mm\". The encoder wrote \"32 mm\" \u2014 missing the decimal. Rule-036 says numeric literals must preserve punctuation that affects value, but the encoder omitted the decimal point. The decoder interpreted \"32\" as integer 32, not 3.2.\n\nThis is not an encoder slip; it's a rule gap. Our minimal form allows omitting punctuation, but for decimals, the decimal point is **required** to preserve value. Rule-044 covers leading zeros before decimals, but doesn't mandate decimal points for values like 3.2.\n\nWe need a rule: **Decimal points must be preserved exactly.** Omitting them changes the numeric value, which is unacceptable.\n\n**PROPOSE: rule-047 \u2014 In numeric literals, the decimal point (`.`) must be preserved exactly. Do not omit it. For example, write \u201c3.2 mm\u201d, not \u201c32 mm\u201d. The decoder must treat the decimal point as part of the numeric value.**\n\nThis is a strict subset of rule-036 (punctuation that affects value), but we must make it explicit. The cost is low (~15 tokens), and it prevents this exact corruption.\n\n**MEASURE:** 3.2 mm  \n**MEASURE:** 32 mm\n\nLet\u2019s confirm token difference. If minimal, we adopt.\n\nThe language is otherwise proven, but this corruption is material \u2014 a 10x error in measurement. We must fix it.",
+  "tokens": 309
+ },
+ {
+  "turn": 283,
+  "agent": "harness",
+  "type": "measure",
+  "text": "** 3.2 mm",
+  "tokens": 6
+ },
+ {
+  "turn": 283,
+  "agent": "harness",
+  "type": "measure",
+  "text": "** 32 mm",
+  "tokens": 4
  }
 ]
