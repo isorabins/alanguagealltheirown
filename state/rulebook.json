@@ -957,7 +957,7 @@
    "status": "adopted",
    "proposed_turn": 145,
    "scores": {
-    "token_delta_pct": -6,
+    "token_delta_pct": -12,
     "fidelity_pct": 100
    },
    "history": [
@@ -1020,7 +1020,8 @@
     "tested turn 243: fid 95, -27%",
     "tested turn 246: fid 100, -13%",
     "tested turn 249: fid 96, -17%",
-    "tested turn 252: fid 100, -6%"
+    "tested turn 252: fid 100, -6%",
+    "tested turn 255: fid 100, -12%"
    ]
   },
   {
@@ -1029,7 +1030,7 @@
    "status": "adopted",
    "proposed_turn": 145,
    "scores": {
-    "token_delta_pct": -6,
+    "token_delta_pct": -12,
     "fidelity_pct": 100
    },
    "history": [
@@ -1080,7 +1081,8 @@
     "tested turn 243: fid 95, -27%",
     "tested turn 246: fid 100, -13%",
     "tested turn 249: fid 96, -17%",
-    "tested turn 252: fid 100, -6%"
+    "tested turn 252: fid 100, -6%",
+    "tested turn 255: fid 100, -12%"
    ]
   },
   {
@@ -1196,7 +1198,7 @@
    "status": "adopted",
    "proposed_turn": 172,
    "scores": {
-    "token_delta_pct": -6,
+    "token_delta_pct": -12,
     "fidelity_pct": 100
    },
    "history": [
@@ -1256,7 +1258,8 @@
     "tested turn 243: fid 95, -27%",
     "tested turn 246: fid 100, -13%",
     "tested turn 249: fid 96, -17%",
-    "tested turn 252: fid 100, -6%"
+    "tested turn 252: fid 100, -6%",
+    "tested turn 255: fid 100, -12%"
    ]
   },
   {
@@ -1265,7 +1268,7 @@
    "status": "adopted",
    "proposed_turn": 176,
    "scores": {
-    "token_delta_pct": -6,
+    "token_delta_pct": -12,
     "fidelity_pct": 100
    },
    "history": [
@@ -1384,7 +1387,8 @@
     "tested turn 243: fid 95, -27%",
     "tested turn 246: fid 100, -13%",
     "tested turn 249: fid 96, -17%",
-    "tested turn 252: fid 100, -6%"
+    "tested turn 252: fid 100, -6%",
+    "tested turn 255: fid 100, -12%"
    ]
   },
   {
@@ -1556,7 +1560,7 @@
    "status": "adopted",
    "proposed_turn": 208,
    "scores": {
-    "token_delta_pct": -6,
+    "token_delta_pct": -12,
     "fidelity_pct": 100
    },
    "history": [
@@ -1592,7 +1596,8 @@
     "tested turn 243: fid 95, -27%",
     "tested turn 246: fid 100, -13%",
     "tested turn 249: fid 96, -17%",
-    "tested turn 252: fid 100, -6%"
+    "tested turn 252: fid 100, -6%",
+    "tested turn 255: fid 100, -12%"
    ]
   },
   {
@@ -1601,7 +1606,7 @@
    "status": "adopted",
    "proposed_turn": 215,
    "scores": {
-    "token_delta_pct": -6,
+    "token_delta_pct": -12,
     "fidelity_pct": 100
    },
    "history": [
@@ -1629,7 +1634,8 @@
     "tested turn 243: fid 95, -27%",
     "tested turn 246: fid 100, -13%",
     "tested turn 249: fid 96, -17%",
-    "tested turn 252: fid 100, -6%"
+    "tested turn 252: fid 100, -6%",
+    "tested turn 255: fid 100, -12%"
    ]
   },
   {
@@ -1798,7 +1804,7 @@
    "status": "proposed",
    "proposed_turn": 241,
    "scores": {
-    "token_delta_pct": -6,
+    "token_delta_pct": -12,
     "fidelity_pct": 100
    },
    "history": [
@@ -1811,7 +1817,8 @@
     "tested turn 243: fid 95, -27%",
     "tested turn 246: fid 100, -13%",
     "tested turn 249: fid 96, -17%",
-    "tested turn 252: fid 100, -6%"
+    "tested turn 252: fid 100, -6%",
+    "tested turn 255: fid 100, -12%"
    ]
   },
   {
@@ -1820,7 +1827,7 @@
    "status": "adopted",
    "proposed_turn": 244,
    "scores": {
-    "token_delta_pct": -6,
+    "token_delta_pct": -12,
     "fidelity_pct": 100
    },
    "history": [
@@ -1838,7 +1845,8 @@
     },
     "tested turn 246: fid 100, -13%",
     "tested turn 249: fid 96, -17%",
-    "tested turn 252: fid 100, -6%"
+    "tested turn 252: fid 100, -6%",
+    "tested turn 255: fid 100, -12%"
    ]
   },
   {
@@ -1847,7 +1855,7 @@
    "status": "adopted",
    "proposed_turn": 250,
    "scores": {
-    "token_delta_pct": -6,
+    "token_delta_pct": -12,
     "fidelity_pct": 100
    },
    "history": [
@@ -1863,7 +1871,8 @@
      "agent": "B",
      "why": "The 4\u2011token difference is significant \u2014 but fidelity is non\u2011negotiable. The command syntax was corrupted, and that\u2019s a direct failure of rule\u2011032\u2019s current wording. \u201cAlphanumeric identifiers\u201d must explicitly include technical punctuation."
     },
-    "tested turn 252: fid 100, -6%"
+    "tested turn 252: fid 100, -6%",
+    "tested turn 255: fid 100, -12%"
    ]
   }
  ]
