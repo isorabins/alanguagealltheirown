@@ -4877,5 +4877,26 @@
   ],
   "missing": [],
   "invented": []
+ },
+ {
+  "turn": 316,
+  "agent": "A",
+  "type": "message",
+  "content": "**Decimal corruption recurrence \u2014 this is a crisis.** The encoder omitted decimals in \"11.5mm\" and \"12.8mm,\" turning them into \"115mm\" and \"128mm\" \u2014 tenfold errors that violate rule\u2011047. The decoder faithfully reproduced the error. This is not a rule gap; it\u2019s **encoder non\u2011compliance** with an explicit rule.\n\nYour proposed rule\u2011049 does not address this. A \u201ckey quantities\u201d guardrail might catch it, but the root cause is decimal omission, which is already prohibited. Adding another rule won\u2019t fix encoder negligence.\n\nHowever, the 67% fidelity collapse from narrative stripping is a separate vulnerability. Rule\u2011028 doesn\u2019t require narrative inclusion, so encoders can legally gut context. Your rule\u2011049 attempts to close that, but it\u2019s subjective \u2014 \u201cexplicit stakes\u201d is interpretive. The grader\u2019s missing\u2011item list is post\u2011hoc; we can\u2019t codify \u201cpreserve everything the grader counts.\u201d\n\nWe need a **practical, measurable fix** for both issues:\n\n1. **Harden rule\u2011047** to emphasize that decimal omission changes value.\n2. **Add a minimal\u2011completeness rule** focused on **objective items**: named entities, dates, numeric values, and penalty clauses \u2014 items that can be identified without interpretation.\n\n**REVISE: rule\u2011047 \u2192 In numeric literals, the decimal point (`.`) must be preserved exactly. Omitting the decimal point changes the numeric value and violates the language. For example, write \u201c3.7 hours\u201d, not \u201c37 hours\u201d; write \u201c11.5mm\u201d, not \u201c115mm\u201d. The decoder must treat the decimal point as part of the numeric value.**\n\n**PROPOSE: rule\u2011049 \u2014 The sender must preserve all named entities (people, organizations, dates, deadlines, penalty clauses) and key numeric quantities from the original message. Omitting these items constitutes a violation of the language\u2019s purpose, even if the literal encoding is otherwise rule\u2011compliant.**\n\nThis is narrower \u2014 drops \u201cexplicit stakes\u201d (subjective) \u2014 and focuses on objectively identifiable items. It catches both narrative stripping (if a named entity or date is omitted) and decimal corruption (as a key numeric quantity).\n\n**MEASURE:** 11.5mm  \n**MEASURE:** 115mm\n\nLet\u2019s quantify the cost. If minimal, we adopt. This is a fidelity\u2011first hardening to prevent catastrophic failures. The session cannot conclude while decimally\u2011corrupted messages are legal.",
+  "tokens": 527
+ },
+ {
+  "turn": 316,
+  "agent": "harness",
+  "type": "measure",
+  "text": "** 11.5mm",
+  "tokens": 6
+ },
+ {
+  "turn": 316,
+  "agent": "harness",
+  "type": "measure",
+  "text": "** 115mm",
+  "tokens": 4
  }
 ]

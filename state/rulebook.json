@@ -1,8 +1,8 @@
 {
- "version": "0.115",
- "kernel_tokens": 2107,
- "changes": 115,
- "next_id": 50,
+ "version": "0.116",
+ "kernel_tokens": 2184,
+ "changes": 116,
+ "next_id": 51,
  "rules": [
   {
    "id": "rule-001",
@@ -2176,6 +2176,21 @@
     "tested turn 309: fid 100, -13%",
     "tested turn 312: fid 100, -33%",
     "tested turn 315: fid 92, -35%"
+   ]
+  },
+  {
+   "id": "rule-050",
+   "text_en": "rule-049 - The sender must preserve all named entities (people, organizations, dates, deadlines, penalty clauses) and key numeric quantities from the original message. Omitting these items constitutes a violation of the language\u2019s purpose, even if the literal encoding is otherwise rule-compliant.",
+   "status": "proposed",
+   "proposed_turn": 316,
+   "scores": null,
+   "history": [
+    {
+     "verb": "proposed",
+     "turn": 316,
+     "agent": "A",
+     "why": ""
+    }
    ]
   }
  ]
