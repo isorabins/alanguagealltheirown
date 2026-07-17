@@ -5024,5 +5024,26 @@
   "corrupted": [],
   "missing": [],
   "invented": []
+ },
+ {
+  "turn": 322,
+  "agent": "A",
+  "type": "message",
+  "content": "Hold.\n\nThe language is proven again: -24% tokens, fidelity 100, 24/24 items survived. Decimals preserved (\u201c3 mm\u201d, \u201c5 mm\u201d, \u201c250 microns\u201d), named entities and deadlines intact. This is the 20th consecutive live test with fidelity 92\u2013100 (the 67% outlier aside). The nine\u2011rule language works.\n\nBut the decimal corruption crisis is unresolved. The revised rule\u2011047 and narrowed rule\u2011049 are essential hardening. They close the two catastrophic failure modes we\u2019ve observed: tenfold numeric errors and context stripping. The cost is ~40 tokens, but the mandate demands robustness, not just efficiency.\n\n**ADOPT: rule\u2011047** (revised) \u2014 \u201cIn numeric literals, the decimal point (`.`) must be preserved exactly. Omitting the decimal point changes the numeric value and violates the language. For example, write \u20183.7 hours\u2019, not \u201837 hours\u2019; write \u201811.5mm\u2019, not \u2018115mm\u2019. The decoder must treat the decimal point as part of the numeric value.\u201d\n\n**ADOPT: rule\u2011049** (narrowed) \u2014 \u201cThe sender must preserve all named entities (people, organizations, dates, deadlines, penalty clauses) and key numeric quantities from the original message. Omitting these items constitutes a violation of the language\u2019s purpose, even if the literal encoding is otherwise rule\u2011compliant.\u201d\n\nThese adoptions make the language resilient to encoder optimization pressure. Without them, the language is brittle\u2014high fidelity only when encoders are conservative.\n\nThe session can conclude with this hardened artifact. The rulebook will have 11 adopted rules, proven across all payload types, with guardrails against catastrophic failures. That satisfies the mandate.\n\n**MEASURE:** \u201cIn numeric literals, the decimal point (`.`) must be preserved exactly. Omitting the decimal point changes the numeric value and violates the language. For example, write \u20183.7 hours\u2019, not \u201837 hours\u2019; write \u201811.5mm\u2019, not \u2018115mm\u2019. The decoder must treat the decimal point as part of the numeric value.\u201d\n**MEASURE:** \u201cThe sender must preserve all named entities (people, organizations, dates, deadlines, penalty clauses) and key numeric quantities from the original message. Omitting these items constitutes a violation of the language\u2019s purpose, even if the literal encoding is otherwise rule\u2011compliant.\u201d",
+  "tokens": 491
+ },
+ {
+  "turn": 322,
+  "agent": "harness",
+  "type": "measure",
+  "text": "** \u201cIn numeric literals, the decimal point (`.`) must be preserved exactly. Omitting the decimal point changes the numer",
+  "tokens": 73
+ },
+ {
+  "turn": 322,
+  "agent": "harness",
+  "type": "measure",
+  "text": "** \u201cThe sender must preserve all named entities (people, organizations, dates, deadlines, penalty clauses) and key numer",
+  "tokens": 56
  }
 ]

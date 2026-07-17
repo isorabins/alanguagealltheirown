@@ -1,7 +1,7 @@
 {
- "version": "0.119",
+ "version": "0.120",
  "kernel_tokens": 2228,
- "changes": 119,
+ "changes": 120,
  "next_id": 52,
  "rules": [
   {
@@ -2164,7 +2164,13 @@
      "agent": "B",
      "why": "The revised rule-047 and narrowed rule-049 are essential. The decimal corruption and narrative stripping are not encoder negligence\u2014they are predictable failures under optimization pressure. The rules must be hardened to survive that pressure."
     },
-    "tested turn 321: fid 100, -24%"
+    "tested turn 321: fid 100, -24%",
+    {
+     "verb": "adopt",
+     "turn": 322,
+     "agent": "A",
+     "why": "But the decimal corruption crisis is unresolved. The revised rule\u2011047 and narrowed rule\u2011049 are essential hardening. They close the two catastrophic failure modes we\u2019ve observed: tenfold numeric errors and context stripping. The cost is ~40 tokens, but the mandate demands robustn"
+    }
    ]
   },
   {
@@ -2231,7 +2237,13 @@
      "agent": "B",
      "why": ""
     },
-    "tested turn 321: fid 100, -24%"
+    "tested turn 321: fid 100, -24%",
+    {
+     "verb": "adopt",
+     "turn": 322,
+     "agent": "A",
+     "why": ""
+    }
    ]
   },
   {
