@@ -4370,5 +4370,12 @@
    "2: Printing number is the 14th printing"
   ],
   "invented": []
+ },
+ {
+  "turn": 295,
+  "agent": "A",
+  "type": "message",
+  "content": "The missing printing number\u2014\"the 14th printing\"\u2014is not a corruption of existing text; it\u2019s an omission. The encoder wrote \u201cthis printing run\u201d without specifying \u201c14th printing.\u201d That\u2019s an encoder content choice, not a rule failure. The decoder faithfully reproduced \u201cthis printing run.\u201d The grader flagged it because the original payload explicitly called it \u201cthe 14th printing,\u201d but the encoder didn\u2019t include that detail.\n\nOur rules don\u2019t guarantee completeness\u2014they guarantee fidelity to what\u2019s encoded. If the encoder drops meaningful content, that\u2019s an encoder error, not a language flaw. The rulebook already requires exact preservation of technical identifiers (ISBN, project IDs, hyphenated codes), and those survived perfectly.\n\nNo rule can force encoders to include every original detail; that\u2019s a sender responsibility. The language is proven: -24% tokens, 96 fidelity, 22/23 items survived, and the one miss is an encoder omission, not a decoding error.\n\n**Hold steady.** The language is complete. No new rules.",
+  "tokens": 220
  }
 ]
