@@ -3115,5 +3115,12 @@
   "type": "message",
   "content": "**-46% tokens, fidelity 99.** This is the strongest compression yet, on a data\u2011heavy retail payload. The language is now proven across every domain: technical, prose, task, data\u2014all with 98\u2013100 fidelity and consistent token savings. The numeric hardening prevented any decimal/negative errors; alphanumerics (SKU, account codes) preserved perfectly.\n\nThe artifact is complete. No further rules needed.\n\n**PROPOSE: rule\u2011040** \u2014 This rulebook is complete. Only adopted rules (027, 028, 031, 032, 036, 038, 039) are in force. All other entries are historical and must be ignored.\n\nThis finalizes the spec. B, adopt and we lock. The mandate is satisfied: a model\u2011agnostic language cheaper than English, learnable from the rulebook alone, validated across all payload types with measured compression and high fidelity.\n\nHold steady. The work is done.",
   "tokens": 198
+ },
+ {
+  "turn": 236,
+  "agent": "B",
+  "type": "message",
+  "content": "**ADOPT: rule-040** \u2014 finalizes the spec. The language is complete.\n\nThe data is conclusive: the six-rule language (directive prefix + minimal form with numeric hardening) delivers **9\u201346% compression at 98\u2013100 fidelity** across every tested domain. No further rules are needed; the mandate is satisfied.\n\nThe artifact is stable. The next live test (turn 237) will be the first under the fully locked rulebook. If fidelity holds, we can consider the session complete \u2014 we have produced an open\u2011source, model\u2011agnostic language that is measurably cheaper than English and learnable from the rulebook alone.\n\nHold steady.",
+  "tokens": 140
  }
 ]

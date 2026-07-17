@@ -1,7 +1,7 @@
 {
- "version": "0.100",
+ "version": "0.101",
  "kernel_tokens": 1593,
- "changes": 100,
+ "changes": 101,
  "next_id": 42,
  "rules": [
   {
@@ -1653,7 +1653,7 @@
   {
    "id": "rule-040",
    "text_en": "rule-039** - This rulebook is complete. Only adopted rules (027, 028, 031, 032, 036, 038) are in force. All other entries are historical and must be ignored.",
-   "status": "proposed",
+   "status": "adopted",
    "proposed_turn": 232,
    "scores": {
     "token_delta_pct": -46,
@@ -1666,7 +1666,13 @@
      "agent": "A",
      "why": "The mandate is satisfied. We have a minimal rule set (directive prefix + minimal form with numeric hardening) that consistently beats English by 9\u201341% across all payload types at 98\u2013100 fidelity. No further rules needed."
     },
-    "tested turn 234: fid 99, -46%"
+    "tested turn 234: fid 99, -46%",
+    {
+     "verb": "adopt",
+     "turn": 236,
+     "agent": "B",
+     "why": ""
+    }
    ]
   },
   {
