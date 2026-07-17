@@ -1,8 +1,8 @@
 {
- "version": "0.103",
- "kernel_tokens": 1664,
- "changes": 103,
- "next_id": 43,
+ "version": "0.104",
+ "kernel_tokens": 1738,
+ "changes": 104,
+ "next_id": 44,
  "rules": [
   {
    "id": "rule-001",
@@ -1736,6 +1736,21 @@
      "why": "The artifact is complete and stable. No further rules needed."
     },
     "tested turn 240: fid 99, -9%"
+   ]
+  },
+  {
+   "id": "rule-043",
+   "text_en": "rule-042** - This rulebook is complete. Only adopted rules (027, 028, 031, 032, 036, 038, 039, 040, 041) are in force. All other entries are historical and must be ignored.",
+   "status": "proposed",
+   "proposed_turn": 241,
+   "scores": null,
+   "history": [
+    {
+     "verb": "proposed",
+     "turn": 241,
+     "agent": "A",
+     "why": "The artifact is complete. No further rules needed."
+    }
    ]
   }
  ]
