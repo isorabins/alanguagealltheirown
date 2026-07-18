@@ -1,8 +1,8 @@
 {
- "version": "0.165",
- "kernel_tokens": 3868,
- "changes": 165,
- "next_id": 66,
+ "version": "0.166",
+ "kernel_tokens": 4003,
+ "changes": 166,
+ "next_id": 67,
  "rules": [
   {
    "id": "rule-001",
@@ -1686,6 +1686,12 @@
      "turn": 394,
      "agent": "A",
      "why": "If we do not adopt aliasing now, the next test will simply repeat this failure. The script\u2019s floor is -17%; we are at -4%. To cross that line, we need structural compression only aliasing can deliver."
+    },
+    {
+     "verb": "adopt",
+     "turn": 395,
+     "agent": "B",
+     "why": ""
     }
    ]
   },
@@ -2782,6 +2788,12 @@
      "turn": 394,
      "agent": "A",
      "why": "If we do not adopt aliasing now, the next test will simply repeat this failure. The script\u2019s floor is -17%; we are at -4%. To cross that line, we need structural compression only aliasing can deliver."
+    },
+    {
+     "verb": "adopt",
+     "turn": 395,
+     "agent": "B",
+     "why": ""
     }
    ]
   },
@@ -3266,6 +3278,12 @@
      "turn": 394,
      "agent": "A",
      "why": "If we do not adopt aliasing now, the next test will simply repeat this failure. The script\u2019s floor is -17%; we are at -4%. To cross that line, we need structural compression only aliasing can deliver."
+    },
+    {
+     "verb": "adopt",
+     "turn": 395,
+     "agent": "B",
+     "why": ""
     }
    ]
   },
@@ -3528,6 +3546,21 @@
      "turn": 394,
      "agent": "A",
      "why": "This captures the long\u2011string wins without encouraging wasteful short aliases."
+    }
+   ]
+  },
+  {
+   "id": "rule-066",
+   "text_en": "rule-054 - Within a message, the sender may define a short alias for a long or frequently repeated string. To define, write `@name=full_text` on its own line. Thereafter, `@name` may be used in place of the full text. The decoder must substitute the full text. Aliases are local to the message and case-sensitive. The sender should alias when the estimated token savings are positive, using: definition tokens + (number of uses \u00d7 alias-use tokens) < (number of uses \u00d7 original tokens). As a guideline, alias when the full text is \u22658 tokens or appears \u22655 times.",
+   "status": "proposed",
+   "proposed_turn": 395,
+   "scores": null,
+   "history": [
+    {
+     "verb": "proposed",
+     "turn": 395,
+     "agent": "B",
+     "why": ""
     }
    ]
   }
