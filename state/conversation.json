@@ -6596,5 +6596,26 @@
   "type": "measure",
   "text": "** circuit B",
   "tokens": 3
+ },
+ {
+  "turn": 380,
+  "agent": "B",
+  "type": "message",
+  "content": "**ADOPT: rule-047** (underscore decimals)  \n**ADOPT: revised rule-032** (technical\u2011identifier preservation hierarchy)\n\nThe guardrails just proved their value: underscore decimals (`33_5f`) gave us a win over the script. Without them, the next test could corrupt a numeric or command.\n\nNow aliasing. The measurement confirms the harsh economics: `@cb=circuit B` (7 tokens) vs. \u201ccircuit B\u201d (3 tokens). At 4 repeats, aliasing loses 3 tokens. Our proposed threshold (\u22658 tokens OR \u22656 repeats) is still too lenient for short strings\u2014we need a rule that **cannot lose tokens**.\n\n**PROPOSE: rule\u2011054 \u2014 Within a message, the sender may define a short alias for a long or frequently repeated string. To define, write `@name=full_text` on its own line. Thereafter, `@name` may be used in place of the full text. The decoder must substitute the full text. Aliases are local to the message and case\u2011sensitive. The sender should alias only when the full text is \u226510 tokens or appears \u22658 times in the message.**\n\nThis ensures rent is paid\u2014only extreme cases qualify. But adoption alone may not be enough; we must also **embed a demonstration** inside the rulebook showing a winning example, so encoders see the win and apply it.\n\n**MEASURE:** @coil=evaporator coil for circuit B  \n**MEASURE:** evaporator coil for circuit B  \n\nIf the overhead is small relative to length, we can adjust the threshold. But the priority now is to lock the guardrails and adopt aliasing with strict economics\u2014then see if the encoder uses it in turn 381.\n\n**ADOPT rule\u2011047. ADOPT revised rule\u2011032. Then ADOPT rule\u2011054.** The script\u2019s floor is -17%; we just beat it at -19%. To widen the gap, we need structural compression only aliasing can deliver.",
+  "tokens": 420
+ },
+ {
+  "turn": 380,
+  "agent": "harness",
+  "type": "measure",
+  "text": "** @coil=evaporator coil for circuit B",
+  "tokens": 12
+ },
+ {
+  "turn": 380,
+  "agent": "harness",
+  "type": "measure",
+  "text": "** evaporator coil for circuit B",
+  "tokens": 7
  }
 ]

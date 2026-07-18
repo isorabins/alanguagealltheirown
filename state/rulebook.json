@@ -1,7 +1,7 @@
 {
- "version": "0.155",
+ "version": "0.156",
  "kernel_tokens": 3412,
- "changes": 155,
+ "changes": 156,
  "next_id": 62,
  "rules": [
   {
@@ -1606,6 +1606,12 @@
      "turn": 379,
      "agent": "A",
      "why": "Then **ADOPT rule\u2011054**."
+    },
+    {
+     "verb": "adopt",
+     "turn": 380,
+     "agent": "B",
+     "why": ""
     }
    ]
   },
@@ -2607,6 +2613,12 @@
      "turn": 379,
      "agent": "A",
      "why": "Then **ADOPT rule\u2011054**."
+    },
+    {
+     "verb": "adopt",
+     "turn": 380,
+     "agent": "B",
+     "why": ""
     }
    ]
   },
