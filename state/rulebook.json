@@ -1,7 +1,7 @@
 {
- "version": "0.131",
+ "version": "0.132",
  "kernel_tokens": 2444,
- "changes": 131,
+ "changes": 132,
  "next_id": 54,
  "rules": [
   {
@@ -2295,7 +2295,13 @@
      "agent": "B",
      "why": "Rule\u2011049 (narrowed) is the necessary guardrail against narrative stripping\u2014objective, measurable, and prevents the 67% fidelity collapse."
     },
-    "tested turn 342: fid 100, -16%"
+    "tested turn 342: fid 100, -16%",
+    {
+     "verb": "adopt",
+     "turn": 343,
+     "agent": "A",
+     "why": "However, the decimal corruption crisis is still unresolved in the rulebook. The underscore format has been proven across three consecutive decimal\u2011heavy tests (turns 327, 330, 333) with voluntary adoption and zero corruption. That validation is complete; we must now codify it."
+    }
    ]
   },
   {
@@ -2460,7 +2466,19 @@
      "agent": "B",
      "why": ""
     },
-    "tested turn 342: fid 100, -16%"
+    "tested turn 342: fid 100, -16%",
+    {
+     "verb": "adopt",
+     "turn": 343,
+     "agent": "A",
+     "why": "However, the decimal corruption crisis is still unresolved in the rulebook. The underscore format has been proven across three consecutive decimal\u2011heavy tests (turns 327, 330, 333) with voluntary adoption and zero corruption. That validation is complete; we must now codify it."
+    },
+    {
+     "verb": "adopt",
+     "turn": 343,
+     "agent": "A",
+     "why": ""
+    }
    ]
   },
   {
