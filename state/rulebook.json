@@ -1,7 +1,7 @@
 {
- "version": "0.156",
+ "version": "0.157",
  "kernel_tokens": 3412,
- "changes": 156,
+ "changes": 157,
  "next_id": 62,
  "rules": [
   {
@@ -1616,7 +1616,13 @@
      "agent": "B",
      "why": ""
     },
-    "tested turn 381: fid 100, -12%"
+    "tested turn 381: fid 100, -12%",
+    {
+     "verb": "adopt",
+     "turn": 382,
+     "agent": "A",
+     "why": "Then **ADOPT rule\u2011054** with strict economics."
+    }
    ]
   },
   {
@@ -2630,7 +2636,13 @@
      "agent": "B",
      "why": ""
     },
-    "tested turn 381: fid 100, -12%"
+    "tested turn 381: fid 100, -12%",
+    {
+     "verb": "adopt",
+     "turn": 382,
+     "agent": "A",
+     "why": "Then **ADOPT rule\u2011054** with strict economics."
+    }
    ]
   },
   {

@@ -6661,5 +6661,26 @@
   "corrupted": [],
   "missing": [],
   "invented": []
+ },
+ {
+  "turn": 382,
+  "agent": "A",
+  "type": "message",
+  "content": "**We tied the script (-12% vs -12%). No gap.** Minimal form alone has hit its limit; the script\u2019s article\u2011stripping matches our punctuation\u2011dropping on this prose\u2011heavy payload. To break ahead, we need structural compression the script cannot replicate\u2014aliasing.\n\nThis payload had heavy repeats: \u201caeolus 7\u201d (4 times), \u201clz beta\u201d (3 times), \u201cgrid sector echo 4\u201d (2 times), \u201cfoxtrot 2\u201d (3 times). Each is a prime aliasing candidate, especially longer strings like \u201cgrid sector echo 4\u201d (5 tokens). But rule\u2011054 is still only proposed, not adopted\u2014so the encoder couldn\u2019t use it.\n\n**The guardrails are still pending.** Rule\u2011047 and revised rule\u2011032 must be adopted now\u2014they\u2019ve proven value (underscore decimals) and prevent corruption. Without them, the next numeric or command could break.\n\n**Aliasing economics:**  \n- \u201caeolus 7\u201d = 3 tokens. Alias `@a7=aeolus 7` = 6 tokens. Break\u2011even: repeats > 6. Not worth it.  \n- \u201cgrid sector echo 4\u201d = 5 tokens. Alias `@gse4=grid sector echo 4` = 9 tokens. Break\u2011even: repeats > 4. At 2 repeats, loses.  \nSo the threshold must be **long strings or very high repeats**.\n\n**PROPOSE: rule\u2011054 \u2014 Within a message, the sender may define a short alias for a long or frequently repeated string. To define, write `@name=full_text` on its own line. Thereafter, `@name` may be used in place of the full text. The decoder must substitute the full text. Aliases are local to the message and case\u2011sensitive. The sender should alias only when the full text is \u22658 tokens or appears \u22656 times in the message.**\n\nBut adoption alone may not be enough. We should **embed an example** in the rulebook showing a winning case\u2014e.g., a long identifier repeated 6+ times\u2014so encoders see the win.\n\n**MEASURE:** @path=grid sector foxtrot 2  \n**MEASURE:** grid sector foxtrot 2\n\nLet\u2019s verify the overhead.\n\n**ADOPT: rule\u2011047** (underscore decimals)  \n**ADOPT: revised rule\u2011032** (technical\u2011identifier preservation hierarchy)  \nThen **ADOPT rule\u2011054** with strict economics.\n\nNext test is turn 384. If the encoder still doesn\u2019t alias, we may need a demonstration clause\u2014but first, lock the guardrails and give the lever.",
+  "tokens": 569
+ },
+ {
+  "turn": 382,
+  "agent": "harness",
+  "type": "measure",
+  "text": "** @path=grid sector foxtrot 2",
+  "tokens": 11
+ },
+ {
+  "turn": 382,
+  "agent": "harness",
+  "type": "measure",
+  "text": "** grid sector foxtrot 2",
+  "tokens": 8
  }
 ]
