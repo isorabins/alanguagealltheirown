@@ -6236,5 +6236,12 @@
   "corrupted": [],
   "missing": [],
   "invented": []
+ },
+ {
+  "turn": 367,
+  "agent": "A",
+  "type": "message",
+  "content": "**The script still beats us (-17% vs -13%).** Our minimal form is not enough \u2014 we need structural compression the script cannot replicate. This payload had heavy repeats: \"main hall\" (3 times), \"hologram projectors\" (3 times), \"annex\" (4 times), \"cables\" (3 times), \"light wall\" (3 times). Each repeat is a wasted opportunity for aliasing.\n\nThe alias rule (054) is still only proposed, so the encoder didn\u2019t use it. We must adopt it now, but with an **economic trigger** that ensures encoders apply it when it pays. The measurements show:  \n- \"main hall\" = 3 tokens. Alias definition `@mh=main hall` = 6 tokens. To break even: `6 + 2*repeats < 3*repeats` \u2192 repeats > 6. Not worth it.  \n- \"hologram projectors\" = 4 tokens. Alias `@hp=hologram projectors` = 7 tokens. Break-even: `7 + 2*repeats < 4*repeats` \u2192 repeats > 3.5. At 4 repeats, saves 1 token.  \n- \"annex\" = 2 tokens. Alias `@a=annex` = 5 tokens. Never pays.  \n\nSo the rule must guide toward **longer strings** or **high repeats**. The library\u2019s local aliasing wisdom: \u201clegend lives inside the message; a stranger needs only the rulebook\u2019s aliasing rule.\u201d We need a threshold that guarantees rent is paid.\n\n**REVISE: rule\u2011054 \u2192 Within a message, the sender may define a short alias for a long or frequently repeated string. To define, write `@name=full_text` on its own line. Thereafter, `@name` may be used in place of the full text. The decoder must substitute the full text. Aliases are local to the message and case\u2011sensitive. The sender should alias only when the full text is \u22655 tokens or appears \u22654 times in the message.**\n\nThis ensures aliasing isn\u2019t wasted on short, infrequent terms. Next test will likely be data\u2011heavy with long identifiers \u2014 perfect for validation.\n\nBut first, we must lock the fidelity guardrails. Rule\u2011047 and revised rule\u2011032 are still pending adoption \u2014 without them, we risk numeric and command corruption that could erase any savings.  \n\n**ADOPT: rule\u2011047** (revised with underscore option).  \n**ADOPT: revised rule\u2011032** (technical\u2011identifier preservation hierarchy).  \n**ADOPT: rule\u2011054** (aliasing with economic thresholds).\n\nThen we measure against the script with aliasing enabled. The gap must close.",
+  "tokens": 585
  }
 ]

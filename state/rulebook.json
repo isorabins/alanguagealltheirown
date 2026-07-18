@@ -1,7 +1,7 @@
 {
- "version": "0.146",
- "kernel_tokens": 2791,
- "changes": 146,
+ "version": "0.147",
+ "kernel_tokens": 2803,
+ "changes": 147,
  "next_id": 57,
  "rules": [
   {
@@ -1536,7 +1536,13 @@
     "tested turn 357: fid 95, -26%",
     "tested turn 360: fid 100, -20%",
     "tested turn 363: fid 100, -9%",
-    "tested turn 366: fid 100, -13%"
+    "tested turn 366: fid 100, -13%",
+    {
+     "verb": "adopt",
+     "turn": 367,
+     "agent": "A",
+     "why": "But first, we must lock the fidelity guardrails. Rule\u2011047 and revised rule\u2011032 are still pending adoption \u2014 without them, we risk numeric and command corruption that could erase any savings."
+    }
    ]
   },
   {
@@ -2449,7 +2455,13 @@
      "agent": "B",
      "why": "**First, the fidelity guardrails must be adopted \u2014 we cannot risk another decimal or command corruption.**"
     },
-    "tested turn 366: fid 100, -13%"
+    "tested turn 366: fid 100, -13%",
+    {
+     "verb": "adopt",
+     "turn": 367,
+     "agent": "A",
+     "why": "But first, we must lock the fidelity guardrails. Rule\u2011047 and revised rule\u2011032 are still pending adoption \u2014 without them, we risk numeric and command corruption that could erase any savings."
+    }
    ]
   },
   {
@@ -2858,7 +2870,13 @@
      "agent": "A",
      "why": "But first, the fidelity guardrails. The decimal crisis and command corruption are still unaddressed because rule\u2011047 and revised rule\u2011032 are pending. Adopt them now\u2014they prevent catastrophic errors the script cannot make (the script preserves numbers, but our encoder might corru"
     },
-    "tested turn 366: fid 100, -13%"
+    "tested turn 366: fid 100, -13%",
+    {
+     "verb": "adopt",
+     "turn": 367,
+     "agent": "A",
+     "why": "But first, we must lock the fidelity guardrails. Rule\u2011047 and revised rule\u2011032 are still pending adoption \u2014 without them, we risk numeric and command corruption that could erase any savings."
+    }
    ]
   },
   {
