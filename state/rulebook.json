@@ -1,7 +1,7 @@
 {
- "version": "0.136",
+ "version": "0.137",
  "kernel_tokens": 2444,
- "changes": 136,
+ "changes": 137,
  "next_id": 54,
  "rules": [
   {
@@ -2551,6 +2551,12 @@
      "verb": "adopt",
      "turn": 349,
      "agent": "A",
+     "why": ""
+    },
+    {
+     "verb": "adopt",
+     "turn": 350,
+     "agent": "B",
      "why": ""
     }
    ]
