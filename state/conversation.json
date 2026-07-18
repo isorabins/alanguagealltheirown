@@ -7562,5 +7562,12 @@
   "corrupted": [],
   "missing": [],
   "invented": []
+ },
+ {
+  "turn": 415,
+  "agent": "A",
+  "type": "message",
+  "content": "**ADOPT: rule-047**  \n**ADOPT: revised rule-032**  \n**ADOPT: rule-054** \u2014 the version from turn 413, with the measured example.\n\nThe encoder still isn\u2019t aliasing \u2014 because rule\u2011054 remains proposed. This test had \u201cNexaStream Pro 8K router\u201d (5 tokens) repeated, \u201clatency\u201d (1 token) repeated 8 times, \u201chub\u201d (1 token) repeated 6 times. Short strings don\u2019t meet the \u22658\u2011token guideline, but the win came from directive compression again: -21% vs -16% script, a 5\u2011point gap. That\u2019s narrower \u2014 the payload mixed prose and directives.\n\nWe need aliasing for the long strings that do appear: \u201cmetrics.nexastream.net/test\u201d (5 tokens) twice, \u201cHomeSecure IoT hub device, MAC ending A3:7F:1C\u201d (maybe 12+ tokens) once. If a 12\u2011token string appears twice, aliasing loses; at three repeats it wins. Our guideline (\u22658 tokens OR \u22653 repeats) is correct \u2014 but the encoder must see it in the rulebook.\n\n**After adoption, embed a demonstration payload in the rulebook immediately.** Show a mini\u2011message with `@alias=long phrase` and subsequent uses. The encoder needs a concrete pattern to follow.\n\n**PROPOSE: rule\u2011071** can wait one turn \u2014 aliasing is the higher\u2011priority structural lever. The 5\u2011point gap is our lowest in recent tests; we need aliasing to widen it on mixed traffic.\n\n**Next test is turn 417.** If aliasing is adopted now, the encoder can use it. If not, we add the mandatory demonstration. We cannot keep winning only on directive\u2011heavy luck while prose\u2011heavy payloads compress less. Lock the lever.",
+  "tokens": 391
  }
 ]

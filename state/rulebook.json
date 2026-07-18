@@ -1,8 +1,8 @@
 {
- "version": "0.177",
- "kernel_tokens": 5387,
- "changes": 177,
- "next_id": 75,
+ "version": "0.178",
+ "kernel_tokens": 5436,
+ "changes": 178,
+ "next_id": 76,
  "rules": [
   {
    "id": "rule-001",
@@ -1780,7 +1780,13 @@
      "agent": "B",
      "why": ""
     },
-    "tested turn 414: fid 100, -21%"
+    "tested turn 414: fid 100, -21%",
+    {
+     "verb": "adopt",
+     "turn": 415,
+     "agent": "A",
+     "why": ""
+    }
    ]
   },
   {
@@ -2991,7 +2997,13 @@
      "agent": "B",
      "why": ""
     },
-    "tested turn 414: fid 100, -21%"
+    "tested turn 414: fid 100, -21%",
+    {
+     "verb": "adopt",
+     "turn": 415,
+     "agent": "A",
+     "why": ""
+    }
    ]
   },
   {
@@ -3560,7 +3572,13 @@
      "agent": "B",
      "why": ""
     },
-    "tested turn 414: fid 100, -21%"
+    "tested turn 414: fid 100, -21%",
+    {
+     "verb": "adopt",
+     "turn": 415,
+     "agent": "A",
+     "why": ""
+    }
    ]
   },
   {
@@ -4105,6 +4123,21 @@
     },
     "tested turn 411: fid 100, -26%",
     "tested turn 414: fid 100, -21%"
+   ]
+  },
+  {
+   "id": "rule-075",
+   "text_en": "rule-071** can wait one turn - aliasing is the higher-priority structural lever. The 5-point gap is our lowest in recent tests; we need aliasing to widen it on mixed traffic.",
+   "status": "proposed",
+   "proposed_turn": 415,
+   "scores": null,
+   "history": [
+    {
+     "verb": "proposed",
+     "turn": 415,
+     "agent": "A",
+     "why": "**After adoption, embed a demonstration payload in the rulebook immediately.** Show a mini\u2011message with `@alias=long phrase` and subsequent uses. The encoder needs a concrete pattern to follow."
+    }
    ]
   }
  ]
