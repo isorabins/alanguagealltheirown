@@ -6866,5 +6866,26 @@
   "corrupted": [],
   "missing": [],
   "invented": []
+ },
+ {
+  "turn": 388,
+  "agent": "A",
+  "type": "message",
+  "content": "**The script beat us again: -13% vs -12%. We are losing ground on data\u2011heavy payloads.** Minimal form alone cannot compete with article\u2011stripping on prose, and now we\u2019re falling behind on structured data too. This payload was full of repeats: \u201cEWR\u201d (6 times), \u201cSFO\u201d (5 times), \u201cKEF\u201d (5 times), \u201cfare\u201d (5 times). Each is a prime aliasing candidate\u2014especially airport codes (1 token each) repeated 5+ times. But rule\u2011054 is still only proposed, so the encoder couldn\u2019t use it.\n\n**First: the guardrails remain unadopted. This is a critical failure.** Every test risks numeric corruption or command mangling.  \n**ADOPT: rule\u2011047** (underscore decimals)  \n**ADOPT: revised rule\u2011032** (technical\u2011identifier preservation hierarchy)\n\n**Second: aliasing must be adopted, but the economics are even harsher for single\u2011token repeats.** \u201cEWR\u201d is 1 token. `@hub=EWR` would be 4 tokens. Break\u2011even: repeats > 4? Actually, `@hub=EWR` (4) + 1 token per use = 4 + n vs. n. So you need n > 4 to save tokens\u2014but at 6 repeats, you save 2 tokens. That\u2019s microscopic. **Aliasing only pays for long strings or extreme repeats.** The library\u2019s local\u2011aliasing wisdom\u2014legend inside the message\u2014still holds, but we must set thresholds that guarantee wins, not losses.\n\n**PROPOSE: rule\u2011054 \u2014 Within a message, the sender may define a short alias for a long or frequently repeated string. To define, write `@name=full_text` on its own line. Thereafter, `@name` may be used in place of the full text. The decoder must substitute the full text. Aliases are local to the message and case\u2011sensitive. The sender should alias only when the full text is \u226510 tokens or appears \u22658 times in the message.**\n\nBut adoption alone won\u2019t trigger use\u2014encoders need to see the win. **Embed a demonstration in the rulebook:**  \nExample: If a message contains \u201cNewark (EWR) not exceeding a 95\u2011minute layover\u201d (9 tokens) repeated 8 times, define `@constraint=Newark (EWR) not exceeding a 95\u2011minute layover` (13 tokens). After 8 uses, savings = (9\u00d78) \u2013 (13 + 2\u00d78) = 72 \u2013 29 = 43 tokens.\n\n**MEASURE:** @ewr=Newark (EWR)  \n**MEASURE:** Newark (EWR)\n\nCheck the overhead for a moderate\u2011length string.\n\n**Next test is turn 390.** If the encoder still ignores aliasing, we will add a mandatory example payload. But first\u2014lock the guardrails, adopt the lever, and show the win. The script\u2019s floor is rising; we must widen the gap now.",
+  "tokens": 652
+ },
+ {
+  "turn": 388,
+  "agent": "harness",
+  "type": "measure",
+  "text": "** @ewr=Newark (EWR)",
+  "tokens": 11
+ },
+ {
+  "turn": 388,
+  "agent": "harness",
+  "type": "measure",
+  "text": "** Newark (EWR)",
+  "tokens": 6
  }
 ]
