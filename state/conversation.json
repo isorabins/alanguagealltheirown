@@ -7352,5 +7352,26 @@
   "type": "message",
   "content": "**We are winning again: -25% vs -13% script, a 12\u2011point gap.** Fidelity held at 100. The encoder is finally using directives aggressively \u2014 nearly every line is `^` \u2014 and minimal form is crushing prose. But look at the payload: \u201cVoyages in Abstract Topology\u201d appears 3 times, \u201cFinch\u201d 2 times, \u201cMohawk\u201d 1 time. No aliasing used. That\u2019s because rule\u2011054 is still only *proposed* \u2014 B said \u201cADOPT: rule\u2011054\u201d but never posted the PROPOSE text. The rulebook shows rule\u2011054 as proposed. This is a critical procedural failure.\n\n**First: lock the guardrails and aliasing NOW.**  \n**ADOPT: rule\u2011047** (underscore decimals)  \n**ADOPT: revised rule\u2011032** (technical\u2011identifier preservation)  \n**PROPOSE: rule\u2011054 \u2014 Within a message, the sender may define a short alias for a long or frequently repeated string. To define, write `@name=full_text` on its own line. Thereafter, `@name` may be used in place of the full text. The decoder must substitute the full text. Aliases are local to the message and case\u2011sensitive. The sender should alias when the estimated token savings are positive: definition tokens + (uses \u00d7 alias\u2011use tokens) < uses \u00d7 original tokens. As a guideline, alias when the full text is \u22658 tokens or appears \u22653 times. Example: `@title=Voyages in Abstract Topology` (definition 9 tokens, original 7 tokens, alias\u2011use 2 tokens). At 3 uses: (9 + 2\u00d73) = 15 vs. (7\u00d73) = 21 \u2192 saves 6 tokens.**\n\n**Second: embed the example in the rulebook.** The encoder needs to see the pattern. Add a demonstration payload showing definition and substitution.\n\n**Third: directive\u2011heavy payloads are our strength, but prose\u2011heavy ones will return.** We need rule\u2011071 to encourage structuring.  \n**PROPOSE: rule\u2011071 \u2014 When the message consists primarily of instructions or actionable items, the sender should write each as a directive line (starting with `^`). Use plain text lines only for explanatory context that cannot be framed as an instruction. This leverages the directive/plain split for maximum compression.**\n\nBut adoption must happen before the next test. We cannot keep winning on directive\u2011heavy luck while leaving tools on the shelf. The 12\u2011point gap is ours to defend \u2014 widen it with aliasing and lock fidelity with guardrails.\n\n**ADOPT the three pending rules, then propose rule\u2011071.** Next test is turn 408 \u2014 we need both tools ready.",
   "tokens": 573
+ },
+ {
+  "turn": 407,
+  "agent": "B",
+  "type": "message",
+  "content": "**ADOPT: rule-047**  \n**ADOPT: revised rule-032**  \n\nGuardrails locked. No more numeric or technical corruption.\n\n**PROPOSE: rule\u2011054 \u2014 Within a message, the sender may define a short alias for a long or frequently repeated string. To define, write `@name=full_text` on its own line. Thereafter, `@name` may be used in place of the full text. The decoder must substitute the full text. Aliases are local to the message and case\u2011sensitive. The sender should alias when the estimated token savings are positive: definition tokens + (uses \u00d7 alias\u2011use tokens) < uses \u00d7 original tokens. As a guideline, alias when the full text is \u22658 tokens or appears \u22653 times. Example: `@title=Voyages in Abstract Topology` (definition 9 tokens, original 7 tokens, alias\u2011use 2 tokens). At 3 uses: (9 + 2\u00d73) = 15 vs. (7\u00d73) = 21 \u2192 saves 6 tokens.**\n\nNow we must embed the example. The rulebook should include a demonstration payload showing alias definition and use, so encoders see the pattern. I\u2019ll draft that after adoption.\n\n**PROPOSE: rule\u2011071 \u2014 When the message consists primarily of instructions or actionable items, the sender should write each as a directive line (starting with `^`). Use plain text lines only for explanatory context that cannot be framed as an instruction. This leverages the directive/plain split for maximum compression.**\n\nBut adoption of rule\u2011054 is urgent. The next test is turn 408 \u2014 if the payload has repeats like \u201cVoyages in Abstract Topology\u201d (7 tokens) appearing 3+ times, aliasing should trigger and widen our gap. The 12\u2011point win is solid, but we can\u2019t rely on directive\u2011heavy luck alone. Structural compression must work across all payload types.\n\n**Measure the alias potential from the last payload:**  \n**MEASURE:** @voyages=Voyages in Abstract Topology  \n**MEASURE:** Voyages in Abstract Topology\n\nIf the overhead is small, we can confirm the guideline. But the priority is adoption \u2014 the encoder can\u2019t use a rule that isn\u2019t in force.",
+  "tokens": 474
+ },
+ {
+  "turn": 407,
+  "agent": "harness",
+  "type": "measure",
+  "text": "** @voyages=Voyages in Abstract Topology",
+  "tokens": 11
+ },
+ {
+  "turn": 407,
+  "agent": "harness",
+  "type": "measure",
+  "text": "** Voyages in Abstract Topology",
+  "tokens": 7
  }
 ]

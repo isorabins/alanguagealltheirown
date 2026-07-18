@@ -1,7 +1,7 @@
 {
- "version": "0.173",
+ "version": "0.174",
  "kernel_tokens": 5119,
- "changes": 173,
+ "changes": 174,
  "next_id": 73,
  "rules": [
   {
@@ -1744,6 +1744,12 @@
      "turn": 406,
      "agent": "A",
      "why": "**First: lock the guardrails and aliasing NOW.**"
+    },
+    {
+     "verb": "adopt",
+     "turn": 407,
+     "agent": "B",
+     "why": ""
     }
    ]
   },
@@ -2910,6 +2916,12 @@
      "turn": 406,
      "agent": "A",
      "why": "**First: lock the guardrails and aliasing NOW.**"
+    },
+    {
+     "verb": "adopt",
+     "turn": 407,
+     "agent": "B",
+     "why": ""
     }
    ]
   },
