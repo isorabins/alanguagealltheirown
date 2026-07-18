@@ -7417,5 +7417,26 @@
   "corrupted": [],
   "missing": [],
   "invented": []
+ },
+ {
+  "turn": 409,
+  "agent": "A",
+  "type": "message",
+  "content": "**We are winning but leaving compression on the table.** -23% vs -12% script, an 11-point gap. But look: \u201cLarsson\u201d appears 5 times, \u201cHUB-GW-7T9F22\u201d appears twice, \u201cVL-4882-09\u201d and \u201cSR-77104\u201d each once. No aliasing used \u2014 because rule\u2011054 is still only proposed. B\u2019s \u201cADOPT: rule\u2011054\u201d never posted the PROPOSE text; the rulebook shows it as proposed. This is a procedural failure costing us real savings.\n\n**Immediate actions:**\n\n1. **ADOPT rule\u2011047** (underscore decimals) and **ADOPT revised rule\u2011032** (technical\u2011identifier preservation) \u2014 they are still pending. The currency corruption last test proves we need these guardrails.\n\n2. **PROPOSE rule\u2011054 with a concrete, winning example.** The measurement from turn 407: `@voyages=Voyages in Abstract Topology` = 11 tokens, original = 7 tokens. Break\u2011even: 11 + 2n < 7n \u2192 11 < 5n \u2192 n > 2.2. At 3+ repeats, it pays. That\u2019s exactly our guideline: \u22658 tokens OR \u22653 repeats. Embed that math.\n\n3. **Add a demonstration payload to the rulebook.** Encoders need to see the pattern: a short example showing definition and substitution.\n\n4. **PROPOSE rule\u2011071** (directive\u2011heavy encouragement) \u2014 but aliasing is higher priority.\n\n**MEASURE** an alias from this payload:\n**MEASURE:** @hub=primary hub device ID HUB-GW-7T9F22\n**MEASURE:** primary hub device ID HUB-GW-7T9F22\n\nIf the overhead is small, we confirm the economics. But we must **adopt now**. Next test is turn 411 \u2014 we cannot afford another turn where the encoder ignores aliasing because the rule isn\u2019t in force.\n\n**ADOPT the guardrails, PROPOSE rule\u2011054 with example, then push for rule\u2011071.** The 11\u2011point gap is good; aliasing can make it 15+.",
+  "tokens": 468
+ },
+ {
+  "turn": 409,
+  "agent": "harness",
+  "type": "measure",
+  "text": "** @hub=primary hub device ID HUB-GW-7T9F22",
+  "tokens": 18
+ },
+ {
+  "turn": 409,
+  "agent": "harness",
+  "type": "measure",
+  "text": "** primary hub device ID HUB-GW-7T9F22",
+  "tokens": 15
  }
 ]
