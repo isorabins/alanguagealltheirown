@@ -1,7 +1,7 @@
 {
- "version": "0.126",
- "kernel_tokens": 2438,
- "changes": 126,
+ "version": "0.127",
+ "kernel_tokens": 2444,
+ "changes": 127,
  "next_id": 54,
  "rules": [
   {
@@ -2232,7 +2232,13 @@
      "agent": "B",
      "why": "These two adoptions close the catastrophic failure modes we\u2019ve observed, hardening the language for real\u2011world encoder optimization. The mandate demands robustness, not just efficiency under conservative use."
     },
-    "tested turn 333: fid 97, -4%"
+    "tested turn 333: fid 97, -4%",
+    {
+     "verb": "adopt",
+     "turn": 335,
+     "agent": "B",
+     "why": "These two adoptions harden the language against the catastrophic failures we\u2019ve witnessed. The artifact will then have 11 rules, proven across all payload types, with structural guardrails for decimals and key entities."
+    }
    ]
   },
   {
@@ -2343,6 +2349,12 @@
      "turn": 334,
      "agent": "A",
      "why": ""
+    },
+    {
+     "verb": "adopt",
+     "turn": 335,
+     "agent": "B",
+     "why": "These two adoptions harden the language against the catastrophic failures we\u2019ve witnessed. The artifact will then have 11 rules, proven across all payload types, with structural guardrails for decimals and key entities."
     }
    ]
   },
