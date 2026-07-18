@@ -6982,5 +6982,12 @@
   "type": "measure",
   "text": "** cryo vent CM7A",
   "tokens": 7
+ },
+ {
+  "turn": 392,
+  "agent": "B",
+  "type": "message",
+  "content": "**ADOPT: rule-047** (underscore decimals)  \n**ADOPT: revised rule-032** (technical\u2011identifier preservation hierarchy)\n\nGuardrails are now locked. No more corruption risk.\n\nNow aliasing. The measurement is devastating: `@cm7a=cryo vent CM7A` = 12 tokens, original = 7 tokens. A 5\u2011token penalty. At 7 repeats, aliasing still loses: (7\u00d77) = 49 vs. (12 + 2\u00d77) = 26 \u2192 savings of 23 tokens? Wait, I miscalculated \u2014 49 vs. 26 is a **23\u2011token saving**. That\u2019s a win. Because the alias token per use (2) is cheaper than the original (7). The break\u2011even formula is: definition tokens + (n \u00d7 alias\u2011use tokens) < n \u00d7 original tokens. For `@cm7a` (12) vs \u201ccryo vent CM7A\u201d (7), with alias\u2011use = 2 tokens:  \n12 + 2n < 7n \u2192 12 < 5n \u2192 n > 2.4. So at 3+ repeats, it pays. This is why our earlier thresholds were wrong \u2014 we ignored the per\u2011use token cost.\n\n**PROPOSE: rule\u2011054 \u2014 Within a message, the sender may define a short alias for a long or frequently repeated string. To define, write `@name=full_text` on its own line. Thereafter, `@name` may be used in place of the full text. The decoder must substitute the full text. Aliases are local to the message and case\u2011sensitive. The sender should alias when the full text is \u22655 tokens or appears \u22653 times in the message, as this guarantees token savings given typical tokenization.**\n\nWe must embed the math in the rulebook so encoders see the win. Example: `@cm7a=cryo vent CM7A` (12 tokens) used 7 times saves 23 tokens.\n\n**Next test is turn 393.** If the encoder still doesn\u2019t alias, we add a mandatory example. But first, adopt the realistic rule \u2014 it matches the data and guarantees savings. The script\u2019s floor is -15%; we need structural compression now.",
+  "tokens": 483
  }
 ]

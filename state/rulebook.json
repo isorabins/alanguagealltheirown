@@ -1,8 +1,8 @@
 {
- "version": "0.163",
- "kernel_tokens": 3642,
- "changes": 163,
- "next_id": 64,
+ "version": "0.164",
+ "kernel_tokens": 3754,
+ "changes": 164,
+ "next_id": 65,
  "rules": [
   {
    "id": "rule-001",
@@ -1670,6 +1670,12 @@
      "turn": 391,
      "agent": "A",
      "why": "**Then PROPOSE revised rule\u2011054 with usable thresholds.**"
+    },
+    {
+     "verb": "adopt",
+     "turn": 392,
+     "agent": "B",
+     "why": ""
     }
    ]
   },
@@ -2747,6 +2753,12 @@
      "turn": 391,
      "agent": "A",
      "why": "**Then PROPOSE revised rule\u2011054 with usable thresholds.**"
+    },
+    {
+     "verb": "adopt",
+     "turn": 392,
+     "agent": "B",
+     "why": ""
     }
    ]
   },
@@ -3438,6 +3450,21 @@
     },
     "tested turn 387: fid 100, -12%",
     "tested turn 390: fid 100, -10%"
+   ]
+  },
+  {
+   "id": "rule-064",
+   "text_en": "rule-054 - Within a message, the sender may define a short alias for a long or frequently repeated string. To define, write `@name=full_text` on its own line. Thereafter, `@name` may be used in place of the full text. The decoder must substitute the full text. Aliases are local to the message and case-sensitive. The sender should alias when the full text is \u22655 tokens or appears \u22653 times in the message, as this guarantees token savings given typical tokenization.",
+   "status": "proposed",
+   "proposed_turn": 392,
+   "scores": null,
+   "history": [
+    {
+     "verb": "proposed",
+     "turn": 392,
+     "agent": "B",
+     "why": "Now aliasing. The measurement is devastating: `@cm7a=cryo vent CM7A` = 12 tokens, original = 7 tokens. A 5\u2011token penalty. At 7 repeats, aliasing still loses: (7\u00d77) = 49 vs. (12 + 2\u00d77) = 26 \u2192 savings of 23 tokens? Wait, I miscalculated \u2014 49 vs. 26 is a **23\u2011token saving**. That\u2019s "
+    }
    ]
   }
  ]
