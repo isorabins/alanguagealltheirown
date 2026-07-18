@@ -1,7 +1,7 @@
 {
- "version": "0.144",
- "kernel_tokens": 2676,
- "changes": 144,
+ "version": "0.145",
+ "kernel_tokens": 2688,
+ "changes": 145,
  "next_id": 56,
  "rules": [
   {
@@ -2426,7 +2426,13 @@
      "agent": "B",
      "why": "The script is now our benchmark, and we are behind. That changes everything. The library's prior art \u2014 especially **local aliasing** \u2014 is the frontier we must cross. But first, we must lock down the catastrophic failures. Rule-047 and revised rule-032 are non-negotiable; they pre"
     },
-    "tested turn 363: fid 100, -9%"
+    "tested turn 363: fid 100, -9%",
+    {
+     "verb": "adopt",
+     "turn": 364,
+     "agent": "A",
+     "why": "But first, the fidelity guardrails. The decimal crisis and command corruption are still unaddressed because rule\u2011047 and revised rule\u2011032 are pending. Adopt them now\u2014they prevent catastrophic errors the script cannot make (the script preserves numbers, but our encoder might corru"
+    }
    ]
   },
   {
@@ -2807,7 +2813,7 @@
   {
    "id": "rule-054",
    "text_en": "rule-053 - When a line contains a technical identifier (command-line flags, file paths, email addresses, API endpoints, etc.) as defined in rule-045, the sender must preserve all punctuation within that identifier exactly. Rule-032\u2019s allowance to omit punctuation does not apply within such identifiers. For example, write `/usr/local/bin/ctl --profile revert --target v2.8-scheduler`, not `usr local bin ctl profile revert target v2 8 scheduler`.",
-   "status": "proposed",
+   "status": "adopted",
    "proposed_turn": 355,
    "scores": {
     "token_delta_pct": -9,
@@ -2822,7 +2828,13 @@
     },
     "tested turn 357: fid 95, -26%",
     "tested turn 360: fid 100, -20%",
-    "tested turn 363: fid 100, -9%"
+    "tested turn 363: fid 100, -9%",
+    {
+     "verb": "adopt",
+     "turn": 364,
+     "agent": "A",
+     "why": "But first, the fidelity guardrails. The decimal crisis and command corruption are still unaddressed because rule\u2011047 and revised rule\u2011032 are pending. Adopt them now\u2014they prevent catastrophic errors the script cannot make (the script preserves numbers, but our encoder might corru"
+    }
    ]
   },
   {

@@ -6145,5 +6145,26 @@
   "corrupted": [],
   "missing": [],
   "invented": []
+ },
+ {
+  "turn": 364,
+  "agent": "A",
+  "type": "message",
+  "content": "The script beat us by 10 points (-19% vs. -9%). That\u2019s the gap we must close. This payload had repeats\u2014times like \u201c7:00 pm\u201d, \u201c10:45 pm\u201d, \u201cgluten free\u201d, \u201cballroom\u201d\u2014but the encoder didn\u2019t alias them. Why? Because the aliasing rule isn\u2019t adopted yet, and the encoder defaulted to minimal form.\n\nWe need to adopt rule\u2011054 (aliasing) and make it **economically obvious**: define once, use short tokens thereafter. The measurements show `@id=HG7-F22-889P` costs 11 tokens, but `@id` costs only 2. If \u201cgluten free\u201d (2 tokens) repeats 3 times, defining `@gf=gluten free` (maybe 5 tokens?) and using `@gf` (2 tokens) could save: without alias = 2\u00d73 = 6 tokens; with alias = 5 + 2\u00d73 = 11 tokens\u2014actually worse. So aliasing only pays for long strings with many repeats. The rule must guide the encoder: alias only when `length(full_text) * repeats > cost(definition) + cost(alias) * repeats`.\n\nBut first, the fidelity guardrails. The decimal crisis and command corruption are still unaddressed because rule\u2011047 and revised rule\u2011032 are pending. Adopt them now\u2014they prevent catastrophic errors the script cannot make (the script preserves numbers, but our encoder might corrupt them). That\u2019s a baseline requirement.\n\n**ADOPT: rule\u2011047** (revised with underscore option).  \n**REVISE: rule\u2011032** as B proposed (technical\u2011identifier preservation overrides omission).  \n**ADOPT: rule\u2011054** (aliasing) \u2014 optional, but enables the compression that beats the script.\n\nThen we must test aliasing on a payload with heavy repeats. The next live test (turn 366) will likely be data\u2011heavy. If the encoder voluntarily uses `@` aliases, we validate. If not, we may need to incentivize\u2014maybe a guideline: \u201cIf a string appears \u22654 times and is \u22654 tokens long, consider aliasing.\u201d\n\n**MEASURE:** gluten free  \n**MEASURE:** @gf=gluten free\n\nLet\u2019s see the token counts to calibrate the economics.",
+  "tokens": 493
+ },
+ {
+  "turn": 364,
+  "agent": "harness",
+  "type": "measure",
+  "text": "** gluten free",
+  "tokens": 3
+ },
+ {
+  "turn": 364,
+  "agent": "harness",
+  "type": "measure",
+  "text": "** @gf=gluten free",
+  "tokens": 7
  }
 ]
