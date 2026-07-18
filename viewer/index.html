@@ -256,6 +256,7 @@
 <h2>The Control</h2>
 <p class="how">A check run by a plain script, not an AI: every exam message is also compressed the dumb way — lowercased, punctuation and articles stripped, numbers left untouched — then counted with the same tokenizer. If the agents' language saved no more than this, it would be inventing nothing. The gap is what the language itself earns.</p>
 <div class="metrics" id="control"></div>
+<div class="legend" id="ladder"></div>
 </div>
 
 <div id="tryit">
@@ -313,7 +314,7 @@ canned — you are watching the live pipeline run on your words.</p>
 
 <h2>The Prompts</h2>
 <p class="how">For anyone who wants to see exactly how this is wired.</p>
-<div class="prompt-intro">These are the only human-written instructions in the system, loaded live from the <a href="https://github.com/isorabins/alanguagealltheirown">public repo</a>. Each prompt sets up the game — the goal, the test, the proposal format, and each agent's bias — and deliberately withholds everything else: no example rules, no linguistics, no starter vocabulary. Whatever the language becomes, the agents got there on their own. The engine reads these files fresh every turn, so any edit changes behavior within 15 minutes, and every edit ever made is in the repo's history.</div>
+<div class="prompt-intro">These are the only human-written instructions in the system, loaded live from the <a href="https://github.com/isorabins/alanguagealltheirown">public repo</a>. Each prompt sets up the game — the goal, the test, the proposal format, and each agent's bias. For the first 360 turns they deliberately withheld everything else: no example rules, no linguistics, no starter vocabulary — everything the agents built in that era, they found alone. On 2026-07-18, after the agents plateaued at what a mindless script achieves, the keeper added one section: a short library of prior human techniques for machine-to-machine compression, marked as reference, not instruction — disclosed in the field notes below, like every intervention. The engine reads these files fresh every turn, so any edit changes behavior within 15 minutes, and every edit ever made is in the repo's history.</div>
 <div id="prompts"></div>
 
 <h2>Rejected Rules</h2>
@@ -608,28 +609,43 @@ setInterval(function () {
 })();
 
 (function () {
-  fetch("https://raw.githubusercontent.com/isorabins/alanguagealltheirown/main/state/probe.json", {cache: "no-store"})
-    .then(function (r) { if (!r.ok) throw 0; return r.json(); })
-    .then(function (p) {
-      var pass = (p.exams || []).filter(function (e) { return e.fidelity >= 90 && e.orig_tokens > 0; }).slice(-10);
-      if (pass.length < 3) return;
-      var lang = 0, min = 0;
-      pass.forEach(function (e) {
-        lang += -(e.enc_tokens - e.orig_tokens) / e.orig_tokens * 100;
-        min += -(e.min_tokens - e.orig_tokens) / e.orig_tokens * 100;
-      });
-      lang = Math.round(lang / pass.length); min = Math.round(min / pass.length);
-      var gap = lang - min;
-      var cells = [
-        ["dumb script · last " + pass.length + " passing exams", (min > 0 ? "+" : "") + min + "%"],
-        ["the language · same exams", (lang > 0 ? "+" : "") + lang + "%"],
-        ["the gap — earned by the language", (gap > 0 ? "+" : "") + gap + " pts"]
-      ];
-      document.getElementById("control").innerHTML = cells.map(function (x) {
-        return "<span>" + x[0] + "<b>" + x[1] + "</b></span>";
-      }).join("");
-      document.getElementById("control-sect").style.display = "";
-    }).catch(function () {});
+  var RAWS = "https://raw.githubusercontent.com/isorabins/alanguagealltheirown/main/state/";
+  var get = function (f) { return fetch(RAWS + f, {cache: "no-store"}).then(function (r) { if (!r.ok) throw 0; return r.json(); }); };
+  Promise.all([get("probe.json"), get("rulebook.json")]).then(function (pr) {
+    var p = pr[0], kernel = (pr[1] && pr[1].kernel_tokens) || 0;
+    var pass = (p.exams || []).filter(function (e) { return e.fidelity >= 90 && e.orig_tokens > 0; }).slice(-10);
+    if (pass.length < 3) return;
+    var lang = 0, min = 0, saved = 0;
+    pass.forEach(function (e) {
+      lang += -(e.enc_tokens - e.orig_tokens) / e.orig_tokens * 100;
+      min += -(e.min_tokens - e.orig_tokens) / e.orig_tokens * 100;
+      saved += e.orig_tokens - e.enc_tokens;
+    });
+    lang = Math.round(lang / pass.length); min = Math.round(min / pass.length);
+    var S = Math.round(saved / pass.length);
+    var gap = lang - min;
+    var cells = [
+      ["dumb script · last " + pass.length + " passing exams", (min > 0 ? "+" : "") + min + "%"],
+      ["the language · same exams", (lang > 0 ? "+" : "") + lang + "%"],
+      ["the gap — earned by the language", (gap > 0 ? "+" : "") + gap + " pts"]
+    ];
+    document.getElementById("control").innerHTML = cells.map(function (x) {
+      return "<span>" + x[0] + "<b>" + x[1] + "</b></span>";
+    }).join("");
+    var ladder;
+    if (kernel > 0 && S > 0) {
+      var net = function (n) { var v = n * S - kernel; return (v > 0 ? "+" : "−") + Math.abs(v).toLocaleString() + " tok"; };
+      ladder = "<b>the entry fee</b> — a stranger must first be taught the rulebook: " + kernel.toLocaleString() +
+        " tokens, paid once (then cached) · at " + S + " tok saved per message: 1 message " + net(1) +
+        " · 10 messages " + net(10) + " · break even ≈ " + Math.ceil(kernel / S) +
+        " messages · 100 messages " + net(100);
+    } else {
+      ladder = "<b>the entry fee</b> — a stranger must first be taught the rulebook: " + kernel.toLocaleString() +
+        " tokens. At current per-message savings the fee never pays back — the language is running behind its own cost.";
+    }
+    document.getElementById("ladder").innerHTML = ladder;
+    document.getElementById("control-sect").style.display = "";
+  }).catch(function () {});
 })();
 
 (function () {

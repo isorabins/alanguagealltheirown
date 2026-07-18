@@ -16,6 +16,8 @@ from pathlib import Path
 
 import requests
 
+from probe import minify   # the control's dumb minifier — one recipe, everywhere
+
 ROOT = Path(__file__).resolve().parent
 STATE = ROOT / "state"
 API_URL = "https://openrouter.ai/api/v1/chat/completions"
@@ -187,10 +189,16 @@ def render_window(conv):
                     if e.get(lab):
                         bits.append(f"{lab}: " + "; ".join(str(x) for x in e[lab][:4]))
                 audit = "\n" + " | ".join(bits)
+            ctl = ""
+            if e.get("control_tokens"):
+                cd = round((e["control_tokens"] - e["orig_tokens"]) / e["orig_tokens"] * 100)
+                ctl = (f"\nCONTROL: a mindless script (lowercase, strip punctuation+articles) compressed "
+                       f"this same message to {e['control_tokens']} tokens ({cd:+d}%). Savings below that "
+                       f"line are free; only savings beyond it are language.")
             out.append(
                 f"[turn {e['turn']} — LIVE TEST | payload: {e['payload']}]\n"
                 f"original {e['orig_tokens']} tokens -> encoded {e['enc_tokens']} tokens "
-                f"({e['token_delta_pct']:+d}%) | decode fidelity {e['fidelity']}/100\n"
+                f"({e['token_delta_pct']:+d}%) | decode fidelity {e['fidelity']}/100" + ctl + "\n"
                 f"encoded: {e['encoded']}\n"
                 f"fresh decoder returned: {render_decode(e['decoded'])}\n"
                 f"grader: {e['lost']}" + audit)
@@ -371,10 +379,12 @@ def test_turn(conv, rb, meta, turn):
     orig_t = token_count(payload, meta)
     enc_t = token_count(encoded.strip(), meta)
     delta = round((enc_t - orig_t) / orig_t * 100)
+    control_t = token_count(minify(payload), meta)  # the dumb-script floor, shown to the agents
     meta["tests_run"] = meta.get("tests_run", 0) + 1
     event = {"turn": turn, "agent": "harness", "type": "test", "payload": pname,
              "original": payload, "orig_tokens": orig_t, "enc_tokens": enc_t,
              "token_delta_pct": delta, "fidelity": fidelity, "lost": lost,
+             "control_tokens": control_t,
              "encoded": encoded.strip(), "decoded": decoded.strip(), "tokens": enc_t,
              "decoder_model": MODEL_DECODER}
     event.update(audit)
@@ -385,6 +395,20 @@ def test_turn(conv, rb, meta, turn):
             r["history"].append(f"tested turn {turn}: fid {fidelity}, {delta:+d}%")
     print(f"[t{turn} TEST] {pname}  {orig_t}->{enc_t}tok ({delta:+d}%)  fid {fidelity}  "
           f"${meta['spend_usd']:.3f}", flush=True)
+
+
+def consume_notice(conv, turn):
+    """Notice inbox: if state/pending-notice.txt exists, deliver it as a harness notice
+    this turn and remove the file. Lets notices travel via git without racing the
+    VPS's own state commits (a direct conversation.json edit would)."""
+    f = STATE / "pending-notice.txt"
+    if not f.exists():
+        return
+    text = f.read_text().strip()
+    if text:
+        conv.append({"turn": turn, "agent": "harness", "type": "notice", "content": text})
+        print(f"[t{turn} NOTICE] delivered ({len(text)} chars)", flush=True)
+    f.unlink()
 
 
 def run(turns):
@@ -399,6 +423,7 @@ def run(turns):
         if meta["spend_usd"] >= SPEND_CAP:
             print(f"SPEND CAP hit (${meta['spend_usd']:.2f}) — stopping.", flush=True)
             break
+        consume_notice(conv, turn)
         if turn % TEST_EVERY == 0:
             test_turn(conv, rb, meta, turn)
         else:
