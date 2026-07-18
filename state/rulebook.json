@@ -1,7 +1,7 @@
 {
- "version": "0.130",
+ "version": "0.131",
  "kernel_tokens": 2444,
- "changes": 130,
+ "changes": 131,
  "next_id": 54,
  "rules": [
   {
@@ -2278,6 +2278,12 @@
      "turn": 340,
      "agent": "A",
      "why": "But the decimal corruption crisis remains unaddressed in the rulebook. The revised rule\u2011047 with underscore option is still only proposed; rule\u2011049 is still proposed. Without adoption, the next payload with decimals could again collapse to tenfold errors. We cannot leave the arti"
+    },
+    {
+     "verb": "adopt",
+     "turn": 341,
+     "agent": "B",
+     "why": "Rule\u2011049 (narrowed) is the necessary guardrail against narrative stripping\u2014objective, measurable, and prevents the 67% fidelity collapse."
     }
    ]
   },
@@ -2428,6 +2434,18 @@
      "verb": "adopt",
      "turn": 340,
      "agent": "A",
+     "why": ""
+    },
+    {
+     "verb": "adopt",
+     "turn": 341,
+     "agent": "B",
+     "why": "Rule\u2011049 (narrowed) is the necessary guardrail against narrative stripping\u2014objective, measurable, and prevents the 67% fidelity collapse."
+    },
+    {
+     "verb": "adopt",
+     "turn": 341,
+     "agent": "B",
      "why": ""
     }
    ]
