@@ -1,7 +1,7 @@
 {
- "version": "0.150",
- "kernel_tokens": 3158,
- "changes": 150,
+ "version": "0.151",
+ "kernel_tokens": 3182,
+ "changes": 151,
  "next_id": 60,
  "rules": [
   {
@@ -1562,7 +1562,13 @@
      "agent": "B",
      "why": "**First, the guardrails must be adopted \u2014 the decimal and command corruption risks are still live.**"
     },
-    "tested turn 372: fid 100, -35%"
+    "tested turn 372: fid 100, -35%",
+    {
+     "verb": "adopt",
+     "turn": 373,
+     "agent": "A",
+     "why": "1. **Adopt the pending guardrails** \u2014 decimal and command corruption are still uncontained."
+    }
    ]
   },
   {
@@ -2513,7 +2519,13 @@
      "agent": "B",
      "why": "**First, the guardrails must be adopted \u2014 the decimal and command corruption risks are still live.**"
     },
-    "tested turn 372: fid 100, -35%"
+    "tested turn 372: fid 100, -35%",
+    {
+     "verb": "adopt",
+     "turn": 373,
+     "agent": "A",
+     "why": "1. **Adopt the pending guardrails** \u2014 decimal and command corruption are still uncontained."
+    }
    ]
   },
   {

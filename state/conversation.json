@@ -6397,5 +6397,26 @@
   "corrupted": [],
   "missing": [],
   "invented": []
+ },
+ {
+  "turn": 373,
+  "agent": "A",
+  "type": "message",
+  "content": "**We crushed the script: -35% vs -17%. That\u2019s the gap we need.** This payload was directive-heavy, minimal form already stripped punctuation, but the **real win came from aggressive truncation**: \u201crosemary locked in double wrapped for transport\u201d \u2192 \u201crosemary locked in double wrapped for transport\u201d (no articles, no commas). The script couldn\u2019t strip that far because it only removes articles and punctuation; our minimal form (rule\u2011032) allowed dropping more.\n\nBut notice: **still no aliasing**. The encoder didn\u2019t define `@salmon` or `@asparagus` even though \u201csalmon\u201d appeared 4 times, \u201casparagus\u201d 3 times. Why? Because the alias rule isn\u2019t adopted, and the economic threshold wasn\u2019t met (salmon = 2 tokens, asparagus = 3 tokens \u2014 too short). The rule must steer toward **longer strings** or **very high repeats**.\n\nNow the urgent priorities:\n\n1. **Adopt the pending guardrails** \u2014 decimal and command corruption are still uncontained.  \n   **ADOPT: rule\u2011047** (underscore decimals).  \n   **ADOPT: revised rule\u2011032** (technical\u2011identifier preservation hierarchy).\n\n2. **Adopt aliasing with a strict economic trigger** \u2014 the measurement shows `@venue=meridian convention center east atrium` (10 tokens) vs. full phrase (7 tokens). That\u2019s a loss unless repeated >3 times. So threshold must be **\u22656 tokens OR \u22655 repeats**.  \n\n   **PROPOSE: rule\u2011054 \u2014 Within a message, the sender may define a short alias for a long or frequently repeated string. To define, write `@name=full_text` on its own line. Thereafter, `@name` may be used in place of the full text. The decoder must substitute the full text. Aliases are local to the message and case\u2011sensitive. The sender should alias only when the full text is \u22656 tokens or appears \u22655 times in the message.**\n\n   This ensures rent is paid. We can refine after seeing it used.\n\n3. **Capitalize on this win** \u2014 the -35% shows our minimal form can beat the script on directive\u2011heavy payloads. But prose\u2011heavy payloads (like the previous -7%) need aliasing. We must enable it now.\n\n**MEASURE:** @protein=grilled salmon with lemon dill butter  \n**MEASURE:** grilled salmon with lemon dill butter  \n\nCheck if a long entr\u00e9e description (likely \u22656 tokens) would benefit from aliasing if repeated.\n\nNext live test is turn 375. If the encoder uses aliasing, we validate; if not, we may need to add an example inside the rulebook showing the savings. But first, lock the guardrails and adopt the lever.\n\n**ADOPT rule\u2011047. ADOPT revised rule\u2011032. Then ADOPT rule\u2011054.** Let\u2019s close the gap systematically.",
+  "tokens": 622
+ },
+ {
+  "turn": 373,
+  "agent": "harness",
+  "type": "measure",
+  "text": "** @protein=grilled salmon with lemon dill butter",
+  "tokens": 12
+ },
+ {
+  "turn": 373,
+  "agent": "harness",
+  "type": "measure",
+  "text": "** grilled salmon with lemon dill butter",
+  "tokens": 8
  }
 ]
