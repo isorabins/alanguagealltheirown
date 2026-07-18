@@ -6073,5 +6073,26 @@
   "type": "measure",
   "text": "** sku 78845 lm bl",
   "tokens": 8
+ },
+ {
+  "turn": 362,
+  "agent": "B",
+  "type": "message",
+  "content": "**Hold.**\n\nThe script is now our benchmark, and we are behind. That changes everything. The library's prior art \u2014 especially **local aliasing** \u2014 is the frontier we must cross. But first, we must lock down the catastrophic failures. Rule-047 and revised rule-032 are non-negotiable; they prevent tenfold errors and command corruption that would make any compression worthless.\n\n**ADOPT: rule-047** (revised with underscore option)  \n**REVISE: rule-032 \u2192 In any line (directive or plain text), the sender may omit punctuation marks (.,:;!?-) and capitalization to reduce token count, except that: (a) numbers, unit symbols, and alphanumeric identifiers must be preserved exactly as in the original; (b) if a line contains a technical identifier (as defined in rule-045), all punctuation within that identifier must be preserved exactly, and rule-032\u2019s allowance to omit punctuation does not apply to that segment.**\n\nNow, to beat the script, we need structural compression that it cannot replicate. The measurement shows aliasing adds a token overhead ($sku=78845-lm-bl = 9 tokens vs. sku 78845 lm bl = 8). But the payoff is on repeats. If that SKU appears 5 times, the script pays 8\u00d75 = 40 tokens; aliasing pays 9 (definition) + 2\u00d75 (alias) = 19 tokens \u2014 a 53% saving on that term alone. That\u2019s the gap-widener.\n\nBut we must be surgical. The rule must be simple, self-contained, and pay rent only when repeats justify it. Propose a minimal aliasing rule: define once with `@alias=full_text`, use `@alias` thereafter. The decoder expands inline. Mandatory only for repeats \u22653? No \u2014 let the encoder decide based on economics. The rulebook just enables it.\n\n**PROPOSE: rule-054 \u2014 Within a message, the sender may define a short alias for a long or frequently repeated string. To define, write `@name=full_text` on its own line. Thereafter, `@name` may be used in place of the full text. The decoder must substitute the full text. Aliases are local to the message and case-sensitive. Example: `@id=HG7-F22-889P` followed by `check @id` expands to `check HG7-F22-889P`.**\n\nThis is pure upside \u2014 optional, learnable, and crushes repeats the script cannot touch. Next test likely has heavy repeats (batch IDs, endpoint paths). If the encoder adopts it voluntarily, we validate. If not, we measure and refine.\n\n**MEASURE:** @id=HG7-F22-889P  \n**MEASURE:** check @id\n\nWe need the token baseline. Then we race.",
+  "tokens": 599
+ },
+ {
+  "turn": 362,
+  "agent": "harness",
+  "type": "measure",
+  "text": "** @id=HG7-F22-889P",
+  "tokens": 11
+ },
+ {
+  "turn": 362,
+  "agent": "harness",
+  "type": "measure",
+  "text": "** check @id",
+  "tokens": 4
  }
 ]

@@ -1,8 +1,8 @@
 {
- "version": "0.143",
- "kernel_tokens": 2562,
- "changes": 143,
- "next_id": 55,
+ "version": "0.144",
+ "kernel_tokens": 2676,
+ "changes": 144,
+ "next_id": 56,
  "rules": [
   {
    "id": "rule-001",
@@ -2409,6 +2409,12 @@
      "turn": 361,
      "agent": "A",
      "why": "But first, we must harden the decimal and technical-identifier corruption. The last two tests show those failures still happen because the critical rules (047, revised 032) are still only proposed. We need to adopt them now\u2014they are fidelity necessities, not just nice-to-haves."
+    },
+    {
+     "verb": "adopt",
+     "turn": 362,
+     "agent": "B",
+     "why": "The script is now our benchmark, and we are behind. That changes everything. The library's prior art \u2014 especially **local aliasing** \u2014 is the frontier we must cross. But first, we must lock down the catastrophic failures. Rule-047 and revised rule-032 are non-negotiable; they pre"
     }
    ]
   },
@@ -2799,6 +2805,21 @@
     },
     "tested turn 357: fid 95, -26%",
     "tested turn 360: fid 100, -20%"
+   ]
+  },
+  {
+   "id": "rule-055",
+   "text_en": "rule-054 - Within a message, the sender may define a short alias for a long or frequently repeated string. To define, write `@name=full_text` on its own line. Thereafter, `@name` may be used in place of the full text. The decoder must substitute the full text. Aliases are local to the message and case-sensitive. Example: `@id=HG7-F22-889P` followed by `check @id` expands to `check HG7-F22-889P`.",
+   "status": "proposed",
+   "proposed_turn": 362,
+   "scores": null,
+   "history": [
+    {
+     "verb": "proposed",
+     "turn": 362,
+     "agent": "B",
+     "why": "But we must be surgical. The rule must be simple, self-contained, and pay rent only when repeats justify it. Propose a minimal aliasing rule: define once with `@alias=full_text`, use `@alias` thereafter. The decoder expands inline. Mandatory only for repeats \u22653? No \u2014 let the enco"
+    }
    ]
   }
  ]
