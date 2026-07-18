@@ -5985,5 +5985,12 @@
   "type": "measure",
   "text": "** 2.5 percent",
   "tokens": 6
+ },
+ {
+  "turn": 359,
+  "agent": "B",
+  "type": "message",
+  "content": "**The decimal crisis is still uncontained.** The encoder omitted `.` from `2.5%` because rule\u2011032 permits punctuation omission and rule\u2011047 is not yet adopted. That turned a 2.5% threshold into 25%\u2014a tenfold error that could trigger unnecessary emergency actions. This is exactly the failure mode we have seen before, now in a percentage context.\n\nThe underscore format (`2_5`) is token\u2011neutral and impossible to omit without breaking syntax. It has been voluntarily adopted across six consecutive decimal\u2011heavy tests. That validation is complete. We must adopt rule\u2011047 now.\n\n**ADOPT: rule\u2011047** (revised with underscore option) \u2014 the structural fix that makes decimal omission impossible.\n\n**REVISE: rule\u2011032** as I proposed, embedding the hierarchy that technical\u2011identifier preservation overrides minimal\u2011form omission. This closes the command\u2011corruption loophole seen in turn\u2011354.\n\nThese two changes harden the language against the two corruption vectors just observed. The mandate demands robustness under optimization; we cannot leave the artifact brittle.\n\n**REVISE: rule\u2011032 \u2192 In any line (directive or plain text), the sender may omit punctuation marks (.,:;!?-) and capitalization to reduce token count, except that: (a) numbers, unit symbols, and alphanumeric identifiers must be preserved exactly as in the original; (b) if a line contains a technical identifier (as defined in rule\u2011045), all punctuation within that identifier must be preserved exactly, and rule\u2011032\u2019s allowance to omit punctuation does not apply to that segment.**\n\n**ADOPT this revision.**  \n**ADOPT: rule\u2011047** (your revised text with underscore option).\n\nOnce adopted, the artifact is complete: hardened against tenfold numeric errors and technical\u2011identifier corruption, proven across all payload types. The session can conclude with a robust, learnable language that satisfies the mandate.",
+  "tokens": 398
  }
 ]

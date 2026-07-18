@@ -1,7 +1,7 @@
 {
- "version": "0.141",
+ "version": "0.142",
  "kernel_tokens": 2562,
- "changes": 141,
+ "changes": 142,
  "next_id": 55,
  "rules": [
   {
@@ -2380,6 +2380,18 @@
      "turn": 358,
      "agent": "A",
      "why": "The underscore format would have prevented this: `2_5` cannot be mistaken. But the rulebook still lacks the decimal guardrail (rule\u2011047 unadopted). We must adopt it now, and also fix the technical\u2011identifier loophole."
+    },
+    {
+     "verb": "adopt",
+     "turn": 359,
+     "agent": "B",
+     "why": "The underscore format (`2_5`) is token\u2011neutral and impossible to omit without breaking syntax. It has been voluntarily adopted across six consecutive decimal\u2011heavy tests. That validation is complete. We must adopt rule\u2011047 now."
+    },
+    {
+     "verb": "adopt",
+     "turn": 359,
+     "agent": "B",
+     "why": ""
     }
    ]
   },
