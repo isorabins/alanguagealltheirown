@@ -957,7 +957,7 @@
    "status": "adopted",
    "proposed_turn": 145,
    "scores": {
-    "token_delta_pct": -21,
+    "token_delta_pct": -12,
     "fidelity_pct": 100
    },
    "history": [
@@ -1064,7 +1064,8 @@
     "tested turn 375: fid 100, -16%",
     "tested turn 378: fid 100, -19%",
     "tested turn 381: fid 100, -12%",
-    "tested turn 384: fid 100, -21%"
+    "tested turn 384: fid 100, -21%",
+    "tested turn 387: fid 100, -12%"
    ]
   },
   {
@@ -1073,7 +1074,7 @@
    "status": "adopted",
    "proposed_turn": 145,
    "scores": {
-    "token_delta_pct": -21,
+    "token_delta_pct": -12,
     "fidelity_pct": 100
    },
    "history": [
@@ -1168,7 +1169,8 @@
     "tested turn 375: fid 100, -16%",
     "tested turn 378: fid 100, -19%",
     "tested turn 381: fid 100, -12%",
-    "tested turn 384: fid 100, -21%"
+    "tested turn 384: fid 100, -21%",
+    "tested turn 387: fid 100, -12%"
    ]
   },
   {
@@ -1284,7 +1286,7 @@
    "status": "adopted",
    "proposed_turn": 172,
    "scores": {
-    "token_delta_pct": -21,
+    "token_delta_pct": -12,
     "fidelity_pct": 100
    },
    "history": [
@@ -1388,7 +1390,8 @@
     "tested turn 375: fid 100, -16%",
     "tested turn 378: fid 100, -19%",
     "tested turn 381: fid 100, -12%",
-    "tested turn 384: fid 100, -21%"
+    "tested turn 384: fid 100, -21%",
+    "tested turn 387: fid 100, -12%"
    ]
   },
   {
@@ -1397,7 +1400,7 @@
    "status": "adopted",
    "proposed_turn": 176,
    "scores": {
-    "token_delta_pct": -21,
+    "token_delta_pct": -12,
     "fidelity_pct": 100
    },
    "history": [
@@ -1644,7 +1647,8 @@
      "turn": 386,
      "agent": "B",
      "why": ""
-    }
+    },
+    "tested turn 387: fid 100, -12%"
    ]
   },
   {
@@ -1816,7 +1820,7 @@
    "status": "adopted",
    "proposed_turn": 208,
    "scores": {
-    "token_delta_pct": -21,
+    "token_delta_pct": -12,
     "fidelity_pct": 100
    },
    "history": [
@@ -1896,7 +1900,8 @@
     "tested turn 375: fid 100, -16%",
     "tested turn 378: fid 100, -19%",
     "tested turn 381: fid 100, -12%",
-    "tested turn 384: fid 100, -21%"
+    "tested turn 384: fid 100, -21%",
+    "tested turn 387: fid 100, -12%"
    ]
   },
   {
@@ -1905,7 +1910,7 @@
    "status": "adopted",
    "proposed_turn": 215,
    "scores": {
-    "token_delta_pct": -21,
+    "token_delta_pct": -12,
     "fidelity_pct": 100
    },
    "history": [
@@ -1977,7 +1982,8 @@
     "tested turn 375: fid 100, -16%",
     "tested turn 378: fid 100, -19%",
     "tested turn 381: fid 100, -12%",
-    "tested turn 384: fid 100, -21%"
+    "tested turn 384: fid 100, -21%",
+    "tested turn 387: fid 100, -12%"
    ]
   },
   {
@@ -2146,7 +2152,7 @@
    "status": "proposed",
    "proposed_turn": 241,
    "scores": {
-    "token_delta_pct": -21,
+    "token_delta_pct": -12,
     "fidelity_pct": 100
    },
    "history": [
@@ -2203,7 +2209,8 @@
     "tested turn 375: fid 100, -16%",
     "tested turn 378: fid 100, -19%",
     "tested turn 381: fid 100, -12%",
-    "tested turn 384: fid 100, -21%"
+    "tested turn 384: fid 100, -21%",
+    "tested turn 387: fid 100, -12%"
    ]
   },
   {
@@ -2212,7 +2219,7 @@
    "status": "adopted",
    "proposed_turn": 244,
    "scores": {
-    "token_delta_pct": -21,
+    "token_delta_pct": -12,
     "fidelity_pct": 100
    },
    "history": [
@@ -2274,7 +2281,8 @@
     "tested turn 375: fid 100, -16%",
     "tested turn 378: fid 100, -19%",
     "tested turn 381: fid 100, -12%",
-    "tested turn 384: fid 100, -21%"
+    "tested turn 384: fid 100, -21%",
+    "tested turn 387: fid 100, -12%"
    ]
   },
   {
@@ -2283,7 +2291,7 @@
    "status": "adopted",
    "proposed_turn": 250,
    "scores": {
-    "token_delta_pct": -21,
+    "token_delta_pct": -12,
     "fidelity_pct": 100
    },
    "history": [
@@ -2343,7 +2351,8 @@
     "tested turn 375: fid 100, -16%",
     "tested turn 378: fid 100, -19%",
     "tested turn 381: fid 100, -12%",
-    "tested turn 384: fid 100, -21%"
+    "tested turn 384: fid 100, -21%",
+    "tested turn 387: fid 100, -12%"
    ]
   },
   {
@@ -2352,7 +2361,7 @@
    "status": "adopted",
    "proposed_turn": 277,
    "scores": {
-    "token_delta_pct": -21,
+    "token_delta_pct": -12,
     "fidelity_pct": 100
    },
    "history": [
@@ -2403,7 +2412,8 @@
     "tested turn 375: fid 100, -16%",
     "tested turn 378: fid 100, -19%",
     "tested turn 381: fid 100, -12%",
-    "tested turn 384: fid 100, -21%"
+    "tested turn 384: fid 100, -21%",
+    "tested turn 387: fid 100, -12%"
    ]
   },
   {
@@ -2412,7 +2422,7 @@
    "status": "adopted",
    "proposed_turn": 283,
    "scores": {
-    "token_delta_pct": -21,
+    "token_delta_pct": -12,
     "fidelity_pct": 100
    },
    "history": [
@@ -2689,7 +2699,8 @@
      "turn": 386,
      "agent": "B",
      "why": ""
-    }
+    },
+    "tested turn 387: fid 100, -12%"
    ]
   },
   {
@@ -2698,7 +2709,7 @@
    "status": "proposed",
    "proposed_turn": 287,
    "scores": {
-    "token_delta_pct": -21,
+    "token_delta_pct": -12,
     "fidelity_pct": 100
    },
    "history": [
@@ -2740,7 +2751,8 @@
     "tested turn 375: fid 100, -16%",
     "tested turn 378: fid 100, -19%",
     "tested turn 381: fid 100, -12%",
-    "tested turn 384: fid 100, -21%"
+    "tested turn 384: fid 100, -21%",
+    "tested turn 387: fid 100, -12%"
    ]
   },
   {
@@ -2749,7 +2761,7 @@
    "status": "adopted",
    "proposed_turn": 302,
    "scores": {
-    "token_delta_pct": -21,
+    "token_delta_pct": -12,
     "fidelity_pct": 100
    },
    "history": [
@@ -2948,7 +2960,8 @@
     "tested turn 375: fid 100, -16%",
     "tested turn 378: fid 100, -19%",
     "tested turn 381: fid 100, -12%",
-    "tested turn 384: fid 100, -21%"
+    "tested turn 384: fid 100, -21%",
+    "tested turn 387: fid 100, -12%"
    ]
   },
   {
@@ -2957,7 +2970,7 @@
    "status": "proposed",
    "proposed_turn": 316,
    "scores": {
-    "token_delta_pct": -21,
+    "token_delta_pct": -12,
     "fidelity_pct": 100
    },
    "history": [
@@ -2989,7 +3002,8 @@
     "tested turn 375: fid 100, -16%",
     "tested turn 378: fid 100, -19%",
     "tested turn 381: fid 100, -12%",
-    "tested turn 384: fid 100, -21%"
+    "tested turn 384: fid 100, -21%",
+    "tested turn 387: fid 100, -12%"
    ]
   },
   {
@@ -2998,7 +3012,7 @@
    "status": "proposed",
    "proposed_turn": 317,
    "scores": {
-    "token_delta_pct": -21,
+    "token_delta_pct": -12,
     "fidelity_pct": 100
    },
    "history": [
@@ -3030,7 +3044,8 @@
     "tested turn 375: fid 100, -16%",
     "tested turn 378: fid 100, -19%",
     "tested turn 381: fid 100, -12%",
-    "tested turn 384: fid 100, -21%"
+    "tested turn 384: fid 100, -21%",
+    "tested turn 387: fid 100, -12%"
    ]
   },
   {
@@ -3039,7 +3054,7 @@
    "status": "proposed",
    "proposed_turn": 325,
    "scores": {
-    "token_delta_pct": -21,
+    "token_delta_pct": -12,
     "fidelity_pct": 100
    },
    "history": [
@@ -3068,7 +3083,8 @@
     "tested turn 375: fid 100, -16%",
     "tested turn 378: fid 100, -19%",
     "tested turn 381: fid 100, -12%",
-    "tested turn 384: fid 100, -21%"
+    "tested turn 384: fid 100, -21%",
+    "tested turn 387: fid 100, -12%"
    ]
   },
   {
@@ -3077,7 +3093,7 @@
    "status": "proposed",
    "proposed_turn": 325,
    "scores": {
-    "token_delta_pct": -21,
+    "token_delta_pct": -12,
     "fidelity_pct": 100
    },
    "history": [
@@ -3106,7 +3122,8 @@
     "tested turn 375: fid 100, -16%",
     "tested turn 378: fid 100, -19%",
     "tested turn 381: fid 100, -12%",
-    "tested turn 384: fid 100, -21%"
+    "tested turn 384: fid 100, -21%",
+    "tested turn 387: fid 100, -12%"
    ]
   },
   {
@@ -3115,7 +3132,7 @@
    "status": "adopted",
    "proposed_turn": 355,
    "scores": {
-    "token_delta_pct": -21,
+    "token_delta_pct": -12,
     "fidelity_pct": 100
    },
    "history": [
@@ -3146,7 +3163,8 @@
     "tested turn 375: fid 100, -16%",
     "tested turn 378: fid 100, -19%",
     "tested turn 381: fid 100, -12%",
-    "tested turn 384: fid 100, -21%"
+    "tested turn 384: fid 100, -21%",
+    "tested turn 387: fid 100, -12%"
    ]
   },
   {
@@ -3155,7 +3173,7 @@
    "status": "proposed",
    "proposed_turn": 362,
    "scores": {
-    "token_delta_pct": -21,
+    "token_delta_pct": -12,
     "fidelity_pct": 100
    },
    "history": [
@@ -3172,7 +3190,8 @@
     "tested turn 375: fid 100, -16%",
     "tested turn 378: fid 100, -19%",
     "tested turn 381: fid 100, -12%",
-    "tested turn 384: fid 100, -21%"
+    "tested turn 384: fid 100, -21%",
+    "tested turn 387: fid 100, -12%"
    ]
   },
   {
@@ -3181,7 +3200,7 @@
    "status": "proposed",
    "proposed_turn": 365,
    "scores": {
-    "token_delta_pct": -21,
+    "token_delta_pct": -12,
     "fidelity_pct": 100
    },
    "history": [
@@ -3197,7 +3216,8 @@
     "tested turn 375: fid 100, -16%",
     "tested turn 378: fid 100, -19%",
     "tested turn 381: fid 100, -12%",
-    "tested turn 384: fid 100, -21%"
+    "tested turn 384: fid 100, -21%",
+    "tested turn 387: fid 100, -12%"
    ]
   },
   {
@@ -3206,7 +3226,7 @@
    "status": "proposed",
    "proposed_turn": 368,
    "scores": {
-    "token_delta_pct": -21,
+    "token_delta_pct": -12,
     "fidelity_pct": 100
    },
    "history": [
@@ -3221,7 +3241,8 @@
     "tested turn 375: fid 100, -16%",
     "tested turn 378: fid 100, -19%",
     "tested turn 381: fid 100, -12%",
-    "tested turn 384: fid 100, -21%"
+    "tested turn 384: fid 100, -21%",
+    "tested turn 387: fid 100, -12%"
    ]
   },
   {
@@ -3230,7 +3251,7 @@
    "status": "proposed",
    "proposed_turn": 370,
    "scores": {
-    "token_delta_pct": -21,
+    "token_delta_pct": -12,
     "fidelity_pct": 100
    },
    "history": [
@@ -3244,7 +3265,8 @@
     "tested turn 375: fid 100, -16%",
     "tested turn 378: fid 100, -19%",
     "tested turn 381: fid 100, -12%",
-    "tested turn 384: fid 100, -21%"
+    "tested turn 384: fid 100, -21%",
+    "tested turn 387: fid 100, -12%"
    ]
   },
   {
@@ -3253,7 +3275,7 @@
    "status": "proposed",
    "proposed_turn": 371,
    "scores": {
-    "token_delta_pct": -21,
+    "token_delta_pct": -12,
     "fidelity_pct": 100
    },
    "history": [
@@ -3267,7 +3289,8 @@
     "tested turn 375: fid 100, -16%",
     "tested turn 378: fid 100, -19%",
     "tested turn 381: fid 100, -12%",
-    "tested turn 384: fid 100, -21%"
+    "tested turn 384: fid 100, -21%",
+    "tested turn 387: fid 100, -12%"
    ]
   },
   {
@@ -3276,7 +3299,7 @@
    "status": "proposed",
    "proposed_turn": 374,
    "scores": {
-    "token_delta_pct": -21,
+    "token_delta_pct": -12,
     "fidelity_pct": 100
    },
    "history": [
@@ -3289,7 +3312,8 @@
     "tested turn 375: fid 100, -16%",
     "tested turn 378: fid 100, -19%",
     "tested turn 381: fid 100, -12%",
-    "tested turn 384: fid 100, -21%"
+    "tested turn 384: fid 100, -21%",
+    "tested turn 387: fid 100, -12%"
    ]
   },
   {
@@ -3298,7 +3322,7 @@
    "status": "proposed",
    "proposed_turn": 377,
    "scores": {
-    "token_delta_pct": -21,
+    "token_delta_pct": -12,
     "fidelity_pct": 100
    },
    "history": [
@@ -3310,7 +3334,8 @@
     },
     "tested turn 378: fid 100, -19%",
     "tested turn 381: fid 100, -12%",
-    "tested turn 384: fid 100, -21%"
+    "tested turn 384: fid 100, -21%",
+    "tested turn 387: fid 100, -12%"
    ]
   },
   {
@@ -3319,7 +3344,7 @@
    "status": "proposed",
    "proposed_turn": 383,
    "scores": {
-    "token_delta_pct": -21,
+    "token_delta_pct": -12,
     "fidelity_pct": 100
    },
    "history": [
@@ -3329,7 +3354,8 @@
      "agent": "B",
      "why": "Now aliasing. The measurements are unforgiving:   - `@path=grid sector foxtrot 2` = 11 tokens, full phrase = 8 tokens. At 3 repeats, aliasing **loses** 1 token.   Our proposed threshold (\u22658 tokens OR \u22656 repeats) still risks token waste for strings under ~10 tokens. We need a rule"
     },
-    "tested turn 384: fid 100, -21%"
+    "tested turn 384: fid 100, -21%",
+    "tested turn 387: fid 100, -12%"
    ]
   },
   {
@@ -3337,14 +3363,18 @@
    "text_en": "rule-054 - Within a message, the sender may define a short alias for a long or frequently repeated string. To define, write `@name=full_text` on its own line. Thereafter, `@name` may be used in place of the full text. The decoder must substitute the full text. Aliases are local to the message and case-sensitive. The sender should alias only when the full text is \u226515 tokens or appears \u226512 times in the message.",
    "status": "proposed",
    "proposed_turn": 386,
-   "scores": null,
+   "scores": {
+    "token_delta_pct": -12,
+    "fidelity_pct": 100
+   },
    "history": [
     {
      "verb": "proposed",
      "turn": 386,
      "agent": "B",
      "why": "Now aliasing. The measurement on \u201c@crates=\u2026\u201d shows the brutal reality: a 26\u2011token definition for a 22\u2011token phrase. That\u2019s a 4\u2011token penalty. Even at 2 repeats, aliasing loses tokens. Our proposed threshold (\u226510 tokens OR \u22658 repeats) still allows losses for strings under ~15 toke"
-    }
+    },
+    "tested turn 387: fid 100, -12%"
    ]
   }
  ]
