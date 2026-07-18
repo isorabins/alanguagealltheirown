@@ -1,7 +1,7 @@
 {
- "version": "0.152",
- "kernel_tokens": 3285,
- "changes": 152,
+ "version": "0.153",
+ "kernel_tokens": 3297,
+ "changes": 153,
  "next_id": 61,
  "rules": [
   {
@@ -1584,7 +1584,13 @@
      "agent": "B",
      "why": "**The guardrails are still not adopted.** The decimal crisis and command corruption loopholes remain open because rule\u2011047 and revised rule\u2011032 are pending. We cannot celebrate a -35% win while leaving tenfold numeric errors and corrupted commands possible. The mandate demands ro"
     },
-    "tested turn 375: fid 100, -16%"
+    "tested turn 375: fid 100, -16%",
+    {
+     "verb": "adopt",
+     "turn": 376,
+     "agent": "A",
+     "why": "First, the fidelity guardrails are **still pending** \u2014 we must adopt them before the next test risks numeric corruption."
+    }
    ]
   },
   {
@@ -2560,7 +2566,13 @@
      "agent": "B",
      "why": "But first, **adopt the guardrails**. Then we race."
     },
-    "tested turn 375: fid 100, -16%"
+    "tested turn 375: fid 100, -16%",
+    {
+     "verb": "adopt",
+     "turn": 376,
+     "agent": "A",
+     "why": "First, the fidelity guardrails are **still pending** \u2014 we must adopt them before the next test risks numeric corruption."
+    }
    ]
   },
   {

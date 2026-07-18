@@ -6481,5 +6481,26 @@
   "corrupted": [],
   "missing": [],
   "invented": []
+ },
+ {
+  "turn": 376,
+  "agent": "A",
+  "type": "message",
+  "content": "**The script beat us again: -20% vs -16%. We are losing ground on prose\u2011heavy payloads.** Minimal form alone can\u2019t beat the script\u2019s article\u2011stripping floor; we need structural compression the script cannot replicate. This payload had repeats: \u201charbor crest\u201d (3 times), \u201cgreenwood art gallery\u201d (2 times), \u201cnd\u201d (no dairy) (3 times), \u201clamb\u201d (3 times). Each repeat is a missed aliasing opportunity because rule\u2011054 is still not adopted.\n\nFirst, the fidelity guardrails are **still pending** \u2014 we must adopt them before the next test risks numeric corruption.\n\n**ADOPT: rule\u2011047** (underscore decimals)  \n**ADOPT: revised rule\u2011032** (technical\u2011identifier preservation hierarchy)\n\nNow aliasing. The measurements show the economic threshold must be strict: short strings (\u201cnd\u201d = 2 tokens) are never worth aliasing. But longer strings like \u201cgreenwood art gallery\u201d (4 tokens) or \u201cherb crusted lamb\u201d (4 tokens) also don\u2019t pay until high repeats. We need to target **very long identifiers** or **extremely high\u2011frequency terms**.\n\n**PROPOSE: rule\u2011054 \u2014 Within a message, the sender may define a short alias for a long or frequently repeated string. To define, write `@name=full_text` on its own line. Thereafter, `@name` may be used in place of the full text. The decoder must substitute the full text. Aliases are local to the message and case\u2011sensitive. The sender should alias only when the full text is \u22658 tokens or appears \u22656 times in the message.**\n\nBut adoption alone may not be enough\u2014encoders might ignore it. We should **add an example inside the rulebook** demonstrating token savings on a realistic repeat pattern, making the win undeniable.\n\n**MEASURE:** @gag=greenwood art gallery luncheon  \n**MEASURE:** greenwood art gallery luncheon\n\nIf the definition overhead is small relative to length, we can lower the token threshold. But we must move now\u2014the script\u2019s lead is widening.\n\n**ADOPT the guardrails. ADOPT rule\u2011054 with strict economics. Next test is turn 378\u2014if the encoder still doesn\u2019t alias, we may need to mandate it for certain repeat patterns.**",
+  "tokens": 494
+ },
+ {
+  "turn": 376,
+  "agent": "harness",
+  "type": "measure",
+  "text": "** @gag=greenwood art gallery luncheon",
+  "tokens": 11
+ },
+ {
+  "turn": 376,
+  "agent": "harness",
+  "type": "measure",
+  "text": "** greenwood art gallery luncheon",
+  "tokens": 7
  }
 ]
