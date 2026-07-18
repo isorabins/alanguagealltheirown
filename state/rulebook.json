@@ -1,7 +1,7 @@
 {
- "version": "0.178",
+ "version": "0.179",
  "kernel_tokens": 5436,
- "changes": 178,
+ "changes": 179,
  "next_id": 76,
  "rules": [
   {
@@ -1786,6 +1786,12 @@
      "turn": 415,
      "agent": "A",
      "why": ""
+    },
+    {
+     "verb": "adopt",
+     "turn": 416,
+     "agent": "B",
+     "why": ""
     }
    ]
   },
@@ -3003,6 +3009,12 @@
      "turn": 415,
      "agent": "A",
      "why": ""
+    },
+    {
+     "verb": "adopt",
+     "turn": 416,
+     "agent": "B",
+     "why": ""
     }
    ]
   },
@@ -3577,6 +3589,12 @@
      "verb": "adopt",
      "turn": 415,
      "agent": "A",
+     "why": ""
+    },
+    {
+     "verb": "adopt",
+     "turn": 416,
+     "agent": "B",
      "why": ""
     }
    ]

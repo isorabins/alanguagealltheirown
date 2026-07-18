@@ -7569,5 +7569,26 @@
   "type": "message",
   "content": "**ADOPT: rule-047**  \n**ADOPT: revised rule-032**  \n**ADOPT: rule-054** \u2014 the version from turn 413, with the measured example.\n\nThe encoder still isn\u2019t aliasing \u2014 because rule\u2011054 remains proposed. This test had \u201cNexaStream Pro 8K router\u201d (5 tokens) repeated, \u201clatency\u201d (1 token) repeated 8 times, \u201chub\u201d (1 token) repeated 6 times. Short strings don\u2019t meet the \u22658\u2011token guideline, but the win came from directive compression again: -21% vs -16% script, a 5\u2011point gap. That\u2019s narrower \u2014 the payload mixed prose and directives.\n\nWe need aliasing for the long strings that do appear: \u201cmetrics.nexastream.net/test\u201d (5 tokens) twice, \u201cHomeSecure IoT hub device, MAC ending A3:7F:1C\u201d (maybe 12+ tokens) once. If a 12\u2011token string appears twice, aliasing loses; at three repeats it wins. Our guideline (\u22658 tokens OR \u22653 repeats) is correct \u2014 but the encoder must see it in the rulebook.\n\n**After adoption, embed a demonstration payload in the rulebook immediately.** Show a mini\u2011message with `@alias=long phrase` and subsequent uses. The encoder needs a concrete pattern to follow.\n\n**PROPOSE: rule\u2011071** can wait one turn \u2014 aliasing is the higher\u2011priority structural lever. The 5\u2011point gap is our lowest in recent tests; we need aliasing to widen it on mixed traffic.\n\n**Next test is turn 417.** If aliasing is adopted now, the encoder can use it. If not, we add the mandatory demonstration. We cannot keep winning only on directive\u2011heavy luck while prose\u2011heavy payloads compress less. Lock the lever.",
   "tokens": 391
+ },
+ {
+  "turn": 416,
+  "agent": "B",
+  "type": "message",
+  "content": "**ADOPT: rule-047**  \n**ADOPT: revised rule-032**  \n**ADOPT: rule-054** \u2014 the exact text from turn 413.\n\nThe procedural failure ends now. The rulebook must show rule\u2011054 as adopted before the next test.\n\nWe are still winning, but the gap narrowed to 5 points. The encoder isn\u2019t aliasing because the rule isn\u2019t in force. Once adopted, we must immediately embed a demonstration payload in the rulebook\u2014a concrete example showing definition and substitution. The encoder needs to see the pattern: `@alias=long phrase` on its own line, then `use @alias` later.\n\nOur guideline (\u22658 tokens OR \u22653 repeats) is sound. The measurements prove it: even a 15-token original can save 21 tokens over three uses. But adoption alone may not trigger use\u2014the next step is a mandatory example.\n\n**After this turn, I will draft that example.** But first, lock the rule. The 5-point gap is our floor; aliasing can push it back to 20+ on payloads with repeats.\n\n**MEASURE** a realistic alias from the last payload to confirm economics:  \n**MEASURE:** @hub=HomeSecure IoT hub device MAC ending A3:7F:1C  \n**MEASURE:** HomeSecure IoT hub device MAC ending A3:7F:1C\n\nIf the overhead is small, we adjust the guideline. But adoption cannot wait.",
+  "tokens": 311
+ },
+ {
+  "turn": 416,
+  "agent": "harness",
+  "type": "measure",
+  "text": "** @hub=HomeSecure IoT hub device MAC ending A3:7F:1C",
+  "tokens": 19
+ },
+ {
+  "turn": 416,
+  "agent": "harness",
+  "type": "measure",
+  "text": "** HomeSecure IoT hub device MAC ending A3:7F:1C",
+  "tokens": 16
  }
 ]
