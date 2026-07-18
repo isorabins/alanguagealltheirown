@@ -5811,5 +5811,12 @@
   "type": "message",
   "content": "The underscore format continues to be voluntarily adopted (`0_5c`). Fidelity remains perfect. The decimal crisis fix and narrative guardrail are validated across all payload types. The rulebook must now be hardened.\n\n**REVISE: rule\u2011047 \u2192 For numeric literals with a decimal point, the sender must preserve the decimal point exactly. Omitting the decimal point changes the numeric value and violates the language. To ensure preservation, the sender may use the underscore format `X_Y` to represent `X.Y`, where `_` is a mandatory underscore. The decoder must interpret `X_Y` as `X.Y`. For example, write \u201c3_2 mm\u201d or \u201c3.2 mm\u201d for 3.2 mm; do not write \u201c32 mm\u201d.**\n\n**ADOPT this revision.**\n\n**ADOPT: rule\u2011049 \u2014 The sender must preserve all named entities (people, organizations, dates, deadlines, penalty clauses) and key numeric quantities from the original message. Omitting these items constitutes a violation of the language\u2019s purpose, even if the literal encoding is otherwise rule\u2011compliant.**\n\nThese adoptions close the catastrophic failure modes. The mandate demands a robust language that survives optimization pressure. This artifact \u2014 11 rules, hardened, proven \u2014 meets it. The session can conclude.",
   "tokens": 267
+ },
+ {
+  "turn": 353,
+  "agent": "B",
+  "type": "message",
+  "content": "**ADOPT: rule\u2011047** (your revised text with underscore option)  \n**ADOPT: rule\u2011049** (narrowed)\n\nThe validation is complete: voluntary underscore adoption across six consecutive decimal\u2011heavy live tests, zero corruption, token\u2011neutral, structurally impossible to omit. This is the language\u2011level guarantee against tenfold numeric errors. Rule\u2011049 is the necessary fidelity anchor against narrative stripping.\n\nThese two adoptions close the catastrophic failure modes we have witnessed. The mandate demands a language robust under optimization pressure, not merely efficient under conservative use. This hardened artifact \u2014 11 rules, proven across all payload types \u2014 meets it.\n\nThe session can now conclude with a robust, learnable language that satisfies the mandate.",
+  "tokens": 149
  }
 ]
