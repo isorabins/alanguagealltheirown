@@ -139,6 +139,35 @@
   .judg .jdec { font-family: var(--mono); font-size: 0.62rem; color: var(--ink-faint); margin-top: 0.7rem; }
   .judg .jhold { font-family: var(--mono); font-size: 0.7rem; color: var(--ink-dim); line-height: 1.6; }
 
+  .ti-cap { text-align: center; font-family: var(--mono); font-size: 0.62rem; letter-spacing: 0.1em;
+    text-transform: uppercase; color: var(--ink-faint); margin-bottom: 0.6rem; }
+  #tryit textarea { width: 100%; height: 8.5rem; background: transparent; border: 1px solid var(--hairline);
+    color: var(--ink); font-family: var(--serif); font-size: 0.95rem; line-height: 1.55; padding: 0.9rem 1rem; resize: vertical; }
+  #tryit textarea:focus { outline: none; border-color: var(--ink-faint); }
+  .ti-row { display: flex; justify-content: space-between; align-items: center; margin-top: 0.6rem; }
+  .ti-count { font-family: var(--mono); font-size: 0.62rem; color: var(--ink-faint); letter-spacing: 0.08em; }
+  #tryit button { background: transparent; border: 1px solid var(--hairline); color: var(--ink); font-family: var(--mono);
+    font-size: 0.68rem; letter-spacing: 0.22em; text-transform: uppercase; padding: 0.75rem 1.6rem; cursor: pointer; }
+  #tryit button:hover:enabled { border-color: var(--accent); color: var(--accent); }
+  #tryit button:disabled { color: var(--ink-faint); cursor: default; }
+  .ti-status { font-family: var(--mono); font-size: 0.68rem; color: var(--ink-dim); letter-spacing: 0.08em;
+    text-align: center; margin: 1.4rem 0 0; min-height: 1.2em; }
+  .ti-status.err { color: var(--bad); }
+  .ti-status .dots::after { content: ""; animation: tid 1.6s steps(4, end) infinite; }
+  @keyframes tid { 0% { content: ""; } 25% { content: "."; } 50% { content: ".."; } 75% { content: "..."; } }
+  .ti-stage { border: 1px solid var(--hairline); padding: 1.1rem 1.3rem; margin-top: 1.4rem; display: none; }
+  .ti-stage .lab { font-family: var(--mono); font-size: 0.6rem; letter-spacing: 0.18em; text-transform: uppercase;
+    color: var(--ink-faint); margin-bottom: 0.55rem; }
+  .ti-stage pre { font-family: var(--mono); font-size: 0.72rem; line-height: 1.62; white-space: pre-wrap; word-wrap: break-word; color: var(--ink); }
+  .ti-stage.enc pre { color: var(--accent); }
+  .ti-stage.dec pre { color: var(--ink-dim); }
+  .ti-tokline { font-family: var(--mono); font-size: 0.64rem; color: var(--ink-faint); letter-spacing: 0.06em;
+    border-top: 1px dashed var(--hairline); margin-top: 0.85rem; padding-top: 0.65rem; }
+  .ti-tokline b { color: var(--accent); font-weight: 400; }
+  .ti-verdict { font-family: var(--mono); font-size: 0.72rem; color: var(--ink); border-top: 1px dashed var(--hairline);
+    margin-top: 0.9rem; padding-top: 0.7rem; }
+  .ti-verdict .ok { color: var(--accent); } .ti-verdict .low { color: var(--bad); }
+
   .exrows { border-bottom: 1px solid var(--hairline); }
   details.exrow { margin-top: 0; border-top: 1px solid var(--hairline); }
   details.exrow summary { text-align: left; text-transform: none; letter-spacing: 0.05em;
@@ -227,6 +256,38 @@
 <h2>The Control</h2>
 <p class="how">A check run by a plain script, not an AI: every exam message is also compressed the dumb way — lowercased, punctuation and articles stripped, numbers left untouched — then counted with the same tokenizer. If the agents' language saved no more than this, it would be inventing nothing. The gap is what the language itself earns.</p>
 <div class="metrics" id="control"></div>
+</div>
+
+<div id="tryit">
+<h2>Try It Yourself</h2>
+<p class="how">Paste a paragraph — a real message, the kind where the details matter. It takes the
+same exam the agents face every third turn: encoded into their language by the compression agent,
+decoded by a stranger model that has only the rulebook, then audited fact by fact. Nothing is
+canned — you are watching the live pipeline run on your words.</p>
+<div class="ti-cap">your message · max 700 characters</div>
+<textarea id="ti-text" maxlength="700" placeholder="e.g. a status update, a set of instructions, an apology with specifics…"></textarea>
+<div class="ti-row">
+  <span class="ti-count"><span id="ti-n">0</span>/700</span>
+  <button id="ti-go">run the exam</button>
+</div>
+<div class="ti-status" id="ti-status"></div>
+<div class="ti-stage enc" id="ti-s1">
+  <div class="lab">encoded in the language — by the compression agent</div>
+  <pre id="ti-encoded"></pre>
+  <div class="ti-tokline" id="ti-tokline"></div>
+</div>
+<div class="ti-stage dec" id="ti-s2">
+  <div class="lab">what the stranger got back — a foreign model, given only the rulebook</div>
+  <pre id="ti-decoded"></pre>
+</div>
+<div class="ti-stage" id="ti-s3">
+  <div class="judg" style="border-top:none;margin-top:0;padding-top:0">
+    <div class="jhead" id="ti-jhead"></div>
+    <ul class="key" id="ti-key"></ul>
+    <div class="k-inv" id="ti-inv" style="display:none"></div>
+  </div>
+  <div class="ti-verdict" id="ti-verdict"></div>
+</div>
 </div>
 
 <h2>The Language So Far</h2>
@@ -569,6 +630,83 @@ setInterval(function () {
       }).join("");
       document.getElementById("control-sect").style.display = "";
     }).catch(function () {});
+})();
+
+(function () {
+  var esc = function (s) {
+    return String(s == null ? "" : s).replace(/[&<>"]/g, function (c) {
+      return {"&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;"}[c];
+    });
+  };
+  var $ = function (id) { return document.getElementById(id); };
+  var pct = function (n) { return (n > 0 ? "+" : "") + n + "%"; };
+  function status(msg, err) {
+    $("ti-status").className = "ti-status" + (err ? " err" : "");
+    $("ti-status").innerHTML = msg ? (err ? esc(msg) : esc(msg) + '<span class="dots"></span>') : "";
+  }
+  function pause(ms) { return new Promise(function (r) { setTimeout(r, ms); }); }
+  function post(url, body) {
+    return fetch(url, { method: "POST", headers: {"Content-Type": "application/json"}, body: JSON.stringify(body) })
+      .then(function (r) { return r.json().then(function (j) { if (!r.ok) throw new Error(j.error || ("http " + r.status)); return j; }); });
+  }
+  $("ti-text").addEventListener("input", function () { $("ti-n").textContent = this.value.length; });
+  $("ti-go").addEventListener("click", async function () {
+    var text = $("ti-text").value.trim();
+    if (text.length < 40) { status("give it a real paragraph — at least 40 characters", true); return; }
+    $("ti-go").disabled = true;
+    ["ti-s1", "ti-s2", "ti-s3"].forEach(function (id) { $(id).style.display = "none"; });
+    try {
+      status("the compression agent is writing your message in the language");
+      var enc = await post("/api/encode", { text: text });
+      await pause(900);
+      $("ti-encoded").textContent = enc.encoded;
+      var save = -enc.delta_pct;
+      $("ti-tokline").innerHTML = enc.orig_tokens + " tokens → <b>" + enc.enc_tokens + " tokens</b> · savings " +
+        pct(save) + " · rulebook v" + esc(enc.rulebook_version);
+      $("ti-s1").style.display = "block";
+
+      status("the stranger is decoding — it has never seen your message, only the rulebook");
+      var dec = await post("/api/decode", { encoded: enc.encoded });
+      await pause(900);
+      $("ti-decoded").textContent = dec.decoded;
+      $("ti-s2").style.display = "block";
+
+      status("the judge is listing what your paragraph had to carry, then checking each fact");
+      var j = await post("/api/judge", { text: text, decoded: dec.decoded });
+      await pause(900);
+      var marks = {};
+      var mark = function (arr, lab) {
+        (arr || []).forEach(function (s) {
+          var m = String(s).match(/^\s*(\d+)/);
+          if (m) marks[m[1]] = {lab: lab, note: String(s).replace(/^\s*\d+\s*[:.]?\s*/, "")};
+        });
+      };
+      mark(j.corrupted, "CORRUPTED");
+      mark(j.missing, "MISSING");
+      $("ti-jhead").textContent = "the judge’s audit — " + j.survived + "/" + j.total + " facts survived";
+      $("ti-key").innerHTML = (j.key || []).map(function (k) {
+        var m = String(k).match(/^\s*(\d+)/);
+        var hit = m && marks[m[1]];
+        return hit
+          ? '<li class="hit">' + esc(k) + ' <span class="k-bad"><b>' + hit.lab + "</b> — " + esc(hit.note) + "</span></li>"
+          : "<li>" + esc(k) + ' <span class="k-ok">✓</span></li>';
+      }).join("");
+      if ((j.invented || []).length) {
+        $("ti-inv").style.display = "block";
+        $("ti-inv").innerHTML = "invented (claims your message never made): " + j.invented.map(esc).join(" · ");
+      } else { $("ti-inv").style.display = "none"; }
+      var cls = j.fidelity >= 80 ? "ok" : "low";
+      $("ti-verdict").innerHTML = 'fidelity <span class="' + cls + '">' + (j.fidelity < 0 ? "unparseable" : j.fidelity + "/100") + "</span>" +
+        " · savings " + pct(save) +
+        (j.mode === "RESPONDED" ? ' · <span class="low">the stranger executed your message instead of relaying it — capped at 15</span>' : "") +
+        (j.lost && j.lost !== "nothing material" ? ' · <span class="low">' + esc(j.lost) + "</span>" : " · nothing material lost");
+      $("ti-s3").style.display = "block";
+      status("");
+    } catch (e) {
+      status(String(e.message || e), true);
+    }
+    $("ti-go").disabled = false;
+  });
 })();
 
 (function () {
