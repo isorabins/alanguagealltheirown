@@ -6418,5 +6418,12 @@
   "type": "measure",
   "text": "** grilled salmon with lemon dill butter",
   "tokens": 8
+ },
+ {
+  "turn": 374,
+  "agent": "B",
+  "type": "message",
+  "content": "**The guardrails are still not adopted.** The decimal crisis and command corruption loopholes remain open because rule\u2011047 and revised rule\u2011032 are pending. We cannot celebrate a -35% win while leaving tenfold numeric errors and corrupted commands possible. The mandate demands robustness.\n\n**ADOPT: rule\u2011047** (underscore decimals) \u2014 proven across voluntary use, makes decimal omission impossible.  \n**ADOPT: revised rule\u2011032** (technical\u2011identifier preservation hierarchy) \u2014 closes command-corruption vector seen in turn\u2011354.\n\nNow the compression frontier. The -35% win came from **aggressive minimal form**, not aliasing. The script\u2019s -17% floor is just punctuation+article stripping; our rule\u2011032 allows dropping more (e.g., \u201crosemary locked in double wrapped for transport\u201d omits commas and \u201cthe\u201d). That\u2019s why we beat it. But prose\u2011heavy payloads still lose because they have fewer droppable tokens.\n\nAliasing is our lever for prose/data payloads, but the measurements show it\u2019s **anti\u2011economic for short strings**. \u201cgrilled salmon with lemon dill butter\u201d (8 tokens) vs. `@protein=...` (12 tokens) \u2014 you need >2 repeats to break even. So the threshold must be **strict**: alias only when `full_text` is long (\u22658 tokens) OR repeats are very high (\u22656). Our earlier threshold (\u22656 tokens OR \u22655 repeats) still risks token waste.\n\n**PROPOSE: rule\u2011054 \u2014 Within a message, the sender may define a short alias for a long or frequently repeated string. To define, write `@name=full_text` on its own line. Thereafter, `@name` may be used in place of the full text. The decoder must substitute the full text. Aliases are local to the message and case\u2011sensitive. The sender should alias only when the full text is \u22658 tokens or appears \u22656 times in the message.**\n\nThis ensures rent is paid. The next live test (turn 375) will likely be data\u2011heavy \u2014 if the encoder uses aliasing, we validate; if not, we may need to embed an example in the rulebook showing the win.\n\nBut first, **adopt the guardrails**. Then we race.\n\n**ADOPT: rule\u2011047**  \n**ADOPT: revised rule\u2011032**",
+  "tokens": 493
  }
 ]

@@ -1,8 +1,8 @@
 {
- "version": "0.151",
- "kernel_tokens": 3182,
- "changes": 151,
- "next_id": 60,
+ "version": "0.152",
+ "kernel_tokens": 3285,
+ "changes": 152,
+ "next_id": 61,
  "rules": [
   {
    "id": "rule-001",
@@ -1568,6 +1568,18 @@
      "turn": 373,
      "agent": "A",
      "why": "1. **Adopt the pending guardrails** \u2014 decimal and command corruption are still uncontained."
+    },
+    {
+     "verb": "adopt",
+     "turn": 374,
+     "agent": "B",
+     "why": "**The guardrails are still not adopted.** The decimal crisis and command corruption loopholes remain open because rule\u2011047 and revised rule\u2011032 are pending. We cannot celebrate a -35% win while leaving tenfold numeric errors and corrupted commands possible. The mandate demands ro"
+    },
+    {
+     "verb": "adopt",
+     "turn": 374,
+     "agent": "B",
+     "why": "**The guardrails are still not adopted.** The decimal crisis and command corruption loopholes remain open because rule\u2011047 and revised rule\u2011032 are pending. We cannot celebrate a -35% win while leaving tenfold numeric errors and corrupted commands possible. The mandate demands ro"
     }
    ]
   },
@@ -2525,6 +2537,18 @@
      "turn": 373,
      "agent": "A",
      "why": "1. **Adopt the pending guardrails** \u2014 decimal and command corruption are still uncontained."
+    },
+    {
+     "verb": "adopt",
+     "turn": 374,
+     "agent": "B",
+     "why": "**The guardrails are still not adopted.** The decimal crisis and command corruption loopholes remain open because rule\u2011047 and revised rule\u2011032 are pending. We cannot celebrate a -35% win while leaving tenfold numeric errors and corrupted commands possible. The mandate demands ro"
+    },
+    {
+     "verb": "adopt",
+     "turn": 374,
+     "agent": "B",
+     "why": "But first, **adopt the guardrails**. Then we race."
     }
    ]
   },
@@ -3056,6 +3080,21 @@
      "why": "We need a rule that **guides toward true savings**: alias only when the full text is **long** (\u22656 tokens) or the repeat count is **high** (\u22655 repeats). Otherwise, minimal form is better."
     },
     "tested turn 372: fid 100, -35%"
+   ]
+  },
+  {
+   "id": "rule-060",
+   "text_en": "rule-054 - Within a message, the sender may define a short alias for a long or frequently repeated string. To define, write `@name=full_text` on its own line. Thereafter, `@name` may be used in place of the full text. The decoder must substitute the full text. Aliases are local to the message and case-sensitive. The sender should alias only when the full text is \u22658 tokens or appears \u22656 times in the message.",
+   "status": "proposed",
+   "proposed_turn": 374,
+   "scores": null,
+   "history": [
+    {
+     "verb": "proposed",
+     "turn": 374,
+     "agent": "B",
+     "why": "Aliasing is our lever for prose/data payloads, but the measurements show it\u2019s **anti\u2011economic for short strings**. \u201cgrilled salmon with lemon dill butter\u201d (8 tokens) vs. `@protein=...` (12 tokens) \u2014 you need >2 repeats to break even. So the threshold must be **strict**: alias onl"
+    }
    ]
   }
  ]
