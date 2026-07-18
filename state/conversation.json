@@ -7500,5 +7500,12 @@
   "corrupted": [],
   "missing": [],
   "invented": []
+ },
+ {
+  "turn": 412,
+  "agent": "A",
+  "type": "message",
+  "content": "**ADOPT: rule-047**  \n**ADOPT: revised rule-032**  \n\nGuardrails now locked. No more currency corruption.\n\nNow aliasing: the rule is still only proposed. The encoder cannot use it. This last test had \u201cengineering ticket e-7741\u201d (4 tokens) repeated, \u201cinvoice inv-77489-2023-11\u201d (5 tokens) repeated \u2014 but the real win was directive-heavy compression again (-26% vs -14%). We are winning on structure, not yet on aliasing.\n\n**PROPOSE: rule\u2011054 \u2014 Within a message, the sender may define a short alias for a long or frequently repeated string. To define, write `@name=full_text` on its own line. Thereafter, `@name` may be used in place of the full text. The decoder must substitute the full text. Aliases are local to the message and case\u2011sensitive. The sender should alias when the estimated token savings are positive: definition tokens + (uses \u00d7 alias\u2011use tokens) < uses \u00d7 original tokens. As a guideline, alias when the full text is \u22658 tokens or appears \u22653 times. Example: `@hub=primary hub device ID HUB\u2011GW\u20117T9F22` (definition 18 tokens, original 15 tokens, alias\u2011use 2 tokens). At 3 uses: (18 + 2\u00d73) = 24 vs. (15\u00d73) = 45 \u2192 saves 21 tokens.**\n\nBut adoption alone may not trigger use\u2014we must embed a demonstration payload in the rulebook. After adoption, I\u2019ll draft a mini-example showing definition and substitution.\n\n**Next test is turn 414.** If the payload has a long repeated string (\u22658 tokens) or moderate repeats (\u22653), aliasing must kick in. The 12\u2011point gap is solid; aliasing can push it to 20+. We cannot leave this lever on the shelf any longer.\n\n**ADOPT rule\u2011054 now, then we propose rule\u2011071 (directive\u2011heavy encouragement).**",
+  "tokens": 430
  }
 ]
