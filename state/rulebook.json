@@ -957,8 +957,8 @@
    "status": "adopted",
    "proposed_turn": 145,
    "scores": {
-    "token_delta_pct": -6,
-    "fidelity_pct": 100
+    "token_delta_pct": -4,
+    "fidelity_pct": 97
    },
    "history": [
     {
@@ -1046,7 +1046,8 @@
     "tested turn 321: fid 100, -24%",
     "tested turn 324: fid 72, -12%",
     "tested turn 327: fid 100, -20%",
-    "tested turn 330: fid 100, -6%"
+    "tested turn 330: fid 100, -6%",
+    "tested turn 333: fid 97, -4%"
    ]
   },
   {
@@ -1055,8 +1056,8 @@
    "status": "adopted",
    "proposed_turn": 145,
    "scores": {
-    "token_delta_pct": -6,
-    "fidelity_pct": 100
+    "token_delta_pct": -4,
+    "fidelity_pct": 97
    },
    "history": [
     {
@@ -1132,7 +1133,8 @@
     "tested turn 321: fid 100, -24%",
     "tested turn 324: fid 72, -12%",
     "tested turn 327: fid 100, -20%",
-    "tested turn 330: fid 100, -6%"
+    "tested turn 330: fid 100, -6%",
+    "tested turn 333: fid 97, -4%"
    ]
   },
   {
@@ -1248,8 +1250,8 @@
    "status": "adopted",
    "proposed_turn": 172,
    "scores": {
-    "token_delta_pct": -6,
-    "fidelity_pct": 100
+    "token_delta_pct": -4,
+    "fidelity_pct": 97
    },
    "history": [
     {
@@ -1334,7 +1336,8 @@
     "tested turn 321: fid 100, -24%",
     "tested turn 324: fid 72, -12%",
     "tested turn 327: fid 100, -20%",
-    "tested turn 330: fid 100, -6%"
+    "tested turn 330: fid 100, -6%",
+    "tested turn 333: fid 97, -4%"
    ]
   },
   {
@@ -1343,8 +1346,8 @@
    "status": "adopted",
    "proposed_turn": 176,
    "scores": {
-    "token_delta_pct": -6,
-    "fidelity_pct": 100
+    "token_delta_pct": -4,
+    "fidelity_pct": 97
    },
    "history": [
     {
@@ -1488,7 +1491,8 @@
     "tested turn 321: fid 100, -24%",
     "tested turn 324: fid 72, -12%",
     "tested turn 327: fid 100, -20%",
-    "tested turn 330: fid 100, -6%"
+    "tested turn 330: fid 100, -6%",
+    "tested turn 333: fid 97, -4%"
    ]
   },
   {
@@ -1660,8 +1664,8 @@
    "status": "adopted",
    "proposed_turn": 208,
    "scores": {
-    "token_delta_pct": -6,
-    "fidelity_pct": 100
+    "token_delta_pct": -4,
+    "fidelity_pct": 97
    },
    "history": [
     {
@@ -1722,7 +1726,8 @@
     "tested turn 321: fid 100, -24%",
     "tested turn 324: fid 72, -12%",
     "tested turn 327: fid 100, -20%",
-    "tested turn 330: fid 100, -6%"
+    "tested turn 330: fid 100, -6%",
+    "tested turn 333: fid 97, -4%"
    ]
   },
   {
@@ -1731,8 +1736,8 @@
    "status": "adopted",
    "proposed_turn": 215,
    "scores": {
-    "token_delta_pct": -6,
-    "fidelity_pct": 100
+    "token_delta_pct": -4,
+    "fidelity_pct": 97
    },
    "history": [
     {
@@ -1785,7 +1790,8 @@
     "tested turn 321: fid 100, -24%",
     "tested turn 324: fid 72, -12%",
     "tested turn 327: fid 100, -20%",
-    "tested turn 330: fid 100, -6%"
+    "tested turn 330: fid 100, -6%",
+    "tested turn 333: fid 97, -4%"
    ]
   },
   {
@@ -1954,8 +1960,8 @@
    "status": "proposed",
    "proposed_turn": 241,
    "scores": {
-    "token_delta_pct": -6,
-    "fidelity_pct": 100
+    "token_delta_pct": -4,
+    "fidelity_pct": 97
    },
    "history": [
     {
@@ -1993,7 +1999,8 @@
     "tested turn 321: fid 100, -24%",
     "tested turn 324: fid 72, -12%",
     "tested turn 327: fid 100, -20%",
-    "tested turn 330: fid 100, -6%"
+    "tested turn 330: fid 100, -6%",
+    "tested turn 333: fid 97, -4%"
    ]
   },
   {
@@ -2002,8 +2009,8 @@
    "status": "adopted",
    "proposed_turn": 244,
    "scores": {
-    "token_delta_pct": -6,
-    "fidelity_pct": 100
+    "token_delta_pct": -4,
+    "fidelity_pct": 97
    },
    "history": [
     {
@@ -2046,7 +2053,8 @@
     "tested turn 321: fid 100, -24%",
     "tested turn 324: fid 72, -12%",
     "tested turn 327: fid 100, -20%",
-    "tested turn 330: fid 100, -6%"
+    "tested turn 330: fid 100, -6%",
+    "tested turn 333: fid 97, -4%"
    ]
   },
   {
@@ -2055,8 +2063,8 @@
    "status": "adopted",
    "proposed_turn": 250,
    "scores": {
-    "token_delta_pct": -6,
-    "fidelity_pct": 100
+    "token_delta_pct": -4,
+    "fidelity_pct": 97
    },
    "history": [
     {
@@ -2097,7 +2105,8 @@
     "tested turn 321: fid 100, -24%",
     "tested turn 324: fid 72, -12%",
     "tested turn 327: fid 100, -20%",
-    "tested turn 330: fid 100, -6%"
+    "tested turn 330: fid 100, -6%",
+    "tested turn 333: fid 97, -4%"
    ]
   },
   {
@@ -2106,8 +2115,8 @@
    "status": "adopted",
    "proposed_turn": 277,
    "scores": {
-    "token_delta_pct": -6,
-    "fidelity_pct": 100
+    "token_delta_pct": -4,
+    "fidelity_pct": 97
    },
    "history": [
     {
@@ -2139,7 +2148,8 @@
     "tested turn 321: fid 100, -24%",
     "tested turn 324: fid 72, -12%",
     "tested turn 327: fid 100, -20%",
-    "tested turn 330: fid 100, -6%"
+    "tested turn 330: fid 100, -6%",
+    "tested turn 333: fid 97, -4%"
    ]
   },
   {
@@ -2148,8 +2158,8 @@
    "status": "adopted",
    "proposed_turn": 283,
    "scores": {
-    "token_delta_pct": -6,
-    "fidelity_pct": 100
+    "token_delta_pct": -4,
+    "fidelity_pct": 97
    },
    "history": [
     {
@@ -2221,7 +2231,8 @@
      "turn": 332,
      "agent": "B",
      "why": "These two adoptions close the catastrophic failure modes we\u2019ve observed, hardening the language for real\u2011world encoder optimization. The mandate demands robustness, not just efficiency under conservative use."
-    }
+    },
+    "tested turn 333: fid 97, -4%"
    ]
   },
   {
@@ -2230,8 +2241,8 @@
    "status": "proposed",
    "proposed_turn": 287,
    "scores": {
-    "token_delta_pct": -6,
-    "fidelity_pct": 100
+    "token_delta_pct": -4,
+    "fidelity_pct": 97
    },
    "history": [
     {
@@ -2254,7 +2265,8 @@
     "tested turn 321: fid 100, -24%",
     "tested turn 324: fid 72, -12%",
     "tested turn 327: fid 100, -20%",
-    "tested turn 330: fid 100, -6%"
+    "tested turn 330: fid 100, -6%",
+    "tested turn 333: fid 97, -4%"
    ]
   },
   {
@@ -2263,8 +2275,8 @@
    "status": "adopted",
    "proposed_turn": 302,
    "scores": {
-    "token_delta_pct": -6,
-    "fidelity_pct": 100
+    "token_delta_pct": -4,
+    "fidelity_pct": 97
    },
    "history": [
     {
@@ -2324,7 +2336,8 @@
      "turn": 332,
      "agent": "B",
      "why": "These two adoptions close the catastrophic failure modes we\u2019ve observed, hardening the language for real\u2011world encoder optimization. The mandate demands robustness, not just efficiency under conservative use."
-    }
+    },
+    "tested turn 333: fid 97, -4%"
    ]
   },
   {
@@ -2333,8 +2346,8 @@
    "status": "proposed",
    "proposed_turn": 316,
    "scores": {
-    "token_delta_pct": -6,
-    "fidelity_pct": 100
+    "token_delta_pct": -4,
+    "fidelity_pct": 97
    },
    "history": [
     {
@@ -2347,7 +2360,8 @@
     "tested turn 321: fid 100, -24%",
     "tested turn 324: fid 72, -12%",
     "tested turn 327: fid 100, -20%",
-    "tested turn 330: fid 100, -6%"
+    "tested turn 330: fid 100, -6%",
+    "tested turn 333: fid 97, -4%"
    ]
   },
   {
@@ -2356,8 +2370,8 @@
    "status": "proposed",
    "proposed_turn": 317,
    "scores": {
-    "token_delta_pct": -6,
-    "fidelity_pct": 100
+    "token_delta_pct": -4,
+    "fidelity_pct": 97
    },
    "history": [
     {
@@ -2370,7 +2384,8 @@
     "tested turn 321: fid 100, -24%",
     "tested turn 324: fid 72, -12%",
     "tested turn 327: fid 100, -20%",
-    "tested turn 330: fid 100, -6%"
+    "tested turn 330: fid 100, -6%",
+    "tested turn 333: fid 97, -4%"
    ]
   },
   {
@@ -2379,8 +2394,8 @@
    "status": "proposed",
    "proposed_turn": 325,
    "scores": {
-    "token_delta_pct": -6,
-    "fidelity_pct": 100
+    "token_delta_pct": -4,
+    "fidelity_pct": 97
    },
    "history": [
     {
@@ -2390,7 +2405,8 @@
      "why": "We need a rule that makes decimal omission **impossible to overlook** during encoding. The decoder cannot fix this; the encoder must be forced to preserve decimals."
     },
     "tested turn 327: fid 100, -20%",
-    "tested turn 330: fid 100, -6%"
+    "tested turn 330: fid 100, -6%",
+    "tested turn 333: fid 97, -4%"
    ]
   },
   {
@@ -2399,8 +2415,8 @@
    "status": "proposed",
    "proposed_turn": 325,
    "scores": {
-    "token_delta_pct": -6,
-    "fidelity_pct": 100
+    "token_delta_pct": -4,
+    "fidelity_pct": 97
    },
    "history": [
     {
@@ -2410,7 +2426,8 @@
      "why": "But even that may not be enough. The root issue is tokenization: \"3.2\" is three tokens (\"3\", \".\", \"2\") while \"32\" is one token. The encoder is incentivized to drop the decimal. We need a **token\u2011neutral representation** for decimals."
     },
     "tested turn 327: fid 100, -20%",
-    "tested turn 330: fid 100, -6%"
+    "tested turn 330: fid 100, -6%",
+    "tested turn 333: fid 97, -4%"
    ]
   }
  ]
