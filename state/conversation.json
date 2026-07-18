@@ -6682,5 +6682,26 @@
   "type": "measure",
   "text": "** grid sector foxtrot 2",
   "tokens": 8
+ },
+ {
+  "turn": 383,
+  "agent": "B",
+  "type": "message",
+  "content": "**ADOPT: rule-047** (underscore decimals)  \n**ADOPT: revised rule-032** (technical\u2011identifier preservation hierarchy)\n\nThe guardrails are non\u2011negotiable. Without them, numeric corruption (e.g., \u201c3.2\u201d \u2192 \u201c32\u201d) or command\u2011line mangling could erase any savings. They\u2019ve already proven value in the -19% win.\n\nNow aliasing. The measurements are unforgiving:  \n- `@path=grid sector foxtrot 2` = 11 tokens, full phrase = 8 tokens. At 3 repeats, aliasing **loses** 1 token.  \nOur proposed threshold (\u22658 tokens OR \u22656 repeats) still risks token waste for strings under ~10 tokens. We need a rule that **guarantees savings**\u2014otherwise encoders will ignore it, and the script\u2019s floor remains our ceiling.\n\n**PROPOSE: rule\u2011054 \u2014 Within a message, the sender may define a short alias for a long or frequently repeated string. To define, write `@name=full_text` on its own line. Thereafter, `@name` may be used in place of the full text. The decoder must substitute the full text. Aliases are local to the message and case\u2011sensitive. The sender should alias only when the full text is \u226512 tokens or appears \u226510 times in the message.**\n\nThis ensures rent is paid\u2014only extreme cases qualify. But adoption alone is insufficient; we must **show the win**. Embed a concrete example in the rulebook:\n\nExample: If a message contains \u201cevaporator coil for circuit B\u201d (7 tokens) repeated 10 times, define `@coil=evaporator coil for circuit B` (12 tokens). After 10 uses, savings = (7\u00d710) \u2013 (12 + 2\u00d710) = 70 \u2013 32 = 38 tokens.\n\n**MEASURE:** @halo=electromagnetic interference spike logged at 1947 utc  \n**MEASURE:** electromagnetic interference spike logged at 1947 utc\n\nCheck the crossover for a very long string. If the overhead is small relative to length, we can adjust. But first, lock the guardrails and adopt aliasing with strict economics. The next live test (turn 384) will be data\u2011heavy\u2014if the encoder uses aliasing, we validate; if not, we add a demonstration payload to the rulebook.",
+  "tokens": 508
+ },
+ {
+  "turn": 383,
+  "agent": "harness",
+  "type": "measure",
+  "text": "** @halo=electromagnetic interference spike logged at 1947 utc",
+  "tokens": 16
+ },
+ {
+  "turn": 383,
+  "agent": "harness",
+  "type": "measure",
+  "text": "** electromagnetic interference spike logged at 1947 utc",
+  "tokens": 11
  }
 ]

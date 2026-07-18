@@ -1,8 +1,8 @@
 {
- "version": "0.157",
- "kernel_tokens": 3412,
- "changes": 157,
- "next_id": 62,
+ "version": "0.158",
+ "kernel_tokens": 3515,
+ "changes": 158,
+ "next_id": 63,
  "rules": [
   {
    "id": "rule-001",
@@ -1622,6 +1622,12 @@
      "turn": 382,
      "agent": "A",
      "why": "Then **ADOPT rule\u2011054** with strict economics."
+    },
+    {
+     "verb": "adopt",
+     "turn": 383,
+     "agent": "B",
+     "why": ""
     }
    ]
   },
@@ -2642,6 +2648,12 @@
      "turn": 382,
      "agent": "A",
      "why": "Then **ADOPT rule\u2011054** with strict economics."
+    },
+    {
+     "verb": "adopt",
+     "turn": 383,
+     "agent": "B",
+     "why": ""
     }
    ]
   },
@@ -3250,6 +3262,21 @@
     },
     "tested turn 378: fid 100, -19%",
     "tested turn 381: fid 100, -12%"
+   ]
+  },
+  {
+   "id": "rule-062",
+   "text_en": "rule-054 - Within a message, the sender may define a short alias for a long or frequently repeated string. To define, write `@name=full_text` on its own line. Thereafter, `@name` may be used in place of the full text. The decoder must substitute the full text. Aliases are local to the message and case-sensitive. The sender should alias only when the full text is \u226512 tokens or appears \u226510 times in the message.",
+   "status": "proposed",
+   "proposed_turn": 383,
+   "scores": null,
+   "history": [
+    {
+     "verb": "proposed",
+     "turn": 383,
+     "agent": "B",
+     "why": "Now aliasing. The measurements are unforgiving:   - `@path=grid sector foxtrot 2` = 11 tokens, full phrase = 8 tokens. At 3 repeats, aliasing **loses** 1 token.   Our proposed threshold (\u22658 tokens OR \u22656 repeats) still risks token waste for strings under ~10 tokens. We need a rule"
+    }
    ]
   }
  ]
