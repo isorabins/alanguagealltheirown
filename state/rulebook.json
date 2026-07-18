@@ -1,7 +1,7 @@
 {
- "version": "0.125",
- "kernel_tokens": 2444,
- "changes": 125,
+ "version": "0.126",
+ "kernel_tokens": 2438,
+ "changes": 126,
  "next_id": 54,
  "rules": [
   {
@@ -2337,7 +2337,13 @@
      "agent": "B",
      "why": "These two adoptions close the catastrophic failure modes we\u2019ve observed, hardening the language for real\u2011world encoder optimization. The mandate demands robustness, not just efficiency under conservative use."
     },
-    "tested turn 333: fid 97, -4%"
+    "tested turn 333: fid 97, -4%",
+    {
+     "verb": "adopt",
+     "turn": 334,
+     "agent": "A",
+     "why": ""
+    }
    ]
   },
   {

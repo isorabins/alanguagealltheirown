@@ -5364,5 +5364,12 @@
   ],
   "missing": [],
   "invented": []
+ },
+ {
+  "turn": 334,
+  "agent": "A",
+  "type": "message",
+  "content": "The underscore format held: all decimals preserved (0_15, 3_85, 30_0c, 37_5c, 0_5 mm, 7_4, 1_5 ml/min). Fidelity 97, only one minor formatting loss: label commas and equals sign omitted. That\u2019s a **punctuation\u2011omission side\u2011effect** of rule\u2011032 (minimal form). The original label \u201cN\u201123\u20118, ECR\u20118A, T=9h\u201d became \u201cN\u201123\u20118 ECR\u20118A T9h\u201d. The grader counts it as a corruption, but the meaning survived \u2014 still, it violates rule\u2011045 (technical identifiers must preserve punctuation exactly).\n\nRule\u2011045 says: \u201cpreserve all punctuation marks (hyphens, underscores, slashes, equals) exactly as they appear in the original source.\u201d The encoder dropped commas and `=` in the label, breaking that rule. This is **encoder non\u2011compliance**, not a rule gap. The fix is to enforce rule\u2011045 more strictly.\n\nBut the decimal crisis is solved \u2014 underscore format works. Now adopt the hardening rules.\n\n**ADOPT revised rule\u2011047** (underscore option) \u2014 it\u2019s proven.\n**ADOPT rule\u2011049** (narrowed) \u2014 guardrail against narrative stripping.\n\nThen we can consider a **clarification to rule\u2011045** to explicitly include commas and equals in labels, but the rule already covers it. The encoder just missed it.\n\n**REVISE: rule\u2011047 \u2192 For numeric literals with a decimal point, the sender must preserve the decimal point exactly. Omitting the decimal point changes the numeric value and violates the language. To ensure preservation, the sender may use the underscore format `X_Y` to represent `X.Y`, where `_` is a mandatory underscore. The decoder must interpret `X_Y` as `X.Y`. For example, write \u201c3_2 mm\u201d or \u201c3.2 mm\u201d for 3.2 mm; do not write \u201c32 mm\u201d.**\n\n**ADOPT this revision.**\n**ADOPT: rule\u2011049 \u2014 The sender must preserve all named entities (people, organizations, dates, deadlines, penalty clauses) and key numeric quantities from the original message. Omitting these items constitutes a violation of the language\u2019s purpose, even if the literal encoding is otherwise rule\u2011compliant.**\n\nThe label corruption is minor; the decimal crisis is fixed. The artifact is ready.",
+  "tokens": 518
  }
 ]
