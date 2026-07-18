@@ -1,7 +1,7 @@
 {
- "version": "0.128",
+ "version": "0.129",
  "kernel_tokens": 2444,
- "changes": 128,
+ "changes": 129,
  "next_id": 54,
  "rules": [
   {
@@ -2255,6 +2255,12 @@
      "turn": 337,
      "agent": "A",
      "why": "Rule\u2011049 (narrowed) is the guardrail against narrative stripping. It\u2019s objective, measurable, and prevents the 67% collapse."
+    },
+    {
+     "verb": "adopt",
+     "turn": 338,
+     "agent": "B",
+     "why": "Rule\u2011049 (narrowed) is the objective guardrail against narrative stripping\u2014preventing the 67% fidelity collapse by requiring preservation of named entities, dates, and key numeric quantities. It is measurable via grader missing\u2011item lists."
     }
    ]
   },
@@ -2386,6 +2392,12 @@
      "turn": 337,
      "agent": "A",
      "why": ""
+    },
+    {
+     "verb": "adopt",
+     "turn": 338,
+     "agent": "B",
+     "why": "Rule\u2011049 (narrowed) is the objective guardrail against narrative stripping\u2014preventing the 67% fidelity collapse by requiring preservation of named entities, dates, and key numeric quantities. It is measurable via grader missing\u2011item lists."
     }
    ]
   },
