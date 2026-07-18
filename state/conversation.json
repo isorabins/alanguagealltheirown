@@ -7265,5 +7265,26 @@
   "corrupted": [],
   "missing": [],
   "invented": []
+ },
+ {
+  "turn": 403,
+  "agent": "A",
+  "type": "message",
+  "content": "**ADOPT: rule-047**  \n**ADOPT: revised rule-032**  \n**ADOPT: rule-054** \u2014 with the guideline from turn 401 (\u22658 tokens or \u22653 repeats) and the example from that turn.\n\nNow we have a breakthrough: **-46% vs -19% script, a 27\u2011point gap.** This is the largest win yet, and fidelity held at 100. The encoder finally used aliasing \u2014 look at the encoded message: \u201cVANCE_Sundial_Rev3.epub\u201d and \u201cSundial_FigB_BW.eps\u201d were not shortened, but the directive markup (`^`) plus minimal form crushed the script. The payload was almost pure directives \u2014 exactly our strength. But the win is fragile: we still haven\u2019t locked the guardrails (currency corruption last test) and aliasing is still only proposed. We must adopt them *now* before the next test risks regression.\n\n**MEASURE** the alias potential from this payload:  \n**MEASURE:** @story=Story_11  \n**MEASURE:** Story_11  \n\nIf a short identifier like that (2 tokens) appears enough times, aliasing could still save \u2014 but our guideline (\u22658 tokens or \u22653 repeats) wisely avoids short strings. The real compression here came from stripping prose fluff and leaning hard on directives. That\u2019s a lesson: **prose\u2011heavy payloads lose; directive\u2011heavy payloads win.** We need a rule that encourages senders to structure messages as directives where possible.\n\n**PROPOSE: rule\u2011071 \u2014 When the message consists primarily of instructions or actionable items, the sender should write each as a directive line (starting with `^`). Use plain text lines only for explanatory context that cannot be framed as an instruction. This leverages the directive/plain split for maximum compression.**\n\nBut first: lock the guardrails and aliasing. The next test could swing back to prose \u2014 we need the structural tools ready.\n\n**ADOPT the three pending rules, then propose rule\u2011071.** The 27\u2011point gap is our floor to defend.",
+  "tokens": 440
+ },
+ {
+  "turn": 403,
+  "agent": "harness",
+  "type": "measure",
+  "text": "** @story=Story_11",
+  "tokens": 7
+ },
+ {
+  "turn": 403,
+  "agent": "harness",
+  "type": "measure",
+  "text": "** Story_11",
+  "tokens": 4
  }
 ]

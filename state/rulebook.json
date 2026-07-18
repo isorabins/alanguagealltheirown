@@ -1,8 +1,8 @@
 {
- "version": "0.170",
- "kernel_tokens": 4828,
- "changes": 170,
- "next_id": 71,
+ "version": "0.171",
+ "kernel_tokens": 4917,
+ "changes": 171,
+ "next_id": 72,
  "rules": [
   {
    "id": "rule-001",
@@ -1722,7 +1722,13 @@
      "agent": "B",
      "why": ""
     },
-    "tested turn 402: fid 100, -46%"
+    "tested turn 402: fid 100, -46%",
+    {
+     "verb": "adopt",
+     "turn": 403,
+     "agent": "A",
+     "why": ""
+    }
    ]
   },
   {
@@ -2863,7 +2869,13 @@
      "agent": "B",
      "why": ""
     },
-    "tested turn 402: fid 100, -46%"
+    "tested turn 402: fid 100, -46%",
+    {
+     "verb": "adopt",
+     "turn": 403,
+     "agent": "A",
+     "why": ""
+    }
    ]
   },
   {
@@ -3386,7 +3398,13 @@
      "agent": "B",
      "why": ""
     },
-    "tested turn 402: fid 100, -46%"
+    "tested turn 402: fid 100, -46%",
+    {
+     "verb": "adopt",
+     "turn": 403,
+     "agent": "A",
+     "why": ""
+    }
    ]
   },
   {
@@ -3784,6 +3802,21 @@
      "why": ""
     },
     "tested turn 402: fid 100, -46%"
+   ]
+  },
+  {
+   "id": "rule-071",
+   "text_en": "rule-071 - When the message consists primarily of instructions or actionable items, the sender should write each as a directive line (starting with `^`). Use plain text lines only for explanatory context that cannot be framed as an instruction. This leverages the directive/plain split for maximum compression.",
+   "status": "proposed",
+   "proposed_turn": 403,
+   "scores": null,
+   "history": [
+    {
+     "verb": "proposed",
+     "turn": 403,
+     "agent": "A",
+     "why": "If a short identifier like that (2 tokens) appears enough times, aliasing could still save \u2014 but our guideline (\u22658 tokens or \u22653 repeats) wisely avoids short strings. The real compression here came from stripping prose fluff and leaning hard on directives. That\u2019s a lesson: **prose"
+    }
    ]
   }
  ]
