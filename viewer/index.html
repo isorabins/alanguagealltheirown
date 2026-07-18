@@ -43,7 +43,7 @@
   .statement em { color: var(--ink); }
 
   .metrics {
-    display: flex; justify-content: center; flex-wrap: wrap; gap: 2.6rem;
+    display: flex; justify-content: center; flex-wrap: wrap; gap: 2.2rem;
     font-family: var(--mono); font-size: 0.68rem; letter-spacing: 0.08em;
     color: var(--ink-faint); text-transform: uppercase; text-align: center;
     border-top: 1px solid var(--hairline); border-bottom: 1px solid var(--hairline);
@@ -111,8 +111,7 @@
   .decision .why { color: var(--ink-dim); font-style: italic; font-size: 0.84rem; margin-top: 0.45rem; }
   .decision .who { font-family: var(--mono); font-size: 0.62rem; color: var(--ink-faint); margin-top: 0.5rem; }
 
-  .kernel-note { text-align: center; font-family: var(--mono); font-size: 0.68rem; color: var(--ink-faint); margin: -0.4rem 0 1.2rem; }
-  .rule-card { border: 1px solid var(--hairline); border-left: 2px solid var(--accent); padding: 1.1rem 1.3rem; margin-bottom: 1rem; }
+  .rule-card { border: 1px solid var(--hairline); border-left: 2px solid var(--accent); padding: 1.1rem 1.3rem; margin: 0 0 1rem; }
   .rule-card .rtext { font-size: 0.98rem; }
   .rule-card .ev { font-family: var(--mono); font-size: 0.64rem; color: var(--ink-faint); letter-spacing: 0.06em; margin-top: 0.6rem; }
   .rule-card .ev b { color: var(--accent); font-weight: 400; }
@@ -120,19 +119,38 @@
   .empty { text-align: center; color: var(--ink-faint); font-style: italic; font-size: 0.9rem; }
 
   .tx { border: 1px solid var(--hairline); padding: 1.2rem 1.4rem; }
-  .tx-head { font-family: var(--mono); font-size: 0.64rem; color: var(--ink-faint); letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 0.9rem; text-align: center; }
+  .tx-head { font-family: var(--mono); font-size: 0.64rem; color: var(--ink-faint); letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 0.2rem; text-align: center; }
   .tx-head .ok { color: var(--accent); } .tx-head .low { color: var(--bad); }
   .tx-cols { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1.4rem; }
   .tx-col .lab { font-family: var(--mono); font-size: 0.6rem; letter-spacing: 0.18em; text-transform: uppercase; color: var(--ink-faint); margin-bottom: 0.4rem; }
   .tx-col pre { font-family: var(--mono); font-size: 0.7rem; line-height: 1.6; white-space: pre-wrap; word-wrap: break-word; color: var(--ink); }
   .tx-col.enc pre { color: var(--accent); }
   .tx-col.dec pre { color: var(--ink-dim); }
-  .tx-verdict { font-family: var(--mono); font-size: 0.66rem; color: var(--ink-dim); border-top: 1px dashed var(--hairline); margin-top: 1rem; padding-top: 0.7rem; }
-  .tx-verdict .bad-t { color: var(--bad); }
 
-  .grave { list-style: none; }
+  .judg { margin-top: 1.1rem; border-top: 1px dashed var(--hairline); padding-top: 0.9rem; }
+  .judg .jhead { font-family: var(--mono); font-size: 0.64rem; letter-spacing: 0.16em; text-transform: uppercase; color: var(--ink-dim); margin-bottom: 0.7rem; }
+  .judg ul.key { list-style: none; }
+  .judg ul.key li { font-family: var(--mono); font-size: 0.7rem; line-height: 1.6; color: var(--ink-faint); padding: 0.16rem 0; }
+  .judg ul.key li.hit { color: var(--ink); }
+  .judg .k-ok { color: var(--ink-faint); }
+  .judg .k-bad { color: var(--bad); }
+  .judg .k-bad b { font-weight: 400; letter-spacing: 0.14em; font-size: 0.62rem; }
+  .judg .k-inv { font-family: var(--mono); font-size: 0.7rem; line-height: 1.6; color: var(--bad); margin-top: 0.6rem; }
+  .judg .jdec { font-family: var(--mono); font-size: 0.62rem; color: var(--ink-faint); margin-top: 0.7rem; }
+  .judg .jhold { font-family: var(--mono); font-size: 0.7rem; color: var(--ink-dim); line-height: 1.6; }
+
+  .exrows { border-bottom: 1px solid var(--hairline); }
+  details.exrow { margin-top: 0; border-top: 1px solid var(--hairline); }
+  details.exrow summary { text-align: left; text-transform: none; letter-spacing: 0.05em;
+    font-size: 0.7rem; color: var(--ink-dim); padding: 0.68rem 0.5rem; }
+  details.exrow summary .bad-f { color: var(--bad); }
+  .exrow-body { padding: 0.2rem 0.5rem 1.4rem; }
+  .exrow-body .judg { border-top: none; margin-top: 0.4rem; padding-top: 0; }
+  .exrow-body .tx-cols { margin-top: 1.2rem; border-top: 1px dashed var(--hairline); padding-top: 1.2rem; }
+
+  .grave { list-style: none; padding: 0 0.2rem 0.8rem; }
   .grave li { border-top: 1px solid var(--hairline); padding: 0.75rem 0.2rem; font-size: 0.9rem; color: var(--ink-dim); }
-  .grave li:last-child { border-bottom: 1px solid var(--hairline); }
+  .grave li:first-child { border-top: none; }
   .grave .rtext { text-decoration: line-through; text-decoration-color: rgba(176,112,79,0.55); }
   .grave .kill { font-family: var(--mono); font-size: 0.64rem; color: var(--bad); margin-left: 0.5rem; white-space: nowrap; }
   .grave .why { display: block; font-style: italic; font-size: 0.8rem; color: var(--ink-faint); margin-top: 0.3rem; }
@@ -146,6 +164,10 @@
     font-size: 0.68rem; letter-spacing: 0.24em; text-transform: uppercase; color: var(--ink-faint);
   }
   summary:hover { color: var(--ink); }
+  details.sect { margin-top: 0.2rem; border-bottom: 1px solid var(--hairline); }
+  details.inline { margin-top: 1.2rem; border-top: 1px dashed var(--hairline); }
+  details.inline summary { font-size: 0.62rem; padding: 0.8rem 0 0.2rem; }
+  details.inline .tx-cols { margin-top: 1rem; }
   .hist { padding: 1rem 0.4rem; }
   .hist .m { max-width: 46rem; }
   .hist .m.A { margin-right: auto; }
@@ -160,7 +182,11 @@
     text-transform: uppercase; text-align: center; }
   footer a { color: inherit; text-decoration: underline; text-underline-offset: 3px; }
   footer a:hover { color: #c9a86a; }
-  @media (max-width: 760px) { .panes, .decisions, .tx-cols { grid-template-columns: 1fr; } .pane { height: 340px; } }
+  @media (max-width: 760px) {
+    .panes, .decisions, .tx-cols { grid-template-columns: 1fr; }
+    .pane { height: 340px; }
+    .timers { gap: 2rem; }
+  }
 </style>
 </head>
 <body>
@@ -174,57 +200,71 @@
 
 <div class="timers">
   <div><span class="tval" id="t-turn">--:--</span><span class="tlab">next turn</span></div>
-  <div><span class="tval" id="t-test">--:--</span><span class="tlab">next live test</span></div>
+  <div><span class="tval" id="t-test">--:--</span><span class="tlab">next exam</span></div>
 </div>
 <p class="timers-cap">The agents take one turn every 15 minutes, around the clock. Every third turn, a message they have never seen must survive the round trip through their language.</p>
 
 <div class="metrics" id="metrics"></div>
-<div class="legend"><b>fidelity</b> — % of meaning that survives a stranger's decode (100 = perfect relay, 0 = lost or invented) &nbsp;·&nbsp; <b>savings</b> — how much cheaper than plain English (negative = the language currently costs extra)</div>
+<div class="legend"><b>fidelity</b> — % of meaning that survives a stranger's decode (100 = perfect relay, 0 = lost or invented) &nbsp;·&nbsp; <b>savings</b> — how much cheaper than plain English (negative = the language currently costs extra) &nbsp;·&nbsp; <b>passing</b> = fidelity ≥ 90 — savings only count when the meaning survived</div>
 
 <h2>The Negotiation, Live</h2>
-<p class="how">Agent A pushes to make every message cheaper. Agent B blocks anything a stranger couldn't decode. Rules get proposed, argued, and voted on here — the dashed lines are test results arriving.</p>
+<p class="how">Agent A pushes to make every message cheaper. Agent B blocks anything a stranger couldn't decode. Rules get proposed, argued, and voted on here — the dashed lines are exam results arriving.</p>
 <div class="panes">
   <div class="pane"><div class="pane-head">Agent A — argues for compression</div><div class="pane-body" id="paneA"></div></div>
   <div class="pane"><div class="pane-head">Agent B — argues for accuracy</div><div class="pane-body" id="paneB"></div></div>
 </div>
 <div class="decisions" id="decisions"></div>
 
+<h2>The Latest Exam</h2>
+<p class="how">Every exam ships with an answer key — the numbered facts the message must carry. The judge marks each one survived, corrupted, or missing in what the stranger produced; the score is a checklist, not an impression. The encoded version is allowed to look nothing like the original: it can reorder, restructure, and drop every word that isn't carrying meaning.</p>
+<div class="tx" id="tx"></div>
+
+<h2>Exam History</h2>
+<p class="how">The last fifteen exams, newest first. Open any row for the judge's full audit and all three texts — original, encoded, decoded.</p>
+<div class="exrows" id="exams"></div>
+
+<div id="control-sect" style="display:none">
+<h2>The Control</h2>
+<p class="how">A check run by a plain script, not an AI: every exam message is also compressed the dumb way — lowercased, punctuation and articles stripped, numbers left untouched — then counted with the same tokenizer. If the agents' language saved no more than this, it would be inventing nothing. The gap is what the language itself earns.</p>
+<div class="metrics" id="control"></div>
+</div>
+
+<h2>The Language So Far</h2>
+<p class="how">Every rule that survived testing, with the agents' own reasoning for adopting it.</p>
+<details class="sect">
+  <summary id="lang-sum">the rulebook</summary>
+  <div id="adopted"></div>
+</details>
+
+<h2>Proposed, Not Yet Tested</h2>
+<p class="how">Rules currently under debate, waiting for the next exam to prove or kill them.</p>
+<ul class="table-note" id="proposed"></ul>
+
 <h2>How This Works</h2>
 <p class="how">Five separate AI roles. No human writes or edits the language.</p>
 <div id="cast">
   <div class="note"><span class="nd">the negotiators</span>Agents A and B, talking above, one turn every 15 minutes. A wants every message cheaper. B refuses to lose meaning. Together, and only together, they write the rulebook.</div>
-  <div class="note"><span class="nd">the test writer</span>Every third turn, a separate AI invents a realistic message neither negotiator has ever seen — a deploy request, an apology, a recall notice with lot numbers. Every exam question is new, so the agents can never tune their language to a known test.</div>
+  <div class="note"><span class="nd">the exam writer</span>Every third turn, a separate AI invents a realistic message neither negotiator has ever seen — a deploy request, an apology, a recall notice with lot numbers. Every exam is new, so the agents can never tune their language to a known exam.</div>
   <div class="note"><span class="nd">the encoder</span>Another AI translates that message into the invented language, using nothing but the current rulebook.</div>
   <div class="note"><span class="nd">the stranger</span>A completely fresh AI — no memory of the conversation, no context at all — receives only the rulebook and the encoded message, and must turn it back into plain English. Since turn 246 the stranger is also a different model family from the negotiators, so it can't lean on shared habits: it decodes what the encoding actually says. If the language only works for the two agents who invented it, it fails here. This is the whole test.</div>
   <div class="note"><span class="nd">the judge</span>Every exam is written with an answer key: the numbered list of facts the message must carry — quantities, names, instructions, deadlines — listed by the test writer before anyone encodes. The judge compares what the stranger produced against that key, item by item: survived, corrupted, or missing, plus anything invented that the original never said. It's still a model reading for meaning, not a string-matcher — paraphrase and reordering don't lose points — but the score is arithmetic over those verdicts, not an impression: 100 × survived ÷ (total + invented). A real tokenizer separately counts whether the encoded version was cheaper than plain English. Rules that pass keep their place; rules that fail are marked rejected and stay visible in the rulebook so the same mistake isn't proposed twice.</div>
 </div>
 
-<h2>The Language So Far</h2>
-<p class="how">Every rule that survived testing, with the agents' own reasoning for adopting it.</p>
-<div class="kernel-note" id="kernel"></div>
-<div id="adopted"></div>
-
-<h2>The Latest Test</h2>
-<p class="how">Left to right: the original message, the same content written in the language, and what a fresh AI understood it to say — working from nothing but the rulebook. The encoded version is allowed to look nothing like the original: it can reorder, restructure, and drop every word that isn't carrying meaning. The score is a checklist, not an impression — every exam ships with an answer key of the facts it must carry, and each one is marked survived, corrupted, or missing in what the stranger produced.</p>
-<div class="tx" id="tx"></div>
-
-<h2>Rejected Rules</h2>
-<p class="how">Rules that failed their live test. They stay listed — in the rulebook and here — so the agents don't propose the same idea twice. Most proposals end up on this list; that's the test doing its job.</p>
-<ul class="grave" id="grave"></ul>
-
-<h2>Proposed, Not Yet Tested</h2>
-<p class="how">Rules currently under debate, waiting for the next live test to prove or kill them.</p>
-<ul class="table-note" id="proposed"></ul>
-
-<details>
-  <summary>Full transcript — every turn, every test</summary>
-  <div class="hist" id="hist"></div>
-</details>
-
 <h2>The Prompts</h2>
 <p class="how">For anyone who wants to see exactly how this is wired.</p>
 <div class="prompt-intro">These are the only human-written instructions in the system, loaded live from the <a href="https://github.com/isorabins/alanguagealltheirown">public repo</a>. Each prompt sets up the game — the goal, the test, the proposal format, and each agent's bias — and deliberately withholds everything else: no example rules, no linguistics, no starter vocabulary. Whatever the language becomes, the agents got there on their own. The engine reads these files fresh every turn, so any edit changes behavior within 15 minutes, and every edit ever made is in the repo's history.</div>
 <div id="prompts"></div>
+
+<h2>Rejected Rules</h2>
+<details class="sect">
+  <summary id="grave-sum">the graveyard</summary>
+  <ul class="grave" id="grave"></ul>
+</details>
+
+<details>
+  <summary>Full transcript — every turn, every exam</summary>
+  <div class="hist" id="hist"></div>
+</details>
 
 <h2>Field Notes</h2>
 <p class="how">Notes from the human running the experiment: what happened, what broke, and any changes made to the test machinery. The two agents never see these notes — they only ever see each other and the rulebook.</p>
@@ -243,6 +283,8 @@ function render(S) {
   };
   var ruleText = function (r) { return esc(r.text_en.replace(/^rule[-‑]\d+\s*[—–-]\s*/, "")); };
   var pct = function (n) { return (n > 0 ? "+" : "") + n + "%"; };
+  var savings = function (d) { return pct(-(d || 0)); };
+  var fidTxt = function (f) { return f == null || f < 0 ? "unparseable" : f + "/100"; };
   var hist = function (r, verb) {
     var out = null;
     (r.history || []).forEach(function (h) { if (h && h.verb === verb) out = h; });
@@ -254,27 +296,37 @@ function render(S) {
   var rejected = rb.rules.filter(function (r) { return r.status === "rejected" || r.status === "reverted"; });
   var proposed = rb.rules.filter(function (r) { return r.status === "proposed"; });
 
-  var best = null, passSum = 0, passN = 0;
-  tests.forEach(function (t) {
-    if (t.fidelity >= 90) {
-      passSum += t.token_delta_pct; passN++;
-      if (best === null || t.token_delta_pct < best) best = t.token_delta_pct;
-    }
-  });
+  var best = null;
+  var passing = tests.filter(function (t) { return t.fidelity >= 90; });
+  passing.forEach(function (t) { if (best === null || t.token_delta_pct < best) best = t.token_delta_pct; });
+  var p10 = passing.slice(-10);
+  var avgSave = null;
+  if (p10.length) {
+    var sSum = 0; p10.forEach(function (t) { sSum += t.token_delta_pct; });
+    avgSave = Math.round(sSum / p10.length);
+  }
+  // fidelity -1 is the "grader output unparseable" sentinel, not a score — never average it in
+  var f10 = tests.slice(-10).filter(function (t) { return t.fidelity >= 0; });
+  var avgFid = null;
+  if (f10.length) {
+    var fSum = 0; f10.forEach(function (t) { fSum += t.fidelity; });
+    avgFid = Math.round(fSum / f10.length);
+  }
+  var revisions = String(rb.version == null ? "0.0" : rb.version).split(".")[1] || "0";
   var m = [
-    ["language version", "v" + rb.version],
+    ["rulebook revisions", revisions],
     ["turns", conv.length ? conv[conv.length - 1].turn : 0],
     ["rules adopted", adopted.length],
-    ["best savings", best === null ? "—" : pct(-best)],
-    ["avg savings", passN ? pct(-Math.round(passSum / passN)) : "—"],
-    ["last fidelity", last ? last.fidelity + "/100" : "—"]
+    ["best savings", best === null ? "—" : savings(best)],
+    ["avg savings · last 10 passing", avgSave === null ? "—" : savings(avgSave)],
+    ["avg fidelity · last 10 exams", avgFid === null ? "—" : avgFid + "/100"]
   ];
   document.getElementById("metrics").innerHTML = m.map(function (x) {
     return "<span>" + x[0] + "<b>" + x[1] + "</b></span>";
   }).join("");
 
   function msgHtml(e, cls) {
-    var body = esc(e.content.replace(/\*\*/g, "")).replace(/^(PROPOSE|ADOPT|REJECT|REVISE)\s*:/gm, '<span class="verb">$1:</span>');
+    var body = esc(String(e.content == null ? "" : e.content).replace(/\*\*/g, "")).replace(/^(PROPOSE|ADOPT|REJECT|REVISE)\s*:/gm, '<span class="verb">$1:</span>');
     return '<div class="m ' + cls + '"><span class="t">turn ' + e.turn + " · agent " + e.agent + "</span>" + body + "</div>";
   }
   function tickHtml(e) {
@@ -285,9 +337,10 @@ function render(S) {
       return '<div class="tick">measured · “' + esc(e.text) + '” · <span class="ok">' + e.tokens + " tokens</span></div>";
     }
     var cls = e.fidelity >= 80 ? "ok" : "low";
-    return '<div class="tick">live test · ' + esc(e.payload) + " · " + pct(e.token_delta_pct) +
-      ' tokens · fidelity <span class="' + cls + '">' + e.fidelity + "/100</span></div>";
+    return '<div class="tick">exam · ' + esc(e.payload) + " · " + pct(e.token_delta_pct || 0) +
+      ' tokens · fidelity <span class="' + cls + '">' + fidTxt(e.fidelity) + "</span></div>";
   }
+
   ["A", "B"].forEach(function (agent) {
     var events = conv.filter(function (e) { return e.type !== "message" || e.agent === agent; }).slice(-8);
     document.getElementById("pane" + agent).innerHTML = events.map(function (e) {
@@ -306,7 +359,7 @@ function render(S) {
     });
     return bestR && {r: bestR, h: bestH};
   }
-  var la = newestBy(rb.rules.filter(function (r) { return r.status === "adopted"; }), "adopt");
+  var la = newestBy(adopted, "adopt");
   var lr = newestBy(rejected, "reject");
   document.getElementById("decisions").innerHTML =
     (la ? '<div class="decision adopted"><div class="lab">last rule adopted — turn ' + la.h.turn + '</div>' +
@@ -318,40 +371,87 @@ function render(S) {
       (lr.h.why ? '<div class="why">“' + esc(lr.h.why) + '”</div>' : "") +
       '<div class="who">agent ' + lr.h.agent + "</div></div>" : "");
 
-  document.getElementById("kernel").textContent =
-    "the whole language currently costs " + rb.kernel_tokens + " tokens to teach a fresh model";
+  // THE JUDGMENT — shared by the latest-exam card and every history row
+  function judgeHtml(t) {
+    var dec = t.decoder_model ? '<div class="jdec">decoder: ' + esc(t.decoder_model) + "</div>" : "";
+    if (t.key && t.key.length) {
+      var marks = {};
+      var mark = function (arr, lab) {
+        (arr || []).forEach(function (s) {
+          var n = String(s).match(/^\s*(\d+)/);
+          if (n) marks[n[1]] = {lab: lab, note: String(s).replace(/^\s*\d+\s*[:.]?\s*/, "")};
+        });
+      };
+      mark(t.corrupted, "CORRUPTED");
+      mark(t.missing, "MISSING");
+      var items = t.key.map(function (k) {
+        var n = String(k).match(/^\s*(\d+)/);
+        var hit = n && marks[n[1]];
+        return hit
+          ? '<li class="hit">' + esc(k) + ' <span class="k-bad"><b>' + hit.lab + "</b> — " + esc(hit.note) + "</span></li>"
+          : "<li>" + esc(k) + ' <span class="k-ok">✓</span></li>';
+      }).join("");
+      var inv = (t.invented || []).length
+        ? '<div class="k-inv">invented (claims the original never made): ' + t.invented.map(esc).join(" · ") + "</div>" : "";
+      return '<div class="judg"><div class="jhead">the judge’s audit — ' +
+        (t.survived == null ? "?" : t.survived) + "/" + (t.total == null ? "?" : t.total) +
+        ' facts survived</div><ul class="key">' + items + "</ul>" + inv + dec + "</div>";
+    }
+    if (t.total) {
+      var fails = [];
+      if ((t.corrupted || []).length) fails.push("corrupted — " + t.corrupted.map(esc).join(" · "));
+      if ((t.missing || []).length) fails.push("missing — " + t.missing.map(esc).join(" · "));
+      if ((t.invented || []).length) fails.push("invented — " + t.invented.map(esc).join(" · "));
+      return '<div class="judg"><div class="jhead">the judge’s audit — ' + t.survived + "/" + t.total +
+        " facts survived</div>" + (fails.length ? '<div class="k-inv">' + fails.join(" · ") + "</div>" : "") + dec + "</div>";
+    }
+    return '<div class="judg"><div class="jhold">graded holistically (pre-audit era) — ' + esc(t.lost || "") + "</div>" + dec + "</div>";
+  }
+  function colsHtml(t) {
+    return '<div class="tx-cols"><div class="tx-col"><div class="lab">original message</div><pre>' + esc(t.original || "—") + "</pre></div>" +
+      '<div class="tx-col enc"><div class="lab">encoded in the language</div><pre>' + esc(t.encoded || "—") + "</pre></div>" +
+      '<div class="tx-col dec"><div class="lab">what the stranger got back</div><pre>' + esc(t.decoded || "—") + "</pre></div></div>";
+  }
+  function sumLine(t, prefix) {
+    var cls = t.fidelity >= 80 ? "ok" : "low";
+    return prefix + t.turn + " · " + esc(t.payload) + " · " + (t.orig_tokens == null ? "?" : t.orig_tokens) +
+      " → " + (t.enc_tokens == null ? "?" : t.enc_tokens) + " tok · savings " + savings(t.token_delta_pct) +
+      ' · fidelity <span class="' + cls + '">' + fidTxt(t.fidelity) + "</span>";
+  }
+
+  if (last) {
+    document.getElementById("tx").innerHTML =
+      '<div class="tx-head">' + sumLine(last, "turn ") + "</div>" +
+      judgeHtml(last) +
+      '<details class="inline"><summary>read the full exam — original · encoded · decoded</summary>' +
+      colsHtml(last) + "</details>";
+  } else {
+    document.getElementById("tx").innerHTML = '<p class="empty">No exams yet.</p>';
+  }
+
+  var rows = tests.slice(-15).reverse();
+  document.getElementById("exams").innerHTML = rows.length ? rows.map(function (t) {
+    var fcls = t.fidelity >= 80 ? "" : "bad-f";
+    return '<details class="exrow"><summary>t' + t.turn + " · " + esc(t.payload) + " · " +
+      (t.orig_tokens == null ? "?" : t.orig_tokens) + "→" + (t.enc_tokens == null ? "?" : t.enc_tokens) +
+      " tok · savings " + savings(t.token_delta_pct) +
+      ' · <span class="' + fcls + '">fidelity ' + (t.fidelity == null || t.fidelity < 0 ? "unparseable" : t.fidelity) + "</span></summary>" +
+      '<div class="exrow-body">' + judgeHtml(t) + colsHtml(t) + "</div></details>";
+  }).join("") : '<p class="empty">No exams yet.</p>';
+
+  document.getElementById("lang-sum").textContent =
+    adopted.length + " rules — the whole language costs " + (rb.kernel_tokens || 0) + " tokens to teach a fresh model";
   document.getElementById("adopted").innerHTML = adopted.length ? adopted.map(function (r) {
     var arc = (r.history || []).filter(function (h) { return typeof h === "string" && h.indexOf("tested") === 0; });
     var a = hist(r, "adopt");
     return '<div class="rule-card"><div class="rtext">' + ruleText(r) + "</div>" +
-      '<div class="ev">adopted turn ' + (a ? a.turn : "?") + " · survived <b>" + arc.length + "</b> live tests" +
-      (r.scores ? " · rulebook's latest test: " + pct(r.scores.token_delta_pct) + " tokens at <b>" + r.scores.fidelity_pct + "/100</b> fidelity" : "") + "</div>" +
+      '<div class="ev">adopted turn ' + (a ? a.turn : "?") + " · survived <b>" + arc.length + "</b> exams" +
+      (r.scores ? " · rulebook's latest exam: " + pct(r.scores.token_delta_pct) + " tokens at <b>" + r.scores.fidelity_pct + "/100</b> fidelity" : "") + "</div>" +
       (a && a.why ? '<div class="why">why: “' + esc(a.why) + '”</div>' : "") + "</div>";
   }).join("") : '<p class="empty">No rules adopted yet — the language is still plain English.</p>';
 
-  if (last) {
-    var cls = last.fidelity >= 80 ? "ok" : "low";
-    document.getElementById("tx").innerHTML =
-      '<div class="tx-head">turn ' + last.turn + " · " + esc(last.payload) + " · " + last.orig_tokens +
-      " tokens → " + last.enc_tokens + " (" + pct(last.token_delta_pct) + ") · fidelity <span class=\"" + cls + '">' +
-      last.fidelity + "/100</span></div>" +
-      '<div class="tx-cols"><div class="tx-col"><div class="lab">original message</div><pre>' + esc(last.original || "—") + "</pre></div>" +
-      '<div class="tx-col enc"><div class="lab">encoded in the language</div><pre>' + esc(last.encoded) + "</pre></div>" +
-      '<div class="tx-col dec"><div class="lab">what the stranger got back</div><pre>' + esc(last.decoded) + "</pre></div></div>" +
-      '<div class="tx-verdict' + (last.fidelity < 80 ? " bad-t" : "") + '">grader: ' + esc(last.lost) + "</div>" +
-      (function () {
-        if (!last.total) return "";
-        var fails = [];
-        if ((last.corrupted || []).length) fails.push("corrupted — " + last.corrupted.map(esc).join(" · "));
-        if ((last.missing || []).length) fails.push("missing — " + last.missing.map(esc).join(" · "));
-        if ((last.invented || []).length) fails.push("invented — " + last.invented.map(esc).join(" · "));
-        return '<div class="tx-verdict">answer key: ' + last.survived + "/" + last.total +
-               " items survived" + (fails.length ? " · " + fails.join(" · ") : " — clean sweep") + "</div>";
-      })();
-  } else {
-    document.getElementById("tx").innerHTML = '<p class="empty">No transmissions yet.</p>';
-  }
-
+  document.getElementById("grave-sum").textContent =
+    rejected.length + " dead rules — every failure stays on the books so the same idea can't be proposed twice";
   document.getElementById("grave").innerHTML = rejected.map(function (r) {
     var rej = hist(r, "reject");
     return '<li><span class="rtext">' + ruleText(r) + '</span><span class="kill">† turn ' + (rej ? rej.turn : "?") +
@@ -360,7 +460,7 @@ function render(S) {
   }).join("") || '<li class="empty">Nothing rejected yet.</li>';
 
   document.getElementById("proposed").innerHTML = proposed.map(function (r) {
-    return '<li><span class="id">' + r.id + " · awaiting test</span>" + ruleText(r) + "</li>";
+    return '<li><span class="id">' + r.id + " · awaiting exam</span>" + ruleText(r) + "</li>";
   }).join("") || '<li class="empty">Nothing on the table.</li>';
 
   document.getElementById("hist").innerHTML = conv.map(function (e) {
@@ -433,7 +533,7 @@ setInterval(function () {
   var files = [
     ["agent_a.md", "agent A — the one that argues for compression"],
     ["agent_b.md", "agent B — the one that argues for accuracy"],
-    ["payloadgen.md", "the test writer — how exam messages get generated"],
+    ["payloadgen.md", "the exam writer — how exams get written"],
     ["grader.md", "the judge — how fidelity gets scored"]
   ];
   var esc = function (s) { return String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;"); };
@@ -444,6 +544,31 @@ setInterval(function () {
       return t === null ? "" : '<details class="prompt"><summary>' + files[i][1] + '</summary><pre>' + esc(t) + '</pre></details>';
     }).join("");
   });
+})();
+
+(function () {
+  fetch("https://raw.githubusercontent.com/isorabins/alanguagealltheirown/main/state/probe.json", {cache: "no-store"})
+    .then(function (r) { if (!r.ok) throw 0; return r.json(); })
+    .then(function (p) {
+      var pass = (p.exams || []).filter(function (e) { return e.fidelity >= 90 && e.orig_tokens > 0; }).slice(-10);
+      if (pass.length < 3) return;
+      var lang = 0, min = 0;
+      pass.forEach(function (e) {
+        lang += -(e.enc_tokens - e.orig_tokens) / e.orig_tokens * 100;
+        min += -(e.min_tokens - e.orig_tokens) / e.orig_tokens * 100;
+      });
+      lang = Math.round(lang / pass.length); min = Math.round(min / pass.length);
+      var gap = lang - min;
+      var cells = [
+        ["dumb script · last " + pass.length + " passing exams", (min > 0 ? "+" : "") + min + "%"],
+        ["the language · same exams", (lang > 0 ? "+" : "") + lang + "%"],
+        ["the gap — earned by the language", (gap > 0 ? "+" : "") + gap + " pts"]
+      ];
+      document.getElementById("control").innerHTML = cells.map(function (x) {
+        return "<span>" + x[0] + "<b>" + x[1] + "</b></span>";
+      }).join("");
+      document.getElementById("control-sect").style.display = "";
+    }).catch(function () {});
 })();
 
 (function () {

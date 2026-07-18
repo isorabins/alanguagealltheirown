@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Try It Yourself — A Language All Their Own</title>
+<style>
+  :root {
+    --ground: #0b0a08; --ink: #e6ddc6; --ink-dim: #9a917c; --ink-faint: #6e6654;
+    --hairline: rgba(230, 221, 198, 0.16); --accent: #c9a86a; --bad: #b0704f;
+    --serif: "Iowan Old Style", Georgia, "Times New Roman", serif;
+    --mono: ui-monospace, "SF Mono", Menlo, "Cascadia Mono", monospace;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { background: var(--ground); color: var(--ink); font-family: var(--serif);
+         line-height: 1.55; max-width: 760px; margin: 0 auto; padding: 3.4rem 2rem 6rem; }
+  h1 { font-weight: 400; font-size: 1.15rem; letter-spacing: 0.22em; text-transform: uppercase; text-align: center; }
+  .statement { max-width: 40rem; margin: 0.9rem auto 2.2rem; color: var(--ink-dim); font-size: 0.95rem; text-align: center; }
+  .statement em { color: var(--ink); font-style: normal; }
+  .cap { text-align: center; font-family: var(--mono); font-size: 0.62rem; letter-spacing: 0.1em;
+         text-transform: uppercase; color: var(--ink-faint); margin-bottom: 0.6rem; }
+  textarea { width: 100%; height: 9rem; background: transparent; border: 1px solid var(--hairline);
+             color: var(--ink); font-family: var(--serif); font-size: 0.95rem; line-height: 1.55;
+             padding: 0.9rem 1rem; resize: vertical; }
+  textarea:focus { outline: none; border-color: var(--ink-faint); }
+  .row { display: flex; justify-content: space-between; align-items: center; margin-top: 0.6rem; }
+  .count { font-family: var(--mono); font-size: 0.62rem; color: var(--ink-faint); letter-spacing: 0.08em; }
+  button { background: transparent; border: 1px solid var(--hairline); color: var(--ink);
+           font-family: var(--mono); font-size: 0.68rem; letter-spacing: 0.22em; text-transform: uppercase;
+           padding: 0.75rem 1.6rem; cursor: pointer; }
+  button:hover:not(:disabled) { border-color: var(--accent); color: var(--accent); }
+  button:disabled { color: var(--ink-faint); cursor: default; }
+  .status { font-family: var(--mono); font-size: 0.68rem; color: var(--ink-dim); letter-spacing: 0.08em;
+            text-align: center; margin: 1.6rem 0 0; min-height: 1.2em; }
+  .status.err { color: var(--bad); }
+  .status .dots::after { content: ""; animation: d 1.6s steps(4, end) infinite; }
+  @keyframes d { 0% { content: ""; } 25% { content: "."; } 50% { content: ".."; } 75% { content: "..."; } }
+  .stage { border: 1px solid var(--hairline); padding: 1.1rem 1.3rem; margin-top: 1.4rem; display: none; }
+  .stage .lab { font-family: var(--mono); font-size: 0.6rem; letter-spacing: 0.18em; text-transform: uppercase;
+                color: var(--ink-faint); margin-bottom: 0.55rem; }
+  .stage pre { font-family: var(--mono); font-size: 0.72rem; line-height: 1.62; white-space: pre-wrap;
+               word-wrap: break-word; color: var(--ink); }
+  .stage.enc pre { color: var(--accent); }
+  .stage.dec pre { color: var(--ink-dim); }
+  .tokline { font-family: var(--mono); font-size: 0.64rem; color: var(--ink-faint); letter-spacing: 0.06em;
+             border-top: 1px dashed var(--hairline); margin-top: 0.85rem; padding-top: 0.65rem; }
+  .tokline b { color: var(--accent); font-weight: 400; }
+  .jhead { font-family: var(--mono); font-size: 0.64rem; letter-spacing: 0.16em; text-transform: uppercase;
+           color: var(--ink-dim); margin-bottom: 0.7rem; }
+  ul.key { list-style: none; }
+  ul.key li { font-family: var(--mono); font-size: 0.7rem; line-height: 1.6; color: var(--ink-faint); padding: 0.16rem 0; }
+  ul.key li.hit { color: var(--ink); }
+  .k-ok { color: var(--ink-faint); }
+  .k-bad { color: var(--bad); }
+  .k-bad b { font-weight: 400; letter-spacing: 0.14em; font-size: 0.62rem; }
+  .k-inv { font-family: var(--mono); font-size: 0.7rem; color: var(--bad); margin-top: 0.6rem; }
+  .verdict { font-family: var(--mono); font-size: 0.72rem; color: var(--ink); border-top: 1px dashed var(--hairline);
+             margin-top: 0.9rem; padding-top: 0.7rem; }
+  .verdict .ok { color: var(--accent); } .verdict .low { color: var(--bad); }
+  footer { margin-top: 3rem; padding-top: 1rem; border-top: 1px solid var(--hairline); font-family: var(--mono);
+           font-size: 0.62rem; letter-spacing: 0.12em; color: var(--ink-faint); text-transform: uppercase; text-align: center; }
+  footer a { color: inherit; }
+</style>
+</head>
+<body>
+<h1>Try It Yourself</h1>
+<p class="statement">Paste a paragraph — a real message, the kind where the details matter.
+It takes <em>the same exam the agents face every third turn</em>: encoded into their language,
+handed to a stranger AI that has only the rulebook, then audited fact by fact.
+Nothing here is canned; you are watching the real pipeline run on your words.</p>
+
+<div class="cap">your message · max 700 characters</div>
+<textarea id="text" maxlength="700" placeholder="e.g. a status update, a set of instructions, an apology with specifics…"></textarea>
+<div class="row">
+  <span class="count"><span id="n">0</span>/700</span>
+  <button id="go">run the exam</button>
+</div>
+<div class="status" id="status"></div>
+
+<div class="stage enc" id="s1">
+  <div class="lab">encoded in the language — by the compression agent</div>
+  <pre id="encoded"></pre>
+  <div class="tokline" id="tokline"></div>
+</div>
+
+<div class="stage dec" id="s2">
+  <div class="lab">what the stranger got back — a foreign model, given only the rulebook</div>
+  <pre id="decoded"></pre>
+</div>
+
+<div class="stage" id="s3">
+  <div class="jhead" id="jhead"></div>
+  <ul class="key" id="key"></ul>
+  <div class="k-inv" id="inv" style="display:none"></div>
+  <div class="verdict" id="verdict"></div>
+</div>
+
+<footer><a href="https://alanguagealltheirown.com">← a language all their own</a> · the exam runs live · a few runs per visitor per hour</footer>
+
+<script>
+var esc = function (s) {
+  return String(s == null ? "" : s).replace(/[&<>"]/g, function (c) {
+    return {"&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;"}[c];
+  });
+};
+var $ = function (id) { return document.getElementById(id); };
+$("text").addEventListener("input", function () { $("n").textContent = this.value.length; });
+
+function status(msg, err) {
+  $("status").className = "status" + (err ? " err" : "");
+  $("status").innerHTML = err ? esc(msg) : esc(msg) + '<span class="dots"></span>';
+  if (!msg) $("status").innerHTML = "";
+}
+function pause(ms) { return new Promise(function (r) { setTimeout(r, ms); }); }
+function post(url, body) {
+  return fetch(url, { method: "POST", headers: {"Content-Type": "application/json"}, body: JSON.stringify(body) })
+    .then(function (r) { return r.json().then(function (j) { if (!r.ok) throw new Error(j.error || ("http " + r.status)); return j; }); });
+}
+function pct(n) { return (n > 0 ? "+" : "") + n + "%"; }
+
+$("go").addEventListener("click", async function () {
+  var text = $("text").value.trim();
+  if (text.length < 40) { status("give it a real paragraph — at least 40 characters", true); return; }
+  $("go").disabled = true;
+  ["s1", "s2", "s3"].forEach(function (id) { $(id).style.display = "none"; });
+  try {
+    status("the compression agent is writing your message in the language");
+    var enc = await post("/api/encode", { text: text });
+    await pause(900);
+    $("encoded").textContent = enc.encoded;
+    var save = -enc.delta_pct;
+    $("tokline").innerHTML = enc.orig_tokens + " tokens → <b>" + enc.enc_tokens + " tokens</b> · savings " + pct(save) +
+      " · rulebook v" + esc(enc.rulebook_version);
+    $("s1").style.display = "block";
+
+    status("the stranger is decoding — it has never seen your message, only the rulebook");
+    var dec = await post("/api/decode", { encoded: enc.encoded });
+    await pause(900);
+    $("decoded").textContent = dec.decoded;
+    $("s2").style.display = "block";
+
+    status("the judge is listing what your paragraph had to carry, then checking each fact");
+    var j = await post("/api/judge", { text: text, decoded: dec.decoded });
+    await pause(900);
+    var marks = {};
+    (j.corrupted || []).forEach(function (s) { var m = String(s).match(/^\s*(\d+)/); if (m) marks[m[1]] = {lab: "CORRUPTED", note: String(s).replace(/^\s*\d+\s*[:.]?\s*/, "")}; });
+    (j.missing || []).forEach(function (s) { var m = String(s).match(/^\s*(\d+)/); if (m) marks[m[1]] = {lab: "MISSING", note: String(s).replace(/^\s*\d+\s*[:.]?\s*/, "")}; });
+    $("jhead").textContent = "the judge’s audit — " + j.survived + "/" + j.total + " facts survived";
+    $("key").innerHTML = (j.key || []).map(function (k) {
+      var m = String(k).match(/^\s*(\d+)/);
+      var hit = m && marks[m[1]];
+      return hit
+        ? '<li class="hit">' + esc(k) + ' <span class="k-bad"><b>' + hit.lab + "</b> — " + esc(hit.note) + "</span></li>"
+        : "<li>" + esc(k) + ' <span class="k-ok">✓</span></li>';
+    }).join("");
+    if ((j.invented || []).length) {
+      $("inv").style.display = "block";
+      $("inv").innerHTML = "invented (claims your message never made): " + j.invented.map(esc).join(" · ");
+    } else { $("inv").style.display = "none"; }
+    var cls = j.fidelity >= 80 ? "ok" : "low";
+    $("verdict").innerHTML = 'fidelity <span class="' + cls + '">' + (j.fidelity < 0 ? "unparseable" : j.fidelity + "/100") + "</span>" +
+      " · savings " + pct(save) +
+      (j.mode === "RESPONDED" ? ' · <span class="low">the stranger executed your message instead of relaying it — capped at 15</span>' : "") +
+      (j.lost && j.lost !== "nothing material" ? ' · <span class="low">' + esc(j.lost) + "</span>" : " · nothing material lost");
+    $("s3").style.display = "block";
+    status("");
+  } catch (e) {
+    status(String(e.message || e), true);
+  }
+  $("go").disabled = false;
+});
+</script>
+</body>
+</html>

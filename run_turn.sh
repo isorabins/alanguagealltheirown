@@ -10,6 +10,7 @@ main() {
   git pull --rebase -X theirs -q origin main          # replay local turns onto remote code; generated-state races resolve to newest turn
   python3 loop.py --turns 1 >> state/loop.log 2>&1
   python3 tweet.py >> state/tweet.log 2>&1 || true    # changelog to X; failure never blocks the turn
+  python3 probe.py >> state/probe.log 2>&1 || true    # dumb-minifier control; failure never blocks the turn
   git add -A
   if ! git diff --cached --quiet; then
     T=$(python3 -c 'import json; print(json.load(open("state/conversation.json"))[-1]["turn"])')
