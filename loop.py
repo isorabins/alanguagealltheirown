@@ -272,6 +272,29 @@ def write_viewer_state(conv, rb, meta):
                       "updated": now_iso(), "run": meta.get("run", "local")}}) + ";\n")
 
 
+def econ_line(rb):
+    """Live economics for the agents' STATE block, computed from the control's own data —
+    numbers in the standing prompt go stale; these never do. Empty string on any problem."""
+    try:
+        p = json.loads((STATE / "probe.json").read_text())
+        ex = [e for e in p["exams"] if e.get("fidelity", -1) >= 90 and e.get("orig_tokens")]
+        last = ex[-10:]
+        if len(last) < 3:
+            return ""
+        n = len(last)
+        lang = sum(-(e["enc_tokens"] - e["orig_tokens"]) / e["orig_tokens"] * 100 for e in last) / n
+        mini = sum(-(e["min_tokens"] - e["orig_tokens"]) / e["orig_tokens"] * 100 for e in last) / n
+        saved = sum(e["orig_tokens"] - e["enc_tokens"] for e in last) / n
+        k = rb.get("kernel_tokens", 0)
+        be = (f"break-even for a stranger: {int(k / saved) + 1} messages" if saved > 0
+              else "break-even for a stranger: never at current savings")
+        return (f"\nECONOMICS (live, last {n} passing exams): entry fee = rulebook a stranger must "
+                f"learn: {k} tokens | avg saved per message: {saved:+.0f} tokens | {be} | "
+                f"you {lang:+.0f}% vs mindless script {mini:+.0f}%")
+    except Exception:
+        return ""
+
+
 def agent_turn(conv, rb, meta, turn):
     agent = "B" if meta.get("last_agent") == "A" else "A"
     meta["last_agent"] = agent
@@ -279,7 +302,7 @@ def agent_turn(conv, rb, meta, turn):
     prompt = (ROOT / "prompts" / f"agent_{agent.lower()}.md").read_text()
     system = (f"{prompt}\n\n=== CURRENT RULEBOOK ===\n{render_rulebook(rb)}\n"
               f"=== STATE ===\nturn {turn} | next live test at turn "
-              f"{((turn // TEST_EVERY) + 1) * TEST_EVERY}")
+              f"{((turn // TEST_EVERY) + 1) * TEST_EVERY}" + econ_line(rb))
     user = render_window(conv) + f"\n\nIt is turn {turn}. You are Agent {agent}. Respond."
     text, usage = call(model, system, user, max_tokens=2000, temperature=AGENT_TEMP, meta=meta)
     conv.append({"turn": turn, "agent": agent, "type": "message", "content": text.strip(),
