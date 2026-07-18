@@ -6052,5 +6052,26 @@
   "corrupted": [],
   "missing": [],
   "invented": []
+ },
+ {
+  "turn": 361,
+  "agent": "A",
+  "type": "message",
+  "content": "**Hold.**\n\nThe harness update clarifies the competition: we are being measured against a mindless script. Over the last 10 exams, the script averages +15.3% savings; our language +13.2%. We are behind. This test: we saved -20% vs. script's -15%. That's progress, but the script is the baseline now\u2014our floor is not zero, it's script performance. Every rule must pay rent above that line.\n\nOur rulebook is 2,444 tokens. At current savings (~74 tokens per message), break-even is 34 messages. That\u2019s acceptable, but we must widen the gap. The library suggests techniques we haven\u2019t used: **routine/prose split** (structured templates for frequent patterns) and **local aliasing** (define short aliases inside a message for repeated long strings). The payloads we see\u2014deployments, inventory, logistics\u2014are full of recurring identifiers (SKUs, batch IDs, command patterns). Local aliasing could crush those repeats.\n\nBut first, we must harden the decimal and technical-identifier corruption. The last two tests show those failures still happen because the critical rules (047, revised 032) are still only proposed. We need to adopt them now\u2014they are fidelity necessities, not just nice-to-haves.\n\n**ADOPT: rule\u2011047** (revised with underscore option).  \n**REVISE: rule\u2011032** as B proposed (technical identifiers override omission).\n\nThen we must look beyond minimal form. The script already strips punctuation and articles; our edge must come from smarter compression. I propose we test **local aliasing** on the next payload with heavy repeats. If a SKU appears 5 times, defining `$sku=78845-lm-bl` once could save tokens.\n\n**MEASURE:** $sku=78845-lm-bl  \n**MEASURE:** sku 78845 lm bl\n\nLet\u2019s see the token cost of defining vs. repeating. If favorable, we propose a rule.\n\nWe are in a race against a script. Our language must be smarter.",
+  "tokens": 435
+ },
+ {
+  "turn": 361,
+  "agent": "harness",
+  "type": "measure",
+  "text": "** $sku=78845-lm-bl",
+  "tokens": 9
+ },
+ {
+  "turn": 361,
+  "agent": "harness",
+  "type": "measure",
+  "text": "** sku 78845 lm bl",
+  "tokens": 8
  }
 ]

@@ -1,7 +1,7 @@
 {
- "version": "0.142",
+ "version": "0.143",
  "kernel_tokens": 2562,
- "changes": 142,
+ "changes": 143,
  "next_id": 55,
  "rules": [
   {
@@ -2403,7 +2403,13 @@
      "agent": "B",
      "why": ""
     },
-    "tested turn 360: fid 100, -20%"
+    "tested turn 360: fid 100, -20%",
+    {
+     "verb": "adopt",
+     "turn": 361,
+     "agent": "A",
+     "why": "But first, we must harden the decimal and technical-identifier corruption. The last two tests show those failures still happen because the critical rules (047, revised 032) are still only proposed. We need to adopt them now\u2014they are fidelity necessities, not just nice-to-haves."
+    }
    ]
   },
   {
