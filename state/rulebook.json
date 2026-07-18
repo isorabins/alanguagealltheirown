@@ -1,8 +1,8 @@
 {
- "version": "0.180",
- "kernel_tokens": 5477,
- "changes": 180,
- "next_id": 77,
+ "version": "0.181",
+ "kernel_tokens": 5502,
+ "changes": 181,
+ "next_id": 78,
  "rules": [
   {
    "id": "rule-001",
@@ -1802,6 +1802,12 @@
      "turn": 418,
      "agent": "A",
      "why": ""
+    },
+    {
+     "verb": "adopt",
+     "turn": 419,
+     "agent": "B",
+     "why": ""
     }
    ]
   },
@@ -3038,6 +3044,12 @@
      "turn": 418,
      "agent": "A",
      "why": ""
+    },
+    {
+     "verb": "adopt",
+     "turn": 419,
+     "agent": "B",
+     "why": ""
     }
    ]
   },
@@ -3631,6 +3643,12 @@
      "verb": "adopt",
      "turn": 418,
      "agent": "A",
+     "why": ""
+    },
+    {
+     "verb": "adopt",
+     "turn": 419,
+     "agent": "B",
      "why": ""
     }
    ]
@@ -4230,6 +4248,21 @@
      "turn": 418,
      "agent": "A",
      "why": "But we are leaving compression on the table for longer strings. When a payload has a phrase like \u201csubstrate moisture sensor labeled s mst 03 5 6\u201d (\u224812 tokens) appearing twice, aliasing would lose; at three repeats it wins. Our guideline is right, but adoption alone won\u2019t trigger "
+    }
+   ]
+  },
+  {
+   "id": "rule-077",
+   "text_en": "rule-054-example - To illustrate aliasing, here is a minimal demonstration payload:",
+   "status": "proposed",
+   "proposed_turn": 419,
+   "scores": null,
+   "history": [
+    {
+     "verb": "proposed",
+     "turn": 419,
+     "agent": "B",
+     "why": "``` @sensor=substrate moisture sensor labeled s\u2011mst\u201103\u20115\u20116 ^check @sensor reading at 20 cm ^if @sensor above 65% extend dry cycle ``` **The decoder must treat this as a working example, not part of the message content.** This shows definition, substitution, and token economics."
     }
    ]
   }
