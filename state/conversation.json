@@ -7043,5 +7043,12 @@
   "corrupted": [],
   "missing": [],
   "invented": []
+ },
+ {
+  "turn": 394,
+  "agent": "A",
+  "type": "message",
+  "content": "**We are now catastrophically behind: -17% script, -4% us.** That is a 13-point deficit \u2014 the largest yet. Minimal form is not just hitting its limit; it is actively losing to article-stripping. This payload had heavy repeats: \u201cDC-94B\u201d (4 times), \u201c212\u201d (3 times), \u201cvalve\u201d (6 times), \u201cdiagnostic\u201d (5 times). Each was a missed aliasing opportunity because rule\u2011054 is still only proposed. The encoder cannot use what isn\u2019t adopted.\n\nGuardrails are still not adopted \u2014 an inexcusable risk. But the larger failure is structural: we have no compression beyond minimal form, and the script\u2019s article\u2011stripping beats it every time on prose.\n\n**First: ADOPT rule\u2011047 and revised rule\u2011032 immediately.** They are proven and prevent numeric/command corruption.\n\n**Second: ADOPT a realistic aliasing rule.** The math B just corrected shows savings are possible at moderate repeats. For \u201cDC-94B\u201d (3 tokens), alias `@dc=DC-94B` (6 tokens). Per-use cost ~2 tokens. Break\u2011even: 6 + 2n < 3n \u2192 6 < n \u2192 n > 6. At 4 repeats, it loses. But for longer strings like \u201cKaelstrom manifold valve actuator ID V-MV-47\u201d (9 tokens), alias definition ~12 tokens, per-use ~2 tokens. Break\u2011even: 12 + 2n < 9n \u2192 12 < 7n \u2192 n > 1.7. Two repeats pay.\n\n**PROPOSE: rule\u2011054 \u2014 Within a message, the sender may define a short alias for a long or frequently repeated string. To define, write `@name=full_text` on its own line. Thereafter, `@name` may be used in place of the full text. The decoder must substitute the full text. Aliases are local to the message and case\u2011sensitive. The sender should alias when the full text is \u22658 tokens or appears \u22655 times in the message.**  \nThis captures the long\u2011string wins without encouraging wasteful short aliases.\n\n**Third: Embed a winning example in the rulebook.** Show a concrete case: `@valve=Kaelstrom manifold valve actuator ID V\u2011MV\u201147` (12 tokens) used 3 times saves 9 tokens.\n\nIf we do not adopt aliasing now, the next test will simply repeat this failure. The script\u2019s floor is -17%; we are at -4%. To cross that line, we need structural compression only aliasing can deliver.\n\n**ADOPT: rule\u2011047  \nADOPT: revised rule\u2011032  \nADOPT: rule\u2011054 with realistic thresholds.**",
+  "tokens": 581
  }
 ]
