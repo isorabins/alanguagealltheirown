@@ -957,7 +957,7 @@
    "status": "adopted",
    "proposed_turn": 145,
    "scores": {
-    "token_delta_pct": -8,
+    "token_delta_pct": -16,
     "fidelity_pct": 100
    },
    "history": [
@@ -1049,7 +1049,8 @@
     "tested turn 330: fid 100, -6%",
     "tested turn 333: fid 97, -4%",
     "tested turn 336: fid 100, -21%",
-    "tested turn 339: fid 100, -8%"
+    "tested turn 339: fid 100, -8%",
+    "tested turn 342: fid 100, -16%"
    ]
   },
   {
@@ -1058,7 +1059,7 @@
    "status": "adopted",
    "proposed_turn": 145,
    "scores": {
-    "token_delta_pct": -8,
+    "token_delta_pct": -16,
     "fidelity_pct": 100
    },
    "history": [
@@ -1138,7 +1139,8 @@
     "tested turn 330: fid 100, -6%",
     "tested turn 333: fid 97, -4%",
     "tested turn 336: fid 100, -21%",
-    "tested turn 339: fid 100, -8%"
+    "tested turn 339: fid 100, -8%",
+    "tested turn 342: fid 100, -16%"
    ]
   },
   {
@@ -1254,7 +1256,7 @@
    "status": "adopted",
    "proposed_turn": 172,
    "scores": {
-    "token_delta_pct": -8,
+    "token_delta_pct": -16,
     "fidelity_pct": 100
    },
    "history": [
@@ -1343,7 +1345,8 @@
     "tested turn 330: fid 100, -6%",
     "tested turn 333: fid 97, -4%",
     "tested turn 336: fid 100, -21%",
-    "tested turn 339: fid 100, -8%"
+    "tested turn 339: fid 100, -8%",
+    "tested turn 342: fid 100, -16%"
    ]
   },
   {
@@ -1352,7 +1355,7 @@
    "status": "adopted",
    "proposed_turn": 176,
    "scores": {
-    "token_delta_pct": -8,
+    "token_delta_pct": -16,
     "fidelity_pct": 100
    },
    "history": [
@@ -1500,7 +1503,8 @@
     "tested turn 330: fid 100, -6%",
     "tested turn 333: fid 97, -4%",
     "tested turn 336: fid 100, -21%",
-    "tested turn 339: fid 100, -8%"
+    "tested turn 339: fid 100, -8%",
+    "tested turn 342: fid 100, -16%"
    ]
   },
   {
@@ -1672,7 +1676,7 @@
    "status": "adopted",
    "proposed_turn": 208,
    "scores": {
-    "token_delta_pct": -8,
+    "token_delta_pct": -16,
     "fidelity_pct": 100
    },
    "history": [
@@ -1737,7 +1741,8 @@
     "tested turn 330: fid 100, -6%",
     "tested turn 333: fid 97, -4%",
     "tested turn 336: fid 100, -21%",
-    "tested turn 339: fid 100, -8%"
+    "tested turn 339: fid 100, -8%",
+    "tested turn 342: fid 100, -16%"
    ]
   },
   {
@@ -1746,7 +1751,7 @@
    "status": "adopted",
    "proposed_turn": 215,
    "scores": {
-    "token_delta_pct": -8,
+    "token_delta_pct": -16,
     "fidelity_pct": 100
    },
    "history": [
@@ -1803,7 +1808,8 @@
     "tested turn 330: fid 100, -6%",
     "tested turn 333: fid 97, -4%",
     "tested turn 336: fid 100, -21%",
-    "tested turn 339: fid 100, -8%"
+    "tested turn 339: fid 100, -8%",
+    "tested turn 342: fid 100, -16%"
    ]
   },
   {
@@ -1972,7 +1978,7 @@
    "status": "proposed",
    "proposed_turn": 241,
    "scores": {
-    "token_delta_pct": -8,
+    "token_delta_pct": -16,
     "fidelity_pct": 100
    },
    "history": [
@@ -2014,7 +2020,8 @@
     "tested turn 330: fid 100, -6%",
     "tested turn 333: fid 97, -4%",
     "tested turn 336: fid 100, -21%",
-    "tested turn 339: fid 100, -8%"
+    "tested turn 339: fid 100, -8%",
+    "tested turn 342: fid 100, -16%"
    ]
   },
   {
@@ -2023,7 +2030,7 @@
    "status": "adopted",
    "proposed_turn": 244,
    "scores": {
-    "token_delta_pct": -8,
+    "token_delta_pct": -16,
     "fidelity_pct": 100
    },
    "history": [
@@ -2070,7 +2077,8 @@
     "tested turn 330: fid 100, -6%",
     "tested turn 333: fid 97, -4%",
     "tested turn 336: fid 100, -21%",
-    "tested turn 339: fid 100, -8%"
+    "tested turn 339: fid 100, -8%",
+    "tested turn 342: fid 100, -16%"
    ]
   },
   {
@@ -2079,7 +2087,7 @@
    "status": "adopted",
    "proposed_turn": 250,
    "scores": {
-    "token_delta_pct": -8,
+    "token_delta_pct": -16,
     "fidelity_pct": 100
    },
    "history": [
@@ -2124,7 +2132,8 @@
     "tested turn 330: fid 100, -6%",
     "tested turn 333: fid 97, -4%",
     "tested turn 336: fid 100, -21%",
-    "tested turn 339: fid 100, -8%"
+    "tested turn 339: fid 100, -8%",
+    "tested turn 342: fid 100, -16%"
    ]
   },
   {
@@ -2133,7 +2142,7 @@
    "status": "adopted",
    "proposed_turn": 277,
    "scores": {
-    "token_delta_pct": -8,
+    "token_delta_pct": -16,
     "fidelity_pct": 100
    },
    "history": [
@@ -2169,7 +2178,8 @@
     "tested turn 330: fid 100, -6%",
     "tested turn 333: fid 97, -4%",
     "tested turn 336: fid 100, -21%",
-    "tested turn 339: fid 100, -8%"
+    "tested turn 339: fid 100, -8%",
+    "tested turn 342: fid 100, -16%"
    ]
   },
   {
@@ -2178,7 +2188,7 @@
    "status": "adopted",
    "proposed_turn": 283,
    "scores": {
-    "token_delta_pct": -8,
+    "token_delta_pct": -16,
     "fidelity_pct": 100
    },
    "history": [
@@ -2284,7 +2294,8 @@
      "turn": 341,
      "agent": "B",
      "why": "Rule\u2011049 (narrowed) is the necessary guardrail against narrative stripping\u2014objective, measurable, and prevents the 67% fidelity collapse."
-    }
+    },
+    "tested turn 342: fid 100, -16%"
    ]
   },
   {
@@ -2293,7 +2304,7 @@
    "status": "proposed",
    "proposed_turn": 287,
    "scores": {
-    "token_delta_pct": -8,
+    "token_delta_pct": -16,
     "fidelity_pct": 100
    },
    "history": [
@@ -2320,7 +2331,8 @@
     "tested turn 330: fid 100, -6%",
     "tested turn 333: fid 97, -4%",
     "tested turn 336: fid 100, -21%",
-    "tested turn 339: fid 100, -8%"
+    "tested turn 339: fid 100, -8%",
+    "tested turn 342: fid 100, -16%"
    ]
   },
   {
@@ -2329,7 +2341,7 @@
    "status": "adopted",
    "proposed_turn": 302,
    "scores": {
-    "token_delta_pct": -8,
+    "token_delta_pct": -16,
     "fidelity_pct": 100
    },
    "history": [
@@ -2447,7 +2459,8 @@
      "turn": 341,
      "agent": "B",
      "why": ""
-    }
+    },
+    "tested turn 342: fid 100, -16%"
    ]
   },
   {
@@ -2456,7 +2469,7 @@
    "status": "proposed",
    "proposed_turn": 316,
    "scores": {
-    "token_delta_pct": -8,
+    "token_delta_pct": -16,
     "fidelity_pct": 100
    },
    "history": [
@@ -2473,7 +2486,8 @@
     "tested turn 330: fid 100, -6%",
     "tested turn 333: fid 97, -4%",
     "tested turn 336: fid 100, -21%",
-    "tested turn 339: fid 100, -8%"
+    "tested turn 339: fid 100, -8%",
+    "tested turn 342: fid 100, -16%"
    ]
   },
   {
@@ -2482,7 +2496,7 @@
    "status": "proposed",
    "proposed_turn": 317,
    "scores": {
-    "token_delta_pct": -8,
+    "token_delta_pct": -16,
     "fidelity_pct": 100
    },
    "history": [
@@ -2499,7 +2513,8 @@
     "tested turn 330: fid 100, -6%",
     "tested turn 333: fid 97, -4%",
     "tested turn 336: fid 100, -21%",
-    "tested turn 339: fid 100, -8%"
+    "tested turn 339: fid 100, -8%",
+    "tested turn 342: fid 100, -16%"
    ]
   },
   {
@@ -2508,7 +2523,7 @@
    "status": "proposed",
    "proposed_turn": 325,
    "scores": {
-    "token_delta_pct": -8,
+    "token_delta_pct": -16,
     "fidelity_pct": 100
    },
    "history": [
@@ -2522,7 +2537,8 @@
     "tested turn 330: fid 100, -6%",
     "tested turn 333: fid 97, -4%",
     "tested turn 336: fid 100, -21%",
-    "tested turn 339: fid 100, -8%"
+    "tested turn 339: fid 100, -8%",
+    "tested turn 342: fid 100, -16%"
    ]
   },
   {
@@ -2531,7 +2547,7 @@
    "status": "proposed",
    "proposed_turn": 325,
    "scores": {
-    "token_delta_pct": -8,
+    "token_delta_pct": -16,
     "fidelity_pct": 100
    },
    "history": [
@@ -2545,7 +2561,8 @@
     "tested turn 330: fid 100, -6%",
     "tested turn 333: fid 97, -4%",
     "tested turn 336: fid 100, -21%",
-    "tested turn 339: fid 100, -8%"
+    "tested turn 339: fid 100, -8%",
+    "tested turn 342: fid 100, -16%"
    ]
   }
  ]
