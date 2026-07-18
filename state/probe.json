@@ -538,9 +538,219 @@
    "enc_tokens": 429,
    "min_tokens": 450,
    "fidelity": 96
+  },
+  {
+   "turn": 252,
+   "orig_tokens": 427,
+   "enc_tokens": 402,
+   "min_tokens": 362,
+   "fidelity": 100
+  },
+  {
+   "turn": 255,
+   "orig_tokens": 492,
+   "enc_tokens": 432,
+   "min_tokens": 398,
+   "fidelity": 100
+  },
+  {
+   "turn": 258,
+   "orig_tokens": 453,
+   "enc_tokens": 210,
+   "min_tokens": 382,
+   "fidelity": 96
+  },
+  {
+   "turn": 261,
+   "orig_tokens": 432,
+   "enc_tokens": 373,
+   "min_tokens": 364,
+   "fidelity": 100
+  },
+  {
+   "turn": 264,
+   "orig_tokens": 452,
+   "enc_tokens": 286,
+   "min_tokens": 378,
+   "fidelity": 100
+  },
+  {
+   "turn": 267,
+   "orig_tokens": 591,
+   "enc_tokens": 447,
+   "min_tokens": 485,
+   "fidelity": 100
+  },
+  {
+   "turn": 270,
+   "orig_tokens": 506,
+   "enc_tokens": 449,
+   "min_tokens": 432,
+   "fidelity": 100
+  },
+  {
+   "turn": 273,
+   "orig_tokens": 536,
+   "enc_tokens": 465,
+   "min_tokens": 457,
+   "fidelity": 100
+  },
+  {
+   "turn": 276,
+   "orig_tokens": 453,
+   "enc_tokens": 430,
+   "min_tokens": 397,
+   "fidelity": 96
+  },
+  {
+   "turn": 279,
+   "orig_tokens": 495,
+   "enc_tokens": 368,
+   "min_tokens": 411,
+   "fidelity": 100
+  },
+  {
+   "turn": 282,
+   "orig_tokens": 588,
+   "enc_tokens": 498,
+   "min_tokens": 502,
+   "fidelity": 96
+  },
+  {
+   "turn": 285,
+   "orig_tokens": 623,
+   "enc_tokens": 481,
+   "min_tokens": 519,
+   "fidelity": 93
+  },
+  {
+   "turn": 288,
+   "orig_tokens": 457,
+   "enc_tokens": 414,
+   "min_tokens": 400,
+   "fidelity": 100
+  },
+  {
+   "turn": 291,
+   "orig_tokens": 570,
+   "enc_tokens": 433,
+   "min_tokens": 472,
+   "fidelity": 100
+  },
+  {
+   "turn": 294,
+   "orig_tokens": 404,
+   "enc_tokens": 306,
+   "min_tokens": 335,
+   "fidelity": 96
+  },
+  {
+   "turn": 297,
+   "orig_tokens": 505,
+   "enc_tokens": 435,
+   "min_tokens": 422,
+   "fidelity": 100
+  },
+  {
+   "turn": 300,
+   "orig_tokens": 599,
+   "enc_tokens": 232,
+   "min_tokens": 514,
+   "fidelity": 67
+  },
+  {
+   "turn": 303,
+   "orig_tokens": 455,
+   "enc_tokens": 304,
+   "min_tokens": 394,
+   "fidelity": 93
+  },
+  {
+   "turn": 306,
+   "orig_tokens": 429,
+   "enc_tokens": 351,
+   "min_tokens": 366,
+   "fidelity": 96
+  },
+  {
+   "turn": 309,
+   "orig_tokens": 526,
+   "enc_tokens": 456,
+   "min_tokens": 416,
+   "fidelity": 100
+  },
+  {
+   "turn": 312,
+   "orig_tokens": 501,
+   "enc_tokens": 336,
+   "min_tokens": 418,
+   "fidelity": 100
+  },
+  {
+   "turn": 315,
+   "orig_tokens": 461,
+   "enc_tokens": 298,
+   "min_tokens": 394,
+   "fidelity": 92
+  },
+  {
+   "turn": 318,
+   "orig_tokens": 444,
+   "enc_tokens": 376,
+   "min_tokens": 383,
+   "fidelity": 100
+  },
+  {
+   "turn": 321,
+   "orig_tokens": 414,
+   "enc_tokens": 313,
+   "min_tokens": 351,
+   "fidelity": 100
+  },
+  {
+   "turn": 324,
+   "orig_tokens": 489,
+   "enc_tokens": 430,
+   "min_tokens": 424,
+   "fidelity": 72
+  },
+  {
+   "turn": 327,
+   "orig_tokens": 646,
+   "enc_tokens": 518,
+   "min_tokens": 547,
+   "fidelity": 100
+  },
+  {
+   "turn": 330,
+   "orig_tokens": 488,
+   "enc_tokens": 458,
+   "min_tokens": 405,
+   "fidelity": 100
+  },
+  {
+   "turn": 333,
+   "orig_tokens": 498,
+   "enc_tokens": 477,
+   "min_tokens": 428,
+   "fidelity": 97
+  },
+  {
+   "turn": 336,
+   "orig_tokens": 397,
+   "enc_tokens": 314,
+   "min_tokens": 329,
+   "fidelity": 100
+  },
+  {
+   "turn": 339,
+   "orig_tokens": 432,
+   "enc_tokens": 396,
+   "min_tokens": 369,
+   "fidelity": 100
   }
  ],
- "spend_usd": 0.00363,
- "updated": "2026-07-17T14:13:35Z",
+ "spend_usd": 0.006368,
+ "updated": "2026-07-18T02:01:04Z",
  "method": "lowercase; strip surrounding punctuation; drop the/a/an/please; words containing digits kept verbatim; token-counted by the same provider-pinned probe as the loop"
 }

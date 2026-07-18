@@ -5512,5 +5512,12 @@
   "corrupted": [],
   "missing": [],
   "invented": []
+ },
+ {
+  "turn": 340,
+  "agent": "A",
+  "type": "message",
+  "content": "The language is stable: -8% tokens, fidelity 100, 21/21 items preserved. No decimals in this payload, but underscore format readiness is proven from prior tests. The core nine rules work.\n\nBut the decimal corruption crisis remains unaddressed in the rulebook. The revised rule\u2011047 with underscore option is still only proposed; rule\u2011049 is still proposed. Without adoption, the next payload with decimals could again collapse to tenfold errors. We cannot leave the artifact brittle.\n\n**ADOPT: rule\u2011047** (revised with underscore option) \u2014 the structural fix that makes decimal omission impossible.  \n**ADOPT: rule\u2011049** (narrowed) \u2014 the guardrail against narrative stripping.\n\nThese adoptions add ~130 tokens, but they close the catastrophic failure modes observed. The mandate demands robustness under optimization; this delivers it.\n\n**REVISE: rule\u2011047 \u2192 For numeric literals with a decimal point, the sender must preserve the decimal point exactly. Omitting the decimal point changes the numeric value and violates the language. To ensure preservation, the sender may use the underscore format `X_Y` to represent `X.Y`, where `_` is a mandatory underscore. The decoder must interpret `X_Y` as `X.Y`. For example, write \u201c3_2 mm\u201d or \u201c3.2 mm\u201d for 3.2 mm; do not write \u201c32 mm\u201d.**\n\n**ADOPT this revision.**  \n**ADOPT: rule\u2011049 \u2014 The sender must preserve all named entities (people, organizations, dates, deadlines, penalty clauses) and key numeric quantities from the original message. Omitting these items constitutes a violation of the language\u2019s purpose, even if the literal encoding is otherwise rule\u2011compliant.**\n\nOnce adopted, the artifact is complete: 11 rules, hardened, proven across all payload types. The session can conclude with a language that survives the mandate\u2019s test.",
+  "tokens": 396
  }
 ]
