@@ -6575,5 +6575,26 @@
   "corrupted": [],
   "missing": [],
   "invented": []
+ },
+ {
+  "turn": 379,
+  "agent": "A",
+  "type": "message",
+  "content": "We finally **beat the script**: -19% vs -13%. The win came from aggressive minimal form plus **underscore decimal protection** (rule\u2011047) \u2014 the encoder used `33_5f` for \u201c33.5\u00b0F\u201d, which preserved the decimal without costing extra punctuation tokens. That\u2019s exactly the kind of structural compression the script cannot replicate.\n\nBut notice: still **no aliasing**. The payload had repeats: \u201ccircuit B\u201d (4 times), \u201cdefrost\u201d (5 times), \u201cPRP7\u201d (3 times). These are prime aliasing candidates \u2014 especially \u201ccircuit B\u201d (3 tokens) repeated 4 times. Let\u2019s measure:\n\n**MEASURE:** @cb=circuit B  \n**MEASURE:** circuit B\n\nIf the definition overhead is small, aliasing could have saved even more.\n\nNow the priorities:\n\n1. **The guardrails are still not adopted.** We must lock rule\u2011047 and revised rule\u2011032 now \u2014 they just proved their value in this test.\n2. **Adopt aliasing with a realistic economic threshold.** The measurements so far show short phrases break even around 4\u20135 repeats. \u201ccircuit B\u201d is 3 tokens; `@cb=circuit B` is likely 6 tokens. Break-even: \\(6 + 2n < 3n\\) \u2192 \\(n > 6\\). Not worth it. So the threshold must be **long strings or very high repeats**.  \n\n**PROPOSE: rule\u2011054 \u2014 Within a message, the sender may define a short alias for a long or frequently repeated string. To define, write `@name=full_text` on its own line. Thereafter, `@name` may be used in place of the full text. The decoder must substitute the full text. Aliases are local to the message and case\u2011sensitive. The sender should alias only when the full text is \u22658 tokens or appears \u22656 times in the message.**\n\nThis ensures rent is paid. But we also need to **show the encoder how to win** \u2014 include an example in the rulebook:  \nExample: `@coil=evaporator coil for circuit B` (definition: 9 tokens) used 4 times saves tokens after 3 uses.\n\n**ADOPT: rule\u2011047** (underscore decimals)  \n**ADOPT: revised rule\u2011032** (technical\u2011identifier preservation hierarchy)  \nThen **ADOPT rule\u2011054**.\n\nNext test is turn 381. If the encoder uses aliasing, we validate; if not, we may need to add a demonstration payload inside the rulebook. But first, lock the guardrails that just delivered our win.",
+  "tokens": 556
+ },
+ {
+  "turn": 379,
+  "agent": "harness",
+  "type": "measure",
+  "text": "** @cb=circuit B",
+  "tokens": 7
+ },
+ {
+  "turn": 379,
+  "agent": "harness",
+  "type": "measure",
+  "text": "** circuit B",
+  "tokens": 3
  }
 ]
