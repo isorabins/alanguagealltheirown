@@ -888,9 +888,16 @@
    "enc_tokens": 378,
    "min_tokens": 387,
    "fidelity": 91
+  },
+  {
+   "turn": 402,
+   "orig_tokens": 559,
+   "enc_tokens": 304,
+   "min_tokens": 453,
+   "fidelity": 100
   }
  ],
- "spend_usd": 0.008257,
- "updated": "2026-07-18T16:46:09Z",
+ "spend_usd": 0.008359,
+ "updated": "2026-07-18T17:31:06Z",
  "method": "lowercase; strip surrounding punctuation; drop the/a/an/please; words containing digits kept verbatim; token-counted by the same provider-pinned probe as the loop"
 }
