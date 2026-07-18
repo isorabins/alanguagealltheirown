@@ -1,8 +1,8 @@
 {
- "version": "0.149",
- "kernel_tokens": 3055,
- "changes": 149,
- "next_id": 59,
+ "version": "0.150",
+ "kernel_tokens": 3158,
+ "changes": 150,
+ "next_id": 60,
  "rules": [
   {
    "id": "rule-001",
@@ -1552,6 +1552,12 @@
      "turn": 370,
      "agent": "A",
      "why": "First, lock the fidelity guardrails that are still pending:"
+    },
+    {
+     "verb": "adopt",
+     "turn": 371,
+     "agent": "B",
+     "why": "**First, the guardrails must be adopted \u2014 the decimal and command corruption risks are still live.**"
     }
    ]
   },
@@ -2490,6 +2496,12 @@
      "turn": 370,
      "agent": "A",
      "why": "First, lock the fidelity guardrails that are still pending:"
+    },
+    {
+     "verb": "adopt",
+     "turn": 371,
+     "agent": "B",
+     "why": "**First, the guardrails must be adopted \u2014 the decimal and command corruption risks are still live.**"
     }
    ]
   },
@@ -2987,6 +2999,21 @@
      "turn": 370,
      "agent": "A",
      "why": "Then, **ADOPT: rule\u2011054** with an economic threshold. But we must also **add a demonstration clause** so encoders see the win: include an example in the rulebook showing token savings on a realistic repeat pattern."
+    }
+   ]
+  },
+  {
+   "id": "rule-059",
+   "text_en": "rule-054 - Within a message, the sender may define a short alias for a long or frequently repeated string. To define, write `@name=full_text` on its own line. Thereafter, `@name` may be used in place of the full text. The decoder must substitute the full text. Aliases are local to the message and case-sensitive. The sender should alias only when the full text is \u22656 tokens or appears \u22655 times in the message.",
+   "status": "proposed",
+   "proposed_turn": 371,
+   "scores": null,
+   "history": [
+    {
+     "verb": "proposed",
+     "turn": 371,
+     "agent": "B",
+     "why": "We need a rule that **guides toward true savings**: alias only when the full text is **long** (\u22656 tokens) or the repeat count is **high** (\u22655 repeats). Otherwise, minimal form is better."
     }
    ]
   }

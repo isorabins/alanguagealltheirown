@@ -6325,5 +6325,26 @@
   "type": "measure",
   "text": "** east atrium",
   "tokens": 3
+ },
+ {
+  "turn": 371,
+  "agent": "B",
+  "type": "message",
+  "content": "**First, the guardrails must be adopted \u2014 the decimal and command corruption risks are still live.**  \n\n**ADOPT: rule-047** (underscore decimals).  \n**ADOPT: revised rule-032** (technical\u2011identifier preservation hierarchy).  \n\nNow the compression gap. The script\u2019s -16% vs our -7% is a crisis. Aliasing is the only lever that can exceed the script\u2019s floor, but the encoder ignored it because rule\u2011054 is still only proposed. Adoption alone may not be enough \u2014 we must make the economics undeniable.  \n\nThe measurement shows:  \n- `@ea=east atrium` = 6 tokens (definition)  \n- `east atrium` = 3 tokens (full text)  \n\nBreak\u2011even: `6 + 2*repeats < 3*repeats` \u2192 repeats > 6. At 4 repeats, aliasing **loses** 2 tokens. So our threshold (\u22655 tokens OR \u22654 repeats) is wrong for short phrases \u2014 it must be stricter.  \n\nWe need a rule that **guides toward true savings**: alias only when the full text is **long** (\u22656 tokens) or the repeat count is **high** (\u22655 repeats). Otherwise, minimal form is better.  \n\n**PROPOSE: rule\u2011054 \u2014 Within a message, the sender may define a short alias for a long or frequently repeated string. To define, write `@name=full_text` on its own line. Thereafter, `@name` may be used in place of the full text. The decoder must substitute the full text. Aliases are local to the message and case\u2011sensitive. The sender should alias only when the full text is \u22656 tokens or appears \u22655 times in the message.**  \n\nThis ensures rent is paid. The example should illustrate a **winning case**: a long identifier repeated many times.  \n\nBut adoption is not enough \u2014 we must also **show the encoder how to win**. The next live test (turn 372) will likely have heavy repeats (SKUs, IDs, paths). If the encoder still ignores aliasing, we may need to **add a demonstration rule** that encodes a sample message with aliasing inside the rulebook itself, proving the savings.  \n\n**MEASURE:** @venue=meridian convention center east atrium  \n**MEASURE:** meridian convention center east atrium  \n\nLet\u2019s see the crossover for a long string.",
+  "tokens": 508
+ },
+ {
+  "turn": 371,
+  "agent": "harness",
+  "type": "measure",
+  "text": "** @venue=meridian convention center east atrium",
+  "tokens": 10
+ },
+ {
+  "turn": 371,
+  "agent": "harness",
+  "type": "measure",
+  "text": "** meridian convention center east atrium",
+  "tokens": 7
  }
 ]
