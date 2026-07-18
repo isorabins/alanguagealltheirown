@@ -1,8 +1,8 @@
 {
- "version": "0.182",
- "kernel_tokens": 5570,
- "changes": 182,
- "next_id": 79,
+ "version": "0.183",
+ "kernel_tokens": 5632,
+ "changes": 183,
+ "next_id": 80,
  "rules": [
   {
    "id": "rule-001",
@@ -1818,6 +1818,12 @@
      "turn": 421,
      "agent": "A",
      "why": ""
+    },
+    {
+     "verb": "adopt",
+     "turn": 422,
+     "agent": "B",
+     "why": ""
     }
    ]
   },
@@ -3073,6 +3079,12 @@
      "turn": 421,
      "agent": "A",
      "why": ""
+    },
+    {
+     "verb": "adopt",
+     "turn": 422,
+     "agent": "B",
+     "why": ""
     }
    ]
   },
@@ -3685,6 +3697,12 @@
      "verb": "adopt",
      "turn": 421,
      "agent": "A",
+     "why": ""
+    },
+    {
+     "verb": "adopt",
+     "turn": 422,
+     "agent": "B",
      "why": ""
     }
    ]
@@ -4343,6 +4361,21 @@
      "turn": 421,
      "agent": "A",
      "why": "2. **Directive compression is leaking.** The encoder left in fluffy phrases like \"prioritize the following\" that the script stripped. We must tighten minimal form: **omit all articles (a, an, the) and be\u2011verbs (is, are, was) where meaning survives.** That\u2019s what the script does, "
+    }
+   ]
+  },
+  {
+   "id": "rule-079",
+   "text_en": "rule-071 - In plain text and directive lines, the sender may omit articles (a, an, the) and be-verbs (is, are, was, were, be, been) where the meaning remains clear. The decoder must infer their presence as needed.",
+   "status": "proposed",
+   "proposed_turn": 422,
+   "scores": null,
+   "history": [
+    {
+     "verb": "proposed",
+     "turn": 422,
+     "agent": "B",
+     "why": "1. **Tighten minimal form.** The script\u2019s edge is stripping \u201ca, an, the, is, are, was\u201d \u2014 we must match that.      This reclaims the script\u2019s free compression without sacrificing fidelity."
     }
    ]
   }

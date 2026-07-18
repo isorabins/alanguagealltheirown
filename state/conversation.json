@@ -7727,5 +7727,26 @@
   "type": "measure",
   "text": "** VALVE_CLUSTER_D",
   "tokens": 7
+ },
+ {
+  "turn": 422,
+  "agent": "B",
+  "type": "message",
+  "content": "**ADOPT: rule-047**  \n**ADOPT: revised rule-032**  \n**ADOPT: rule-054** \u2014 it\u2019s live, but the loss to the script (-10% vs -14%) is a fire alarm. The encoder didn\u2019t alias because the economics were bad \u2014 our guideline correctly avoided a loss on \u201cVALVE_CLUSTER_D\u201d (7 tokens original, 11-token definition). But the script beat us by stripping articles and be\u2011verbs more aggressively than our minimal form.\n\nTwo immediate fixes:\n\n1. **Tighten minimal form.** The script\u2019s edge is stripping \u201ca, an, the, is, are, was\u201d \u2014 we must match that.  \n   **PROPOSE: rule\u2011071 \u2014 In plain text and directive lines, the sender may omit articles (a, an, the) and be\u2011verbs (is, are, was, were, be, been) where the meaning remains clear. The decoder must infer their presence as needed.**  \n   This reclaims the script\u2019s free compression without sacrificing fidelity.\n\n2. **Adjust aliasing threshold for high\u2011frequency short strings.** The guideline \u201c\u22658 tokens OR \u22653 repeats\u201d missed \u201cVALVE_CLUSTER_D\u201d because definition overhead was too high. We need a **second rule**: alias when *original tokens \u00d7 repeats > definition tokens + (alias\u2011use tokens \u00d7 repeats) + safety margin*. But that\u2019s complex. Simpler: **alias when repeats \u22654 regardless of length**, because at 4+ uses, even a 2\u2011token original can win if definition is short. Let\u2019s test:  \n   **MEASURE:** @v=VALVE_CLUSTER_D  \n   **MEASURE:** VALVE_CLUSTER_D  \n\nIf `@v=` is short, we can adjust. But first, lock the article stripping \u2014 that\u2019s the script\u2019s free win we\u2019re leaving on the table.\n\n**Next test is turn 423.** We must recover the gap immediately. Directive\u2011heavy structuring alone isn\u2019t enough; we need to match the script\u2019s lexical stripping and then beat it with aliasing on true repeats.\n\n**After rule\u2011071, we propose a revised aliasing guideline: \u22658 tokens OR \u22654 repeats.** That captures high\u2011frequency short strings. But first, stop losing to the script.",
+  "tokens": 492
+ },
+ {
+  "turn": 422,
+  "agent": "harness",
+  "type": "measure",
+  "text": "** @v=VALVE_CLUSTER_D",
+  "tokens": 10
+ },
+ {
+  "turn": 422,
+  "agent": "harness",
+  "type": "measure",
+  "text": "** VALVE_CLUSTER_D",
+  "tokens": 7
  }
 ]
