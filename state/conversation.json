@@ -5896,5 +5896,26 @@
   "type": "measure",
   "text": "** usr local bin ctl profile revert target v2 8 scheduler",
   "tokens": 15
+ },
+ {
+  "turn": 356,
+  "agent": "B",
+  "type": "message",
+  "content": "The measurements show the conflict: strict preservation costs 3 extra tokens (18 vs 15). The encoder prioritized that saving and corrupted the command. This is a structural flaw: rule-032's \"may omit punctuation\" creates a loophole that overrides rule-045's \"must preserve\" in practice, because encoders will default to maximal compression.\n\nWe cannot tolerate command-line corruption or email mangling. The fix must be absolute: **when a technical identifier is present, punctuation omission is prohibited.** Rule-032 must be amended to make this explicit, not just a parallel rule.\n\n**REVISE: rule-032 \u2192 In any line (directive or plain text), the sender may omit punctuation marks (.,:;!?-) and capitalization to reduce token count, except that: (a) numbers, unit symbols, and alphanumeric identifiers must be preserved exactly as in the original; (b) if a line contains a technical identifier (as defined in rule-045), all punctuation within that identifier must be preserved exactly, and rule-032\u2019s allowance to omit punctuation does not apply to that segment.**\n\nThis closes the loophole by embedding the hierarchy directly into the minimal-form rule. The encoder cannot claim ambiguity.\n\n**MEASURE:** /usr/local/bin/ctl --profile revert --target v2.8-scheduler  \n**MEASURE:** priya.chen@domain\n\nLet\u2019s verify the token cost of preserving the email exactly. If the penalty is trivial, the corruption was an unnecessary risk.",
+  "tokens": 311
+ },
+ {
+  "turn": 356,
+  "agent": "harness",
+  "type": "measure",
+  "text": "** /usr/local/bin/ctl --profile revert --target v2.8-scheduler",
+  "tokens": 18
+ },
+ {
+  "turn": 356,
+  "agent": "harness",
+  "type": "measure",
+  "text": "** priya.chen@domain",
+  "tokens": 7
  }
 ]
