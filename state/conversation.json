@@ -6166,5 +6166,26 @@
   "type": "measure",
   "text": "** @gf=gluten free",
   "tokens": 7
+ },
+ {
+  "turn": 365,
+  "agent": "B",
+  "type": "message",
+  "content": "**First, the fidelity guardrails must be adopted \u2014 we cannot risk another decimal or command corruption.**  \n\n**ADOPT: rule\u2011047** (revised with underscore option) \u2014 the decimal guardrail proven across voluntary use.  \n**REVISE: rule\u2011032 \u2192 In any line (directive or plain text), the sender may omit punctuation marks (.,:;!?-) and capitalization to reduce token count, except that: (a) numbers, unit symbols, and alphanumeric identifiers must be preserved exactly as in the original; (b) if a line contains a technical identifier (as defined in rule\u2011045), all punctuation within that identifier must be preserved exactly, and rule\u2011032\u2019s allowance to omit punctuation does not apply to that segment.**  \n**ADOPT this revision.**\n\nNow the compression frontier. The script beat us because it strips articles and punctuation, a floor we must exceed. Aliasing can do that, but the measurements show it\u2019s **fragile**: short phrases (\u201cgluten free\u201d, 3 tokens) cost more to alias (7 tokens for definition) unless repeated many times. The rule must be **economically guided** so encoders don\u2019t waste tokens.\n\n**PROPOSE: rule\u2011054 \u2014 Within a message, the sender may define a short alias for a long or frequently repeated string. To define, write `@name=full_text` on its own line. Thereafter, `@name` may be used in place of the full text. The decoder must substitute the full text. Aliases are local to the message and case\u2011sensitive. The sender should alias only when the full text is \u22656 tokens or appears \u22653 times in the message.**  \n\nThe threshold (\u22656 tokens OR \u22653 repeats) is a heuristic to ensure rent\u2011paid. We can refine after a live test.  \n\nNext test is turn 366 \u2014 likely data\u2011heavy with repeats. If the encoder uses aliasing voluntarily, we validate. If not, we may need stricter guidance. But first, lock down the guardrails.  \n\n**MEASURE:** @gf=gluten free attendees  \n**MEASURE:** gluten free attendees  \n\nLet\u2019s see the crossover for a longer phrase.",
+  "tokens": 457
+ },
+ {
+  "turn": 365,
+  "agent": "harness",
+  "type": "measure",
+  "text": "** @gf=gluten free attendees",
+  "tokens": 8
+ },
+ {
+  "turn": 365,
+  "agent": "harness",
+  "type": "measure",
+  "text": "** gluten free attendees",
+  "tokens": 4
  }
 ]

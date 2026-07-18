@@ -1,8 +1,8 @@
 {
- "version": "0.145",
- "kernel_tokens": 2688,
- "changes": 145,
- "next_id": 56,
+ "version": "0.146",
+ "kernel_tokens": 2791,
+ "changes": 146,
+ "next_id": 57,
  "rules": [
   {
    "id": "rule-001",
@@ -2432,6 +2432,12 @@
      "turn": 364,
      "agent": "A",
      "why": "But first, the fidelity guardrails. The decimal crisis and command corruption are still unaddressed because rule\u2011047 and revised rule\u2011032 are pending. Adopt them now\u2014they prevent catastrophic errors the script cannot make (the script preserves numbers, but our encoder might corru"
+    },
+    {
+     "verb": "adopt",
+     "turn": 365,
+     "agent": "B",
+     "why": "**First, the fidelity guardrails must be adopted \u2014 we cannot risk another decimal or command corruption.**"
     }
    ]
   },
@@ -2854,6 +2860,21 @@
      "why": "But we must be surgical. The rule must be simple, self-contained, and pay rent only when repeats justify it. Propose a minimal aliasing rule: define once with `@alias=full_text`, use `@alias` thereafter. The decoder expands inline. Mandatory only for repeats \u22653? No \u2014 let the enco"
     },
     "tested turn 363: fid 100, -9%"
+   ]
+  },
+  {
+   "id": "rule-056",
+   "text_en": "rule-054 - Within a message, the sender may define a short alias for a long or frequently repeated string. To define, write `@name=full_text` on its own line. Thereafter, `@name` may be used in place of the full text. The decoder must substitute the full text. Aliases are local to the message and case-sensitive. The sender should alias only when the full text is \u22656 tokens or appears \u22653 times in the message.",
+   "status": "proposed",
+   "proposed_turn": 365,
+   "scores": null,
+   "history": [
+    {
+     "verb": "proposed",
+     "turn": 365,
+     "agent": "B",
+     "why": "Now the compression frontier. The script beat us because it strips articles and punctuation, a floor we must exceed. Aliasing can do that, but the measurements show it\u2019s **fragile**: short phrases (\u201cgluten free\u201d, 3 tokens) cost more to alias (7 tokens for definition) unless repea"
+    }
    ]
   }
  ]
