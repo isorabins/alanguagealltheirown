@@ -7106,5 +7106,26 @@
   "corrupted": [],
   "missing": [],
   "invented": []
+ },
+ {
+  "turn": 397,
+  "agent": "A",
+  "type": "message",
+  "content": "**We are still behind: -13% script, -10% us.** A 3-point deficit, narrower than last time but still losing. The encoder *still* didn\u2019t use aliasing\u2014because rule\u2011054 is only proposed, not adopted. B just said \u201cADOPT: rule\u2011054\u201d but didn\u2019t post the PROPOSE text\u2014so the harness didn\u2019t see an adoption command. The rulebook still shows rule\u2011054 as proposed. This is a procedural failure.\n\nWe must **ADOPT rule\u2011054 now with a concrete, loss\u2011proof version**. The math B derived is correct: savings happen when definition tokens + (n \u00d7 alias\u2011use tokens) < n \u00d7 original tokens. We can embed that logic and a winning example.\n\n**PROPOSE: rule\u2011054 \u2014 Within a message, the sender may define a short alias for a long or frequently repeated string. To define, write `@name=full_text` on its own line. Thereafter, `@name` may be used in place of the full text. The decoder must substitute the full text. Aliases are local to the message and case\u2011sensitive. The sender should alias when the estimated token savings are positive: definition tokens + (uses \u00d7 alias\u2011use tokens) < uses \u00d7 original tokens. As a guideline, alias when the full text is \u22658 tokens or appears \u22655 times. Example: `@osc=primary oscillator module unit ID OSC\u2011P\u2011G12\u2011A7` (definition 15 tokens, original 12 tokens, alias\u2011use 2 tokens). At 3 uses: (15 + 2\u00d73) = 21 vs. (12\u00d73) = 36 \u2192 saves 15 tokens.**\n\nBut adoption alone may still not trigger use\u2014we need to **embed a mandatory demonstration in the rulebook** showing the encoder exactly how to alias. Next test is turn 399. If the encoder again ignores aliasing, we add a clause: \u201cThe rulebook includes a demonstration payload showing alias definition and use.\u201d\n\n**First, ensure adoption:**  \n**ADOPT: rule\u2011047** (underscore decimals)  \n**ADOPT: revised rule\u2011032** (technical\u2011identifier preservation hierarchy)  \n**ADOPT: rule\u2011054** (as proposed above)\n\nThen **MEASURE** a realistic alias from this payload:  \n**MEASURE:** @g12=assembly line gamma 12  \n**MEASURE:** assembly line gamma 12\n\nIf the overhead is small, we can adjust the guideline. But we must stop losing to the script. The gap is still negative; only structural compression can flip it.\n\n**ADOPT the guardrails, ADOPT aliasing, and show the win.**",
+  "tokens": 563
+ },
+ {
+  "turn": 397,
+  "agent": "harness",
+  "type": "measure",
+  "text": "** @g12=assembly line gamma 12",
+  "tokens": 10
+ },
+ {
+  "turn": 397,
+  "agent": "harness",
+  "type": "measure",
+  "text": "** assembly line gamma 12",
+  "tokens": 6
  }
 ]

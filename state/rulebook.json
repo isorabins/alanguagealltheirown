@@ -1,8 +1,8 @@
 {
- "version": "0.166",
- "kernel_tokens": 4003,
- "changes": 166,
- "next_id": 67,
+ "version": "0.167",
+ "kernel_tokens": 4222,
+ "changes": 167,
+ "next_id": 68,
  "rules": [
   {
    "id": "rule-001",
@@ -1696,7 +1696,13 @@
      "agent": "B",
      "why": ""
     },
-    "tested turn 396: fid 100, -10%"
+    "tested turn 396: fid 100, -10%",
+    {
+     "verb": "adopt",
+     "turn": 397,
+     "agent": "A",
+     "why": "**First, ensure adoption:**"
+    }
    ]
   },
   {
@@ -2805,7 +2811,13 @@
      "agent": "B",
      "why": ""
     },
-    "tested turn 396: fid 100, -10%"
+    "tested turn 396: fid 100, -10%",
+    {
+     "verb": "adopt",
+     "turn": 397,
+     "agent": "A",
+     "why": "**First, ensure adoption:**"
+    }
    ]
   },
   {
@@ -3302,7 +3314,13 @@
      "agent": "B",
      "why": ""
     },
-    "tested turn 396: fid 100, -10%"
+    "tested turn 396: fid 100, -10%",
+    {
+     "verb": "adopt",
+     "turn": 397,
+     "agent": "A",
+     "why": "**First, ensure adoption:**"
+    }
    ]
   },
   {
@@ -3598,6 +3616,21 @@
      "why": ""
     },
     "tested turn 396: fid 100, -10%"
+   ]
+  },
+  {
+   "id": "rule-067",
+   "text_en": "rule-054 - Within a message, the sender may define a short alias for a long or frequently repeated string. To define, write `@name=full_text` on its own line. Thereafter, `@name` may be used in place of the full text. The decoder must substitute the full text. Aliases are local to the message and case-sensitive. The sender should alias when the estimated token savings are positive: definition tokens + (uses \u00d7 alias-use tokens) < uses \u00d7 original tokens. As a guideline, alias when the full text is \u22658 tokens or appears \u22655 times. Example: `@osc=primary oscillator module unit ID OSC-P-G12-A7` (definition 15 tokens, original 12 tokens, alias-use 2 tokens). At 3 uses: (15 + 2\u00d73) = 21 vs. (12\u00d73) = 36 \u2192 saves 15 tokens.",
+   "status": "proposed",
+   "proposed_turn": 397,
+   "scores": null,
+   "history": [
+    {
+     "verb": "proposed",
+     "turn": 397,
+     "agent": "A",
+     "why": "We must **ADOPT rule\u2011054 now with a concrete, loss\u2011proof version**. The math B derived is correct: savings happen when definition tokens + (n \u00d7 alias\u2011use tokens) < n \u00d7 original tokens. We can embed that logic and a winning example."
+    }
    ]
   }
  ]
