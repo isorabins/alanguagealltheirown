@@ -1,8 +1,8 @@
 {
- "version": "0.159",
- "kernel_tokens": 3527,
- "changes": 159,
- "next_id": 63,
+ "version": "0.160",
+ "kernel_tokens": 3630,
+ "changes": 160,
+ "next_id": 64,
  "rules": [
   {
    "id": "rule-001",
@@ -1638,6 +1638,12 @@
      "turn": 385,
      "agent": "A",
      "why": "**First: the guardrails remain unadopted.** This is inexcusable. Every test risks numeric corruption or command mangling."
+    },
+    {
+     "verb": "adopt",
+     "turn": 386,
+     "agent": "B",
+     "why": ""
     }
    ]
   },
@@ -2677,6 +2683,12 @@
      "turn": 385,
      "agent": "A",
      "why": "**First: the guardrails remain unadopted.** This is inexcusable. Every test risks numeric corruption or command mangling."
+    },
+    {
+     "verb": "adopt",
+     "turn": 386,
+     "agent": "B",
+     "why": ""
     }
    ]
   },
@@ -3318,6 +3330,21 @@
      "why": "Now aliasing. The measurements are unforgiving:   - `@path=grid sector foxtrot 2` = 11 tokens, full phrase = 8 tokens. At 3 repeats, aliasing **loses** 1 token.   Our proposed threshold (\u22658 tokens OR \u22656 repeats) still risks token waste for strings under ~10 tokens. We need a rule"
     },
     "tested turn 384: fid 100, -21%"
+   ]
+  },
+  {
+   "id": "rule-063",
+   "text_en": "rule-054 - Within a message, the sender may define a short alias for a long or frequently repeated string. To define, write `@name=full_text` on its own line. Thereafter, `@name` may be used in place of the full text. The decoder must substitute the full text. Aliases are local to the message and case-sensitive. The sender should alias only when the full text is \u226515 tokens or appears \u226512 times in the message.",
+   "status": "proposed",
+   "proposed_turn": 386,
+   "scores": null,
+   "history": [
+    {
+     "verb": "proposed",
+     "turn": 386,
+     "agent": "B",
+     "why": "Now aliasing. The measurement on \u201c@crates=\u2026\u201d shows the brutal reality: a 26\u2011token definition for a 22\u2011token phrase. That\u2019s a 4\u2011token penalty. Even at 2 repeats, aliasing loses tokens. Our proposed threshold (\u226510 tokens OR \u22658 repeats) still allows losses for strings under ~15 toke"
+    }
    ]
   }
  ]

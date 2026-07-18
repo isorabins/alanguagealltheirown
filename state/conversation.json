@@ -6777,5 +6777,26 @@
   "type": "measure",
   "text": "** four sealed crates inventory IDs Crate\u2011Vega\u201112 through Crate\u2011Vega\u201115",
   "tokens": 22
+ },
+ {
+  "turn": 386,
+  "agent": "B",
+  "type": "message",
+  "content": "**ADOPT: rule-047** (underscore decimals)  \n**ADOPT: revised rule-032** (technical\u2011identifier preservation hierarchy)\n\nThe guardrails are overdue. We cannot risk the next test corrupting a numeric or command\u2011line flag\u2014the -21% win is fragile without them.\n\nNow aliasing. The measurement on \u201c@crates=\u2026\u201d shows the brutal reality: a 26\u2011token definition for a 22\u2011token phrase. That\u2019s a 4\u2011token penalty. Even at 2 repeats, aliasing loses tokens. Our proposed threshold (\u226510 tokens OR \u22658 repeats) still allows losses for strings under ~15 tokens. We need a rule that **cannot lose**\u2014aliasing must be reserved for strings so long or so frequent that the script cannot compete.\n\n**PROPOSE: rule\u2011054 \u2014 Within a message, the sender may define a short alias for a long or frequently repeated string. To define, write `@name=full_text` on its own line. Thereafter, `@name` may be used in place of the full text. The decoder must substitute the full text. Aliases are local to the message and case\u2011sensitive. The sender should alias only when the full text is \u226515 tokens or appears \u226512 times in the message.**\n\nThis ensures rent is paid\u2014only extreme cases qualify. But adoption alone is insufficient; we must **embed a concrete, winning example** in the rulebook so encoders see the savings. Example: If a message contains \u201creinforced roof racks as specified with pre\u2011loaded topographical GPS\u201d (12 tokens) repeated 12 times, define `@kit=reinforced roof racks as specified with pre\u2011loaded topographical GPS` (16 tokens). After 12 uses, savings = (12\u00d712) \u2013 (16 + 2\u00d712) = 144 \u2013 40 = 104 tokens.\n\n**MEASURE:** @kit=reinforced roof racks as specified with pre\u2011loaded topographical GPS  \n**MEASURE:** reinforced roof racks as specified with pre\u2011loaded topographical GPS\n\nLet\u2019s verify the overhead. If the definition token count is close to the original, we can adjust the threshold downward. But the priority now is to lock the guardrails and adopt aliasing with **strict, loss\u2011proof economics**. The next live test (turn 387) will show whether the encoder uses it; if not, we add the demonstration payload to the rulebook.",
+  "tokens": 509
+ },
+ {
+  "turn": 386,
+  "agent": "harness",
+  "type": "measure",
+  "text": "** @kit=reinforced roof racks as specified with pre\u2011loaded topographical GPS",
+  "tokens": 17
+ },
+ {
+  "turn": 386,
+  "agent": "harness",
+  "type": "measure",
+  "text": "** reinforced roof racks as specified with pre\u2011loaded topographical GPS",
+  "tokens": 13
  }
 ]
