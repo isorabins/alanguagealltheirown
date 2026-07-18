@@ -91,6 +91,30 @@ def post(text, premise=False):
         log(f"post FAILED ({e}): {text}")
 
 
+NOTES_PER_DAY = 2   # field-note drip: history posts oldest-first, capped so it's a stream, not a flood
+
+
+def post_notes(snap):
+    """Field notes (notes.json) to X, oldest unposted first, NOTES_PER_DAY per UTC day.
+    Watermark index in tweet-state — notes.json is append-only so an index is stable."""
+    notes_f = ROOT / "notes.json"
+    if not notes_f.exists():
+        return
+    notes = json.loads(notes_f.read_text())
+    done = snap.get("notes_posted", 0)
+    today = datetime.now(timezone.utc).strftime("%Y-%m-%d")
+    if snap.get("notes_day") != today:
+        snap["notes_day"], snap["notes_day_count"] = today, 0
+    budget = NOTES_PER_DAY - snap.get("notes_day_count", 0)
+    for n in notes[done:done + max(0, budget)]:
+        text = n.get("tweet") or (" ".join(n.get("note", "").split())[:230].rstrip() + "… " + PAGE)
+        if len(text) > MAX_LEN:
+            text = text[:MAX_LEN - 1].rstrip() + "…"
+        post(text)
+        snap["notes_posted"] = snap.get("notes_posted", 0) + 1
+        snap["notes_day_count"] = snap.get("notes_day_count", 0) + 1
+
+
 def main():
     rb = json.loads((STATE / "rulebook.json").read_text())
     cur = {r["id"]: r["status"] for r in rb["rules"]}
@@ -109,7 +133,10 @@ def main():
         for r in events:
             post(compose(rb, r, n_sent), premise=(n_sent % PREMISE_EVERY == 0))
             n_sent += 1
-    snap_f.write_text(json.dumps({"statuses": cur, "tweets_sent": n_sent}, indent=1) + "\n")
+    out = dict(snap) if snap else {}
+    out.update({"statuses": cur, "tweets_sent": n_sent})
+    post_notes(out)
+    snap_f.write_text(json.dumps(out, indent=1) + "\n")
 
 
 if __name__ == "__main__":
