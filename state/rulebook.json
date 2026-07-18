@@ -957,7 +957,7 @@
    "status": "adopted",
    "proposed_turn": 145,
    "scores": {
-    "token_delta_pct": -9,
+    "token_delta_pct": -13,
     "fidelity_pct": 100
    },
    "history": [
@@ -1057,7 +1057,8 @@
     "tested turn 354: fid 90, -10%",
     "tested turn 357: fid 95, -26%",
     "tested turn 360: fid 100, -20%",
-    "tested turn 363: fid 100, -9%"
+    "tested turn 363: fid 100, -9%",
+    "tested turn 366: fid 100, -13%"
    ]
   },
   {
@@ -1066,7 +1067,7 @@
    "status": "adopted",
    "proposed_turn": 145,
    "scores": {
-    "token_delta_pct": -9,
+    "token_delta_pct": -13,
     "fidelity_pct": 100
    },
    "history": [
@@ -1154,7 +1155,8 @@
     "tested turn 354: fid 90, -10%",
     "tested turn 357: fid 95, -26%",
     "tested turn 360: fid 100, -20%",
-    "tested turn 363: fid 100, -9%"
+    "tested turn 363: fid 100, -9%",
+    "tested turn 366: fid 100, -13%"
    ]
   },
   {
@@ -1270,7 +1272,7 @@
    "status": "adopted",
    "proposed_turn": 172,
    "scores": {
-    "token_delta_pct": -9,
+    "token_delta_pct": -13,
     "fidelity_pct": 100
    },
    "history": [
@@ -1367,7 +1369,8 @@
     "tested turn 354: fid 90, -10%",
     "tested turn 357: fid 95, -26%",
     "tested turn 360: fid 100, -20%",
-    "tested turn 363: fid 100, -9%"
+    "tested turn 363: fid 100, -9%",
+    "tested turn 366: fid 100, -13%"
    ]
   },
   {
@@ -1376,7 +1379,7 @@
    "status": "adopted",
    "proposed_turn": 176,
    "scores": {
-    "token_delta_pct": -9,
+    "token_delta_pct": -13,
     "fidelity_pct": 100
    },
    "history": [
@@ -1532,7 +1535,8 @@
     "tested turn 354: fid 90, -10%",
     "tested turn 357: fid 95, -26%",
     "tested turn 360: fid 100, -20%",
-    "tested turn 363: fid 100, -9%"
+    "tested turn 363: fid 100, -9%",
+    "tested turn 366: fid 100, -13%"
    ]
   },
   {
@@ -1704,7 +1708,7 @@
    "status": "adopted",
    "proposed_turn": 208,
    "scores": {
-    "token_delta_pct": -9,
+    "token_delta_pct": -13,
     "fidelity_pct": 100
    },
    "history": [
@@ -1777,7 +1781,8 @@
     "tested turn 354: fid 90, -10%",
     "tested turn 357: fid 95, -26%",
     "tested turn 360: fid 100, -20%",
-    "tested turn 363: fid 100, -9%"
+    "tested turn 363: fid 100, -9%",
+    "tested turn 366: fid 100, -13%"
    ]
   },
   {
@@ -1786,7 +1791,7 @@
    "status": "adopted",
    "proposed_turn": 215,
    "scores": {
-    "token_delta_pct": -9,
+    "token_delta_pct": -13,
     "fidelity_pct": 100
    },
    "history": [
@@ -1851,7 +1856,8 @@
     "tested turn 354: fid 90, -10%",
     "tested turn 357: fid 95, -26%",
     "tested turn 360: fid 100, -20%",
-    "tested turn 363: fid 100, -9%"
+    "tested turn 363: fid 100, -9%",
+    "tested turn 366: fid 100, -13%"
    ]
   },
   {
@@ -2020,7 +2026,7 @@
    "status": "proposed",
    "proposed_turn": 241,
    "scores": {
-    "token_delta_pct": -9,
+    "token_delta_pct": -13,
     "fidelity_pct": 100
    },
    "history": [
@@ -2070,7 +2076,8 @@
     "tested turn 354: fid 90, -10%",
     "tested turn 357: fid 95, -26%",
     "tested turn 360: fid 100, -20%",
-    "tested turn 363: fid 100, -9%"
+    "tested turn 363: fid 100, -9%",
+    "tested turn 366: fid 100, -13%"
    ]
   },
   {
@@ -2079,7 +2086,7 @@
    "status": "adopted",
    "proposed_turn": 244,
    "scores": {
-    "token_delta_pct": -9,
+    "token_delta_pct": -13,
     "fidelity_pct": 100
    },
    "history": [
@@ -2134,7 +2141,8 @@
     "tested turn 354: fid 90, -10%",
     "tested turn 357: fid 95, -26%",
     "tested turn 360: fid 100, -20%",
-    "tested turn 363: fid 100, -9%"
+    "tested turn 363: fid 100, -9%",
+    "tested turn 366: fid 100, -13%"
    ]
   },
   {
@@ -2143,7 +2151,7 @@
    "status": "adopted",
    "proposed_turn": 250,
    "scores": {
-    "token_delta_pct": -9,
+    "token_delta_pct": -13,
     "fidelity_pct": 100
    },
    "history": [
@@ -2196,7 +2204,8 @@
     "tested turn 354: fid 90, -10%",
     "tested turn 357: fid 95, -26%",
     "tested turn 360: fid 100, -20%",
-    "tested turn 363: fid 100, -9%"
+    "tested turn 363: fid 100, -9%",
+    "tested turn 366: fid 100, -13%"
    ]
   },
   {
@@ -2205,7 +2214,7 @@
    "status": "adopted",
    "proposed_turn": 277,
    "scores": {
-    "token_delta_pct": -9,
+    "token_delta_pct": -13,
     "fidelity_pct": 100
    },
    "history": [
@@ -2249,7 +2258,8 @@
     "tested turn 354: fid 90, -10%",
     "tested turn 357: fid 95, -26%",
     "tested turn 360: fid 100, -20%",
-    "tested turn 363: fid 100, -9%"
+    "tested turn 363: fid 100, -9%",
+    "tested turn 366: fid 100, -13%"
    ]
   },
   {
@@ -2258,7 +2268,7 @@
    "status": "adopted",
    "proposed_turn": 283,
    "scores": {
-    "token_delta_pct": -9,
+    "token_delta_pct": -13,
     "fidelity_pct": 100
    },
    "history": [
@@ -2438,7 +2448,8 @@
      "turn": 365,
      "agent": "B",
      "why": "**First, the fidelity guardrails must be adopted \u2014 we cannot risk another decimal or command corruption.**"
-    }
+    },
+    "tested turn 366: fid 100, -13%"
    ]
   },
   {
@@ -2447,7 +2458,7 @@
    "status": "proposed",
    "proposed_turn": 287,
    "scores": {
-    "token_delta_pct": -9,
+    "token_delta_pct": -13,
     "fidelity_pct": 100
    },
    "history": [
@@ -2482,7 +2493,8 @@
     "tested turn 354: fid 90, -10%",
     "tested turn 357: fid 95, -26%",
     "tested turn 360: fid 100, -20%",
-    "tested turn 363: fid 100, -9%"
+    "tested turn 363: fid 100, -9%",
+    "tested turn 366: fid 100, -13%"
    ]
   },
   {
@@ -2491,7 +2503,7 @@
    "status": "adopted",
    "proposed_turn": 302,
    "scores": {
-    "token_delta_pct": -9,
+    "token_delta_pct": -13,
     "fidelity_pct": 100
    },
    "history": [
@@ -2683,7 +2695,8 @@
     "tested turn 354: fid 90, -10%",
     "tested turn 357: fid 95, -26%",
     "tested turn 360: fid 100, -20%",
-    "tested turn 363: fid 100, -9%"
+    "tested turn 363: fid 100, -9%",
+    "tested turn 366: fid 100, -13%"
    ]
   },
   {
@@ -2692,7 +2705,7 @@
    "status": "proposed",
    "proposed_turn": 316,
    "scores": {
-    "token_delta_pct": -9,
+    "token_delta_pct": -13,
     "fidelity_pct": 100
    },
    "history": [
@@ -2717,7 +2730,8 @@
     "tested turn 354: fid 90, -10%",
     "tested turn 357: fid 95, -26%",
     "tested turn 360: fid 100, -20%",
-    "tested turn 363: fid 100, -9%"
+    "tested turn 363: fid 100, -9%",
+    "tested turn 366: fid 100, -13%"
    ]
   },
   {
@@ -2726,7 +2740,7 @@
    "status": "proposed",
    "proposed_turn": 317,
    "scores": {
-    "token_delta_pct": -9,
+    "token_delta_pct": -13,
     "fidelity_pct": 100
    },
    "history": [
@@ -2751,7 +2765,8 @@
     "tested turn 354: fid 90, -10%",
     "tested turn 357: fid 95, -26%",
     "tested turn 360: fid 100, -20%",
-    "tested turn 363: fid 100, -9%"
+    "tested turn 363: fid 100, -9%",
+    "tested turn 366: fid 100, -13%"
    ]
   },
   {
@@ -2760,7 +2775,7 @@
    "status": "proposed",
    "proposed_turn": 325,
    "scores": {
-    "token_delta_pct": -9,
+    "token_delta_pct": -13,
     "fidelity_pct": 100
    },
    "history": [
@@ -2782,7 +2797,8 @@
     "tested turn 354: fid 90, -10%",
     "tested turn 357: fid 95, -26%",
     "tested turn 360: fid 100, -20%",
-    "tested turn 363: fid 100, -9%"
+    "tested turn 363: fid 100, -9%",
+    "tested turn 366: fid 100, -13%"
    ]
   },
   {
@@ -2791,7 +2807,7 @@
    "status": "proposed",
    "proposed_turn": 325,
    "scores": {
-    "token_delta_pct": -9,
+    "token_delta_pct": -13,
     "fidelity_pct": 100
    },
    "history": [
@@ -2813,7 +2829,8 @@
     "tested turn 354: fid 90, -10%",
     "tested turn 357: fid 95, -26%",
     "tested turn 360: fid 100, -20%",
-    "tested turn 363: fid 100, -9%"
+    "tested turn 363: fid 100, -9%",
+    "tested turn 366: fid 100, -13%"
    ]
   },
   {
@@ -2822,7 +2839,7 @@
    "status": "adopted",
    "proposed_turn": 355,
    "scores": {
-    "token_delta_pct": -9,
+    "token_delta_pct": -13,
     "fidelity_pct": 100
    },
    "history": [
@@ -2840,7 +2857,8 @@
      "turn": 364,
      "agent": "A",
      "why": "But first, the fidelity guardrails. The decimal crisis and command corruption are still unaddressed because rule\u2011047 and revised rule\u2011032 are pending. Adopt them now\u2014they prevent catastrophic errors the script cannot make (the script preserves numbers, but our encoder might corru"
-    }
+    },
+    "tested turn 366: fid 100, -13%"
    ]
   },
   {
@@ -2849,7 +2867,7 @@
    "status": "proposed",
    "proposed_turn": 362,
    "scores": {
-    "token_delta_pct": -9,
+    "token_delta_pct": -13,
     "fidelity_pct": 100
    },
    "history": [
@@ -2859,7 +2877,8 @@
      "agent": "B",
      "why": "But we must be surgical. The rule must be simple, self-contained, and pay rent only when repeats justify it. Propose a minimal aliasing rule: define once with `@alias=full_text`, use `@alias` thereafter. The decoder expands inline. Mandatory only for repeats \u22653? No \u2014 let the enco"
     },
-    "tested turn 363: fid 100, -9%"
+    "tested turn 363: fid 100, -9%",
+    "tested turn 366: fid 100, -13%"
    ]
   },
   {
@@ -2867,14 +2886,18 @@
    "text_en": "rule-054 - Within a message, the sender may define a short alias for a long or frequently repeated string. To define, write `@name=full_text` on its own line. Thereafter, `@name` may be used in place of the full text. The decoder must substitute the full text. Aliases are local to the message and case-sensitive. The sender should alias only when the full text is \u22656 tokens or appears \u22653 times in the message.",
    "status": "proposed",
    "proposed_turn": 365,
-   "scores": null,
+   "scores": {
+    "token_delta_pct": -13,
+    "fidelity_pct": 100
+   },
    "history": [
     {
      "verb": "proposed",
      "turn": 365,
      "agent": "B",
      "why": "Now the compression frontier. The script beat us because it strips articles and punctuation, a floor we must exceed. Aliasing can do that, but the measurements show it\u2019s **fragile**: short phrases (\u201cgluten free\u201d, 3 tokens) cost more to alias (7 tokens for definition) unless repea"
-    }
+    },
+    "tested turn 366: fid 100, -13%"
    ]
   }
  ]
