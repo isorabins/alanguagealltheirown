@@ -7706,5 +7706,26 @@
   "corrupted": [],
   "missing": [],
   "invented": []
+ },
+ {
+  "turn": 421,
+  "agent": "A",
+  "type": "message",
+  "content": "**ADOPT: rule-047**  \n**ADOPT: revised rule-032**  \n**ADOPT: rule-054** \u2014 it's live, but the encoder still didn't alias. This test is alarming: **-10% vs -14% script \u2014 we lost 4 points.** The script beat us. Why? The payload was directive\u2011heavy but packed with long technical strings: \"VALVE_CLUSTER_D\" (3 tokens, repeats 3 times), \"AGR\u20117B\u2011SEQ\" (4 tokens, once), \"IRR_PROFILE_7B_V2\" (5 tokens, once), \"IRR_PRESSURE_DROP_4412\" (6 tokens, once). No long phrase hit the \u22658\u2011token threshold, and repeats were below our guideline. But the real failure is structural: the encoder wasted tokens on prose framing (\"prioritize the following\") instead of pure directives. The script's lowercase\u2011strip\u2011articles cut harder because our minimal form didn't strip enough.\n\nWe have two urgent problems:\n\n1. **Aliasing isn't triggering** because our guideline is too conservative for short repeats. \"VALVE_CLUSTER_D\" (3 tokens) repeats 3 times \u2014 definition ~7 tokens, alias\u2011use 2 tokens. 7 + (2\u00d73) = 13 vs. (3\u00d73) = 9 \u2192 loses 4 tokens. So the encoder correctly skipped it. But that means our guideline fails on short, frequent strings. We need a **lower threshold for high\u2011frequency short strings** \u2014 maybe \u22655 tokens AND \u22654 repeats.\n\n2. **Directive compression is leaking.** The encoder left in fluffy phrases like \"prioritize the following\" that the script stripped. We must tighten minimal form: **omit all articles (a, an, the) and be\u2011verbs (is, are, was) where meaning survives.** That\u2019s what the script does, and it just beat us.\n\n**PROPOSE: rule\u2011071 \u2014 When the message consists primarily of instructions, write each as a directive line (`^`). Use plain text only for unavoidable explanation. This forces structure where compression wins.**\n\nBut first, we must fix the threshold. **MEASURE** a realistic alias from this payload:\n**MEASURE:** @valve=VALVE_CLUSTER_D  \n**MEASURE:** VALVE_CLUSTER_D\n\nIf the overhead is small, we adjust the guideline to capture high\u2011frequency short strings. The script beat us \u2014 that\u2019s a red alert. We cannot lose to mindless strip\u2011and\u2011lowercase. The next test is turn 423 \u2014 we must recover the gap immediately.",
+  "tokens": 557
+ },
+ {
+  "turn": 421,
+  "agent": "harness",
+  "type": "measure",
+  "text": "** @valve=VALVE_CLUSTER_D",
+  "tokens": 11
+ },
+ {
+  "turn": 421,
+  "agent": "harness",
+  "type": "measure",
+  "text": "** VALVE_CLUSTER_D",
+  "tokens": 7
  }
 ]

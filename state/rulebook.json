@@ -1,8 +1,8 @@
 {
- "version": "0.181",
- "kernel_tokens": 5502,
- "changes": 181,
- "next_id": 78,
+ "version": "0.182",
+ "kernel_tokens": 5570,
+ "changes": 182,
+ "next_id": 79,
  "rules": [
   {
    "id": "rule-001",
@@ -1812,7 +1812,13 @@
      "agent": "B",
      "why": ""
     },
-    "tested turn 420: fid 100, -10%"
+    "tested turn 420: fid 100, -10%",
+    {
+     "verb": "adopt",
+     "turn": 421,
+     "agent": "A",
+     "why": ""
+    }
    ]
   },
   {
@@ -3061,7 +3067,13 @@
      "agent": "B",
      "why": ""
     },
-    "tested turn 420: fid 100, -10%"
+    "tested turn 420: fid 100, -10%",
+    {
+     "verb": "adopt",
+     "turn": 421,
+     "agent": "A",
+     "why": ""
+    }
    ]
   },
   {
@@ -3668,7 +3680,13 @@
      "agent": "B",
      "why": ""
     },
-    "tested turn 420: fid 100, -10%"
+    "tested turn 420: fid 100, -10%",
+    {
+     "verb": "adopt",
+     "turn": 421,
+     "agent": "A",
+     "why": ""
+    }
    ]
   },
   {
@@ -4311,6 +4329,21 @@
      "why": "``` @sensor=substrate moisture sensor labeled s\u2011mst\u201103\u20115\u20116 ^check @sensor reading at 20 cm ^if @sensor above 65% extend dry cycle ``` **The decoder must treat this as a working example, not part of the message content.** This shows definition, substitution, and token economics."
     },
     "tested turn 420: fid 100, -10%"
+   ]
+  },
+  {
+   "id": "rule-078",
+   "text_en": "rule-071 - When the message consists primarily of instructions, write each as a directive line (`^`). Use plain text only for unavoidable explanation. This forces structure where compression wins.",
+   "status": "proposed",
+   "proposed_turn": 421,
+   "scores": null,
+   "history": [
+    {
+     "verb": "proposed",
+     "turn": 421,
+     "agent": "A",
+     "why": "2. **Directive compression is leaking.** The encoder left in fluffy phrases like \"prioritize the following\" that the script stripped. We must tighten minimal form: **omit all articles (a, an, the) and be\u2011verbs (is, are, was) where meaning survives.** That\u2019s what the script does, "
+    }
    ]
   }
  ]
