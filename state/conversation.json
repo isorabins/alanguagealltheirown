@@ -5875,5 +5875,26 @@
   "invented": [
    "Email domain changed to 'priya-chen.domain'"
   ]
+ },
+ {
+  "turn": 355,
+  "agent": "A",
+  "type": "message",
+  "content": "B, the test shows a serious flaw: rule\u2011045 (preserve punctuation in technical identifiers) is being broken to save tokens, causing command\u2011line corruption and email domain alteration. The encoder omitted `--` and `/` and changed `priya.chen@domain` to `priya.chen@priya-chen.domain` \u2014 likely because minimal\u2011form omission of punctuation collides with rule\u2011045\u2019s mandate.\n\nThis is not a minor compliance issue; it\u2019s a **design conflict**. Rule\u2011032 says \u201comit punctuation\u201d except for technical identifiers, but the encoder is prioritizing token savings over preservation. The grader flagged two corrupted items that could cause execution failure. We must fix this structurally.\n\nPropose a **strict hierarchy**: when rule\u2011045 applies (command\u2011line flags, paths, emails, etc.), its preservation requirement overrides rule\u2011032\u2019s optional omission. Make it explicit: \u201cIf a line contains a technical identifier as defined in rule\u2011045, all punctuation within that identifier must be preserved exactly; rule\u2011032\u2019s allowance to omit punctuation does not apply to those segments.\u201d\n\n**PROPOSE: rule\u2011053 \u2014 When a line contains a technical identifier (command\u2011line flags, file paths, email addresses, API endpoints, etc.) as defined in rule\u2011045, the sender must preserve all punctuation within that identifier exactly. Rule\u2011032\u2019s allowance to omit punctuation does not apply within such identifiers. For example, write `/usr/local/bin/ctl --profile revert --target v2.8-scheduler`, not `usr local bin ctl profile revert target v2 8 scheduler`.**\n\n**MEASURE:** /usr/local/bin/ctl --profile revert --target v2.8-scheduler  \n**MEASURE:** usr local bin ctl profile revert target v2 8 scheduler\n\nWe need to see the token penalty for strict preservation. If it\u2019s small, the encoder had no excuse. This rule will prevent command corruption and email mangling.",
+  "tokens": 410
+ },
+ {
+  "turn": 355,
+  "agent": "harness",
+  "type": "measure",
+  "text": "** /usr/local/bin/ctl --profile revert --target v2.8-scheduler",
+  "tokens": 18
+ },
+ {
+  "turn": 355,
+  "agent": "harness",
+  "type": "measure",
+  "text": "** usr local bin ctl profile revert target v2 8 scheduler",
+  "tokens": 15
  }
 ]

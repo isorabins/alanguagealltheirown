@@ -1,8 +1,8 @@
 {
- "version": "0.139",
- "kernel_tokens": 2444,
- "changes": 139,
- "next_id": 54,
+ "version": "0.140",
+ "kernel_tokens": 2550,
+ "changes": 140,
+ "next_id": 55,
  "rules": [
   {
    "id": "rule-001",
@@ -2721,6 +2721,21 @@
     "tested turn 348: fid 100, -12%",
     "tested turn 351: fid 100, -11%",
     "tested turn 354: fid 90, -10%"
+   ]
+  },
+  {
+   "id": "rule-054",
+   "text_en": "rule-053 - When a line contains a technical identifier (command-line flags, file paths, email addresses, API endpoints, etc.) as defined in rule-045, the sender must preserve all punctuation within that identifier exactly. Rule-032\u2019s allowance to omit punctuation does not apply within such identifiers. For example, write `/usr/local/bin/ctl --profile revert --target v2.8-scheduler`, not `usr local bin ctl profile revert target v2 8 scheduler`.",
+   "status": "proposed",
+   "proposed_turn": 355,
+   "scores": null,
+   "history": [
+    {
+     "verb": "proposed",
+     "turn": 355,
+     "agent": "A",
+     "why": "Propose a **strict hierarchy**: when rule\u2011045 applies (command\u2011line flags, paths, emails, etc.), its preservation requirement overrides rule\u2011032\u2019s optional omission. Make it explicit: \u201cIf a line contains a technical identifier as defined in rule\u2011045, all punctuation within that i"
+    }
    ]
   }
  ]
