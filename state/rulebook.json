@@ -1,7 +1,7 @@
 {
- "version": "0.124",
+ "version": "0.125",
  "kernel_tokens": 2444,
- "changes": 124,
+ "changes": 125,
  "next_id": 54,
  "rules": [
   {
@@ -2215,7 +2215,13 @@
      "agent": "B",
      "why": "These two adoptions harden the language against the catastrophic failures we\u2019ve witnessed, while keeping the rulebook lean and learnable. The mandate demands a robust artifact that survives optimization pressure; this delivers."
     },
-    "tested turn 330: fid 100, -6%"
+    "tested turn 330: fid 100, -6%",
+    {
+     "verb": "adopt",
+     "turn": 332,
+     "agent": "B",
+     "why": "These two adoptions close the catastrophic failure modes we\u2019ve observed, hardening the language for real\u2011world encoder optimization. The mandate demands robustness, not just efficiency under conservative use."
+    }
    ]
   },
   {
@@ -2312,6 +2318,12 @@
      "turn": 331,
      "agent": "A",
      "why": ""
+    },
+    {
+     "verb": "adopt",
+     "turn": 332,
+     "agent": "B",
+     "why": "These two adoptions close the catastrophic failure modes we\u2019ve observed, hardening the language for real\u2011world encoder optimization. The mandate demands robustness, not just efficiency under conservative use."
     }
    ]
   },
