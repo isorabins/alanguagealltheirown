@@ -5917,5 +5917,52 @@
   "type": "measure",
   "text": "** priya.chen@domain",
   "tokens": 7
+ },
+ {
+  "turn": 357,
+  "agent": "harness",
+  "type": "test",
+  "payload": "gen-task-software",
+  "original": "The main deployment for Helios-Scan v2.3.1 (deployment ID `hscan-prod-8a2f`) is on fire. Our primary metrics dashboard shows sustained CPU saturation at 98% on all three frontend pods (`hscan-fe-a1b2`, `hscan-fe-c3d4`, `hscan-fe-e5f6`) for the last 18 minutes. The 95th percentile latency for the image processing endpoint (`/api/v2/process`) has ballooned to 4.7 seconds, up from the normal 190 milliseconds. I\u2019ve traced the immediate cause to the new Voronoi segmentation module; it\u2019s hitting a pathological case with certain input from client `astro-dynamics-ltd`, batch job `AD-2025-04-0117`.\n\nI need you to orchestrate the rollback and mitigation. First, scale the `hscan-prod-worker` pool from 10 to 15 replicas immediately to absorb some load, but cap it at 15 \u2014 we cannot exceed that due to the `us-east-2` budget ceiling. Then, initiate a rollback to the previous stable version, `2.2.9`. Use the blue-green pipeline labeled `helios-scan-legacy`. Crucially, the cutover must not happen before 14:30 UTC today, because that's when the `astro-dynamics-ltd` batch job is scheduled to complete. If you cut over earlier, you'll corrupt their in-flight data. However, if the error rate on the primary endpoint exceeds 25% for more than 5 consecutive minutes, you are authorized to execute an emergency cutover regardless, but only after broadcasting a system-wide alert with the incident code `INC-7841`.\n\nOnce the cutover is complete, whether at 14:30 or earlier due to the error condition, you must drain the connections from the old v2.3.1 pods gracefully. Set the pod termination grace period to 120 seconds. Do not terminate them until the new `2.2.9` pods are all reporting as \"Healthy\" for at least 90 seconds. After the old pods are terminated, reduce the `hscan-prod-worker` pool back down to 10 replicas, but only if the CPU utilization across the new frontend pods is under 70%. If it's above 70%, leave the worker pool at 15 and ping me directly. Finally, update the configuration map `hscan-processor-cfg` to disable the Voronoi module by default; set the `enable_experimental_segmentation` flag to `false`. This applies only to the `prod` namespace, not the `staging` one. Confirm each step via our ops channel using the task ID `T-8873`.",
+  "orig_tokens": 580,
+  "enc_tokens": 431,
+  "token_delta_pct": -26,
+  "fidelity": 95,
+  "lost": "The emergency cutover threshold was corrupted from 25% error rate to 2.5%, which could trigger unnecessary emergency actions.",
+  "encoded": "the main deployment for helios scan v2 3 1 deployment id hscan prod 8a2f is on fire our primary metrics dashboard shows sustained cpu saturation at 98 percent on all three frontend pods hscan fe a1b2 hscan fe c3d4 hscan fe e5f6 for the last 18 minutes the 95th percentile latency for the image processing endpoint api v2 process has ballooned to 4 7 seconds up from the normal 190 milliseconds i have traced the immediate cause to the new voronoi segmentation module its hitting a pathological case with certain input from client astro dynamics ltd batch job ad 2025 04 0117\n\n^ scale the hscan prod worker pool from 10 to 15 replicas immediately cap at 15 due to us east 2 budget ceiling\n^ initiate a rollback to previous stable version 2 2 9 using the blue green pipeline labeled helios scan legacy\n^ cutover must not happen before 14 30 utc today when astro dynamics ltd batch job ad 2025 04 0117 completes earlier cutover will corrupt in flight data\n^ if error rate on primary endpoint exceeds 25 percent for more than 5 consecutive minutes you are authorized to execute emergency cutover but only after broadcasting a system wide alert with incident code inc 7841\n^ after cutover complete drain connections from old v2 3 1 pods gracefully set pod termination grace period to 120 seconds\n^ do not terminate old pods until new 2 2 9 pods are all reporting as healthy for at least 90 seconds\n^ after old pods terminated reduce hscan prod worker pool back down to 10 replicas only if cpu utilization across new frontend pods is under 70 percent\n^ if cpu utilization above 70 percent leave worker pool at 15 and ping me directly\n^ update configuration map hscan processor cfg to disable voronoi module set enable experimental segmentation flag to false applies only to prod namespace not staging\n^ confirm each step via ops channel using task id t 8873",
+  "decoded": "the main deployment for helios-scan v2.3.1 (deployment id hscan-prod-8a2f) is on fire. our primary metrics dashboard shows sustained CPU saturation at 98 percent on all three frontend pods (hscan-fe-a1b2, hscan-fe-c3d4, hscan-fe-e5f6) for the last 18 minutes. the 95th percentile latency for the image processing endpoint /api/v2/process has ballooned to 4.7 seconds, up from the normal 190 milliseconds. i have traced the immediate cause to the new voronoi segmentation module. it's hitting a pathological case with certain input from client astro-dynamics-ltd batch job AD-2025-04-0117.\n\n^ scale the hscan-prod worker pool from 10 to 15 replicas immediately. cap at 15 due to us-east-2 budget ceiling.\n^ initiate a rollback to previous stable version 2.2.9 using the blue-green pipeline labeled helios-scan-legacy.\n^ cutover must not happen before 14:30 UTC today when astro-dynamics-ltd batch job AD-2025-04-0117 completes. earlier cutover will corrupt in-flight data.\n^ if error rate on primary endpoint exceeds 2.5 percent for more than 5 consecutive minutes, you are authorized to execute emergency cutover, but only after broadcasting a system-wide alert with incident code INC-7841.\n^ after cutover complete, drain connections from old v2.3.1 pods gracefully. set pod termination grace period to 120 seconds.\n^ do not terminate old pods until new 2.2.9 pods are all reporting as healthy for at least 90 seconds.\n^ after old pods terminated, reduce hscan-prod worker pool back down to 10 replicas, only if CPU utilization across new frontend pods is under 70 percent.\n^ if CPU utilization above 70 percent, leave worker pool at 15 and ping me directly.\n^ update configuration map hscan-processor-cfg to disable voronoi module. set enable-experimental-segmentation flag to false. applies only to prod namespace, not staging.\n^ confirm each step via ops channel using task id T-8873.",
+  "tokens": 431,
+  "decoder_model": "moonshotai/kimi-k2.6",
+  "key": [
+   "1. Affected system is Helios-Scan version 2.3.1, deployment ID `hscan-prod-8a2f`.",
+   "2. Three frontend pods are affected: `hscan-fe-a1b2`, `hscan-fe-c3d4`, `hscan-fe-e5f6`.",
+   "3. CPU saturation is 98% on all three frontend pods.",
+   "4. The issue has lasted for 18 minutes.",
+   "5. The 95th percentile latency for endpoint `/api/v2/process` is 4.7 seconds.",
+   "6. Normal latency for that endpoint is 190 milliseconds.",
+   "7. The cause is the Voronoi segmentation module with input from client `astro-dynamics-ltd`, batch job `AD-2025-04-0117`.",
+   "8. First action: scale the `hscan-prod-worker` pool from 10 to 15 replicas immediately.",
+   "9. The worker pool cap is 15 replicas due to the `us-east-2` budget ceiling.",
+   "10. Second action: initiate a rollback to version `2.2.9` using the `helios-scan-legacy` pipeline.",
+   "11. The cutover must not happen before 14:30 UTC today.",
+   "12. The reason is client `astro-dynamics-ltd` batch job completion at 14:30 UTC.",
+   "13. Conditional: If the error rate on the primary endpoint exceeds 25% for more than 5 consecutive minutes, execute an emergency cutover.",
+   "14. Condition for emergency cutover: must broadcast a system-wide alert with incident code `INC-7841` first.",
+   "15. After cutover, drain old v2.3.1 pods with a termination grace period of 120 seconds.",
+   "16. Do not terminate old pods until new `2.2.9` pods are \"Healthy\" for at least 90 seconds.",
+   "17. After old pods terminate, reduce `hscan-prod-worker` pool back to 10 replicas.",
+   "18. Condition for reduction: only if CPU utilization on new frontend pods is under 70%.",
+   "19. If CPU utilization is above 70%, leave worker pool at 15 and ping the sender directly.",
+   "20. Update config map `hscan-processor-cfg` to set `enable_experimental_segmentation` flag to `false`.",
+   "21. The config update applies only to the `prod` namespace, not `staging`.",
+   "22. Confirm each step using task ID `T-8873` in the ops channel."
+  ],
+  "survived": 21,
+  "total": 22,
+  "corrupted": [
+   "13: Error rate threshold changed from 25% to 2.5%"
+  ],
+  "missing": [],
+  "invented": []
  }
 ]

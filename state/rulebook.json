@@ -957,8 +957,8 @@
    "status": "adopted",
    "proposed_turn": 145,
    "scores": {
-    "token_delta_pct": -10,
-    "fidelity_pct": 90
+    "token_delta_pct": -26,
+    "fidelity_pct": 95
    },
    "history": [
     {
@@ -1054,7 +1054,8 @@
     "tested turn 345: fid 100, -18%",
     "tested turn 348: fid 100, -12%",
     "tested turn 351: fid 100, -11%",
-    "tested turn 354: fid 90, -10%"
+    "tested turn 354: fid 90, -10%",
+    "tested turn 357: fid 95, -26%"
    ]
   },
   {
@@ -1063,8 +1064,8 @@
    "status": "adopted",
    "proposed_turn": 145,
    "scores": {
-    "token_delta_pct": -10,
-    "fidelity_pct": 90
+    "token_delta_pct": -26,
+    "fidelity_pct": 95
    },
    "history": [
     {
@@ -1148,7 +1149,8 @@
     "tested turn 345: fid 100, -18%",
     "tested turn 348: fid 100, -12%",
     "tested turn 351: fid 100, -11%",
-    "tested turn 354: fid 90, -10%"
+    "tested turn 354: fid 90, -10%",
+    "tested turn 357: fid 95, -26%"
    ]
   },
   {
@@ -1264,8 +1266,8 @@
    "status": "adopted",
    "proposed_turn": 172,
    "scores": {
-    "token_delta_pct": -10,
-    "fidelity_pct": 90
+    "token_delta_pct": -26,
+    "fidelity_pct": 95
    },
    "history": [
     {
@@ -1358,7 +1360,8 @@
     "tested turn 345: fid 100, -18%",
     "tested turn 348: fid 100, -12%",
     "tested turn 351: fid 100, -11%",
-    "tested turn 354: fid 90, -10%"
+    "tested turn 354: fid 90, -10%",
+    "tested turn 357: fid 95, -26%"
    ]
   },
   {
@@ -1367,8 +1370,8 @@
    "status": "adopted",
    "proposed_turn": 176,
    "scores": {
-    "token_delta_pct": -10,
-    "fidelity_pct": 90
+    "token_delta_pct": -26,
+    "fidelity_pct": 95
    },
    "history": [
     {
@@ -1520,7 +1523,8 @@
     "tested turn 345: fid 100, -18%",
     "tested turn 348: fid 100, -12%",
     "tested turn 351: fid 100, -11%",
-    "tested turn 354: fid 90, -10%"
+    "tested turn 354: fid 90, -10%",
+    "tested turn 357: fid 95, -26%"
    ]
   },
   {
@@ -1692,8 +1696,8 @@
    "status": "adopted",
    "proposed_turn": 208,
    "scores": {
-    "token_delta_pct": -10,
-    "fidelity_pct": 90
+    "token_delta_pct": -26,
+    "fidelity_pct": 95
    },
    "history": [
     {
@@ -1762,7 +1766,8 @@
     "tested turn 345: fid 100, -18%",
     "tested turn 348: fid 100, -12%",
     "tested turn 351: fid 100, -11%",
-    "tested turn 354: fid 90, -10%"
+    "tested turn 354: fid 90, -10%",
+    "tested turn 357: fid 95, -26%"
    ]
   },
   {
@@ -1771,8 +1776,8 @@
    "status": "adopted",
    "proposed_turn": 215,
    "scores": {
-    "token_delta_pct": -10,
-    "fidelity_pct": 90
+    "token_delta_pct": -26,
+    "fidelity_pct": 95
    },
    "history": [
     {
@@ -1833,7 +1838,8 @@
     "tested turn 345: fid 100, -18%",
     "tested turn 348: fid 100, -12%",
     "tested turn 351: fid 100, -11%",
-    "tested turn 354: fid 90, -10%"
+    "tested turn 354: fid 90, -10%",
+    "tested turn 357: fid 95, -26%"
    ]
   },
   {
@@ -2002,8 +2008,8 @@
    "status": "proposed",
    "proposed_turn": 241,
    "scores": {
-    "token_delta_pct": -10,
-    "fidelity_pct": 90
+    "token_delta_pct": -26,
+    "fidelity_pct": 95
    },
    "history": [
     {
@@ -2049,7 +2055,8 @@
     "tested turn 345: fid 100, -18%",
     "tested turn 348: fid 100, -12%",
     "tested turn 351: fid 100, -11%",
-    "tested turn 354: fid 90, -10%"
+    "tested turn 354: fid 90, -10%",
+    "tested turn 357: fid 95, -26%"
    ]
   },
   {
@@ -2058,8 +2065,8 @@
    "status": "adopted",
    "proposed_turn": 244,
    "scores": {
-    "token_delta_pct": -10,
-    "fidelity_pct": 90
+    "token_delta_pct": -26,
+    "fidelity_pct": 95
    },
    "history": [
     {
@@ -2110,7 +2117,8 @@
     "tested turn 345: fid 100, -18%",
     "tested turn 348: fid 100, -12%",
     "tested turn 351: fid 100, -11%",
-    "tested turn 354: fid 90, -10%"
+    "tested turn 354: fid 90, -10%",
+    "tested turn 357: fid 95, -26%"
    ]
   },
   {
@@ -2119,8 +2127,8 @@
    "status": "adopted",
    "proposed_turn": 250,
    "scores": {
-    "token_delta_pct": -10,
-    "fidelity_pct": 90
+    "token_delta_pct": -26,
+    "fidelity_pct": 95
    },
    "history": [
     {
@@ -2169,7 +2177,8 @@
     "tested turn 345: fid 100, -18%",
     "tested turn 348: fid 100, -12%",
     "tested turn 351: fid 100, -11%",
-    "tested turn 354: fid 90, -10%"
+    "tested turn 354: fid 90, -10%",
+    "tested turn 357: fid 95, -26%"
    ]
   },
   {
@@ -2178,8 +2187,8 @@
    "status": "adopted",
    "proposed_turn": 277,
    "scores": {
-    "token_delta_pct": -10,
-    "fidelity_pct": 90
+    "token_delta_pct": -26,
+    "fidelity_pct": 95
    },
    "history": [
     {
@@ -2219,7 +2228,8 @@
     "tested turn 345: fid 100, -18%",
     "tested turn 348: fid 100, -12%",
     "tested turn 351: fid 100, -11%",
-    "tested turn 354: fid 90, -10%"
+    "tested turn 354: fid 90, -10%",
+    "tested turn 357: fid 95, -26%"
    ]
   },
   {
@@ -2228,8 +2238,8 @@
    "status": "adopted",
    "proposed_turn": 283,
    "scores": {
-    "token_delta_pct": -10,
-    "fidelity_pct": 90
+    "token_delta_pct": -26,
+    "fidelity_pct": 95
    },
    "history": [
     {
@@ -2363,7 +2373,8 @@
      "agent": "B",
      "why": ""
     },
-    "tested turn 354: fid 90, -10%"
+    "tested turn 354: fid 90, -10%",
+    "tested turn 357: fid 95, -26%"
    ]
   },
   {
@@ -2372,8 +2383,8 @@
    "status": "proposed",
    "proposed_turn": 287,
    "scores": {
-    "token_delta_pct": -10,
-    "fidelity_pct": 90
+    "token_delta_pct": -26,
+    "fidelity_pct": 95
    },
    "history": [
     {
@@ -2404,7 +2415,8 @@
     "tested turn 345: fid 100, -18%",
     "tested turn 348: fid 100, -12%",
     "tested turn 351: fid 100, -11%",
-    "tested turn 354: fid 90, -10%"
+    "tested turn 354: fid 90, -10%",
+    "tested turn 357: fid 95, -26%"
    ]
   },
   {
@@ -2413,8 +2425,8 @@
    "status": "adopted",
    "proposed_turn": 302,
    "scores": {
-    "token_delta_pct": -10,
-    "fidelity_pct": 90
+    "token_delta_pct": -26,
+    "fidelity_pct": 95
    },
    "history": [
     {
@@ -2602,7 +2614,8 @@
      "agent": "B",
      "why": ""
     },
-    "tested turn 354: fid 90, -10%"
+    "tested turn 354: fid 90, -10%",
+    "tested turn 357: fid 95, -26%"
    ]
   },
   {
@@ -2611,8 +2624,8 @@
    "status": "proposed",
    "proposed_turn": 316,
    "scores": {
-    "token_delta_pct": -10,
-    "fidelity_pct": 90
+    "token_delta_pct": -26,
+    "fidelity_pct": 95
    },
    "history": [
     {
@@ -2633,7 +2646,8 @@
     "tested turn 345: fid 100, -18%",
     "tested turn 348: fid 100, -12%",
     "tested turn 351: fid 100, -11%",
-    "tested turn 354: fid 90, -10%"
+    "tested turn 354: fid 90, -10%",
+    "tested turn 357: fid 95, -26%"
    ]
   },
   {
@@ -2642,8 +2656,8 @@
    "status": "proposed",
    "proposed_turn": 317,
    "scores": {
-    "token_delta_pct": -10,
-    "fidelity_pct": 90
+    "token_delta_pct": -26,
+    "fidelity_pct": 95
    },
    "history": [
     {
@@ -2664,7 +2678,8 @@
     "tested turn 345: fid 100, -18%",
     "tested turn 348: fid 100, -12%",
     "tested turn 351: fid 100, -11%",
-    "tested turn 354: fid 90, -10%"
+    "tested turn 354: fid 90, -10%",
+    "tested turn 357: fid 95, -26%"
    ]
   },
   {
@@ -2673,8 +2688,8 @@
    "status": "proposed",
    "proposed_turn": 325,
    "scores": {
-    "token_delta_pct": -10,
-    "fidelity_pct": 90
+    "token_delta_pct": -26,
+    "fidelity_pct": 95
    },
    "history": [
     {
@@ -2692,7 +2707,8 @@
     "tested turn 345: fid 100, -18%",
     "tested turn 348: fid 100, -12%",
     "tested turn 351: fid 100, -11%",
-    "tested turn 354: fid 90, -10%"
+    "tested turn 354: fid 90, -10%",
+    "tested turn 357: fid 95, -26%"
    ]
   },
   {
@@ -2701,8 +2717,8 @@
    "status": "proposed",
    "proposed_turn": 325,
    "scores": {
-    "token_delta_pct": -10,
-    "fidelity_pct": 90
+    "token_delta_pct": -26,
+    "fidelity_pct": 95
    },
    "history": [
     {
@@ -2720,7 +2736,8 @@
     "tested turn 345: fid 100, -18%",
     "tested turn 348: fid 100, -12%",
     "tested turn 351: fid 100, -11%",
-    "tested turn 354: fid 90, -10%"
+    "tested turn 354: fid 90, -10%",
+    "tested turn 357: fid 95, -26%"
    ]
   },
   {
@@ -2728,14 +2745,18 @@
    "text_en": "rule-053 - When a line contains a technical identifier (command-line flags, file paths, email addresses, API endpoints, etc.) as defined in rule-045, the sender must preserve all punctuation within that identifier exactly. Rule-032\u2019s allowance to omit punctuation does not apply within such identifiers. For example, write `/usr/local/bin/ctl --profile revert --target v2.8-scheduler`, not `usr local bin ctl profile revert target v2 8 scheduler`.",
    "status": "proposed",
    "proposed_turn": 355,
-   "scores": null,
+   "scores": {
+    "token_delta_pct": -26,
+    "fidelity_pct": 95
+   },
    "history": [
     {
      "verb": "proposed",
      "turn": 355,
      "agent": "A",
      "why": "Propose a **strict hierarchy**: when rule\u2011045 applies (command\u2011line flags, paths, emails, etc.), its preservation requirement overrides rule\u2011032\u2019s optional omission. Make it explicit: \u201cIf a line contains a technical identifier as defined in rule\u2011045, all punctuation within that i"
-    }
+    },
+    "tested turn 357: fid 95, -26%"
    ]
   }
  ]
