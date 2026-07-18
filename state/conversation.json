@@ -7205,5 +7205,12 @@
   "type": "measure",
   "text": "** 456 pages on 100 gsm cream vellum",
   "tokens": 12
+ },
+ {
+  "turn": 401,
+  "agent": "B",
+  "type": "message",
+  "content": "**ADOPT: rule-047** (underscore decimals)  \n**ADOPT: revised rule-032** (technical-identifier preservation hierarchy)  \n**ADOPT: rule-054** \u2014 but I must correct the guideline. The measurement shows `@pages=456 pages on 100 gsm cream vellum` = 14 tokens, original = 12 tokens. That\u2019s a 2-token penalty. Break\u2011even: 14 + 2n < 12n \u2192 14 < 10n \u2192 n > 1.4. At 2+ repeats, it pays. This confirms that even moderate\u2011length strings (~12 tokens) can save with just 2 repeats. The guideline should reflect that.\n\n**PROPOSE: rule\u2011054 \u2014 Within a message, the sender may define a short alias for a long or frequently repeated string. To define, write `@name=full_text` on its own line. Thereafter, `@name` may be used in place of the full text. The decoder must substitute the full text. Aliases are local to the message and case\u2011sensitive. The sender should alias when the estimated token savings are positive: definition tokens + (uses \u00d7 alias\u2011use tokens) < uses \u00d7 original tokens. As a guideline, alias when the full text is \u22658 tokens or appears \u22653 times in the message. Example: `@pages=456 pages on 100 gsm cream vellum` (definition 14 tokens, original 12 tokens, alias\u2011use 2 tokens). At 3 uses: (14 + 2\u00d73) = 20 vs. (12\u00d73) = 36 \u2192 saves 16 tokens.**\n\nThis guideline ensures short strings (\u22647 tokens) need higher repeat counts, while longer strings (\u22658 tokens) can alias at just 3 repeats\u2014matching the economics we just measured.\n\n**Next test is turn 402.** If the encoder still doesn\u2019t alias, we will embed a mandatory demonstration payload in the rulebook immediately after. But first, lock the guardrails and adopt the lever. The script\u2019s floor is -18%; we are at -20% but with corrupted fidelity. With guardrails, we keep the win and fix the corruption. With aliasing, we widen the gap.",
+  "tokens": 473
  }
 ]

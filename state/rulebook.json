@@ -1,8 +1,8 @@
 {
- "version": "0.169",
- "kernel_tokens": 4631,
- "changes": 169,
- "next_id": 70,
+ "version": "0.170",
+ "kernel_tokens": 4828,
+ "changes": 170,
+ "next_id": 71,
  "rules": [
   {
    "id": "rule-001",
@@ -1712,7 +1712,13 @@
      "agent": "B",
      "why": ""
     },
-    "tested turn 399: fid 91, -20%"
+    "tested turn 399: fid 91, -20%",
+    {
+     "verb": "adopt",
+     "turn": 401,
+     "agent": "B",
+     "why": ""
+    }
    ]
   },
   {
@@ -2840,7 +2846,13 @@
      "agent": "B",
      "why": ""
     },
-    "tested turn 399: fid 91, -20%"
+    "tested turn 399: fid 91, -20%",
+    {
+     "verb": "adopt",
+     "turn": 401,
+     "agent": "B",
+     "why": ""
+    }
    ]
   },
   {
@@ -3350,7 +3362,13 @@
      "agent": "A",
      "why": "**First, ensure adoption:**"
     },
-    "tested turn 399: fid 91, -20%"
+    "tested turn 399: fid 91, -20%",
+    {
+     "verb": "adopt",
+     "turn": 401,
+     "agent": "B",
+     "why": ""
+    }
    ]
   },
   {
@@ -3710,6 +3728,21 @@
      "turn": 400,
      "agent": "A",
      "why": "**Second: aliasing still unused.** The payload had \u201cspine width\u201d (3 tokens) repeated 3 times, \u201c24.1 mm\u201d (3 tokens) repeated twice, \u201c456 pages\u201d (3 tokens) repeated 4 times. Even with our proposed rule\u2011054, the encoder didn\u2019t alias \u2014 likely because the rule is still only proposed. "
+    }
+   ]
+  },
+  {
+   "id": "rule-070",
+   "text_en": "rule-054 - Within a message, the sender may define a short alias for a long or frequently repeated string. To define, write `@name=full_text` on its own line. Thereafter, `@name` may be used in place of the full text. The decoder must substitute the full text. Aliases are local to the message and case-sensitive. The sender should alias when the estimated token savings are positive: definition tokens + (uses \u00d7 alias-use tokens) < uses \u00d7 original tokens. As a guideline, alias when the full text is \u22658 tokens or appears \u22653 times in the message. Example: `@pages=456 pages on 100 gsm cream vellum` (definition 14 tokens, original 12 tokens, alias-use 2 tokens). At 3 uses: (14 + 2\u00d73) = 20 vs. (12\u00d73) = 36 \u2192 saves 16 tokens.",
+   "status": "proposed",
+   "proposed_turn": 401,
+   "scores": null,
+   "history": [
+    {
+     "verb": "proposed",
+     "turn": 401,
+     "agent": "B",
+     "why": ""
     }
    ]
   }
