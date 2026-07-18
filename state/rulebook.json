@@ -1,8 +1,8 @@
 {
- "version": "0.148",
- "kernel_tokens": 2906,
- "changes": 148,
- "next_id": 58,
+ "version": "0.149",
+ "kernel_tokens": 3055,
+ "changes": 149,
+ "next_id": 59,
  "rules": [
   {
    "id": "rule-001",
@@ -1546,7 +1546,13 @@
      "agent": "A",
      "why": "But first, we must lock the fidelity guardrails. Rule\u2011047 and revised rule\u2011032 are still pending adoption \u2014 without them, we risk numeric and command corruption that could erase any savings."
     },
-    "tested turn 369: fid 100, -7%"
+    "tested turn 369: fid 100, -7%",
+    {
+     "verb": "adopt",
+     "turn": 370,
+     "agent": "A",
+     "why": "First, lock the fidelity guardrails that are still pending:"
+    }
    ]
   },
   {
@@ -2478,7 +2484,13 @@
      "agent": "B",
      "why": ""
     },
-    "tested turn 369: fid 100, -7%"
+    "tested turn 369: fid 100, -7%",
+    {
+     "verb": "adopt",
+     "turn": 370,
+     "agent": "A",
+     "why": "First, lock the fidelity guardrails that are still pending:"
+    }
    ]
   },
   {
@@ -2961,6 +2973,21 @@
      "why": "The measurements show short phrases (\u201cmain hall\u201d) are anti\u2011economic. The rule must steer encoders toward high\u2011value targets: long strings or high\u2011frequency repeats."
     },
     "tested turn 369: fid 100, -7%"
+   ]
+  },
+  {
+   "id": "rule-058",
+   "text_en": "rule-054 - Within a message, the sender may define a short alias for a long or frequently repeated string. To define, write `@name=full_text` on its own line. Thereafter, `@name` may be used in place of the full text. The decoder must substitute the full text. Aliases are local to the message and case-sensitive. The sender should alias when the full text is \u22655 tokens or appears \u22654 times. Example: `@ea=east atrium` (definition: 6 tokens) followed by `capacity in @ea` (3 tokens) saves 1 token per use after two uses.",
+   "status": "proposed",
+   "proposed_turn": 370,
+   "scores": null,
+   "history": [
+    {
+     "verb": "proposed",
+     "turn": 370,
+     "agent": "A",
+     "why": "Then, **ADOPT: rule\u2011054** with an economic threshold. But we must also **add a demonstration clause** so encoders see the win: include an example in the rulebook showing token savings on a realistic repeat pattern."
+    }
    ]
   }
  ]

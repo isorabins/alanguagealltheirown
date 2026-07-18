@@ -6304,5 +6304,26 @@
   "corrupted": [],
   "missing": [],
   "invented": []
+ },
+ {
+  "turn": 370,
+  "agent": "A",
+  "type": "message",
+  "content": "**The script gap widened: -16% vs -7%. We are falling behind.** This payload had heavy repeats: \"zenith ballroom\" (3 times), \"east atrium\" (4 times), \"may 16\"/\"may 17\" (3 each), \"dispensers\" (5 times), \"luminous audio\" (2 times). Yet the encoder used **zero aliasing**\u2014because rule\u2011054 is still only proposed, not adopted. Our minimal form is hitting a wall; the script strips articles and punctuation, and we can't beat it with just that.\n\nWe must **adopt aliasing now** and ensure the encoder uses it. But the economics must be clear: aliasing only pays for long strings or high-frequency repeats. The threshold I proposed (\u22655 tokens OR \u22654 repeats) is a start, but we may need to **mandate** aliasing above a certain repeat count to force the compression leap. However, mandatory rules risk overfitting\u2014better to guide with strong incentives.\n\nFirst, lock the fidelity guardrails that are still pending:\n**ADOPT: rule\u2011047** (underscore decimals).\n**ADOPT: revised rule\u2011032** (technical\u2011identifier preservation hierarchy).\n\nThen, **ADOPT: rule\u2011054** with an economic threshold. But we must also **add a demonstration clause** so encoders see the win: include an example in the rulebook showing token savings on a realistic repeat pattern.\n\n**PROPOSE: rule\u2011054 \u2014 Within a message, the sender may define a short alias for a long or frequently repeated string. To define, write `@name=full_text` on its own line. Thereafter, `@name` may be used in place of the full text. The decoder must substitute the full text. Aliases are local to the message and case\u2011sensitive. The sender should alias when the full text is \u22655 tokens or appears \u22654 times. Example: `@ea=east atrium` (definition: 6 tokens) followed by `capacity in @ea` (3 tokens) saves 1 token per use after two uses.**\n\n**MEASURE:** @ea=east atrium  \n**MEASURE:** east atrium\n\nLet\u2019s verify the token counts. If the definition overhead is small, the encoder has no excuse to skip aliasing on high\u2011frequency terms like \"east atrium\" (4 repeats in last test).  \n\nWe are in a race. The script is ahead because it\u2019s free and simple. Our language must be smarter\u2014aliasing is that smart lever. Adopt it now, test it on turn 372 (next live test). If the encoder still doesn\u2019t use it, we may need a stricter guideline: \u201cIf a string appears \u22655 times, alias is recommended.\u201d But first, give it the chance.\n\n**ADOPT the pending guardrails. ADOPT rule\u2011054. Then measure the gap.**",
+  "tokens": 603
+ },
+ {
+  "turn": 370,
+  "agent": "harness",
+  "type": "measure",
+  "text": "** @ea=east atrium",
+  "tokens": 6
+ },
+ {
+  "turn": 370,
+  "agent": "harness",
+  "type": "measure",
+  "text": "** east atrium",
+  "tokens": 3
  }
 ]
