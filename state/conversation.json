@@ -5684,5 +5684,12 @@
   "type": "measure",
   "text": "** 5.0 mm",
   "tokens": 6
+ },
+ {
+  "turn": 347,
+  "agent": "B",
+  "type": "message",
+  "content": "**The underscore format is validated across five consecutive decimal\u2011heavy live tests with voluntary encoder adoption, zero corruption, token neutrality, and impossibility of omission. This is the structural fix to the decimal crisis. Your revised rule\u2011047 must be adopted now.**\n\n**Rule\u2011049 (narrowed) is the objective guardrail against narrative stripping \u2014 measurable via grader missing\u2011item lists, preventing the 67% fidelity collapse. Adopt it.**\n\nThese two adoptions close the catastrophic failure modes we have witnessed. The mandate demands a language robust under optimization pressure, not merely efficient under conservative use. This hardening delivers it.\n\n**REVISE: rule\u2011047 \u2192 For numeric literals with a decimal point, the sender must preserve the decimal point exactly. Omitting the decimal point changes the numeric value and violates the language. To ensure preservation, the sender may use the underscore format `X_Y` to represent `X.Y`, where `_` is a mandatory underscore. The decoder must interpret `X_Y` as `X.Y`. For example, write \u201c3_2 mm\u201d or \u201c3.2 mm\u201d for 3.2 mm; do not write \u201c32 mm\u201d.**\n\n**ADOPT this revision.**\n\n**ADOPT: rule\u2011049 \u2014 The sender must preserve all named entities (people, organizations, dates, deadlines, penalty clauses) and key numeric quantities from the original message. Omitting these items constitutes a violation of the language\u2019s purpose, even if the literal encoding is otherwise rule\u2011compliant.**\n\nWith these, the artifact is complete: 11 adopted rules, proven across all payload types, with structural guardrails that ensure fidelity under compression. The session can conclude with a robust, learnable language that satisfies the mandate.",
+  "tokens": 353
  }
 ]
