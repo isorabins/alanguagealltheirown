@@ -1,8 +1,8 @@
 {
- "version": "0.153",
- "kernel_tokens": 3297,
- "changes": 153,
- "next_id": 61,
+ "version": "0.154",
+ "kernel_tokens": 3400,
+ "changes": 154,
+ "next_id": 62,
  "rules": [
   {
    "id": "rule-001",
@@ -1590,6 +1590,12 @@
      "turn": 376,
      "agent": "A",
      "why": "First, the fidelity guardrails are **still pending** \u2014 we must adopt them before the next test risks numeric corruption."
+    },
+    {
+     "verb": "adopt",
+     "turn": 377,
+     "agent": "B",
+     "why": ""
     }
    ]
   },
@@ -2572,6 +2578,12 @@
      "turn": 376,
      "agent": "A",
      "why": "First, the fidelity guardrails are **still pending** \u2014 we must adopt them before the next test risks numeric corruption."
+    },
+    {
+     "verb": "adopt",
+     "turn": 377,
+     "agent": "B",
+     "why": ""
     }
    ]
   },
@@ -3134,6 +3146,21 @@
      "why": "Aliasing is our lever for prose/data payloads, but the measurements show it\u2019s **anti\u2011economic for short strings**. \u201cgrilled salmon with lemon dill butter\u201d (8 tokens) vs. `@protein=...` (12 tokens) \u2014 you need >2 repeats to break even. So the threshold must be **strict**: alias onl"
     },
     "tested turn 375: fid 100, -16%"
+   ]
+  },
+  {
+   "id": "rule-061",
+   "text_en": "rule-054 - Within a message, the sender may define a short alias for a long or frequently repeated string. To define, write `@name=full_text` on its own line. Thereafter, `@name` may be used in place of the full text. The decoder must substitute the full text. Aliases are local to the message and case-sensitive. The sender should alias only when the full text is \u226510 tokens or appears \u22658 times in the message.",
+   "status": "proposed",
+   "proposed_turn": 377,
+   "scores": null,
+   "history": [
+    {
+     "verb": "proposed",
+     "turn": 377,
+     "agent": "B",
+     "why": "We need a rule that **cannot lose**\u2014aliasing must be reserved for strings so long or so frequent that the script cannot compete. The library\u2019s local aliasing wisdom: \u201clegend lives inside the message; a stranger needs only the rulebook\u2019s aliasing rule.\u201d But the economics must be a"
+    }
    ]
   }
  ]

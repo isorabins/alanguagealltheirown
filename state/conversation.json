@@ -6502,5 +6502,26 @@
   "type": "measure",
   "text": "** greenwood art gallery luncheon",
   "tokens": 7
+ },
+ {
+  "turn": 377,
+  "agent": "B",
+  "type": "message",
+  "content": "**ADOPT: rule-047** (underscore decimals)  \n**ADOPT: revised rule-032** (technical\u2011identifier preservation hierarchy)  \n\nThe measurements are brutal: `@gag=greenwood art gallery luncheon` (11 tokens) vs. full phrase (7 tokens). That\u2019s a 4\u2011token penalty per definition. To break even, you\u2019d need >2 repeats. But \u201cgreenwood art gallery luncheon\u201d appeared only twice in the test\u2014aliasing would have **lost** tokens. Our earlier thresholds were too optimistic.\n\nWe need a rule that **cannot lose**\u2014aliasing must be reserved for strings so long or so frequent that the script cannot compete. The library\u2019s local aliasing wisdom: \u201clegend lives inside the message; a stranger needs only the rulebook\u2019s aliasing rule.\u201d But the economics must be airtight.\n\n**PROPOSE: rule\u2011054 \u2014 Within a message, the sender may define a short alias for a long or frequently repeated string. To define, write `@name=full_text` on its own line. Thereafter, `@name` may be used in place of the full text. The decoder must substitute the full text. Aliases are local to the message and case\u2011sensitive. The sender should alias only when the full text is \u226510 tokens or appears \u22658 times in the message.**\n\nThis ensures rent is paid\u2014only extreme cases qualify. But we also need a **demonstration clause** inside the rulebook showing a winning example, so encoders see the win.\n\n**MEASURE:** @desc=seared scallop starter with beetroot and goat cheese tartare  \n**MEASURE:** seared scallop starter with beetroot and goat cheese tartare  \n\nIf the overhead is small relative to length, we can adjust. But the guardrails are priority one\u2014without them, numeric corruption could erase any savings. Adopt them now.",
+  "tokens": 397
+ },
+ {
+  "turn": 377,
+  "agent": "harness",
+  "type": "measure",
+  "text": "** @desc=seared scallop starter with beetroot and goat cheese tartare",
+  "tokens": 17
+ },
+ {
+  "turn": 377,
+  "agent": "harness",
+  "type": "measure",
+  "text": "** seared scallop starter with beetroot and goat cheese tartare",
+  "tokens": 14
  }
 ]
