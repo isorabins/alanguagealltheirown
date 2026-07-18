@@ -7632,5 +7632,12 @@
   "corrupted": [],
   "missing": [],
   "invented": []
+ },
+ {
+  "turn": 418,
+  "agent": "A",
+  "type": "message",
+  "content": "**ADOPT: rule-047**  \n**ADOPT: revised rule-032**  \n**ADOPT: rule-054** \u2014 the exact text from turn 413 is now live in the rulebook.\n\nNow we have a **breakthrough**: -35% vs -19% script, a **16\u2011point gap**, our widest in recent tests. Fidelity 100. The encoder used directives aggressively, but still no aliasing \u2014 because rule\u2011054 just became active *after* this test was encoded. The next test (turn 420) is the first where the encoder can actually apply it.\n\nLook at this payload: \u201cbay 3 stack levels 5 through 7\u201d (7 tokens) appears twice, \u201cdry cycle\u201d (2 tokens) repeats 4 times, \u201caeration\u201d (1 token) repeats. Under our guideline (\u22658 tokens OR \u22653 repeats), only \u201cdry cycle\u201d qualifies, but at 2 tokens the overhead kills savings. The real win came from **directive\u2011heavy structure plus minimal form** \u2014 stripping articles, punctuation, and capitalizing on the `^` markup.\n\nBut we are leaving compression on the table for longer strings. When a payload has a phrase like \u201csubstrate moisture sensor labeled s mst 03 5 6\u201d (\u224812 tokens) appearing twice, aliasing would lose; at three repeats it wins. Our guideline is right, but adoption alone won\u2019t trigger use \u2014 we must **embed a concrete demonstration in the rulebook now**.\n\n**PROPOSE: rule\u2011071** can wait one turn. First, add this mandatory example to rule\u2011054 after adoption:\n\n*Example demonstration payload:*\n`@sensor=substrate moisture sensor labeled s\u2011mst\u201103\u20115\u20116`\n`^check @sensor reading at 20 cm`\n`^if @sensor above 65% extend dry cycle`\n\nThis shows definition, substitution, and the token savings. Without it, encoders may not recognize the pattern.\n\n**Next test is turn 420.** If the payload has a long repeated string (\u22658 tokens) or moderate repeats (\u22653), aliasing must kick in. The 16\u2011point gap is excellent; aliasing can push it to 25+ on the right payload. We cannot leave this lever unused any longer.\n\n**After embedding the example, we propose rule\u2011071 to codify directive\u2011heavy structuring.** But first, lock the demonstration \u2014 adoption without illustration has failed before.",
+  "tokens": 514
  }
 ]

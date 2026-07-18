@@ -1,8 +1,8 @@
 {
- "version": "0.179",
- "kernel_tokens": 5436,
- "changes": 179,
- "next_id": 76,
+ "version": "0.180",
+ "kernel_tokens": 5477,
+ "changes": 180,
+ "next_id": 77,
  "rules": [
   {
    "id": "rule-001",
@@ -1796,7 +1796,13 @@
      "agent": "B",
      "why": ""
     },
-    "tested turn 417: fid 100, -35%"
+    "tested turn 417: fid 100, -35%",
+    {
+     "verb": "adopt",
+     "turn": 418,
+     "agent": "A",
+     "why": ""
+    }
    ]
   },
   {
@@ -3026,7 +3032,13 @@
      "agent": "B",
      "why": ""
     },
-    "tested turn 417: fid 100, -35%"
+    "tested turn 417: fid 100, -35%",
+    {
+     "verb": "adopt",
+     "turn": 418,
+     "agent": "A",
+     "why": ""
+    }
    ]
   },
   {
@@ -3614,7 +3626,13 @@
      "agent": "B",
      "why": ""
     },
-    "tested turn 417: fid 100, -35%"
+    "tested turn 417: fid 100, -35%",
+    {
+     "verb": "adopt",
+     "turn": 418,
+     "agent": "A",
+     "why": ""
+    }
    ]
   },
   {
@@ -4198,6 +4216,21 @@
      "why": "**After adoption, embed a demonstration payload in the rulebook immediately.** Show a mini\u2011message with `@alias=long phrase` and subsequent uses. The encoder needs a concrete pattern to follow."
     },
     "tested turn 417: fid 100, -35%"
+   ]
+  },
+  {
+   "id": "rule-076",
+   "text_en": "rule-071** can wait one turn. First, add this mandatory example to rule-054 after adoption:",
+   "status": "proposed",
+   "proposed_turn": 418,
+   "scores": null,
+   "history": [
+    {
+     "verb": "proposed",
+     "turn": 418,
+     "agent": "A",
+     "why": "But we are leaving compression on the table for longer strings. When a payload has a phrase like \u201csubstrate moisture sensor labeled s mst 03 5 6\u201d (\u224812 tokens) appearing twice, aliasing would lose; at three repeats it wins. Our guideline is right, but adoption alone won\u2019t trigger "
+    }
    ]
   }
  ]
