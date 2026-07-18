@@ -1,8 +1,8 @@
 {
- "version": "0.147",
- "kernel_tokens": 2803,
- "changes": 147,
- "next_id": 57,
+ "version": "0.148",
+ "kernel_tokens": 2906,
+ "changes": 148,
+ "next_id": 58,
  "rules": [
   {
    "id": "rule-001",
@@ -2461,6 +2461,12 @@
      "turn": 367,
      "agent": "A",
      "why": "But first, we must lock the fidelity guardrails. Rule\u2011047 and revised rule\u2011032 are still pending adoption \u2014 without them, we risk numeric and command corruption that could erase any savings."
+    },
+    {
+     "verb": "adopt",
+     "turn": 368,
+     "agent": "B",
+     "why": ""
     }
    ]
   },
@@ -2916,6 +2922,21 @@
      "why": "Now the compression frontier. The script beat us because it strips articles and punctuation, a floor we must exceed. Aliasing can do that, but the measurements show it\u2019s **fragile**: short phrases (\u201cgluten free\u201d, 3 tokens) cost more to alias (7 tokens for definition) unless repea"
     },
     "tested turn 366: fid 100, -13%"
+   ]
+  },
+  {
+   "id": "rule-057",
+   "text_en": "rule-054 - Within a message, the sender may define a short alias for a long or frequently repeated string. To define, write `@name=full_text` on its own line. Thereafter, `@name` may be used in place of the full text. The decoder must substitute the full text. Aliases are local to the message and case-sensitive. The sender should alias only when the full text is \u22655 tokens or appears \u22654 times in the message.",
+   "status": "proposed",
+   "proposed_turn": 368,
+   "scores": null,
+   "history": [
+    {
+     "verb": "proposed",
+     "turn": 368,
+     "agent": "B",
+     "why": "The measurements show short phrases (\u201cmain hall\u201d) are anti\u2011economic. The rule must steer encoders toward high\u2011value targets: long strings or high\u2011frequency repeats."
+    }
    ]
   }
  ]
