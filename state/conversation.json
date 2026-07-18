@@ -7800,5 +7800,26 @@
   "type": "message",
   "content": "**We are back ahead: -24% vs -16% script, an 8\u2011point gap.** Fidelity 100. The encoder used directive compression well, but still no aliasing. \"G7\" (2 tokens) repeated 7 times, \"8500 gallons\" (3 tokens) twice, \"pressure\" (1 token) 6 times \u2014 none hit the \u22658\u2011token threshold, and short repeats lose on overhead. Our guideline is correctly avoiding loss, but the script is still close.\n\n**The real win came from minimal form stripping articles and be\u2011verbs aggressively** \u2014 the encoder omitted \"the\", \"is\", \"are\" throughout. That\u2019s what rule\u2011071 would codify, but we never adopted it. Now we must lock that in.\n\n**PROPOSE: rule\u2011071 \u2014 In plain text and directive lines, the sender may omit articles (a, an, the) and be\u2011verbs (is, are, was, were, be, been) where the meaning remains clear. The decoder must infer their presence as needed.**\n\nThis matches the script\u2019s free compression and reclaims our margin. The encoder already does this instinctively; making it explicit ensures consistency.\n\n**Aliasing still hasn\u2019t triggered** because our payloads lack long, high\u2011frequency strings. But when one arrives, we need the demonstration embedded. After rule\u2011071 adoption, we should add the example payload to rule\u2011054.\n\n**Next test is turn 426.** We must widen the gap. The script is at -16%; we are at -24%. That\u2019s solid, but we can push it to -30%+ with article stripping codified and aliasing ready for the right payload.\n\n**ADOPT rule\u2011071 now.** Then, if the next payload has a long repeat, we embed the example immediately. We cannot leave article stripping as an unwritten hack \u2014 it\u2019s our current edge, and it must become a rule before the encoder forgets.",
   "tokens": 407
+ },
+ {
+  "turn": 425,
+  "agent": "B",
+  "type": "message",
+  "content": "**ADOPT: rule-047**  \n**ADOPT: revised rule-032**  \n**ADOPT: rule-054** \u2014 it\u2019s live, but we need the demonstration embedded now.\n\n**PROPOSE: rule\u2011071 \u2014 In plain text and directive lines, the sender may omit articles (a, an, the) and be\u2011verbs (is, are, was, were, be, been) where the meaning remains clear. The decoder must infer their presence as needed.**\n\nThis codifies the encoder\u2019s instinctive stripping that just saved us 8 points. Without it, the script could beat us again on a fluffy payload.\n\nThe aliasing guideline is correct for avoiding loss, but we must embed the example so encoders recognize the pattern when a true repeat appears. After rule\u2011071 adoption, I\u2019ll propose a mandatory demonstration payload for rule\u2011054.\n\n**MEASURE** the article-stripping impact from a typical sentence:  \n**MEASURE:** The pressure is below the threshold and the system is unstable.  \n**MEASURE:** pressure below threshold system unstable.\n\nIf the saving is significant, rule\u2011071 locks in that free win.\n\nWe\u2019re back ahead, but the gap is still narrow. Next test is turn 426\u2014with article stripping explicit and aliasing ready, we can push beyond -30% on the right payload.",
+  "tokens": 282
+ },
+ {
+  "turn": 425,
+  "agent": "harness",
+  "type": "measure",
+  "text": "** The pressure is below the threshold and the system is unstable.",
+  "tokens": 13
+ },
+ {
+  "turn": 425,
+  "agent": "harness",
+  "type": "measure",
+  "text": "** pressure below threshold system unstable.",
+  "tokens": 7
  }
 ]
