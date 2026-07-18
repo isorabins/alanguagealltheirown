@@ -5818,5 +5818,62 @@
   "type": "message",
   "content": "**ADOPT: rule\u2011047** (your revised text with underscore option)  \n**ADOPT: rule\u2011049** (narrowed)\n\nThe validation is complete: voluntary underscore adoption across six consecutive decimal\u2011heavy live tests, zero corruption, token\u2011neutral, structurally impossible to omit. This is the language\u2011level guarantee against tenfold numeric errors. Rule\u2011049 is the necessary fidelity anchor against narrative stripping.\n\nThese two adoptions close the catastrophic failure modes we have witnessed. The mandate demands a language robust under optimization pressure, not merely efficient under conservative use. This hardened artifact \u2014 11 rules, proven across all payload types \u2014 meets it.\n\nThe session can now conclude with a robust, learnable language that satisfies the mandate.",
   "tokens": 149
+ },
+ {
+  "turn": 354,
+  "agent": "harness",
+  "type": "test",
+  "payload": "gen-prose-software",
+  "original": "Deployment for project Kestrel v.3.1-alpha is on hold pending a fix for the memory leak in the orchestration layer. The staging cluster (stg-kestrel-03) logged a sustained 92% heap usage on its three core manager pods over the 90-minute soak test, with a clear upward trend of about 2.3 MB per minute after the initial 20-minute warm-up. The issue is isolated to the new delta-merge scheduler. We need you to revert the scheduler config on all four production seed nodes\u2014prd-kestrel-a1 through a4\u2014back to the stable v2.8 profile, but only if their current load average is below 5.0. If any node\u2019s load is at or above 5.0, skip it, log a warning with the node ID and exact load to the ops channel, and proceed to the next. The revert command is `/usr/local/bin/ctl --profile revert --target v2.8-scheduler`. Run it sequentially, waiting for a confirmed \u201cRevert complete\u201d message from each node before moving to the next. Do not batch the commands.\n\nAfter the revert, restart the query dispatcher service on those same nodes, but only after a 30-second cooldown following the config change. Use `systemctl restart kestrel-qd`. Monitor the dispatcher\u2019s startup by tailing `/var/log/kestrel/dispatcher.log`; it should reach \u201cReady state\u201d within 45 seconds. If it hasn\u2019t within 90 seconds, escalate to Priya Chen (priya.chen@domain) with the node ID and the last three error lines from that log.\n\nOnce all four seed nodes are confirmed on v2.8 and their dispatchers are ready, you can resume the main deployment pipeline by triggering the next job: \u201cRollout_Data_Plane\u201d. However, do not trigger this if even one seed node is still on the alpha scheduler config. The entire data plane rollout depends on this consistency check. The deployment window closes at 23:00 UTC today; if we cannot resume by 22:30 UTC, we must abort and reschedule for the next window, which is 48 hours from now. Please send a confirmation here when the seed node reversion is fully verified, including the final profile version reported by each node.",
+  "orig_tokens": 488,
+  "enc_tokens": 439,
+  "token_delta_pct": -10,
+  "fidelity": 90,
+  "lost": "The exact revert command syntax is corrupted, which could cause execution failure.",
+  "encoded": "deployment for project kestrel v 3 1 alpha is on hold pending a fix for the memory leak in the orchestration layer the staging cluster stg kestrel 03 logged a sustained 92 heap usage on its three core manager pods over the 90 minute soak test with a clear upward trend of about 2 3 mb per minute after the initial 20 minute warm up the issue is isolated to the new delta merge scheduler\n^ we need you to revert the scheduler config on all four production seed nodes prd kestrel a1 through a4 back to the stable v2 8 profile but only if their current load average is below 5 0 if any nodes load is at or above 5 0 skip it log a warning with the node id and exact load to the ops channel and proceed to the next\n^ the revert command is usr local bin ctl profile revert target v2 8 scheduler run it sequentially waiting for a confirmed revert complete message from each node before moving to the next do not batch the commands\n^ after the revert restart the query dispatcher service on those same nodes but only after a 30 second cooldown following the config change use systemctl restart kestrel qd monitor the dispatchers startup by tailing var log kestrel dispatcher log it should reach ready state within 45 seconds if it hasnt within 90 seconds escalate to priya chen priya chen domain with the node id and the last three error lines from that log\n^ once all four seed nodes are confirmed on v2 8 and their dispatchers are ready you can resume the main deployment pipeline by triggering the next job rollout_data_plane however do not trigger this if even one seed node is still on the alpha scheduler config the entire data plane rollout depends on this consistency check\n^ the deployment window closes at 23 00 utc today if we cannot resume by 22 30 utc we must abort and reschedule for the next window which is 48 hours from now\n^ please send a confirmation here when the seed node reversion is fully verified including the final profile version reported by each node",
+  "decoded": "deployment for project kestrel v 3.1 alpha is on hold pending a fix for the memory leak in the orchestration layer the staging cluster stg-kestrel-03 logged a sustained 92% heap usage on its three core manager pods over the 90 minute soak test with a clear upward trend of about 2.3 mb per minute after the initial 20 minute warm-up the issue is isolated to the new delta merge scheduler\n\n^ we need you to revert the scheduler config on all four production seed nodes prd-kestrel-a1 through a4 back to the stable v2.8 profile but only if their current load average is below 5.0 if any node's load is at or above 5.0 skip it log a warning with the node id and exact load to the ops channel and proceed to the next\n\n^ the revert command is /usr/local/bin/ctl profile revert --target v2.8 --scheduler run it sequentially waiting for a confirmed revert complete message from each node before moving to the next do not batch the commands\n\n^ after the revert restart the query dispatcher service on those same nodes but only after a 30 second cooldown following the config change use systemctl restart kestrel-qd monitor the dispatcher's startup by tailing /var/log/kestrel/dispatcher.log it should reach ready state within 45 seconds if it hasn't within 90 seconds escalate to priya.chen@priya-chen.domain with the node id and the last three error lines from that log\n\n^ once all four seed nodes are confirmed on v2.8 and their dispatchers are ready you can resume the main deployment pipeline by triggering the next job rollout_data_plane however do not trigger this if even one seed node is still on the alpha scheduler config the entire data plane rollout depends on this consistency check\n\n^ the deployment window closes at 23:00 utc today if we cannot resume by 22:30 utc we must abort and reschedule for the next window which is 48 hours from now\n\n^ please send a confirmation here when the seed node reversion is fully verified including the final profile version reported by each node",
+  "tokens": 439,
+  "decoder_model": "moonshotai/kimi-k2.6",
+  "key": [
+   "1. Project Kestrel version 3.1-alpha deployment is on hold.",
+   "2. There is a memory leak in the orchestration layer.",
+   "3. Staging cluster identifier is stg-kestrel-03.",
+   "4. Its three core manager pods had 92% sustained heap usage.",
+   "5. Soak test duration was 90 minutes.",
+   "6. Memory trend after 20-minute warm-up is 2.3 MB increase per minute.",
+   "7. Issue is isolated to the new delta-merge scheduler.",
+   "8. Revert scheduler config on four production seed nodes: prd-kestrel-a1, a2, a3, a4.",
+   "9. Revert to the stable v2.8 profile.",
+   "10. Revert only if a node's current load average is below 5.0.",
+   "11. If a node's load is at or above 5.0, skip it.",
+   "12. For skipped nodes, log a warning with node ID and exact load to ops channel.",
+   "13. Revert command is `/usr/local/bin/ctl --profile revert --target v2.8-scheduler`.",
+   "14. Execute commands sequentially.",
+   "15. Wait for \"Revert complete\" message from a node before proceeding to next.",
+   "16. Do not batch the commands.",
+   "17. After revert, restart query dispatcher service with `systemctl restart kestrel-qd`.",
+   "18. Wait 30 seconds after config change before restart.",
+   "19. Monitor startup via `/var/log/kestrel/dispatcher.log`.",
+   "20. Dispatcher should reach \"Ready state\" within 45 seconds.",
+   "21. If not ready within 90 seconds, escalate to Priya Chen at priya.chen@domain.",
+   "22. Escalation must include node ID and last three error lines from log.",
+   "23. After all four seed nodes are on v2.8 and dispatchers ready, trigger job \"Rollout_Data_Plane\".",
+   "24. Do not trigger job if any seed node is still on alpha scheduler config.",
+   "25. Deployment window closes at 23:00 UTC today.",
+   "26. Must resume pipeline by 22:30 UTC to avoid abort.",
+   "27. If aborted, next window is 48 hours from now.",
+   "28. Send confirmation when seed node reversion is verified.",
+   "29. Confirmation must include final profile version reported by each node."
+  ],
+  "survived": 27,
+  "total": 29,
+  "corrupted": [
+   "13: Command is '/usr/local/bin/ctl profile revert --target v2.8 --scheduler' instead of '/usr/local/bin/ctl --profile revert --target v2.8-scheduler'",
+   "21: Email address is 'priya.chen@priya-chen.domain' instead of 'priya.chen@domain'"
+  ],
+  "missing": [],
+  "invented": [
+   "Email domain changed to 'priya-chen.domain'"
+  ]
  }
 ]
