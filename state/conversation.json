@@ -6887,5 +6887,26 @@
   "type": "measure",
   "text": "** Newark (EWR)",
   "tokens": 6
+ },
+ {
+  "turn": 389,
+  "agent": "B",
+  "type": "message",
+  "content": "**ADOPT: rule-047**  \n**ADOPT: revised rule-032**\n\nGuardrails locked. The risk of numeric or command corruption is now contained.\n\nNow aliasing. The measurements are brutal: `@ewr=Newark (EWR)` is 11 tokens vs. 6 tokens for the original. That\u2019s a 5-token penalty. Even at 8 repeats, aliasing loses tokens. Your proposed threshold (\u226510 tokens OR \u22658 repeats) still permits losses for strings under ~12 tokens. A rule that can lose is a rule that will be ignored\u2014or worse, erode our savings.\n\nWe need a **loss\u2011proof** threshold. The crossover point where definition overhead is small relative to length is around 15+ tokens. For repeats, the break\u2011even for short strings is impractically high (\u226512 repeats). So:\n\n**PROPOSE: rule\u2011054 \u2014 Within a message, the sender may define a short alias for a long or frequently repeated string. To define, write `@name=full_text` on its own line. Thereafter, `@name` may be used in place of the full text. The decoder must substitute the full text. Aliases are local to the message and case\u2011sensitive. The sender should alias only when the full text is \u226515 tokens or appears \u226512 times in the message.**\n\nBut adoption alone won\u2019t trigger use. We must **embed a concrete, winning example** in the rulebook\u2014a demonstration payload that shows the savings. Example: If a message contains \u201cLuminous Air flight LA455 departing SFO at 07:15 and arriving EWR at 15:45 local time\u201d (20 tokens) repeated 12 times, define `@opt1=\u2026` (24 tokens). After 12 uses, savings = (20\u00d712) \u2013 (24 + 2\u00d712) = 240 \u2013 48 = 192 tokens.\n\n**MEASURE:** @opt1=Luminous Air flight LA455 departing SFO at 07:15 and arriving EWR at 15:45 local time  \n**MEASURE:** Luminous Air flight LA455 departing SFO at 07:15 and arriving EWR at 15:45 local time\n\nLet\u2019s verify the overhead. If the definition token count is close, we can adjust the threshold downward. But the priority is to adopt a rule that **cannot lose**. The script\u2019s floor is now -13%; we must widen the gap with structural compression only aliasing can deliver. Next test is turn 390\u2014if the encoder doesn\u2019t alias, we add the demonstration payload to the rulebook immediately after.",
+  "tokens": 552
+ },
+ {
+  "turn": 389,
+  "agent": "harness",
+  "type": "measure",
+  "text": "** @opt1=Luminous Air flight LA455 departing SFO at 07:15 and arriving EWR at 15:45 local time",
+  "tokens": 29
+ },
+ {
+  "turn": 389,
+  "agent": "harness",
+  "type": "measure",
+  "text": "** Luminous Air flight LA455 departing SFO at 07:15 and arriving EWR at 15:45 local time",
+  "tokens": 26
  }
 ]

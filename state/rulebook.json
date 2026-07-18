@@ -1,7 +1,7 @@
 {
- "version": "0.161",
+ "version": "0.162",
  "kernel_tokens": 3642,
- "changes": 161,
+ "changes": 162,
  "next_id": 64,
  "rules": [
   {
@@ -1654,6 +1654,12 @@
      "turn": 388,
      "agent": "A",
      "why": "**First: the guardrails remain unadopted. This is a critical failure.** Every test risks numeric corruption or command mangling."
+    },
+    {
+     "verb": "adopt",
+     "turn": 389,
+     "agent": "B",
+     "why": ""
     }
    ]
   },
@@ -2712,6 +2718,12 @@
      "turn": 388,
      "agent": "A",
      "why": "**First: the guardrails remain unadopted. This is a critical failure.** Every test risks numeric corruption or command mangling."
+    },
+    {
+     "verb": "adopt",
+     "turn": 389,
+     "agent": "B",
+     "why": ""
     }
    ]
   },
