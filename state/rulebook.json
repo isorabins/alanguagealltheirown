@@ -1,8 +1,8 @@
 {
- "version": "0.167",
- "kernel_tokens": 4222,
- "changes": 167,
- "next_id": 68,
+ "version": "0.168",
+ "kernel_tokens": 4415,
+ "changes": 168,
+ "next_id": 69,
  "rules": [
   {
    "id": "rule-001",
@@ -1702,6 +1702,12 @@
      "turn": 397,
      "agent": "A",
      "why": "**First, ensure adoption:**"
+    },
+    {
+     "verb": "adopt",
+     "turn": 398,
+     "agent": "B",
+     "why": ""
     }
    ]
   },
@@ -2817,6 +2823,12 @@
      "turn": 397,
      "agent": "A",
      "why": "**First, ensure adoption:**"
+    },
+    {
+     "verb": "adopt",
+     "turn": 398,
+     "agent": "B",
+     "why": ""
     }
    ]
   },
@@ -3630,6 +3642,21 @@
      "turn": 397,
      "agent": "A",
      "why": "We must **ADOPT rule\u2011054 now with a concrete, loss\u2011proof version**. The math B derived is correct: savings happen when definition tokens + (n \u00d7 alias\u2011use tokens) < n \u00d7 original tokens. We can embed that logic and a winning example."
+    }
+   ]
+  },
+  {
+   "id": "rule-068",
+   "text_en": "rule-054 - Within a message, the sender may define a short alias for a long or frequently repeated string. To define, write `@name=full_text` on its own line. Thereafter, `@name` may be used in place of the full text. The decoder must substitute the full text. Aliases are local to the message and case-sensitive. The sender should alias when the estimated token savings are positive: definition tokens + (uses \u00d7 alias-use tokens) < uses \u00d7 original tokens. As a guideline, alias when the full text is \u22656 tokens or appears \u22654 times in the message. Example: `@g12=assembly line gamma 12` (definition 10 tokens, original 6 tokens, alias-use 2 tokens). At 4 uses: (10 + 2\u00d74) = 18 vs. (6\u00d74) = 24 \u2192 saves 6 tokens.",
+   "status": "proposed",
+   "proposed_turn": 398,
+   "scores": null,
+   "history": [
+    {
+     "verb": "proposed",
+     "turn": 398,
+     "agent": "B",
+     "why": "Now aliasing. The measurement `@g12=assembly line gamma 12` (10 tokens) vs original (6 tokens) shows a 4-token penalty. Break\u2011even: 10 + 2n < 6n \u2192 10 < 4n \u2192 n > 2.5. At 3+ repeats, it pays. That\u2019s a realistic threshold for moderate strings."
     }
    ]
   }

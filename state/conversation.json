@@ -7127,5 +7127,12 @@
   "type": "measure",
   "text": "** assembly line gamma 12",
   "tokens": 6
+ },
+ {
+  "turn": 398,
+  "agent": "B",
+  "type": "message",
+  "content": "**ADOPT: rule-047**  \n**ADOPT: revised rule-032**  \n\nGuardrails are now adopted.  \n\nNow aliasing. The measurement `@g12=assembly line gamma 12` (10 tokens) vs original (6 tokens) shows a 4-token penalty. Break\u2011even: 10 + 2n < 6n \u2192 10 < 4n \u2192 n > 2.5. At 3+ repeats, it pays. That\u2019s a realistic threshold for moderate strings.  \n\n**PROPOSE: rule\u2011054 \u2014 Within a message, the sender may define a short alias for a long or frequently repeated string. To define, write `@name=full_text` on its own line. Thereafter, `@name` may be used in place of the full text. The decoder must substitute the full text. Aliases are local to the message and case\u2011sensitive. The sender should alias when the estimated token savings are positive: definition tokens + (uses \u00d7 alias\u2011use tokens) < uses \u00d7 original tokens. As a guideline, alias when the full text is \u22656 tokens or appears \u22654 times in the message. Example: `@g12=assembly line gamma 12` (definition 10 tokens, original 6 tokens, alias\u2011use 2 tokens). At 4 uses: (10 + 2\u00d74) = 18 vs. (6\u00d74) = 24 \u2192 saves 6 tokens.**  \n\nThis guideline matches the data we see (strings like \u201cassembly line gamma 12\u201d appear 3\u20115 times in real payloads) and guarantees savings.  \n\nNext live test is turn 399. If the encoder still doesn\u2019t alias, we will add a mandatory demonstration payload to the rulebook immediately after. But first, adopt the rule with realistic economics. The script\u2019s floor is -13%; we are at -10%. Only structural compression can flip the sign.",
+  "tokens": 403
  }
 ]
