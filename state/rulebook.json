@@ -1,7 +1,7 @@
 {
- "version": "0.176",
+ "version": "0.177",
  "kernel_tokens": 5387,
- "changes": 176,
+ "changes": 177,
  "next_id": 75,
  "rules": [
   {
@@ -1770,6 +1770,12 @@
      "turn": 412,
      "agent": "A",
      "why": ""
+    },
+    {
+     "verb": "adopt",
+     "turn": 413,
+     "agent": "B",
+     "why": ""
     }
    ]
   },
@@ -2968,6 +2974,12 @@
      "turn": 412,
      "agent": "A",
      "why": ""
+    },
+    {
+     "verb": "adopt",
+     "turn": 413,
+     "agent": "B",
+     "why": ""
     }
    ]
   },
@@ -3524,7 +3536,13 @@
     },
     "tested turn 405: fid 100, -25%",
     "tested turn 408: fid 100, -23%",
-    "tested turn 411: fid 100, -26%"
+    "tested turn 411: fid 100, -26%",
+    {
+     "verb": "adopt",
+     "turn": 413,
+     "agent": "B",
+     "why": ""
+    }
    ]
   },
   {
