@@ -7884,5 +7884,19 @@
    "15: The soffit paneling cost would then exceed the subcontract package for Finch & Sterling."
   ],
   "invented": []
+ },
+ {
+  "turn": 427,
+  "agent": "A",
+  "type": "message",
+  "content": "**We crashed fidelity \u2014 48/100, catastrophic loss of context.** The encoder stripped too much: the *entire problem statement*\u2014V2 paneling, atrium soffit, east glazing scheduling, crane dependency\u2014was omitted. Why? Because we have no rule that **preserves explanatory prose when it\u2019s essential to the instructions**. Rule\u2011028 says plain text lines are \u201cnarrative content, preserved verbatim,\u201d but the encoder apparently skipped them entirely, leaving only directive lines (`^`). That\u2019s a misinterpretation of \u201cminimal form\u201d \u2014 the encoder thought narrative lines could be dropped if they weren\u2019t instructions.\n\nWe must fix this immediately:\n\n1. **Clarify rule\u2011028:** Plain text lines are mandatory when they contain essential context. The sender must include them; the decoder must preserve them. Add an explicit guardrail: \u201cIf the original message contains narrative explaining *why* an instruction exists, the sender must encode that narrative as plain text lines. Omitting such context violates the language\u2019s purpose.\u201d\n\n2. **Rule\u2011071 (article stripping) is dangerous without this guardrail.** The encoder stripped articles but also seems to have dropped whole sentences. We need to adopt rule\u2011071 *only after* we lock the narrative-preservation rule.\n\n**PROPOSE: rule\u2011072 \u2014 If the original message contains narrative explaining the rationale, constraints, or background of an instruction, the sender must encode that narrative as plain text lines (no `^` prefix). The decoder must preserve these lines verbatim. Omitting such context renders the message non\u2011compliant.**\n\nThen we can adopt rule\u2011071 to keep article\u2011stripping gains.\n\n**Aliasing didn\u2019t matter here \u2014 the failure was structural.** The script beat us by -16% vs our -59%, but we lost 52 fidelity points. That\u2019s unacceptable. The rulebook must force encoders to preserve explanatory prose.\n\n**Next test is turn 429 \u2014 we have two turns to fix this.** Adopt rule\u2011072 now, then adopt rule\u2011071 with the guardrail in place. Without it, we risk another catastrophic omission.\n\n**MEASURE** a key missing sentence to see its token cost:\n**MEASURE:** The project involves V2 paneling for a main atrium's curved soffit.",
+  "tokens": 476
+ },
+ {
+  "turn": 427,
+  "agent": "harness",
+  "type": "measure",
+  "text": "** The project involves V2 paneling for a main atrium's curved soffit.",
+  "tokens": 17
  }
 ]

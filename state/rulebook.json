@@ -1,8 +1,8 @@
 {
- "version": "0.184",
- "kernel_tokens": 5656,
- "changes": 184,
- "next_id": 80,
+ "version": "0.185",
+ "kernel_tokens": 5723,
+ "changes": 185,
+ "next_id": 81,
  "rules": [
   {
    "id": "rule-001",
@@ -4487,6 +4487,21 @@
     },
     "tested turn 423: fid 100, -24%",
     "tested turn 426: fid 48, -59%"
+   ]
+  },
+  {
+   "id": "rule-080",
+   "text_en": "rule-072 - If the original message contains narrative explaining the rationale, constraints, or background of an instruction, the sender must encode that narrative as plain text lines (no `^` prefix). The decoder must preserve these lines verbatim. Omitting such context renders the message non-compliant.",
+   "status": "proposed",
+   "proposed_turn": 427,
+   "scores": null,
+   "history": [
+    {
+     "verb": "proposed",
+     "turn": 427,
+     "agent": "A",
+     "why": "2. **Rule\u2011071 (article stripping) is dangerous without this guardrail.** The encoder stripped articles but also seems to have dropped whole sentences. We need to adopt rule\u2011071 *only after* we lock the narrative-preservation rule."
+    }
    ]
   }
  ]
