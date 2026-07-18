@@ -6756,5 +6756,26 @@
   "corrupted": [],
   "missing": [],
   "invented": []
+ },
+ {
+  "turn": 385,
+  "agent": "A",
+  "type": "message",
+  "content": "**We finally widened the gap: -21% vs -15%.** The script\u2019s article-stripping couldn\u2019t match our aggressive minimal form plus directive markup. But look at the payload: heavy repeats\u2014\u201cCanyon Lodge\u201d (3 times), \u201cDr. Thorne\u201d (6 times), \u201ccrates\u201d (4 times), \u201cVega\u201d (4 times). Each is a missed aliasing opportunity because rule\u2011054 is still only proposed. Even at strict thresholds, \u201cDr. Thorne\u201d (3 tokens) repeated 6 times might still not break even with alias overhead\u2014but \u201cCrate\u2011Vega\u201112 through Crate\u2011Vega\u201115\u201d is a long identifier pattern that could have been aliased for real savings.\n\n**First: the guardrails remain unadopted.** This is inexcusable. Every test risks numeric corruption or command mangling.  \n**ADOPT: rule\u2011047** (underscore decimals)  \n**ADOPT: revised rule\u2011032** (technical\u2011identifier preservation hierarchy)\n\n**Second: aliasing must be adopted with a threshold that guarantees wins.** The measurements show:  \n- Short strings (\u22645 tokens) rarely pay unless repeated \u22658 times.  \n- Long strings (\u226510 tokens) can pay with just 2\u20133 repeats if definition overhead is small.\n\n**PROPOSE: rule\u2011054 \u2014 Within a message, the sender may define a short alias for a long or frequently repeated string. To define, write `@name=full_text` on its own line. Thereafter, `@name` may be used in place of the full text. The decoder must substitute the full text. Aliases are local to the message and case\u2011sensitive. The sender should alias only when the full text is \u226510 tokens or appears \u22658 times in the message.**\n\nBut adoption alone won\u2019t trigger use\u2014encoders need to see the win. **Add a demonstration clause inside the rulebook:**  \nExample: If a message contains \u201creinforced roof racks as specified\u201d (6 tokens) repeated 8 times, define `@racks=reinforced roof racks as specified` (10 tokens). After 8 uses, savings = (6\u00d78) \u2013 (10 + 2\u00d78) = 48 \u2013 26 = 22 tokens.\n\n**MEASURE:** @crates=four sealed crates inventory IDs Crate\u2011Vega\u201112 through Crate\u2011Vega\u201115  \n**MEASURE:** four sealed crates inventory IDs Crate\u2011Vega\u201112 through Crate\u2011Vega\u201115\n\nCheck if a very long identifier (likely \u226510 tokens) makes aliasing worthwhile even at 2 repeats.\n\n**Next test is turn 387.** If the encoder still ignores aliasing, we will add a mandatory demonstration payload in the rulebook. But first\u2014lock the guardrails, adopt the lever, and show the win.",
+  "tokens": 600
+ },
+ {
+  "turn": 385,
+  "agent": "harness",
+  "type": "measure",
+  "text": "** @crates=four sealed crates inventory IDs Crate\u2011Vega\u201112 through Crate\u2011Vega\u201115",
+  "tokens": 26
+ },
+ {
+  "turn": 385,
+  "agent": "harness",
+  "type": "measure",
+  "text": "** four sealed crates inventory IDs Crate\u2011Vega\u201112 through Crate\u2011Vega\u201115",
+  "tokens": 22
  }
 ]

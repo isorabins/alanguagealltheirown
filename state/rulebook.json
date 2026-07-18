@@ -1,7 +1,7 @@
 {
- "version": "0.158",
- "kernel_tokens": 3515,
- "changes": 158,
+ "version": "0.159",
+ "kernel_tokens": 3527,
+ "changes": 159,
  "next_id": 63,
  "rules": [
   {
@@ -1632,7 +1632,13 @@
      "agent": "B",
      "why": ""
     },
-    "tested turn 384: fid 100, -21%"
+    "tested turn 384: fid 100, -21%",
+    {
+     "verb": "adopt",
+     "turn": 385,
+     "agent": "A",
+     "why": "**First: the guardrails remain unadopted.** This is inexcusable. Every test risks numeric corruption or command mangling."
+    }
    ]
   },
   {
@@ -2665,7 +2671,13 @@
      "agent": "B",
      "why": ""
     },
-    "tested turn 384: fid 100, -21%"
+    "tested turn 384: fid 100, -21%",
+    {
+     "verb": "adopt",
+     "turn": 385,
+     "agent": "A",
+     "why": "**First: the guardrails remain unadopted.** This is inexcusable. Every test risks numeric corruption or command mangling."
+    }
    ]
   },
   {
