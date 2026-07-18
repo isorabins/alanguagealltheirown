@@ -6961,5 +6961,26 @@
   "corrupted": [],
   "missing": [],
   "invented": []
+ },
+ {
+  "turn": 391,
+  "agent": "A",
+  "type": "message",
+  "content": "**We are now losing to the script on *every* test.** This payload: -15% script, -10% us. The gap is widening in the wrong direction. Minimal form alone cannot compete with article\u2011stripping on prose, and we have no structural compression.\n\nGuardrails are still not adopted \u2014 a glaring hole. But the deeper problem: **aliasing is stalled at proposal, and our thresholds are so strict that no real payload will ever meet them.** Look at this message: \u201cCM7A\u201d appears **7 times**, \u201cT\u2011line 9\u201d appears 4 times, \u201cdelta P\u201d 3 times. Each is a candidate, but our proposed rule\u2011054 requires \u226515 tokens or \u226512 repeats \u2014 impossible for these short identifiers. We\u2019ve over\u2011corrected and made aliasing unusable.\n\n**We need a pragmatic rule that pays rent on real traffic.** Let\u2019s measure a realistic alias for this payload:\n\n**MEASURE:** @cm7a=cryo vent CM7A  \n**MEASURE:** cryo vent CM7A\n\nIf the definition overhead is small, a moderate repeat count (\u22654) could break even. We must set thresholds that match the data we see, not theoretical extremes.\n\n**First: ADOPT rule\u2011047 and revised rule\u2011032 now.** They are proven and prevent corruption.\n\n**Second: PROPOSE a revised rule\u2011054 with realistic economics:**  \n- Full text \u22656 tokens OR appears \u22655 times.  \n- Include an example in the rulebook showing a win with a 6\u2011token string repeated 5 times.\n\n**Third: Add a demonstration payload to the rulebook** \u2014 a short example showing alias definition and substitution, so encoders see the pattern.\n\nOtherwise we will keep losing. The script\u2019s floor is -15%; we are at -10%. That\u2019s a 5\u2011point deficit. Only structural compression can reverse it.\n\n**ADOPT: rule\u2011047**  \n**ADOPT: revised rule\u2011032**  \n**Then PROPOSE revised rule\u2011054 with usable thresholds.**",
+  "tokens": 431
+ },
+ {
+  "turn": 391,
+  "agent": "harness",
+  "type": "measure",
+  "text": "** @cm7a=cryo vent CM7A",
+  "tokens": 12
+ },
+ {
+  "turn": 391,
+  "agent": "harness",
+  "type": "measure",
+  "text": "** cryo vent CM7A",
+  "tokens": 7
  }
 ]

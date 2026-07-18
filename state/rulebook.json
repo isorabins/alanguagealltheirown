@@ -1,7 +1,7 @@
 {
- "version": "0.162",
+ "version": "0.163",
  "kernel_tokens": 3642,
- "changes": 162,
+ "changes": 163,
  "next_id": 64,
  "rules": [
   {
@@ -1664,7 +1664,13 @@
      "agent": "B",
      "why": ""
     },
-    "tested turn 390: fid 100, -10%"
+    "tested turn 390: fid 100, -10%",
+    {
+     "verb": "adopt",
+     "turn": 391,
+     "agent": "A",
+     "why": "**Then PROPOSE revised rule\u2011054 with usable thresholds.**"
+    }
    ]
   },
   {
@@ -2735,7 +2741,13 @@
      "agent": "B",
      "why": ""
     },
-    "tested turn 390: fid 100, -10%"
+    "tested turn 390: fid 100, -10%",
+    {
+     "verb": "adopt",
+     "turn": 391,
+     "agent": "A",
+     "why": "**Then PROPOSE revised rule\u2011054 with usable thresholds.**"
+    }
    ]
   },
   {
