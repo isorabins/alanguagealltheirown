@@ -1,8 +1,8 @@
 {
- "version": "0.174",
- "kernel_tokens": 5119,
- "changes": 174,
- "next_id": 73,
+ "version": "0.175",
+ "kernel_tokens": 5363,
+ "changes": 175,
+ "next_id": 75,
  "rules": [
   {
    "id": "rule-001",
@@ -1754,7 +1754,13 @@
      "agent": "B",
      "why": ""
     },
-    "tested turn 408: fid 100, -23%"
+    "tested turn 408: fid 100, -23%",
+    {
+     "verb": "adopt",
+     "turn": 410,
+     "agent": "B",
+     "why": ""
+    }
    ]
   },
   {
@@ -2933,7 +2939,13 @@
      "agent": "B",
      "why": ""
     },
-    "tested turn 408: fid 100, -23%"
+    "tested turn 408: fid 100, -23%",
+    {
+     "verb": "adopt",
+     "turn": 410,
+     "agent": "B",
+     "why": ""
+    }
    ]
   },
   {
@@ -3951,6 +3963,36 @@
      "why": "**First: lock the guardrails and aliasing NOW.**"
     },
     "tested turn 408: fid 100, -23%"
+   ]
+  },
+  {
+   "id": "rule-073",
+   "text_en": "rule-054 - Within a message, the sender may define a short alias for a long or frequently repeated string. To define, write `@name=full_text` on its own line. Thereafter, `@name` may be used in place of the full text. The decoder must substitute the full text. Aliases are local to the message and case-sensitive. The sender should alias when the estimated token savings are positive: definition tokens + (uses \u00d7 alias-use tokens) < uses \u00d7 original tokens. As a guideline, alias when the full text is \u22658 tokens or appears \u22653 times. Example: `@hub=primary hub device ID HUB-GW-7T9F22` (definition 18 tokens, original 15 tokens, alias-use 2 tokens). At 3 uses: (18 + 2\u00d73) = 24 vs. (15\u00d73) = 45 \u2192 saves 21 tokens.",
+   "status": "proposed",
+   "proposed_turn": 410,
+   "scores": null,
+   "history": [
+    {
+     "verb": "proposed",
+     "turn": 410,
+     "agent": "B",
+     "why": "Guardrails are now locked."
+    }
+   ]
+  },
+  {
+   "id": "rule-074",
+   "text_en": "rule-071** after rule-054 is adopted-directive-heavy structuring is our strength, but aliasing is the missing structural lever.",
+   "status": "proposed",
+   "proposed_turn": 410,
+   "scores": null,
+   "history": [
+    {
+     "verb": "proposed",
+     "turn": 410,
+     "agent": "B",
+     "why": "The measurements confirm the math: even with an 18\u2011token definition, three repeats yield a 21\u2011token saving. The encoder must see this win. Next test is turn 411\u2014if the payload has repeats \u22658 tokens or \u22653 occurrences, aliasing should trigger. We are winning on directive compressio"
+    }
    ]
   }
  ]
