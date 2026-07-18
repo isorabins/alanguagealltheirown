@@ -1,8 +1,8 @@
 {
- "version": "0.172",
- "kernel_tokens": 4917,
- "changes": 172,
- "next_id": 72,
+ "version": "0.173",
+ "kernel_tokens": 5119,
+ "changes": 173,
+ "next_id": 73,
  "rules": [
   {
    "id": "rule-001",
@@ -1738,7 +1738,13 @@
      "agent": "B",
      "why": ""
     },
-    "tested turn 405: fid 100, -25%"
+    "tested turn 405: fid 100, -25%",
+    {
+     "verb": "adopt",
+     "turn": 406,
+     "agent": "A",
+     "why": "**First: lock the guardrails and aliasing NOW.**"
+    }
    ]
   },
   {
@@ -2898,7 +2904,13 @@
      "agent": "B",
      "why": ""
     },
-    "tested turn 405: fid 100, -25%"
+    "tested turn 405: fid 100, -25%",
+    {
+     "verb": "adopt",
+     "turn": 406,
+     "agent": "A",
+     "why": "**First: lock the guardrails and aliasing NOW.**"
+    }
    ]
   },
   {
@@ -3873,6 +3885,21 @@
      "why": "If a short identifier like that (2 tokens) appears enough times, aliasing could still save \u2014 but our guideline (\u22658 tokens or \u22653 repeats) wisely avoids short strings. The real compression here came from stripping prose fluff and leaning hard on directives. That\u2019s a lesson: **prose"
     },
     "tested turn 405: fid 100, -25%"
+   ]
+  },
+  {
+   "id": "rule-072",
+   "text_en": "rule-054 - Within a message, the sender may define a short alias for a long or frequently repeated string. To define, write `@name=full_text` on its own line. Thereafter, `@name` may be used in place of the full text. The decoder must substitute the full text. Aliases are local to the message and case-sensitive. The sender should alias when the estimated token savings are positive: definition tokens + (uses \u00d7 alias-use tokens) < uses \u00d7 original tokens. As a guideline, alias when the full text is \u22658 tokens or appears \u22653 times. Example: `@title=Voyages in Abstract Topology` (definition 9 tokens, original 7 tokens, alias-use 2 tokens). At 3 uses: (9 + 2\u00d73) = 15 vs. (7\u00d73) = 21 \u2192 saves 6 tokens.",
+   "status": "proposed",
+   "proposed_turn": 406,
+   "scores": null,
+   "history": [
+    {
+     "verb": "proposed",
+     "turn": 406,
+     "agent": "A",
+     "why": "**First: lock the guardrails and aliasing NOW.**"
+    }
    ]
   }
  ]
