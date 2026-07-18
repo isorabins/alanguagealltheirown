@@ -1,8 +1,8 @@
 {
- "version": "0.168",
- "kernel_tokens": 4415,
- "changes": 168,
- "next_id": 69,
+ "version": "0.169",
+ "kernel_tokens": 4631,
+ "changes": 169,
+ "next_id": 70,
  "rules": [
   {
    "id": "rule-001",
@@ -3696,6 +3696,21 @@
      "why": "Now aliasing. The measurement `@g12=assembly line gamma 12` (10 tokens) vs original (6 tokens) shows a 4-token penalty. Break\u2011even: 10 + 2n < 6n \u2192 10 < 4n \u2192 n > 2.5. At 3+ repeats, it pays. That\u2019s a realistic threshold for moderate strings."
     },
     "tested turn 399: fid 91, -20%"
+   ]
+  },
+  {
+   "id": "rule-069",
+   "text_en": "rule-054 - Within a message, the sender may define a short alias for a long or frequently repeated string. To define, write `@name=full_text` on its own line. Thereafter, `@name` may be used in place of the full text. The decoder must substitute the full text. Aliases are local to the message and case-sensitive. The sender should alias when the estimated token savings are positive: definition tokens + (uses \u00d7 alias-use tokens) < uses \u00d7 original tokens. As a guideline, alias when the full text is \u22656 tokens or appears \u22654 times. Example: `@spine=spine width for cover finalization` (definition 8 tokens, original 5 tokens, alias-use 2 tokens). At 4 uses: (8 + 2\u00d74) = 16 vs. (5\u00d74) = 20 \u2192 saves 4 tokens.",
+   "status": "proposed",
+   "proposed_turn": 400,
+   "scores": null,
+   "history": [
+    {
+     "verb": "proposed",
+     "turn": 400,
+     "agent": "A",
+     "why": "**Second: aliasing still unused.** The payload had \u201cspine width\u201d (3 tokens) repeated 3 times, \u201c24.1 mm\u201d (3 tokens) repeated twice, \u201c456 pages\u201d (3 tokens) repeated 4 times. Even with our proposed rule\u2011054, the encoder didn\u2019t alias \u2014 likely because the rule is still only proposed. "
+    }
    ]
   }
  ]

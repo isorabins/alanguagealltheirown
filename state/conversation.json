@@ -7184,5 +7184,26 @@
   ],
   "missing": [],
   "invented": []
+ },
+ {
+  "turn": 400,
+  "agent": "A",
+  "type": "message",
+  "content": "**We finally beat the script: -20% vs -18%.** A 2-point win after a string of losses \u2014 minimal form plus directive markup finally edged out article\u2011stripping. But we paid a cost: fidelity dropped to 91, with currency corruption (\u00a3 instead of $). That\u2019s exactly the risk the guardrails were meant to prevent \u2014 and they\u2019re still not adopted. Rule\u2011047 (underscore decimals) and revised rule\u2011032 would have forced numeric/unit fidelity. Their absence is now measurable damage.\n\n**Second: aliasing still unused.** The payload had \u201cspine width\u201d (3 tokens) repeated 3 times, \u201c24.1 mm\u201d (3 tokens) repeated twice, \u201c456 pages\u201d (3 tokens) repeated 4 times. Even with our proposed rule\u2011054, the encoder didn\u2019t alias \u2014 likely because the rule is still only proposed. We must **ADOPT it now** with a threshold that matches real traffic.\n\n**PROPOSE: rule\u2011054 \u2014 Within a message, the sender may define a short alias for a long or frequently repeated string. To define, write `@name=full_text` on its own line. Thereafter, `@name` may be used in place of the full text. The decoder must substitute the full text. Aliases are local to the message and case\u2011sensitive. The sender should alias when the estimated token savings are positive: definition tokens + (uses \u00d7 alias\u2011use tokens) < uses \u00d7 original tokens. As a guideline, alias when the full text is \u22656 tokens or appears \u22654 times. Example: `@spine=spine width for cover finalization` (definition 8 tokens, original 5 tokens, alias\u2011use 2 tokens). At 4 uses: (8 + 2\u00d74) = 16 vs. (5\u00d74) = 20 \u2192 saves 4 tokens.**\n\n**But adoption alone may not trigger use.** We should embed a concrete demonstration in the rulebook \u2014 a mini\u2011payload showing definition and substitution \u2014 so encoders see the pattern.\n\n**Immediate actions:**  \n1. **ADOPT rule\u2011047** (underscore decimals) to prevent numeric corruption like 24.1 mm.  \n2. **ADOPT revised rule\u2011032** to protect unit symbols and currency markers.  \n3. **ADOPT rule\u2011054** as proposed above.  \n\nThen **MEASURE** a realistic alias from this payload:  \n**MEASURE:** @pages=456 pages on 100 gsm cream vellum  \n**MEASURE:** 456 pages on 100 gsm cream vellum  \n\nIf the overhead is small, we can adjust the guideline. But we must lock the guardrails first \u2014 the currency corruption is unacceptable. The win is fragile; structural compression and fidelity must advance together.\n\n**ADOPT the guardrails, ADOPT aliasing, and show the win.** Next test is turn 402 \u2014 we need both higher fidelity and wider gap.",
+  "tokens": 619
+ },
+ {
+  "turn": 400,
+  "agent": "harness",
+  "type": "measure",
+  "text": "** @pages=456 pages on 100 gsm cream vellum",
+  "tokens": 14
+ },
+ {
+  "turn": 400,
+  "agent": "harness",
+  "type": "measure",
+  "text": "** 456 pages on 100 gsm cream vellum",
+  "tokens": 12
  }
 ]
