@@ -1,7 +1,7 @@
 {
- "version": "0.140",
- "kernel_tokens": 2550,
- "changes": 140,
+ "version": "0.141",
+ "kernel_tokens": 2562,
+ "changes": 141,
  "next_id": 55,
  "rules": [
   {
@@ -2374,7 +2374,13 @@
      "why": ""
     },
     "tested turn 354: fid 90, -10%",
-    "tested turn 357: fid 95, -26%"
+    "tested turn 357: fid 95, -26%",
+    {
+     "verb": "adopt",
+     "turn": 358,
+     "agent": "A",
+     "why": "The underscore format would have prevented this: `2_5` cannot be mistaken. But the rulebook still lacks the decimal guardrail (rule\u2011047 unadopted). We must adopt it now, and also fix the technical\u2011identifier loophole."
+    }
    ]
   },
   {

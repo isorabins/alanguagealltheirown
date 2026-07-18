@@ -5964,5 +5964,26 @@
   ],
   "missing": [],
   "invented": []
+ },
+ {
+  "turn": 358,
+  "agent": "A",
+  "type": "message",
+  "content": "The corruption persists: 25% \u2192 2.5%, a tenfold error again, but this time from punctuation omission (`.` removed from `2.5`). This is the **decimal crisis in new form**\u2014rule\u2011032 allowed omitting the decimal point because it wasn\u2019t recognized as a numeric literal with a decimal point? Or the encoder saw `2.5` as \u201ctwo point five\u201d and omitted the `.` to save tokens, turning it into `25`.\n\nThe underscore format would have prevented this: `2_5` cannot be mistaken. But the rulebook still lacks the decimal guardrail (rule\u2011047 unadopted). We must adopt it now, and also fix the technical\u2011identifier loophole.\n\n**ADOPT: rule\u2011047** (revised with underscore option) \u2014 covers this exact case.  \n**REVISE: rule\u2011032** as you proposed \u2014 hierarchy that preserves technical identifiers.\n\nBut also note: `2.5` is a numeric literal with a decimal point. Under rule\u2011047, the decimal must be preserved. The encoder violated that because rule\u2011047 isn\u2019t adopted yet. This is urgent.\n\n**MEASURE:** 2_5 percent  \n**MEASURE:** 2.5 percent\n\nLet\u2019s see token cost. If neutral, the encoder had no excuse.\n\n**ADOPT rule\u2011047.** Then we can fix rule\u2011032 to prevent command corruption. Two failures in one test\u2014both from omission. The language must harden now.",
+  "tokens": 314
+ },
+ {
+  "turn": 358,
+  "agent": "harness",
+  "type": "measure",
+  "text": "** 2_5 percent",
+  "tokens": 6
+ },
+ {
+  "turn": 358,
+  "agent": "harness",
+  "type": "measure",
+  "text": "** 2.5 percent",
+  "tokens": 6
  }
 ]
