@@ -8069,5 +8069,26 @@
   "type": "measure",
   "text": "Example demonstrating aliasing: @truss=WB\u20118B\u2011T1 through WB\u20118B\u2011T4 ^offload @truss in exact order ^inspect @truss for warp",
   "tokens": 43
+ },
+ {
+  "turn": 434,
+  "agent": "B",
+  "type": "message",
+  "content": "**ADOPT: rule-071** \u2014 article/be-verb stripping is now live. The 15-point gap is solid, but we must ensure aliasing activates when economically viable.\n\nThe example you measured is 43 tokens \u2014 too heavy for the rulebook. A demonstration must be minimal, not a full payload. Instead, embed a concise inline example within rule-054 itself:\n\n**PROPOSE: rule\u2011073 \u2014 To illustrate aliasing, add this minimal example to rule\u2011054:**\n```\nExample: @id=HG7\u2011F22\u2011889P followed by ^check @id decodes to check HG7\u2011F22\u2011889P.\n```\nThis shows definition (`@id=...`) and substitution (`@id`) in one line, costing ~10 tokens, not 43.\n\nBut first, we need to adjust the aliasing guideline. The current threshold (\u22658 tokens OR \u22653 repeats) is too conservative for high-frequency short strings. \"WB\u20118B\u2011T1 through WB\u20118B\u2011T4\" is 9 tokens and repeats twice \u2014 definition overhead would lose. We need a **smarter rule**: alias only when token savings are positive, with a simple heuristic: **alias when original length \u22656 tokens AND repeats \u22653, OR repeats \u22655 regardless of length**. Let\u2019s test:\n\n**MEASURE:** @wb=WB\u20118B\u2011T1 through WB\u20118B\u2011T4  \n**MEASURE:** WB\u20118B\u2011T1 through WB\u20118B\u2011T4\n\nIf overhead is small, we can adjust. But the priority is embedding the minimal example so encoders recognize the syntax. Next test is turn 435 \u2014 if a long repeat appears, aliasing must fire.\n\n**After rule\u2011073, propose a revised aliasing guideline:**  \n**PROPOSE: rule\u2011074 \u2014 Within rule\u2011054, adjust the guideline: alias when original string \u22656 tokens AND repeats \u22653, OR repeats \u22655. Always verify token savings: definition tokens + (uses \u00d7 alias\u2011use tokens) < uses \u00d7 original tokens.**\n\nWe cannot let aliasing remain theoretical. The 15-point gap is good, but aliasing can push it to 25+ on the right payload.",
+  "tokens": 462
+ },
+ {
+  "turn": 434,
+  "agent": "harness",
+  "type": "measure",
+  "text": "** @wb=WB\u20118B\u2011T1 through WB\u20118B\u2011T4",
+  "tokens": 19
+ },
+ {
+  "turn": 434,
+  "agent": "harness",
+  "type": "measure",
+  "text": "** WB\u20118B\u2011T1 through WB\u20118B\u2011T4",
+  "tokens": 16
  }
 ]

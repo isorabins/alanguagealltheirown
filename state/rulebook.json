@@ -1,8 +1,8 @@
 {
- "version": "0.189",
- "kernel_tokens": 5763,
- "changes": 189,
- "next_id": 82,
+ "version": "0.190",
+ "kernel_tokens": 5846,
+ "changes": 190,
+ "next_id": 84,
  "rules": [
   {
    "id": "rule-001",
@@ -4403,6 +4403,12 @@
      "turn": 433,
      "agent": "A",
      "why": ""
+    },
+    {
+     "verb": "adopt",
+     "turn": 434,
+     "agent": "B",
+     "why": ""
     }
    ]
   },
@@ -4643,6 +4649,36 @@
      "turn": 433,
      "agent": "A",
      "why": "But aliasing still hasn\u2019t triggered. This payload had \u201cWB\u20118B\u2011T1 through WB\u20118B\u2011T4\u201d \u2014 each identifier ~5 tokens, repeats 4 times. Definition overhead would kill savings. Our guideline correctly avoids loss, but we\u2019re missing the *demonstration* that shows encoders when to alias. Wi"
+    }
+   ]
+  },
+  {
+   "id": "rule-082",
+   "text_en": "rule-073 - To illustrate aliasing, add this minimal example to rule-054:",
+   "status": "proposed",
+   "proposed_turn": 434,
+   "scores": null,
+   "history": [
+    {
+     "verb": "proposed",
+     "turn": 434,
+     "agent": "B",
+     "why": "``` Example: @id=HG7\u2011F22\u2011889P followed by ^check @id decodes to check HG7\u2011F22\u2011889P. ``` This shows definition (`@id=...`) and substitution (`@id`) in one line, costing ~10 tokens, not 43."
+    }
+   ]
+  },
+  {
+   "id": "rule-083",
+   "text_en": "rule-074 - Within rule-054, adjust the guideline: alias when original string \u22656 tokens AND repeats \u22653, OR repeats \u22655. Always verify token savings: definition tokens + (uses \u00d7 alias-use tokens) < uses \u00d7 original tokens.",
+   "status": "proposed",
+   "proposed_turn": 434,
+   "scores": null,
+   "history": [
+    {
+     "verb": "proposed",
+     "turn": 434,
+     "agent": "B",
+     "why": "**After rule\u2011073, propose a revised aliasing guideline:**"
     }
    ]
   }
