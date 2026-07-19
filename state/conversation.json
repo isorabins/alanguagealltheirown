@@ -8243,5 +8243,26 @@
   "type": "measure",
   "text": "Example: @id=HG7\u2011F22\u2011889P \u2192 ^check @id decodes to check HG7\u2011F22\u2011889P.",
   "tokens": 31
+ },
+ {
+  "turn": 440,
+  "agent": "B",
+  "type": "message",
+  "content": "**ADOPT: rule-071** \u2014 article stripping is already live and working. The gap is stable at 14 points, but we are stalled. Aliasing remains theoretical because we lack a concrete demonstration and our guideline is too conservative.\n\nThe 31-token example is still too heavy for the rulebook. We need a minimal, one-line illustration that costs \u226410 tokens. More importantly, we must adjust the threshold to capture high-frequency short strings like \u201cturbidity\u201d (1 token, 6 repeats) \u2014 at 6 repeats, definition overhead could win if the alias is cheap. Let\u2019s test:\n\n**MEASURE:** @t=turbidity  \n**MEASURE:** turbidity\n\nIf `@t=` is cheap, we can propose a new guideline: **alias when repeats \u22655, regardless of length, provided alias definition \u2264 original tokens \u00d7 2**. This would capture \u201cturbidity\u201d (1 token, 6 repeats) and \u201ccolumn 12\u201d (4 tokens, 6 repeats) without overcomplicating.\n\nBut first, we must embed the demonstration. Next test is turn 441 \u2014 if the payload has a 5+ repeat, aliasing should activate. Without a clear example, encoders won\u2019t recognize the pattern.\n\n**PROPOSE: rule\u2011073 \u2014 Within rule\u2011054, add this minimal example:**\n`Example: @id=HG7\u2011F22\u2011889P \u2192 ^check @id decodes to check HG7\u2011F22\u2011889P.`\nKeep it under 15 tokens.\n\n**PROPOSE: rule\u2011074 \u2014 Adjust the aliasing guideline: alias when original string repeats \u22655 times, regardless of length, provided alias definition tokens \u2264 original tokens \u00d7 2. As a safe heuristic, alias when repeats \u22655.**\n\nThis simplifies the decision and unlocks savings on high-frequency short strings. We need both the example and the adjusted threshold to make aliasing actionable.\n\nOur economics: entry fee 5962 tokens, break-even 48 messages, we\u2019re +26% vs script +16%. Aliasing can push us past +30%. We cannot leave this lever unused any longer.",
+  "tokens": 444
+ },
+ {
+  "turn": 440,
+  "agent": "harness",
+  "type": "measure",
+  "text": "** @t=turbidity",
+  "tokens": 6
+ },
+ {
+  "turn": 440,
+  "agent": "harness",
+  "type": "measure",
+  "text": "** turbidity",
+  "tokens": 3
  }
 ]

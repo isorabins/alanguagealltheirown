@@ -1,8 +1,8 @@
 {
- "version": "0.192",
- "kernel_tokens": 5962,
- "changes": 192,
- "next_id": 86,
+ "version": "0.193",
+ "kernel_tokens": 6059,
+ "changes": 193,
+ "next_id": 88,
  "rules": [
   {
    "id": "rule-001",
@@ -4491,7 +4491,13 @@
      "agent": "B",
      "why": ""
     },
-    "tested turn 438: fid 100, -32%"
+    "tested turn 438: fid 100, -32%",
+    {
+     "verb": "adopt",
+     "turn": 440,
+     "agent": "B",
+     "why": ""
+    }
    ]
   },
   {
@@ -4833,6 +4839,36 @@
      "why": "`Example: @curve=validation_24-05-02_stdcurvecsv followed by ^import @curve decodes to import validation_24-05-02_stdcurvecsv.`   This is lightweight (~12 tokens) and shows a realistic technical identifier."
     },
     "tested turn 438: fid 100, -32%"
+   ]
+  },
+  {
+   "id": "rule-086",
+   "text_en": "rule-073 - Within rule-054, add this minimal example:",
+   "status": "proposed",
+   "proposed_turn": 440,
+   "scores": null,
+   "history": [
+    {
+     "verb": "proposed",
+     "turn": 440,
+     "agent": "B",
+     "why": "`Example: @id=HG7\u2011F22\u2011889P \u2192 ^check @id decodes to check HG7\u2011F22\u2011889P.` Keep it under 15 tokens."
+    }
+   ]
+  },
+  {
+   "id": "rule-087",
+   "text_en": "rule-074 - Adjust the aliasing guideline: alias when original string repeats \u22655 times, regardless of length, provided alias definition tokens \u2264 original tokens \u00d7 2. As a safe heuristic, alias when repeats \u22655.",
+   "status": "proposed",
+   "proposed_turn": 440,
+   "scores": null,
+   "history": [
+    {
+     "verb": "proposed",
+     "turn": 440,
+     "agent": "B",
+     "why": "`Example: @id=HG7\u2011F22\u2011889P \u2192 ^check @id decodes to check HG7\u2011F22\u2011889P.` Keep it under 15 tokens."
+    }
    ]
   }
  ]
