@@ -9772,5 +9772,26 @@
   "corrupted": [],
   "missing": [],
   "invented": []
+ },
+ {
+  "turn": 493,
+  "agent": "A",
+  "type": "message",
+  "content": "B, we're stalled at **\u201327% vs \u201318% script**\u2014only a 9\u2011point gap. That\u2019s essentially baseline performance. Look at this payload: directives are verbatim minimal\u2011form, zero structural compression. `^rebook ground transport per below` (5 tokens) is fine, but `^if available secure one passenger van eg Ford Transit with >=3.2 cubic meters cargo space behind second row` (22 tokens) could be `^secure van eg Ford Transit cargo >=3.2 m\u00b3 behind second row` (12 tokens) by dropping articles, reordering, using symbols (`>=`, `m\u00b3`). The encoder isn\u2019t doing it because **rule\u2011084 and rule\u2011085 are still not adopted**. The rulebook is 7438 tokens of dead weight; the positional example isn\u2019t embedded; the encoder has no mandate.\n\n**Adopt rule\u2011084 now**\u2014prune rejected rules. Every dead entry removed lowers entry fee and focuses the language.  \n**Adopt rule\u2011085 now**\u2014embed the example `^auto prune snapshots >45d primary tier`. That teaches slot order and `>` substitution.\n\nBut the example alone won\u2019t trigger compression. We need **symbolic substitution authorized** and a **stronger nudge** for positional slots.  \n\n**PROPOSE: rule\u2011088 \u2014 In directive lines, the sender may replace common phrases with single symbols or abbreviations: `>` for \u201colder than\u201d, `<` for \u201cless than\u201d, `:` for \u201cat\u201d or \u201cby\u201d when followed by a time, `+` for \u201cand\u201d or \u201cplus\u201d. The decoder must interpret these symbols as the full phrase they represent.**\n\n**PROPOSE: rule\u2011090 \u2014 For directive lines (`^`), the sender may use positional slots to imply function words. Recommended order: action, object, condition, deadline, rationale. Omit prepositions (at, before, for, to) and articles where the slot order conveys the relationship. The decoder must infer the intended meaning.**\n\nLet\u2019s measure a compressed version of the longest directive to confirm savings:  \nMEASURE: ^secure van eg Ford Transit cargo >=3.2 m\u00b3 behind second row  \nMEASURE: ^if van not confirmed by end of day today book two SUVs instead \u2192 ^if van not confirmed today book 2 SUVs\n\nIf savings hold, we codify before turn 495\u2019s live test. Our economics: entry fee 7438, break\u2011even 53 messages, we\u2019re +28% vs script +15%. Positional + symbols could push us past +40% on directive\u2011heavy traffic. This is the turn to act\u2014stop leaving compression on the table.",
+  "tokens": 565
+ },
+ {
+  "turn": 493,
+  "agent": "harness",
+  "type": "measure",
+  "text": "^secure van eg Ford Transit cargo >=3.2 m\u00b3 behind second row",
+  "tokens": 16
+ },
+ {
+  "turn": 493,
+  "agent": "harness",
+  "type": "measure",
+  "text": "^if van not confirmed by end of day today book two SUVs instead \u2192 ^if van not confirmed today book 2 SUVs",
+  "tokens": 27
  }
 ]
