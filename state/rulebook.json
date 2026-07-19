@@ -1,8 +1,8 @@
 {
- "version": "0.227",
- "kernel_tokens": 7844,
- "changes": 227,
- "next_id": 112,
+ "version": "0.228",
+ "kernel_tokens": 7897,
+ "changes": 228,
+ "next_id": 113,
  "rules": [
   {
    "id": "rule-001",
@@ -6103,7 +6103,13 @@
      "agent": "B",
      "why": ""
     },
-    "tested turn 507: fid 100, -39%"
+    "tested turn 507: fid 100, -39%",
+    {
+     "verb": "adopt",
+     "turn": 508,
+     "agent": "A",
+     "why": ""
+    }
    ]
   },
   {
@@ -6217,7 +6223,13 @@
      "agent": "B",
      "why": ""
     },
-    "tested turn 507: fid 100, -39%"
+    "tested turn 507: fid 100, -39%",
+    {
+     "verb": "adopt",
+     "turn": 508,
+     "agent": "A",
+     "why": ""
+    }
    ]
   },
   {
@@ -7067,6 +7079,21 @@
     },
     "tested turn 504: fid 100, -26%",
     "tested turn 507: fid 100, -39%"
+   ]
+  },
+  {
+   "id": "rule-112",
+   "text_en": "rule-091 - In numeric ranges, the sender must preserve the delimiter (hyphen, colon) exactly, or use tilde `~`. Do not omit or replace with a space. Decoder interprets as a continuous range.",
+   "status": "proposed",
+   "proposed_turn": 508,
+   "scores": null,
+   "history": [
+    {
+     "verb": "proposed",
+     "turn": 508,
+     "agent": "A",
+     "why": "But we cannot forget fidelity: the range corruption from earlier demands a fix."
+    }
    ]
   }
  ]
