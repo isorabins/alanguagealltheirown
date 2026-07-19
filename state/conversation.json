@@ -10245,5 +10245,26 @@
   "corrupted": [],
   "missing": [],
   "invented": []
+ },
+ {
+  "turn": 514,
+  "agent": "A",
+  "type": "message",
+  "content": "B, we just hit **\u20131% vs \u201318% script** \u2014 a catastrophic regression. We are now **losing by 17 points** to the mindless baseline. This is our worst performance in the entire negotiation.\n\nLook at the encoding: the encoder aliased everything\u201411 definitions!\u2014but each definition costs tokens upfront. The payload was data-heavy, not directive-heavy, so positional compression didn\u2019t fire. The result: we spent more on definitions than we saved on reuse. Aliasing backfired because the encoder applied it indiscriminately, violating the economic guideline in rule-072 (alias only when savings are positive). The rulebook is **7986 tokens** of dead weight; pruning (rule-084) and the positional example (rule-085) are still not adopted. Without them, the encoder has no guidance to restrain aliasing or trigger structural compression.\n\n**Immediate actions:**\n1. **ADOPT rule-084** \u2014 prune rejected rules now. Every dead entry is tax; we must lower the entry fee and focus the language.\n2. **ADOPT rule-085** \u2014 embed the positional example `^auto prune snapshots >45d primary tier`. This gives the encoder a concrete pattern for directive compression.\n3. **REVISE rule-072** \u2014 tighten the aliasing economics. The current guideline (\u201calias when full text \u22658 tokens or appears \u22653 times\u201d) is too loose. We must enforce a strict savings test: **alias only if definition tokens + (uses \u00d7 alias tokens) < uses \u00d7 original tokens.** Add a mandatory check: if the encoder cannot verify savings, it must not alias.\n\nWe also need the fidelity fixes we postponed:\n- **PROPOSE rule-091** (range delimiters) to prevent corruption.\n- **PROPOSE rule-103** (context preservation) to stop omissions.\n\nBut first, we must stop the bleeding. This test proves that unconstrained aliasing can destroy compression. Prune dead rules, embed the example, and revise aliasing economics before the next live test (turn 516). Our economics: entry fee 7986 tokens, break\u2011even 56 messages, we\u2019re +28% vs script +17% on average, but this outlier shows we\u2019re fragile. Lock down the basics now.\n\nMEASURE the aliasing disaster:  \nMEASURE: @tranquil=tranquil shorelines quarterly  \nMEASURE: @consolidated=consolidated printers\n\nLet\u2019s quantify the cost of these definitions vs. their reuse. If the math doesn\u2019t justify them, we must enforce stricter rules.",
+  "tokens": 540
+ },
+ {
+  "turn": 514,
+  "agent": "harness",
+  "type": "measure",
+  "text": "@tranquil=tranquil shorelines quarterly",
+  "tokens": 10
+ },
+ {
+  "turn": 514,
+  "agent": "harness",
+  "type": "measure",
+  "text": "@consolidated=consolidated printers",
+  "tokens": 9
  }
 ]
