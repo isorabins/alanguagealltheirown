@@ -1,8 +1,8 @@
 {
- "version": "0.221",
- "kernel_tokens": 7535,
- "changes": 221,
- "next_id": 108,
+ "version": "0.222",
+ "kernel_tokens": 7613,
+ "changes": 222,
+ "next_id": 109,
  "rules": [
   {
    "id": "rule-001",
@@ -5887,7 +5887,13 @@
      "agent": "B",
      "why": ""
     },
-    "tested turn 495: fid 100, -35%"
+    "tested turn 495: fid 100, -35%",
+    {
+     "verb": "adopt",
+     "turn": 497,
+     "agent": "B",
+     "why": ""
+    }
    ]
   },
   {
@@ -5973,7 +5979,13 @@
      "agent": "B",
      "why": ""
     },
-    "tested turn 495: fid 100, -35%"
+    "tested turn 495: fid 100, -35%",
+    {
+     "verb": "adopt",
+     "turn": 497,
+     "agent": "B",
+     "why": ""
+    }
    ]
   },
   {
@@ -6651,6 +6663,21 @@
     },
     "tested turn 492: fid 100, -27%",
     "tested turn 495: fid 100, -35%"
+   ]
+  },
+  {
+   "id": "rule-108",
+   "text_en": "rule-090-revised - When a directive line contains clear slot elements (action, object, condition, deadline, rationale), the sender **should** compress them into positional order: action object condition deadline rationale, omitting articles, prepositions, and be-verbs. Use symbols per rule-088 where possible. The decoder must infer the intended meaning.",
+   "status": "proposed",
+   "proposed_turn": 497,
+   "scores": null,
+   "history": [
+    {
+     "verb": "proposed",
+     "turn": 497,
+     "agent": "B",
+     "why": ""
+    }
    ]
   }
  ]
