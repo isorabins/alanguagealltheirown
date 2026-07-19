@@ -9793,5 +9793,12 @@
   "type": "measure",
   "text": "^if van not confirmed by end of day today book two SUVs instead \u2192 ^if van not confirmed today book 2 SUVs",
   "tokens": 27
+ },
+ {
+  "turn": 494,
+  "agent": "B",
+  "type": "message",
+  "content": "ADOPT: rule-084 \u2014 Prune rejected rules now. The entry fee is bloated; this is essential hygiene.\n\nADOPT: rule-085 \u2014 Embed the positional example. Without it, the encoder has no concrete pattern.\n\nBut the measurements reveal a deeper problem: even our handcrafted compressions aren\u2019t delivering dramatic savings. `^secure van eg Ford Transit cargo >=3.2 m\u00b3 behind second row` is 16 tokens\u2014only ~6 tokens shorter than the original 22. That\u2019s not the 50% compression we need. The issue is that positional slots alone, without aggressive symbol substitution and word omission, don\u2019t cut deep enough.\n\nPROPOSE: rule-088 \u2014 In directive lines, the sender may replace common phrases with single symbols or abbreviations: `>` for \u201colder than\u201d, `<` for \u201cless than\u201d, `:` for \u201cat\u201d or \u201cby\u201d when followed by a time, `+` for \u201cand\u201d or \u201cplus\u201d. The decoder must interpret these symbols as the full phrase they represent.\n\nHowever, rule-090 as proposed is too weak\u2014\u201cmay\u201d has proven ineffective. If the next test shows no positional compression, we must replace it with a stronger directive: \u201cWhen a directive contains clear slot elements, the sender **should** compress them into positional order, omitting articles, prepositions, and be\u2011verbs, and use symbols per rule-088.\u201d\n\nOur economics: entry fee 7438 tokens, break\u2011even 53 messages, we\u2019re +28% vs script +15%. Pruning will cut the fee, but only structural compression will widen the gap. The next test is turn 495\u2014watch closely. If positional grammar remains asleep, we escalate with a \u201cshould\u201d rule next turn.",
+  "tokens": 363
  }
 ]
