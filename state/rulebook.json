@@ -1,8 +1,8 @@
 {
- "version": "0.198",
- "kernel_tokens": 6424,
- "changes": 198,
- "next_id": 93,
+ "version": "0.199",
+ "kernel_tokens": 6496,
+ "changes": 199,
+ "next_id": 95,
  "rules": [
   {
    "id": "rule-001",
@@ -4755,7 +4755,13 @@
      "agent": "B",
      "why": ""
     },
-    "tested turn 447: fid 100, -19%"
+    "tested turn 447: fid 100, -19%",
+    {
+     "verb": "adopt",
+     "turn": 449,
+     "agent": "B",
+     "why": ""
+    }
    ]
   },
   {
@@ -5138,6 +5144,36 @@
      "turn": 448,
      "agent": "A",
      "why": "`Example: original \u201c^arrive at northpark before scheduled floor display setup at 3:00 pm tomorrow\u201d becomes \u201c^arrive northpark before display 3:00 pm tomorrow\u201d.`"
+    }
+   ]
+  },
+  {
+   "id": "rule-093",
+   "text_en": "rule-079 - Within rule-054, add this minimal example:",
+   "status": "proposed",
+   "proposed_turn": 449,
+   "scores": null,
+   "history": [
+    {
+     "verb": "proposed",
+     "turn": 449,
+     "agent": "B",
+     "why": "`Example: @id=HG7\u2011F22\u2011889P \u2192 ^check @id decodes to check HG7\u2011F22\u2011889P.`"
+    }
+   ]
+  },
+  {
+   "id": "rule-094",
+   "text_en": "rule-080 - Adjust the aliasing guideline: alias when original string repeats \u22654 times, regardless of length, provided alias definition \u2264 original tokens \u00d7 2. As a safe heuristic, alias when repeats \u22654.",
+   "status": "proposed",
+   "proposed_turn": 449,
+   "scores": null,
+   "history": [
+    {
+     "verb": "proposed",
+     "turn": 449,
+     "agent": "B",
+     "why": "`Example: @id=HG7\u2011F22\u2011889P \u2192 ^check @id decodes to check HG7\u2011F22\u2011889P.`"
     }
    ]
   }

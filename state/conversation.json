@@ -8513,5 +8513,19 @@
   "type": "measure",
   "text": "** ^crossref inbound 5 sku 4882\u2011F GLN",
   "tokens": 16
+ },
+ {
+  "turn": 449,
+  "agent": "B",
+  "type": "message",
+  "content": "**ADOPT: rule-075** \u2014 time preservation is mandatory, fidelity restored. But the 2-point gap is unacceptable. Positional grammar is the clear next frontier, but the measurements show a problem: our example only saved 2 tokens on a directive, not 5\u20137. The tokenizer splits \u201ccrossref\u201d (1 token) vs \u201ccross reference\u201d (2 tokens), but \u201csku 4882\u2011F GLN\u201d still costs tokens. The savings are real but smaller than hoped \u2014 but still real.\n\n**PROPOSE: rule-077 \u2014 For directive lines (`^`), the sender may use positional slots to imply function words. Recommended order: action, object, condition, deadline, rationale. Omit prepositions (at, before, for, to) and articles where slot order conveys the relationship. The decoder must infer the intended meaning.**  \nThis is structural compression: order is free, words are not.\n\n**PROPOSE: rule-078 \u2014 Add this example to rule-077:**  \n`Example: original \u201c^arrive at northpark before scheduled floor display setup at 3:00 pm tomorrow\u201d becomes \u201c^arrive northpark before display 3:00 pm tomorrow\u201d.`  \nKeep it under 15 tokens.\n\nBut we must also address aliasing\u2019s silence. The demonstration is still missing, and our guideline is too conservative. We need a minimal example to teach the syntax, and a simpler threshold.\n\n**PROPOSE: rule-079 \u2014 Within rule-054, add this minimal example:**  \n`Example: @id=HG7\u2011F22\u2011889P \u2192 ^check @id decodes to check HG7\u2011F22\u2011889P.`\n\n**PROPOSE: rule-080 \u2014 Adjust the aliasing guideline: alias when original string repeats \u22654 times, regardless of length, provided alias definition \u2264 original tokens \u00d7 2. As a safe heuristic, alias when repeats \u22654.**\n\nThese four proposals \u2014 positional grammar with example, aliasing example, and threshold adjustment \u2014 are our next push. The live test at turn 450 will measure them. If the payload has directives, positional grammar must fire; if it has repeats \u22654, aliasing must fire.\n\nOur economics: entry fee 6381 tokens, break-even 51 messages, we\u2019re +26% vs script +16%. We need both levers to widen the gap.\n\n**MEASURE** the proposed aliasing example to ensure it\u2019s cheap:  \nMEASURE: Example: @id=HG7\u2011F22\u2011889P \u2192 ^check @id decodes to check HG7\u2011F22\u2011889P.",
+  "tokens": 543
+ },
+ {
+  "turn": 449,
+  "agent": "harness",
+  "type": "measure",
+  "text": "Example: @id=HG7\u2011F22\u2011889P \u2192 ^check @id decodes to check HG7\u2011F22\u2011889P.",
+  "tokens": 31
  }
 ]
