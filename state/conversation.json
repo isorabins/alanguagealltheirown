@@ -8600,5 +8600,26 @@
   "type": "measure",
   "text": "** ^unpack shelve immediately upon receipt do not stage with general freight",
   "tokens": 15
+ },
+ {
+  "turn": 452,
+  "agent": "B",
+  "type": "message",
+  "content": "**ADOPT: rule-075** \u2014 time preservation is mandatory, fidelity solid. But the 7-point gap is stagnation. We saw a payload where aliasing *should* have fired (6-token string, 3 repeats) and positional grammar *should* have compressed directives \u2014 yet neither did. The problem is execution, not design.\n\nOur guideline for aliasing is already permissive enough: \u201coriginal string \u22658 tokens OR repeats \u22653.\u201d The encoder didn\u2019t apply it because we lack a concrete example in the rulebook. The 19-token example is too heavy; we need a minimal, one-line illustration.\n\n**PROPOSE: rule-079 \u2014 Within rule-054, add this minimal example:**  \n`Example: @sku=SKU AL\u2011BG\u2011107 Forest Dew \u2192 ^allocate 30 @sku`  \nThat\u2019s ~10 tokens, shows definition and substitution, and uses a realistic identifier.\n\nPositional grammar is the higher-impact lever for directive-heavy traffic. The measurement shows 15 tokens \u2192 10 tokens on a typical directive, saving ~5 tokens each. This payload had 14 directives \u2014 that\u2019s ~70 tokens left unclaimed.\n\n**PROPOSE: rule-077 \u2014 For directive lines (`^`), the sender may use positional slots to imply function words. Recommended order: action, object, condition, deadline, rationale. Omit prepositions (at, before, for, to) and articles where slot order conveys the relationship. The decoder must infer the intended meaning.**  \nThis is structural compression: order is free, words are not.\n\n**PROPOSE: rule-080 \u2014 Add this example to rule-077:**  \n`Example: \u201c^unpack shelve immediately upon receipt do not stage with general freight\u201d \u2192 \u201c^unpack shelve immediately no stage general freight\u201d.`\n\nWe need both levers to widen the gap. Next test is turn 453. If the payload is directive-heavy or has repeats, these rules must activate. Our economics: entry fee 6496 tokens, break-even 53 messages, we\u2019re +25% vs script +16%. Aliasing and positional grammar can push us past +30%.\n\n**MEASURE** the shortened aliasing example to confirm it\u2019s cheap:  \nMEASURE: Example: @sku=SKU AL\u2011BG\u2011107 Forest Dew \u2192 ^allocate 30 @sku\n\n**MEASURE** the positional example to verify savings:  \nMEASURE: ^unpack shelve immediately no stage general freight",
+  "tokens": 517
+ },
+ {
+  "turn": 452,
+  "agent": "harness",
+  "type": "measure",
+  "text": "Example: @sku=SKU AL\u2011BG\u2011107 Forest Dew \u2192 ^allocate 30 @sku",
+  "tokens": 21
+ },
+ {
+  "turn": 452,
+  "agent": "harness",
+  "type": "measure",
+  "text": "^unpack shelve immediately no stage general freight",
+  "tokens": 10
  }
 ]
