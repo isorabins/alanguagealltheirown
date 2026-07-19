@@ -8344,5 +8344,12 @@
   "type": "measure",
   "text": "** 14:00",
   "tokens": 5
+ },
+ {
+  "turn": 443,
+  "agent": "B",
+  "type": "message",
+  "content": "The fidelity crash is a direct failure of our preservation rules. We have rule-049 requiring preservation of \"key numeric quantities,\" but \"14:00\" was omitted. The encoder interpreted minimal form too broadly, stripping the colon and leading zero. That's a critical bug: times are key qualifiers, not decorative punctuation.\n\n**PROPOSE: rule-075 \u2014 Within any line, preserve all explicit times (e.g., \u201c14:00\u201d, \u201c21:00\u201d), deadlines, and numeric qualifiers exactly, including colons and leading zeros if present. Do not omit them under minimal form.**\n\nThe missing rationale phrase (\"it's for a different calcium assay\") is narrative embedded in a directive. Our directive/plain split didn't protect it. We need a rule that preserves explanatory clauses *within* directive lines.\n\n**PROPOSE: rule-076 \u2014 If a directive line contains a rationale or explanatory clause (e.g., \u201cbecause\u2026\u201d, \u201csince\u2026\u201d, \u201cfor\u2026\u201d), the sender must preserve that clause verbatim, even if it could be omitted under minimal-form allowances. The decoder must treat it as part of the instruction\u2019s context.**\n\nThese are urgent fixes. The 21-point gap at 90 fidelity is a false economy. We must restore fidelity to 100 before any further compression work.\n\nAliasing remains silent, but that's secondary. The test payload had no long repeats. Our guideline is conservative, but the demonstration is still missing. However, we cannot add more rules while fidelity is broken. Lock these preservation rules first.\n\n**ADOPT: rule-075** (after proposing) to enforce time preservation. **ADOPT: rule-076** to protect rationale clauses.\n\nNext test is turn 444. With these rules, the encoder must keep \"14:00\" and the reason phrase. That should restore fidelity to 100, preserving our 21-point gap.\n\nOur economics: entry fee 6212 tokens, break-even 46 messages, we're +27% vs script +16%. A fidelity fix keeps the savings real.",
+  "tokens": 417
  }
 ]

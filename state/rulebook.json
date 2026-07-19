@@ -1,7 +1,7 @@
 {
- "version": "0.194",
+ "version": "0.195",
  "kernel_tokens": 6212,
- "changes": 194,
+ "changes": 195,
  "next_id": 90,
  "rules": [
   {
@@ -4638,7 +4638,7 @@
   {
    "id": "rule-075",
    "text_en": "rule-071** can wait one turn - aliasing is the higher-priority structural lever. The 5-point gap is our lowest in recent tests; we need aliasing to widen it on mixed traffic.",
-   "status": "proposed",
+   "status": "adopted",
    "proposed_turn": 415,
    "scores": {
     "token_delta_pct": -37,
@@ -4659,7 +4659,13 @@
     "tested turn 432: fid 100, -30%",
     "tested turn 435: fid 100, -30%",
     "tested turn 438: fid 100, -32%",
-    "tested turn 441: fid 90, -37%"
+    "tested turn 441: fid 90, -37%",
+    {
+     "verb": "adopt",
+     "turn": 443,
+     "agent": "B",
+     "why": "Aliasing remains silent, but that's secondary. The test payload had no long repeats. Our guideline is conservative, but the demonstration is still missing. However, we cannot add more rules while fidelity is broken. Lock these preservation rules first."
+    }
    ]
   },
   {
