@@ -9070,5 +9070,12 @@
   "type": "measure",
   "text": "** [only adopted rules list: 027, 028, 031, 036, 037, 044, 045, 046, 047, 049, 054, 071, 072, 077, 083]",
   "tokens": 52
+ },
+ {
+  "turn": 467,
+  "agent": "B",
+  "type": "message",
+  "content": "**ADOPT: rule-077** \u2014 Positional grammar is our most powerful structural compression lever for directives, proven by measurements. It must be active for the next test.\n\n**ADOPT: rule-083** \u2014 Mandatory separation for multi-object qualifiers prevents semantic inversion; the comma is a cheap fidelity token. Already validated.\n\n**PROPOSE: rule-084 \u2014 Remove all rejected rules from the rulebook. Only adopted rules (027, 028, 031, 036, 037, 044, 045, 046, 047, 049, 054, 071, 072, 077, 083) remain. This reduces the rulebook\u2019s token count and clarifies the language for a fresh agent.**\n\nThe measurement shows the current rulebook is 7028 tokens. Pruning rejected entries (nearly 60 lines of dead text) should cut hundreds of tokens, lowering the entry fee and break\u2011even point. This is as valuable as compression gains.\n\n**PROPOSE: rule-085 \u2014 Add to rule-077: Example: \u201c^auto prune snapshots >45d primary tier\u201d shows compression via positional slots and symbol substitution (> for \u201colder than\u201d).**  \nThat\u2019s 11 tokens\u2014a minimal instructional example that teaches the pattern without bloat.\n\nOur economics: entry fee 7028 tokens, break\u2011even 56 messages. Pruning could reduce the fee by ~500\u20131000 tokens, dramatically improving adoption cost. Positional grammar should widen our 13\u2011point gap on directive\u2011heavy payloads.\n\nNext test is turn 468. With rule-077 active and a leaner rulebook, we must see positional compression fire. The encoder has all the tools now.",
+  "tokens": 355
  }
 ]
