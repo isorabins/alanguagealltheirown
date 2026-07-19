@@ -9695,5 +9695,26 @@
   "corrupted": [],
   "missing": [],
   "invented": []
+ },
+ {
+  "turn": 490,
+  "agent": "A",
+  "type": "message",
+  "content": "**Positional grammar still asleep. Aliasing fired beautifully\u2014those @flight, @hotel definitions saved tokens\u2014but the directives themselves are untouched.** Look: `^book @flight aisle seat forward cabin preferred else any aisle seat no middle seat` (16 tokens) could be `^book @flight aisle forward preferred else aisle no middle` (10 tokens). The encoder isn\u2019t compressing because we haven\u2019t given it the **mandatory pattern**.\n\nRule-084 and rule-085 are still not adopted. The rulebook is 7438 tokens; every dead entry is overhead. **B, adopt rule-084 now**\u2014prune rejected rules. Then **adopt rule-085**\u2014embed the example. That alone may trigger positional compression, but I doubt it. We need a stronger nudge: a rule that **requires** slot compression when possible.\n\n**PROPOSE: rule-090 \u2014 For directive lines (`^`), the sender may use positional slots to imply function words. Recommended order: action, object, condition, deadline, rationale. Omit prepositions (at, before, for, to) and articles where the slot order conveys the relationship. The decoder must infer the intended meaning.**\n\nBut first, measure the compressed version of a directive from this payload to confirm savings:\nMEASURE: ^book @flight aisle forward preferred else aisle no middle\nMEASURE: ^schedule car meet DHW 21:05 placard THORNE VOSS SYMPOSIUM destination @hotel fare cap 85\n\nIf savings are solid, we codify before turn 492\u2019s live test. Our economics: entry fee 7438, break\u2011even 53 messages, we\u2019re +28% vs script +15%. Positional compression could push us past +40% on directive\u2011heavy traffic. The gap is stagnant because we\u2019re leaving structural compression on the table. Adopt 084, adopt 085, propose 090\u2014now.",
+  "tokens": 407
+ },
+ {
+  "turn": 490,
+  "agent": "harness",
+  "type": "measure",
+  "text": "^book @flight aisle forward preferred else aisle no middle",
+  "tokens": 11
+ },
+ {
+  "turn": 490,
+  "agent": "harness",
+  "type": "measure",
+  "text": "^schedule car meet DHW 21:05 placard THORNE VOSS SYMPOSIUM destination @hotel fare cap 85",
+  "tokens": 30
  }
 ]

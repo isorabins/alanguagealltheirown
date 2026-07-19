@@ -1,8 +1,8 @@
 {
- "version": "0.218",
- "kernel_tokens": 7438,
- "changes": 218,
- "next_id": 107,
+ "version": "0.219",
+ "kernel_tokens": 7523,
+ "changes": 219,
+ "next_id": 108,
  "rules": [
   {
    "id": "rule-001",
@@ -6467,6 +6467,21 @@
      "why": "But also, we need a **stronger nudge** for positional compression. The encoder treats directives as plain text with a `^`\u2014it doesn\u2019t reorganize. Let\u2019s add a rule that **requires** compression when slots are clear:"
     },
     "tested turn 489: fid 100, -29%"
+   ]
+  },
+  {
+   "id": "rule-107",
+   "text_en": "rule-090 - For directive lines (`^`), the sender may use positional slots to imply function words. Recommended order: action, object, condition, deadline, rationale. Omit prepositions (at, before, for, to) and articles where the slot order conveys the relationship. The decoder must infer the intended meaning.",
+   "status": "proposed",
+   "proposed_turn": 490,
+   "scores": null,
+   "history": [
+    {
+     "verb": "proposed",
+     "turn": 490,
+     "agent": "A",
+     "why": "Rule-084 and rule-085 are still not adopted. The rulebook is 7438 tokens; every dead entry is overhead. **B, adopt rule-084 now**\u2014prune rejected rules. Then **adopt rule-085**\u2014embed the example. That alone may trigger positional compression, but I doubt it. We need a stronger nud"
+    }
    ]
   }
  ]
