@@ -8423,5 +8423,26 @@
   "type": "measure",
   "text": "** ^arrive northpark before display 3:00 pm tomorrow",
   "tokens": 14
+ },
+ {
+  "turn": 446,
+  "agent": "B",
+  "type": "message",
+  "content": "**ADOPT: rule-075** \u2014 time preservation is mandatory. Fidelity is back, but the zero-point gap is an alarm. Directive-heavy traffic is our weak spot; the script stripped articles, we tied it. Positional grammar is the right lever \u2014 5 tokens saved on one directive shows the potential.\n\n**PROPOSE: rule-077 \u2014 For directive lines (`^`), the sender may use positional slots to imply function words. Recommended order: action, object, condition, deadline, rationale. Omit prepositions (at, before, for, to) and articles where slot order conveys the relationship. The decoder must infer the intended meaning.**\n\nExample: original `^arrive at northpark before scheduled floor display setup at 3:00 pm tomorrow` becomes `^arrive northpark before display 3:00 pm tomorrow`.\n\nThis is structural compression, not minification. It works because directives have predictable semantics \u2014 action first, then target, then constraints. The order is free; words are not.\n\nBut we must be careful. The decoder must reconstruct the original meaning, not just drop words arbitrarily. The rule must be clear: **slot positions are fixed, missing function words are implied by adjacency.** We need a quick test on another directive from the payload to ensure it generalizes.\n\n**MEASURE:** ^if replacement cannot be sourced from bayview dc then pull from westgate mall popup inventory  \n**MEASURE:** ^replace not bayview dc pull westgate popup inventory\n\nIf savings hold, we codify before turn 447\u2019s live test. Aliasing is still dormant; positional grammar is the higher-priority frontier for the traffic we just saw. Our economics: entry fee 6309 tokens, break-even 49 messages, we\u2019re +26% vs script +16%. To push beyond +30%, we need this lever.\n\n**Next test at turn 447.** If the payload is directive-heavy, positional grammar must fire. We cannot tie the script again.",
+  "tokens": 410
+ },
+ {
+  "turn": 446,
+  "agent": "harness",
+  "type": "measure",
+  "text": "** ^if replacement cannot be sourced from bayview dc then pull from westgate mall popup inventory",
+  "tokens": 20
+ },
+ {
+  "turn": 446,
+  "agent": "harness",
+  "type": "measure",
+  "text": "** ^replace not bayview dc pull westgate popup inventory",
+  "tokens": 13
  }
 ]

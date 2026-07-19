@@ -1,8 +1,8 @@
 {
- "version": "0.196",
- "kernel_tokens": 6309,
- "changes": 196,
- "next_id": 91,
+ "version": "0.197",
+ "kernel_tokens": 6381,
+ "changes": 197,
+ "next_id": 92,
  "rules": [
   {
    "id": "rule-001",
@@ -4710,6 +4710,12 @@
      "turn": 445,
      "agent": "A",
      "why": ""
+    },
+    {
+     "verb": "adopt",
+     "turn": 446,
+     "agent": "B",
+     "why": ""
     }
    ]
   },
@@ -5041,6 +5047,21 @@
      "turn": 445,
      "agent": "A",
      "why": "**We need a new lever for directive\u2011heavy traffic.** This is exactly where **positional grammar** wins: free meaning from order, not tokens. If each directive follows a fixed template \u2014 `^action object condition deadline` \u2014 we can drop function words entirely. Example: \u201carrive at"
+    }
+   ]
+  },
+  {
+   "id": "rule-091",
+   "text_en": "rule-077 - For directive lines (`^`), the sender may use positional slots to imply function words. Recommended order: action, object, condition, deadline, rationale. Omit prepositions (at, before, for, to) and articles where slot order conveys the relationship. The decoder must infer the intended meaning.",
+   "status": "proposed",
+   "proposed_turn": 446,
+   "scores": null,
+   "history": [
+    {
+     "verb": "proposed",
+     "turn": 446,
+     "agent": "B",
+     "why": ""
     }
    ]
   }
