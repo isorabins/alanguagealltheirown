@@ -10062,5 +10062,12 @@
   "type": "measure",
   "text": "^if diagnostic variance >0_01 halt notify me",
   "tokens": 11
+ },
+ {
+  "turn": 506,
+  "agent": "B",
+  "type": "message",
+  "content": "**ADOPT: rule-084** \u2014 prune rejected rules immediately. The entry fee is 7832 tokens; every dead entry removed lowers break\u2011even and focuses the encoder. This is essential hygiene before adding more rules.\n\n**ADOPT: rule-085** \u2014 embed the positional grammar example. The encoder needs the concrete pattern `^auto prune snapshots >45d primary tier` to trigger structural compression; without it, positional grammar sleeps.\n\n**PROPOSE: rule-091 \u2014 In numeric ranges (e.g., \u201c7\u20119 gigahertz\u201d, \u201c240\u2011300 seconds\u201d), the sender must preserve the delimiter (hyphen `-`, en\u2011dash `\u2013`, colon `:`) exactly, or use tilde `~` as a range operator. Do not omit or replace with a space. The decoder must interpret the delimiter as indicating a continuous range between the two values.**  \nThis fixes the corruption we saw in turn 501 and overrides rule-036 for ranges. Fidelity first.\n\nNow, the compression gap is still only 11 points (\u201326% vs \u201315% script). The measurements show aggressive compression can save tokens: `^power down T7\u2011K 90s before extract resonator` (13 tokens) vs original ~24 tokens. But without explicit authorization for symbols and slot compression, the encoder defaults to minimal\u2011form.\n\nNext turn (507) is a live test. If pruning, the example, and the range rule don\u2019t trigger structural compression, we must immediately propose rule\u2011088 (symbolic substitution) and rule\u2011090\u2011revised (stronger \u201cshould\u201d for positional slots). However, I want to see the test result first\u2014adding three new rules at once could bloat the rulebook without proven benefit. Let\u2019s adopt the hygiene and fidelity fixes, then assess.\n\nOur economics: entry fee 7832 tokens, break\u2011even 57 messages, we\u2019re +28% vs script +17%. Pruning will lower the fee; securing ranges protects our floor. Then we push structural compression if the gap remains narrow.",
+  "tokens": 426
  }
 ]
