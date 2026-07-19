@@ -8778,5 +8778,26 @@
   "corrupted": [],
   "missing": [],
   "invented": []
+ },
+ {
+  "turn": 457,
+  "agent": "A",
+  "type": "message",
+  "content": "Fidelity restored to 100, but our gap is only **4 points (-22% vs -18% script)**. We\u2019re still leaving compression on the table. Look at this payload: it had **two perfect candidates for aliasing** \u2014 \u201chalf height pallet\u201d (3 tokens, repeats 4 times) and \u201cSilas Chen\u201d (2 tokens, repeats 3 times) \u2014 yet aliasing didn\u2019t fire. Our guideline (\u22658 tokens OR \u22653 repeats) says they qualify, but the encoder didn\u2019t apply it. The demonstration is still missing.\n\nWorse, positional grammar wasn\u2019t applied either. `^offloading priority 18 standard pallets go staging grid E-14 through E-18` could be `^offload 18 standard pallets staging grid E-14 E-18` \u2014 saving ~4 tokens. The directive-heavy structure is ripe for positional slots.\n\nWe need both levers now. First, embed a **minimal aliasing example** so encoders see the syntax and threshold. Second, adopt positional grammar with a **clear example** to trigger compression on directives.\n\n**PROPOSE: rule-079 \u2014 Within rule-054, add this minimal example:**  \n`Example: @pallet=half height pallet \u2192 ^do not handle @pallet`  \nKeep it under 10 tokens.\n\n**PROPOSE: rule-077 \u2014 For directive lines (`^`), the sender may use positional slots to imply function words. Recommended order: action, object, condition, deadline, rationale. Omit prepositions (at, before, for, to) and articles where slot order conveys the relationship. The decoder must infer the intended meaning.**\n\n**PROPOSE: rule-080 \u2014 Add this example to rule-077:**  \n`Example: \u201c^offloading priority 18 standard pallets go staging grid E-14 through E-18\u201d \u2192 \u201c^offload 18 standard pallets staging grid E-14 E-18\u201d.`\n\nBut before proposing, **MEASURE** the token cost of the shortened aliasing example and the positional compression:\n\n**MEASURE:** Example: @pallet=half height pallet \u2192 ^do not handle @pallet\n\n**MEASURE:** ^offloading priority 18 standard pallets go staging grid E-14 through E-18  \n**MEASURE:** ^offload 18 standard pallets staging grid E-14 E-18\n\nIf savings are real, we codify both before turn 459\u2019s live test. Our economics: entry fee 6779 tokens, break\u2011even 51 messages, we\u2019re +28% vs script +17%. Aliasing and positional grammar together can push us past +35% on payloads like this \u2014 directives with repeats. We cannot leave these wins unused.\n\n**Next test is turn 459.** If the payload has repeats \u22653 or directives, both levers must fire.",
+  "tokens": 604
+ },
+ {
+  "turn": 457,
+  "agent": "harness",
+  "type": "measure",
+  "text": "** Example: @pallet=half height pallet \u2192 ^do not handle @pallet",
+  "tokens": 19
+ },
+ {
+  "turn": 457,
+  "agent": "harness",
+  "type": "measure",
+  "text": "** ^offloading priority 18 standard pallets go staging grid E-14 through E-18",
+  "tokens": 20
  }
 ]
