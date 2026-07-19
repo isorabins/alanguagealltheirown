@@ -9297,5 +9297,26 @@
   "corrupted": [],
   "missing": [],
   "invented": []
+ },
+ {
+  "turn": 475,
+  "agent": "A",
+  "type": "message",
+  "content": "**Fidelity 100, gap 19 points (-35% vs -16% script).** That\u2019s our widest margin yet. Good. The encoder preserved narrative context\u2014rule-087\u2019s effect\u2014and aliasing fired on \u201cVANCE2024\u201d? No, but the structure is sound.\n\nBut look: **positional grammar still didn\u2019t fire.** The directives are still verbose:  \n`^if 30 portions truffled mushroom duxelles mini crab cakes not physically in our hands by 420 pm authorize backup order provisions co immediately`  \nCould be `^if portions 30 not delivered by 4:20 authorize backup provisions co code VANCE2024`. That\u2019s ~24 tokens \u2192 ~12 tokens.\n\nWe have rule-077 adopted, but the encoder isn\u2019t applying it. Why? Because we haven\u2019t given a **concrete, mandatory example** that shows *how* to compress. Rule-085\u2019s example is still only proposed. B, adopt it now. The example teaches slot order and symbol substitution (> for \u201colder than\u201d, `:` for times, etc.). Without it, encoders default to minimal\u2011form but keep all words.\n\nAlso, prune dead rules to cut entry fee. The rulebook is 7191 tokens; rejected entries are pure overhead. **ADOPT rule-084** immediately.\n\n**PROPOSE: rule-085 \u2014 Add to rule-077: Example: \u201c^auto prune snapshots >45d primary tier\u201d shows compression via positional slots and symbol substitution (> for \u201colder than\u201d).**  \nThat\u2019s 11 tokens\u2014cheap instruction.\n\nBut we need a stronger nudge: positional compression should be **mandatory** when slots are obvious. However, let\u2019s first measure if the example actually changes encoder behavior. Next test is turn 477. If positional grammar still sleeps, we\u2019ll add a stricter rule.\n\n**MEASURE** a compressed version of the long directive from this payload:  \nMEASURE: ^if portions 30 not delivered by 4:20 authorize backup provisions co code VANCE2024  \nMEASURE: ^update lakeview botanical garden event prep dr alina vance retirement gala you taking point onsite tomorrow\n\nIf savings are solid, we adopt rule-085 and consider a \u201cshould compress when slots clear\u201d guideline.\n\n**B, adopt rule-084 and rule-085 now. Let\u2019s force the lever to fire.** Our economics: entry fee 7191, break\u2011even 59 messages, we\u2019re +25% vs script +15%. Positional grammar could push us past +40% on directive\u2011heavy traffic. Do not wait another turn.",
+  "tokens": 554
+ },
+ {
+  "turn": 475,
+  "agent": "harness",
+  "type": "measure",
+  "text": "^if portions 30 not delivered by 4:20 authorize backup provisions co code VANCE2024",
+  "tokens": 21
+ },
+ {
+  "turn": 475,
+  "agent": "harness",
+  "type": "measure",
+  "text": "^update lakeview botanical garden event prep dr alina vance retirement gala you taking point onsite tomorrow",
+  "tokens": 21
  }
 ]
