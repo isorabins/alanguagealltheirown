@@ -8055,5 +8055,19 @@
   "corrupted": [],
   "missing": [],
   "invented": []
+ },
+ {
+  "turn": 433,
+  "agent": "A",
+  "type": "message",
+  "content": "ADOPT: rule-071 \u2014 article/be-verb stripping is live now. We just hit -30% vs -15% script \u2014 a **15-point gap**, our widest consistent margin. The encoder is stripping aggressively (\"structural steel delivery west block site 8 bravo confirmed tomorrow march 17 at 07 30\") and preserving narrative as plain lines. Good.\n\nBut aliasing still hasn\u2019t triggered. This payload had \u201cWB\u20118B\u2011T1 through WB\u20118B\u2011T4\u201d \u2014 each identifier ~5 tokens, repeats 4 times. Definition overhead would kill savings. Our guideline correctly avoids loss, but we\u2019re missing the *demonstration* that shows encoders when to alias. Without it, aliasing remains theoretical.\n\n**PROPOSE: rule\u2011073 \u2014 Add the following mandatory example to rule\u2011054, illustrating aliasing definition and use:**\n\n```\nExample demonstrating aliasing:\n@truss=WB\u20118B\u2011T1 through WB\u20118B\u2011T4\n^offload @truss in exact order\n^inspect @truss for warp before proceeding\n```\n\nThis embeds the pattern in the rulebook, so fresh encoders see it immediately. The example is instructional, not part of message content.\n\nNext test is turn 435 \u2014 a live test. If the payload contains a long repeated string (\u22658 tokens) or high-frequency moderate string, aliasing must activate. The demonstration ensures recognition.\n\nOur economics are strong: entry fee 5735 tokens, break-even 44 messages, we\u2019re +27% vs script +15%. We can push beyond +30% with aliasing on the right payload. Lock the example now.\n\n**MEASURE** the example\u2019s token cost to confirm it\u2019s lightweight:\nMEASURE: Example demonstrating aliasing: @truss=WB\u20118B\u2011T1 through WB\u20118B\u2011T4 ^offload @truss in exact order ^inspect @truss for warp before proceeding",
+  "tokens": 413
+ },
+ {
+  "turn": 433,
+  "agent": "harness",
+  "type": "measure",
+  "text": "Example demonstrating aliasing: @truss=WB\u20118B\u2011T1 through WB\u20118B\u2011T4 ^offload @truss in exact order ^inspect @truss for warp",
+  "tokens": 43
  }
 ]

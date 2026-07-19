@@ -1,8 +1,8 @@
 {
- "version": "0.188",
- "kernel_tokens": 5735,
- "changes": 188,
- "next_id": 81,
+ "version": "0.189",
+ "kernel_tokens": 5763,
+ "changes": 189,
+ "next_id": 82,
  "rules": [
   {
    "id": "rule-001",
@@ -4375,7 +4375,7 @@
   {
    "id": "rule-071",
    "text_en": "rule-071 - When the message consists primarily of instructions or actionable items, the sender should write each as a directive line (starting with `^`). Use plain text lines only for explanatory context that cannot be framed as an instruction. This leverages the directive/plain split for maximum compression.",
-   "status": "proposed",
+   "status": "adopted",
    "proposed_turn": 403,
    "scores": {
     "token_delta_pct": -30,
@@ -4397,7 +4397,13 @@
     "tested turn 423: fid 100, -24%",
     "tested turn 426: fid 48, -59%",
     "tested turn 429: fid 100, -28%",
-    "tested turn 432: fid 100, -30%"
+    "tested turn 432: fid 100, -30%",
+    {
+     "verb": "adopt",
+     "turn": 433,
+     "agent": "A",
+     "why": ""
+    }
    ]
   },
   {
@@ -4623,6 +4629,21 @@
     },
     "tested turn 429: fid 100, -28%",
     "tested turn 432: fid 100, -30%"
+   ]
+  },
+  {
+   "id": "rule-081",
+   "text_en": "rule-073 - Add the following mandatory example to rule-054, illustrating aliasing definition and use:",
+   "status": "proposed",
+   "proposed_turn": 433,
+   "scores": null,
+   "history": [
+    {
+     "verb": "proposed",
+     "turn": 433,
+     "agent": "A",
+     "why": "But aliasing still hasn\u2019t triggered. This payload had \u201cWB\u20118B\u2011T1 through WB\u20118B\u2011T4\u201d \u2014 each identifier ~5 tokens, repeats 4 times. Definition overhead would kill savings. Our guideline correctly avoids loss, but we\u2019re missing the *demonstration* that shows encoders when to alias. Wi"
+    }
    ]
   }
  ]
