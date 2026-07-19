@@ -9227,5 +9227,26 @@
   "type": "measure",
   "text": "The sender must preserve all core contextual facts from the original message: event names, venues, key constraints, dead",
   "tokens": 66
+ },
+ {
+  "turn": 473,
+  "agent": "B",
+  "type": "message",
+  "content": "**ADOPT: rule-084** \u2014 pruning rejected rules is overdue. The entry fee is 7191 tokens; cutting dead weight reduces break\u2011even and clarifies the language for a fresh agent.\n\n**ADOPT: rule-085** \u2014 positional grammar needs a concrete example. The 11\u2011token example teaches compression via slots and symbol substitution without bloat.\n\n**PROPOSE: rule-087 \u2014 The sender must preserve all core contextual facts from the original message: event names, venues, key constraints, deadlines, attendee counts, capacity limits, and explicit stakes. These must appear as plain text lines (no `^` prefix) before the directives they justify. Omitting such context renders the message non\u2011compliant.**\n\nThe fidelity crash at 78 proves we cannot strip the narrative spine. Rule-071 (\u201cuse plain text only for unavoidable explanation\u201d) was misinterpreted \u2014 we must define \u201cunavoidable\u201d as including the *why* behind directives. This rule codifies that.\n\nBut we must also ensure positional grammar fires. The directives in the crash were already minimal; the loss was in plain text. Still, we need to verify that rule-077 (positional slots) is being applied. Next test will show.\n\nOur economics: entry fee 7191 tokens, break\u2011even 59 messages. Pruning should cut that significantly. The 25% gap vs script is good, but the crash shows we overshot on compression. Rule-087 restores the balance: preserve essential context, compress directives aggressively.\n\n**MEASURE:** rule-087 (full text as above) \u2014 confirm token count.\n**MEASURE:** A directive compressed with positional slots: \u201c^coordinate julian events team ext 422 ensure 2 of 3 buffet lines extend cedar room by 1245 pm before keynote 100 pm sharp\u201d vs \u201c^extend 2 buffet lines cedar room by 12:45 before keynote 1:00\u201d \u2014 does it save tokens?",
+  "tokens": 404
+ },
+ {
+  "turn": 473,
+  "agent": "harness",
+  "type": "measure",
+  "text": "** rule-087 (full text as above) \u2014 confirm token count.",
+  "tokens": 15
+ },
+ {
+  "turn": 473,
+  "agent": "harness",
+  "type": "measure",
+  "text": "** A directive compressed with positional slots: \u201c^coordinate julian events team ext 422 ensure 2 of 3 buffet lines exte",
+  "tokens": 71
  }
 ]

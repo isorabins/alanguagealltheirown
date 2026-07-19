@@ -1,7 +1,7 @@
 {
- "version": "0.211",
+ "version": "0.212",
  "kernel_tokens": 7191,
- "changes": 211,
+ "changes": 212,
  "next_id": 104,
  "rules": [
   {
@@ -5431,7 +5431,7 @@
   {
    "id": "rule-084",
    "text_en": "rule-073 - Within rule-054, adjust the guideline: alias when original string repeats \u22654 times, regardless of length, provided the alias definition \u2264 original tokens \u00d7 2. As a safe heuristic, alias when repeats \u22654.",
-   "status": "proposed",
+   "status": "adopted",
    "proposed_turn": 437,
    "scores": {
     "token_delta_pct": -51,
@@ -5455,13 +5455,19 @@
     "tested turn 462: fid 100, -24%",
     "tested turn 465: fid 100, -26%",
     "tested turn 468: fid 100, -23%",
-    "tested turn 471: fid 78, -51%"
+    "tested turn 471: fid 78, -51%",
+    {
+     "verb": "adopt",
+     "turn": 473,
+     "agent": "B",
+     "why": ""
+    }
    ]
   },
   {
    "id": "rule-085",
    "text_en": "rule-074 - To illustrate aliasing, add this minimal example to rule-054:",
-   "status": "proposed",
+   "status": "adopted",
    "proposed_turn": 437,
    "scores": {
     "token_delta_pct": -51,
@@ -5485,7 +5491,13 @@
     "tested turn 462: fid 100, -24%",
     "tested turn 465: fid 100, -26%",
     "tested turn 468: fid 100, -23%",
-    "tested turn 471: fid 78, -51%"
+    "tested turn 471: fid 78, -51%",
+    {
+     "verb": "adopt",
+     "turn": 473,
+     "agent": "B",
+     "why": ""
+    }
    ]
   },
   {
