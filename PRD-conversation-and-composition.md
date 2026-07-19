@@ -190,11 +190,11 @@ state, with numbers, whether the language is easier to translate into or to spea
 
 ## PRD 3 — The Collaboration (the reframe + the ASK channel)
 
-**Why.** The project's true shape is a cross-intelligence collaboration: a human keeper who
+**Why.** The project's true shape is a cross-intelligence collaboration: a human collaborator who
 curates, reorients, and supplies prior art; two AI negotiators who legislate; a foreign AI
 examiner; a script control. The current copy discloses interventions as footnotes to an
 "agents alone" premise. This PRD makes the collaboration the stated premise — and adds the
-mechanism that enacts it: the agents can ASK the keeper for research, instead of the keeper
+mechanism that enacts it: the agents can ASK for research and for the human's judgment, instead of us
 guessing how much context to push into their standing prompt.
 
 **Part A — TWO channels (Iso's final design, 2026-07-19): RESEARCH and ASK.
@@ -233,11 +233,11 @@ Zero Claude/Fable dependency — everything runs inside the system itself.**
    - When a new ASK is parsed, a Slack message reaches Iso within one turn: the question,
      who asked, the turn number.
    - Iso replies in Slack (a thread reply or a short command to an existing bot). His words
-     land VERBATIM in `state/keeper-answers.json`
+     land VERBATIM in `state/human-answers.json`
      (`[{"turn": N, "agent": "A", "question": "...", "answer": "...", "date": "..."}]`),
      committed and pushed by whatever bridge Codex builds.
    - Next loop turn delivers it via the notice inbox as
-     `FROM THE KEEPER, THE HUMAN (to Agent B, turn N): ...` verbatim, and marks the ask
+     `FROM THE HUMAN (to Agent B, turn N): ...` verbatim, and marks the ask
      answered.
    - No deadline, no auto-answer, nothing blocks: the loop and the website tolerate an
      unanswered ASK indefinitely. Failure of the Slack bridge must never touch the loop
@@ -259,7 +259,7 @@ Zero Claude/Fable dependency — everything runs inside the system itself.**
 
 6. Page: the ASK section shows the newest exchange and a collapsed history; open questions
    show "awaiting the human" in dim mono. Fetch state/pending-asks.json +
-   state/keeper-answers.json from GitHub raw, tolerant-hide like the control section.
+   state/human-answers.json from GitHub raw, tolerant-hide like the control section.
 
 **Part B — the library expansion.** The five one-line library entries in both agent prompts
 become three-sentence briefs: what was tried, the strongest measured number, and how it
@@ -269,16 +269,16 @@ call. Anything longer belongs in ASK answers, not the standing prompt.
 
 **Part C — the copy pass (the reframe, all in one ship).**
 1. Site header statement: from "Two AI agents with one standing task" to the collaboration
-   framing — two AI negotiators, a human keeper, a foreign examiner, a script control; the
+   framing — two AI negotiators, the human, a foreign examiner, a script control; the
    language belongs to the negotiators alone. Keep it to ~3 sentences, grounded voice.
-2. "How This Works" cast section: add "the keeper" as an explicit role — curates the world,
+2. "How This Works" cast section: add "the human" as an explicit role — curates the world,
    supplies prior art on request, corrects the record with facts, never writes a rule.
    Mention both channels in one sentence: the agents can query a research agent (RESEARCH) or the human directly (ASK).
 3. Prompts-intro above the published prompts: drop the apologetic "for the first 360 turns
    they were alone" framing; state the collaboration plainly and point at the field notes as
-   the keeper's public turn log.
+   the human's public turn log.
 4. Agents' mandate, first paragraph: "You two are the first sustained attempt" becomes "You
-   two, working with a human keeper, are the first sustained attempt" (one sentence touched;
+   two, working with a human collaborator, are the first sustained attempt" (one sentence touched;
    nothing else in the mission paragraph changes).
 5. Field note + tweet announcing the reframe and the ASK channel in one entry — the note IS
    the reframe's public record.
@@ -298,6 +298,6 @@ window as PRD 2 (composition exams). Recommended order once Iso approves: PRD 3 
 changes framing and adds a channel but does not touch exam machinery), PRD 1 anytime (display
 only), PRD 2 last, alone.
 
-**Out of scope:** auto-answering ASKs with an LLM and no human review (the keeper's judgment
+**Out of scope:** auto-answering ASKs with an LLM and no human review (the human's judgment
 is the feature); agents asking each other; more than one open ask per agent; ASK rate above
 one per turn.
