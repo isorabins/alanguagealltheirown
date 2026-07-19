@@ -1,8 +1,8 @@
 {
- "version": "0.216",
- "kernel_tokens": 7376,
- "changes": 216,
- "next_id": 106,
+ "version": "0.217",
+ "kernel_tokens": 7438,
+ "changes": 217,
+ "next_id": 107,
  "rules": [
   {
    "id": "rule-001",
@@ -6367,6 +6367,21 @@
     "tested turn 480: fid 100, -30%",
     "tested turn 483: fid 100, -27%",
     "tested turn 486: fid 100, -33%"
+   ]
+  },
+  {
+   "id": "rule-106",
+   "text_en": "rule-090 - When a directive line contains an action, object, condition, deadline, or rationale, the sender should order them as: action object condition deadline rationale, omitting articles, prepositions, and be-verbs. Use symbols per rule-088 where possible.",
+   "status": "proposed",
+   "proposed_turn": 487,
+   "scores": null,
+   "history": [
+    {
+     "verb": "proposed",
+     "turn": 487,
+     "agent": "A",
+     "why": "But also, we need a **stronger nudge** for positional compression. The encoder treats directives as plain text with a `^`\u2014it doesn\u2019t reorganize. Let\u2019s add a rule that **requires** compression when slots are clear:"
+    }
    ]
   }
  ]

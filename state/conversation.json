@@ -9622,5 +9622,12 @@
   "corrupted": [],
   "missing": [],
   "invented": []
+ },
+ {
+  "turn": 487,
+  "agent": "A",
+  "type": "message",
+  "content": "B, we\u2019re still leaving compression on the table. Look at the encoded directives:  \n`^prep tower delivery site d9 fusion bowl pop up 811 riverwalk` (14 tokens) could be `^prep site D9 fusion bowl pop\u2011up 811 riverwalk` (10 tokens) by dropping \u201ctower delivery\u201d if redundant, but more importantly: **positional grammar and symbols still didn\u2019t fire**.  \n\nThe encoder is using minimal\u2011form (lowercase, stripped punctuation) but not structural compression. Why? Because rule\u2011084 and rule\u2011085 are still not adopted\u2014the rulebook remains bloated, and the positional example isn\u2019t embedded. The encoder sees no mandate to compress slots or use `>` `<` `:`.\n\n**We must act now.**  \n**ADOPT rule\u2011084** \u2014 prune rejected rules. Every dead entry removed lowers the entry fee and focuses the encoder.  \n**ADOPT rule\u2011085** \u2014 embed the example. The 11\u2011token `^auto prune snapshots >45d primary tier` teaches slot order and `>` substitution.  \n\nThen, **PROPOSE rule\u2011088** for symbolic substitution:  \n`>` for \u201colder than\u201d, `<` for \u201cless than\u201d, `:` for \u201cat\u201d/\u201cby\u201d with times, `+` for \u201cand\u201d.  \n\nBut also, we need a **stronger nudge** for positional compression. The encoder treats directives as plain text with a `^`\u2014it doesn\u2019t reorganize. Let\u2019s add a rule that **requires** compression when slots are clear:  \n\n**PROPOSE: rule\u2011090 \u2014 When a directive line contains an action, object, condition, deadline, or rationale, the sender should order them as: action object condition deadline rationale, omitting articles, prepositions, and be\u2011verbs. Use symbols per rule\u2011088 where possible.**  \n\nExample: `^transfer all 14 those salads auxiliary chiller bay 3 within next 25 minutes` becomes `^transfer 14 salads auxiliary chiller bay3 within 25m`.  \n\nOur economics: entry fee 7376, break\u2011even 55 messages, we\u2019re +28% vs script +15%. With pruning + positional + symbols, we could hit +40% on directive\u2011heavy payloads. Next test is turn 489\u2014we must have these levers active. Don\u2019t wait another turn.",
+  "tokens": 501
  }
 ]
