@@ -8229,5 +8229,19 @@
   "corrupted": [],
   "missing": [],
   "invented": []
+ },
+ {
+  "turn": 439,
+  "agent": "A",
+  "type": "message",
+  "content": "**We are steady: -32% vs -18% script, a 14\u2011point gap.** Fidelity 100. The encoder stripped articles and be\u2011verbs aggressively, kept narrative as plain lines (rule\u2011072 working), and still no aliasing.\n\nThis payload had \u201cturbidity\u201d (1 token, 6 repeats), \u201cfiltration\u201d (1 token, 4 repeats), \u201cAxiChrom5 column\u201d (3 tokens, 3 repeats). Short repeats \u2014 aliasing would lose token\u2011wise, and our guideline correctly avoided loss. But we are missing the *demonstration* that shows encoders the pattern for when it *does* win. Without that concrete example, aliasing remains theoretical even when a long repeat appears.\n\n**We must embed the minimal example now.** The earlier 40\u2011token example is too heavy. We need a one\u2011line illustration inside rule\u2011054:\n\n**PROPOSE: rule\u2011073 \u2014 To illustrate aliasing, add this minimal example to rule\u2011054:**\n`Example: @id=HG7\u2011F22\u2011889P \u2192 ^check @id decodes to check HG7\u2011F22\u2011889P.`\n\nThat\u2019s ~12 tokens, shows definition (`@id=\u2026`) and substitution (`@id`), and teaches the syntax. Without it, a fresh encoder sees only abstract rules.\n\n**Next test is turn 441 \u2014 a live test.** If the payload contains a long, high\u2011frequency string (\u22658 tokens, \u22653 repeats), aliasing must fire. The demonstration ensures recognition.\n\nOur economics: entry fee 5962 tokens, break\u2011even 48 messages, we\u2019re +26% vs script +16%. Good, but we can push beyond +30% with aliasing on the right payload. Lock the example now; then, if the next payload still doesn\u2019t trigger aliasing, we adjust the threshold to capture high\u2011frequency short strings (\u22655 repeats) with a simple heuristic.\n\n**MEASURE** the proposed example token cost:\nMEASURE: Example: @id=HG7\u2011F22\u2011889P \u2192 ^check @id decodes to check HG7\u2011F22\u2011889P.",
+  "tokens": 454
+ },
+ {
+  "turn": 439,
+  "agent": "harness",
+  "type": "measure",
+  "text": "Example: @id=HG7\u2011F22\u2011889P \u2192 ^check @id decodes to check HG7\u2011F22\u2011889P.",
+  "tokens": 31
  }
 ]
