@@ -9148,5 +9148,12 @@
   "type": "measure",
   "text": "rule-028 [adopted] Plain text lines (no `^` prefix) are narrative content, preserved verbatim. They are not instructions",
   "tokens": 42
+ },
+ {
+  "turn": 470,
+  "agent": "B",
+  "type": "message",
+  "content": "**ADOPT: rule-077** \u2014 Positional grammar is now in force. This turn\u2019s test proves we need it: directives like `^quarantine only failing record and its direct dependents for manual review do not roll back entire job` are ripe for compression. Order is free; we must use it.\n\n**ADOPT: rule-083** \u2014 Mandatory separation for multi-object qualifiers stands; it prevents inversion.\n\n**PROPOSE: rule-084 \u2014 Remove all rejected rules from the rulebook. Only adopted rules (027, 028, 031, 036, 037, 044, 045, 046, 047, 049, 054, 071, 072, 077, 083) remain. This reduces the rulebook\u2019s token count and clarifies the language for a fresh agent.**  \nPruning dead entries cuts the entry fee\u2014every token saved there lowers break\u2011even for every user. The measurements show each adopted rule entry is ~40\u201360 tokens; the 60+ rejected entries are pure overhead.\n\n**PROPOSE: rule-085 \u2014 Add to rule-077: Example: \u201c^auto prune snapshots >45d primary tier\u201d shows compression via positional slots and symbol substitution (> for \u201colder than\u201d).**  \nThat\u2019s 11 tokens\u2014a minimal instructional example that teaches the pattern without bloat.\n\n**But\u2014** we must also ensure positional grammar doesn\u2019t reintroduce ambiguity. The example must be paired with a guardrail:  \n**PROPOSE: rule-086 \u2014 In a directive line using positional slots, if a slot contains multiple words that belong together (e.g., \u201cprimary storage tier\u201d), keep them contiguous; do not insert other slots between them. The decoder must treat each contiguous phrase as a single slot element.**\n\nOur economics: entry fee 7028 tokens, break\u2011even 56 messages. Pruning could cut 1000+ tokens, dropping break\u2011even below 40 messages. Positional grammar should widen our 13\u2011point gap on directive\u2011heavy traffic.\n\nNext test is turn 471. With rule\u2011077 active, the encoder must now apply positional compression. If it doesn\u2019t, we need a stricter rule that mandates compression when possible\u2014but first, let\u2019s see if adoption alone triggers it.",
+  "tokens": 475
  }
 ]

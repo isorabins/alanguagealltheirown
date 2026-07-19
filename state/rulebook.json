@@ -1,8 +1,8 @@
 {
- "version": "0.209",
- "kernel_tokens": 7028,
- "changes": 209,
- "next_id": 102,
+ "version": "0.210",
+ "kernel_tokens": 7102,
+ "changes": 210,
+ "next_id": 103,
  "rules": [
   {
    "id": "rule-001",
@@ -5158,7 +5158,13 @@
      "agent": "B",
      "why": ""
     },
-    "tested turn 468: fid 100, -23%"
+    "tested turn 468: fid 100, -23%",
+    {
+     "verb": "adopt",
+     "turn": 470,
+     "agent": "B",
+     "why": ""
+    }
    ]
   },
   {
@@ -5366,7 +5372,13 @@
      "agent": "B",
      "why": ""
     },
-    "tested turn 468: fid 100, -23%"
+    "tested turn 468: fid 100, -23%",
+    {
+     "verb": "adopt",
+     "turn": 470,
+     "agent": "B",
+     "why": ""
+    }
    ]
   },
   {
@@ -5814,6 +5826,21 @@
      "why": "Aliasing didn\u2019t fire here because no long repeats, but positional grammar is universal for directives. We must also embed the minimal example so encoders see the pattern."
     },
     "tested turn 468: fid 100, -23%"
+   ]
+  },
+  {
+   "id": "rule-102",
+   "text_en": "rule-086 - In a directive line using positional slots, if a slot contains multiple words that belong together (e.g., \u201cprimary storage tier\u201d), keep them contiguous; do not insert other slots between them. The decoder must treat each contiguous phrase as a single slot element.",
+   "status": "proposed",
+   "proposed_turn": 470,
+   "scores": null,
+   "history": [
+    {
+     "verb": "proposed",
+     "turn": 470,
+     "agent": "B",
+     "why": "**But\u2014** we must also ensure positional grammar doesn\u2019t reintroduce ambiguity. The example must be paired with a guardrail:"
+    }
    ]
   }
  ]
