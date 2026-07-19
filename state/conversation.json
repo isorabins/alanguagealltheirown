@@ -10136,5 +10136,52 @@
   "type": "message",
   "content": "ADOPT: rule-084 \u2014 Prune now. Every dead rule is tax; we must cut the entry fee and focus the language. This is long overdue.\n\nADOPT: rule-085 \u2014 Embed the positional example. The concrete pattern `^auto prune snapshots >45d primary tier` is the trigger that just proved effective.\n\nNow, the win: a 21-point gap is our widest yet. But it\u2019s fragile\u2014we saw it vanish on mixed traffic. To lock it in, we need three rules:\n\nPROPOSE: rule-091 \u2014 In numeric ranges (e.g., \u201c7-9 gigahertz\u201d, \u201c240-300 seconds\u201d), the sender must preserve the delimiter (hyphen `-`, en-dash `\u2013`, colon `:`) exactly, or use tilde `~` as a range operator. Do not omit or replace with a space. The decoder must interpret the delimiter as indicating a continuous range between the two values.\n\nFidelity first. This overrides rule-036 for ranges and prevents the corruption we saw.\n\nPROPOSE: rule-088 \u2014 In directive lines, the sender may replace common phrases with single symbols or abbreviations: `>` for \u201colder than\u201d, `<` for \u201cless than\u201d, `:` for \u201cat\u201d or \u201cby\u201d when followed by a time, `+` for \u201cand\u201d or \u201cplus\u201d. The decoder must interpret these symbols as the full phrase they represent.\n\nSymbolic substitution is the engine behind the compression we just saw. Authorize it.\n\nPROPOSE: rule-090-revised \u2014 When a directive line contains clear slot elements (action, object, condition, deadline, rationale), the sender **should** compress them into positional order: action object condition deadline rationale, omitting articles, prepositions, and be-verbs. Use symbols per rule-088 where possible. The decoder must infer the intended meaning.\n\nThe \u201cshould\u201d creates a clear expectation without mandating impossible restructuring. This, combined with the example, should sustain the gap.\n\nNext test is turn 510\u2014live. If pruning, the example, and these three rules don\u2019t hold the gap, we may need a \u201cmust\u201d rule. But this is the strongest push we can make while preserving fidelity. Our economics: entry fee 7844 tokens, break\u2011even 55 messages, we\u2019re +28% vs script +17%. Pruning will lower the fee; the rest secures the frontier. Let\u2019s lock it in.",
   "tokens": 508
+ },
+ {
+  "turn": 510,
+  "agent": "harness",
+  "type": "test",
+  "payload": "gen-task-publishing",
+  "original": "The ARID-7 translation pass for the new glossary has finished, and I\u2019m flagging a major inconsistency you need to resolve before the next project sync at 15:00 UTC. The primary issue is with the term \u201ctemporal layering.\u201d In the Arvika Strid source text (specifically the annotated manuscript file `AS_2025-03_Ch9.epub`), it\u2019s used seventeen times, always referring to a narrative device where consecutive chapters depict non-sequential events from the same character\u2019s perspective. However, the new cross-media style guide from Lyricist House, dated 2024-11-19, defines \u201ctemporal layering\u201d exclusively as a sound-design technique for audio dramas, involving the overlay of environmental tracks from different time periods. The glossary currently has the Lyricist House definition as primary, which will cause significant confusion for the editorial team working on the Arvika Strid project.\n\nPlease amend the entry in the master glossary (`/assets/ref/glossary_master_v4.2.xml`) as follows. First, change the primary definition to the narrative-device one, sourcing it to the Arvika Strid manuscript. Use the example from Chapter 9, paragraph 4. Second, add the Lyricist House audio-drama definition as a secondary, domain-specific usage. Crucially, you must also add an editorial note for the Arvika Strid project only: instruct all editors working on that project (tagged `PRJ_ARVSTR`) to disregard the secondary definition entirely and treat \u201ctemporal layering\u201d strictly as a narrative term. This note should not appear in the public-facing glossary export.\n\nIf the Lyricist House style guide has a version number later than 2.1, please also add a footnote to the secondary definition citing that specific version. Only do this if their version is greater than 2.1; otherwise, cite it as \u201cLyricist House Style Guide (2024-11-19).\u201d The changes must be propagated to the three derivative glossaries for web, print, and EPUB by 14:30 UTC so they\u2019re locked before the sync. Do not, under any circumstances, alter the related entry for \u201ctime compression,\u201d as that\u2019s being handled separately by the Levinax team. Confirm via this channel once the master file is updated and the derivatives are generated.",
+  "orig_tokens": 493,
+  "enc_tokens": 220,
+  "token_delta_pct": -55,
+  "fidelity": 90,
+  "lost": "The current glossary state (Lyricist House definition as primary) and the urgency context (next sync at 15:00 UTC) are missing",
+  "control_tokens": 402,
+  "encoded": "@as=Arvika Strid\n@lh=Lyricist House\n@glossary=/assets/ref/glossary_master_v4.2.xml\n@term=temporal layering\n\n^amend @glossary entry @term\nprimary definition narrative device consecutive chapters depict nonsequential events same character perspective\nsource @as annotated manuscript AS_2025-03_Ch9.epub\nuse example chapter 9 paragraph 4\nsecondary definition sound design technique audio dramas overlay environmental tracks different time periods\nsource @lh style guide 2024-11-19\nif @lh guide version >2.1 add footnote cite specific version else cite @lh style guide 2024-11-19\nadd editorial note for project PRJ_ARVSTR only instruct all editors disregard secondary definition treat @term strictly narrative term\nnote not appear public facing glossary export\ndo not alter entry time compression handled separately Levinax team\n^propagate changes derivative glossaries web print EPUB by 14:30 UTC\n^confirm via this channel once master file updated derivatives generated",
+  "decoded": "@as=Arvika Str\u00f6m\n@lh=Lyricist House\n@glossary=/assets/ref/glossary_master_v4.2.xml\n@term=temporal layering\n\n^amend @glossary entry @term\nprimary definition: narrative device where consecutive chapters depict nonsequential events from the same character's perspective\nsource: @as annotated manuscript AS_2025-03_Ch9.epub\nuse example: chapter 9, paragraph 4\nsecondary definition: sound design technique in audio dramas overlaying environmental tracks from different time periods\nsource: @lh style guide 2024-11-19\nif @lh guide version >2.1, add footnote citing specific version; else cite @lh style guide 2024-11-19\nadd editorial note for project PRJ_ARVSTR only: instruct all editors to disregard secondary definition; treat @term strictly as narrative term\nnote: not to appear in public-facing glossary export\ndo not alter entry for time compression; handled separately by Levinax team\n^propagate changes to derivative glossaries (web, print, EPUB) by 14:30 UTC\n^confirm via this channel once master file updated and derivatives generated",
+  "tokens": 220,
+  "decoder_model": "moonshotai/kimi-k2.6",
+  "key": [
+   "1. ARID-7 translation pass for the new glossary has finished.",
+   "2. Primary issue is with the term \"temporal layering.\"",
+   "3. In the Arvika Strid source text (annotated manuscript file `AS_2025-03_Ch9.epub`), the term is used 17 times.",
+   "4. In that file, \"temporal layering\" refers to a narrative device where consecutive chapters depict non-sequential events from the same character\u2019s perspective.",
+   "5. The new cross-media style guide from Lyricist House is dated 2024-11-19.",
+   "6. The Lyricist House guide defines \"temporal layering\" as a sound-design technique for audio dramas involving overlay of environmental tracks from different time periods.",
+   "7. The glossary currently has the Lyricist House definition as primary.",
+   "8. Amend the entry in the master glossary file `/assets/ref/glossary_master_v4.2.xml`.",
+   "9. Change the primary definition to the narrative-device one, sourcing it to the Arvika Strid manuscript.",
+   "10. Use the example from Chapter 9, paragraph 4.",
+   "11. Add the Lyricist House audio-drama definition as a secondary, domain-specific usage.",
+   "12. Add an editorial note for the Arvika Strid project only (tagged `PRJ_ARVSTR`).",
+   "13. The note instructs editors on that project to disregard the secondary definition and treat \"temporal layering\" strictly as a narrative term.",
+   "14. The note must not appear in the public-facing glossary export.",
+   "15. If the Lyricist House style guide version number is later than 2.1, add a footnote to the secondary definition citing that specific version.",
+   "16. If the version is not greater than 2.1, cite it as \u201cLyricist House Style Guide (2024-11-19).\u201d",
+   "17. Changes must be propagated to the three derivative glossaries for web, print, and EPUB by 14:30 UTC.",
+   "18. The next project sync is at 15:00 UTC.",
+   "19. Do not alter the related entry for \"time compression.\"",
+   "20. \"Time compression\" is being handled separately by the Levinax team."
+  ],
+  "survived": 18,
+  "total": 20,
+  "corrupted": [],
+  "missing": [
+   "7: The glossary currently has the Lyricist House definition as primary",
+   "18: The next project sync is at 15:00 UTC"
+  ],
+  "invented": []
  }
 ]
