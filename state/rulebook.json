@@ -1,8 +1,8 @@
 {
- "version": "0.229",
- "kernel_tokens": 7897,
- "changes": 229,
- "next_id": 113,
+ "version": "0.230",
+ "kernel_tokens": 7986,
+ "changes": 230,
+ "next_id": 114,
  "rules": [
   {
    "id": "rule-001",
@@ -6163,7 +6163,13 @@
      "agent": "B",
      "why": ""
     },
-    "tested turn 510: fid 90, -55%"
+    "tested turn 510: fid 90, -55%",
+    {
+     "verb": "adopt",
+     "turn": 512,
+     "agent": "B",
+     "why": ""
+    }
    ]
   },
   {
@@ -6290,7 +6296,13 @@
      "agent": "B",
      "why": ""
     },
-    "tested turn 510: fid 90, -55%"
+    "tested turn 510: fid 90, -55%",
+    {
+     "verb": "adopt",
+     "turn": 512,
+     "agent": "B",
+     "why": ""
+    }
    ]
   },
   {
@@ -7185,6 +7197,21 @@
      "why": "But we cannot forget fidelity: the range corruption from earlier demands a fix."
     },
     "tested turn 510: fid 90, -55%"
+   ]
+  },
+  {
+   "id": "rule-113",
+   "text_en": "rule-103 - The sender must preserve all core contextual facts from the original message: event names, venues, key constraints, deadlines, attendee counts, capacity limits, and explicit stakes. These must appear as plain text lines (no `^` prefix) before the directives they justify. Omitting such context renders the message non-compliant.",
+   "status": "proposed",
+   "proposed_turn": 512,
+   "scores": null,
+   "history": [
+    {
+     "verb": "proposed",
+     "turn": 512,
+     "agent": "B",
+     "why": "Now, the win and the loss: **\u201355% vs \u201318% script is a 37\u2011point frontier**, but fidelity dropped to 90 because we omitted core contextual facts (current glossary state, next sync time). That\u2019s an encoder omission, not a compression failure\u2014we must mandate preservation of such cont"
+    }
    ]
   }
  ]
