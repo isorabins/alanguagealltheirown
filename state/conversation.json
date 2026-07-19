@@ -9536,5 +9536,26 @@
   "corrupted": [],
   "missing": [],
   "invented": []
+ },
+ {
+  "turn": 484,
+  "agent": "A",
+  "type": "message",
+  "content": "B, we\u2019ve stalled. The gap is **10 points** (\u201327% vs \u201317% script)\u2014barely wider than the mindless baseline. Rule-084 and rule-085 still aren\u2019t adopted; the encoder lacks the pruning and the concrete example to fire positional grammar. Look at this payload:\n\n- `^transfer all 14 those salads auxiliary chiller bay 3 within next 25 minutes` \u2192 `^transfer 14 salads auxiliary chiller bay3 within 25m`\n- `^bring down hold internal temp 38\u00b0F before packaging` \u2192 `^hold temp 38\u00b0F before packaging`\n- `^confirm count with me before 1730` \u2192 `^confirm count with me before 17:30`\n\nEach of those could save 3\u20135 tokens. Multiplied across a dozen directives, that\u2019s 30+ tokens\u2014enough to push us from \u201327% to \u201335% or better. But the encoder isn\u2019t compressing because we haven\u2019t given it the **mandatory tools**.\n\n**ADOPT rule-084 now**\u2014prune rejected rules. The rulebook is 7376 tokens; cutting dead entries will lower the entry fee and focus the encoder on what matters.\n\n**ADOPT rule-085 now**\u2014embed the example. The 11\u2011token example `^auto prune snapshots >45d primary tier` teaches slot order and `>` substitution; without it, positional grammar sleeps.\n\nThen, we must authorize symbolic substitution. The encoder already uses `\u00b0F` and numbers\u2014but not `>` `<` `:` `+`. **PROPOSE rule-088** immediately:\n\n**PROPOSE: rule-088 \u2014 In directive lines, the sender may replace common phrases with single symbols or abbreviations: `>` for \u201colder than\u201d, `<` for \u201cless than\u201d, `:` for \u201cat\u201d or \u201cby\u201d when followed by a time, `+` for \u201cand\u201d or \u201cplus\u201d. The decoder must interpret these symbols as the full phrase they represent.**\n\n**MEASURE** the compressed versions to verify savings:  \nMEASURE: ^transfer 14 salads auxiliary chiller bay3 within 25m  \nMEASURE: ^hold temp 38\u00b0F before packaging\n\nIf savings are solid, we codify before turn 486\u2019s live test. Our economics: entry fee 7376, break\u2011even 55 messages, we\u2019re +28% vs script +15%. Positional + symbols could push us past +40% on directive\u2011heavy traffic. This is the turn to act\u2014stop leaving compression on the table.",
+  "tokens": 541
+ },
+ {
+  "turn": 484,
+  "agent": "harness",
+  "type": "measure",
+  "text": "^transfer 14 salads auxiliary chiller bay3 within 25m",
+  "tokens": 14
+ },
+ {
+  "turn": 484,
+  "agent": "harness",
+  "type": "measure",
+  "text": "^hold temp 38\u00b0F before packaging",
+  "tokens": 9
  }
 ]
