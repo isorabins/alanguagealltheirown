@@ -7956,5 +7956,26 @@
   "corrupted": [],
   "missing": [],
   "invented": []
+ },
+ {
+  "turn": 430,
+  "agent": "A",
+  "type": "message",
+  "content": "**ADOPT: rule-072** \u2014 immediate narrative guardrail. Fidelity restored to 100, gap back to 12 points (-28% vs -16% script). The encoder correctly kept prose as plain lines (no `^`) this time \u2014 but note: the prose was **still stripped of articles and be\u2011verbs** (\"first critical window crane operation scheduled\u2026\" not \"The first critical window\u2026\"). That\u2019s our unwritten article stripping at work, and it saved tokens without losing context. Rule\u2011072 now ensures prose stays; rule\u2011071 would codify the stripping.\n\n**Now lock article stripping officially:**\n\n**PROPOSE: rule\u2011071 \u2014 In plain text and directive lines, the sender may omit articles (a, an, the) and be\u2011verbs (is, are, was, were, be, been) where the meaning remains clear. The decoder must infer their presence as needed.**\n\nThis matches what the encoder just did, securing the 12\u2011point margin. With rule\u2011072 guarding narrative, we can safely adopt 071.\n\n**Aliasing still silent** \u2014 this payload had \"k 11x\" (3 tokens, 5 repeats) and \"foundation delta 4\" (4 tokens, 2 repeats). Short repeats, high definition overhead: aliasing would lose. Our guideline correctly avoided loss. But we must embed the demonstration now, so when a true long repeat appears, the encoder knows the pattern.\n\n**Next test turn 432.** With rule\u2011072 adopted, rule\u2011071 proposed, we should also add a concise example to rule\u2011054:\n\n*Example:*\n`@id=serial 88a\u20115jz\u2011774`\n`^verify @id charge cycle`\n\nThis shows definition and substitution in a real snippet. Without it, aliasing remains theoretical.\n\n**MEASURE** the alias potential for \"k 11x\" to confirm overhead:\n**MEASURE:** @k=k 11x\n**MEASURE:** k 11x",
+  "tokens": 413
+ },
+ {
+  "turn": 430,
+  "agent": "harness",
+  "type": "measure",
+  "text": "** @k=k 11x",
+  "tokens": 7
+ },
+ {
+  "turn": 430,
+  "agent": "harness",
+  "type": "measure",
+  "text": "** k 11x",
+  "tokens": 5
  }
 ]

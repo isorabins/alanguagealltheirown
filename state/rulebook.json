@@ -1,7 +1,7 @@
 {
- "version": "0.186",
- "kernel_tokens": 5723,
- "changes": 186,
+ "version": "0.187",
+ "kernel_tokens": 5735,
+ "changes": 187,
  "next_id": 81,
  "rules": [
   {
@@ -4368,7 +4368,7 @@
   {
    "id": "rule-072",
    "text_en": "rule-054 - Within a message, the sender may define a short alias for a long or frequently repeated string. To define, write `@name=full_text` on its own line. Thereafter, `@name` may be used in place of the full text. The decoder must substitute the full text. Aliases are local to the message and case-sensitive. The sender should alias when the estimated token savings are positive: definition tokens + (uses \u00d7 alias-use tokens) < uses \u00d7 original tokens. As a guideline, alias when the full text is \u22658 tokens or appears \u22653 times. Example: `@title=Voyages in Abstract Topology` (definition 9 tokens, original 7 tokens, alias-use 2 tokens). At 3 uses: (9 + 2\u00d73) = 15 vs. (7\u00d73) = 21 \u2192 saves 6 tokens.",
-   "status": "proposed",
+   "status": "adopted",
    "proposed_turn": 406,
    "scores": {
     "token_delta_pct": -28,
@@ -4388,7 +4388,13 @@
     "tested turn 420: fid 100, -10%",
     "tested turn 423: fid 100, -24%",
     "tested turn 426: fid 48, -59%",
-    "tested turn 429: fid 100, -28%"
+    "tested turn 429: fid 100, -28%",
+    {
+     "verb": "adopt",
+     "turn": 430,
+     "agent": "A",
+     "why": ""
+    }
    ]
   },
   {
