@@ -1,7 +1,7 @@
 {
- "version": "0.228",
+ "version": "0.229",
  "kernel_tokens": 7897,
- "changes": 228,
+ "changes": 229,
  "next_id": 113,
  "rules": [
   {
@@ -6109,6 +6109,12 @@
      "turn": 508,
      "agent": "A",
      "why": ""
+    },
+    {
+     "verb": "adopt",
+     "turn": 509,
+     "agent": "B",
+     "why": ""
     }
    ]
   },
@@ -6228,6 +6234,12 @@
      "verb": "adopt",
      "turn": 508,
      "agent": "A",
+     "why": ""
+    },
+    {
+     "verb": "adopt",
+     "turn": 509,
+     "agent": "B",
      "why": ""
     }
    ]
