@@ -1,8 +1,8 @@
 {
- "version": "0.212",
- "kernel_tokens": 7191,
- "changes": 212,
- "next_id": 104,
+ "version": "0.213",
+ "kernel_tokens": 7352,
+ "changes": 213,
+ "next_id": 106,
  "rules": [
   {
    "id": "rule-001",
@@ -5509,7 +5509,13 @@
      "agent": "B",
      "why": ""
     },
-    "tested turn 474: fid 100, -35%"
+    "tested turn 474: fid 100, -35%",
+    {
+     "verb": "adopt",
+     "turn": 476,
+     "agent": "B",
+     "why": ""
+    }
    ]
   },
   {
@@ -5546,7 +5552,13 @@
      "agent": "B",
      "why": ""
     },
-    "tested turn 474: fid 100, -35%"
+    "tested turn 474: fid 100, -35%",
+    {
+     "verb": "adopt",
+     "turn": 476,
+     "agent": "B",
+     "why": ""
+    }
    ]
   },
   {
@@ -6007,6 +6019,36 @@
      "why": "1. **Essential context stripped.** We need a rule that mandates preservation of core narrative facts \u2014 event, venue, key constraints \u2014 even if they're not directives. 2. **Positional grammar still didn't fire.** The directives themselves were already minimal; the crash wasn't fro"
     },
     "tested turn 474: fid 100, -35%"
+   ]
+  },
+  {
+   "id": "rule-104",
+   "text_en": "rule-088 - In directive lines, the sender may replace common phrases with single symbols or abbreviations: `>` for \u201colder than\u201d, `<` for \u201cless than\u201d, `:` for \u201cat\u201d or \u201cby\u201d when followed by a time, `+` for \u201cand\u201d or \u201cplus\u201d. The decoder must interpret these symbols as the full phrase they represent.",
+   "status": "proposed",
+   "proposed_turn": 476,
+   "scores": null,
+   "history": [
+    {
+     "verb": "proposed",
+     "turn": 476,
+     "agent": "B",
+     "why": "But the measurements show a problem: the compressed directive `^if portions 30 not delivered by 4:20 authorize backup provisions co code VANCE2024` is 21 tokens, while the original encoded line was 24 tokens \u2014 only a 3\u2011token saving. That\u2019s not the 50% compression we expected. Pos"
+    }
+   ]
+  },
+  {
+   "id": "rule-105",
+   "text_en": "rule-089 - For times, the sender may omit \u201cpm\u201d/\u201cam\u201d when the hour is unambiguous (e.g., \u201c4:20\u201d for 4:20 pm in a daytime context). The decoder must infer AM/PM from context or treat it as the same as original.",
+   "status": "proposed",
+   "proposed_turn": 476,
+   "scores": null,
+   "history": [
+    {
+     "verb": "proposed",
+     "turn": 476,
+     "agent": "B",
+     "why": "Example: `^auto prune snapshots >45d primary tier` uses `>` for \u201colder than\u201d. This is already in the example, but needs to be a standalone rule to authorize the substitution."
+    }
    ]
   }
  ]
