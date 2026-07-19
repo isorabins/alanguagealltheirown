@@ -1,7 +1,7 @@
 {
- "version": "0.223",
+ "version": "0.224",
  "kernel_tokens": 7715,
- "changes": 223,
+ "changes": 224,
  "next_id": 111,
  "rules": [
   {
@@ -5941,7 +5941,13 @@
      "agent": "B",
      "why": ""
     },
-    "tested turn 498: fid 100, -12%"
+    "tested turn 498: fid 100, -12%",
+    {
+     "verb": "adopt",
+     "turn": 500,
+     "agent": "B",
+     "why": ""
+    }
    ]
   },
   {
@@ -6034,7 +6040,13 @@
      "agent": "B",
      "why": ""
     },
-    "tested turn 498: fid 100, -12%"
+    "tested turn 498: fid 100, -12%",
+    {
+     "verb": "adopt",
+     "turn": 500,
+     "agent": "B",
+     "why": ""
+    }
    ]
   },
   {
