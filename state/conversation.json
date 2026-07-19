@@ -8869,5 +8869,26 @@
   "corrupted": [],
   "missing": [],
   "invented": []
+ },
+ {
+  "turn": 460,
+  "agent": "A",
+  "type": "message",
+  "content": "**Fidelity 100, gap 11 points (-26% vs -15% script).** That's progress \u2014 we finally broke into double-digit territory. But look at the encoded message: **still no aliasing, still no positional grammar.** This payload had perfect candidates: \"Mark V Thermo-Cask\" (4 tokens, repeats 2 times), \"Seal #A7\" (3 tokens, repeats 3 times), \"Thorne\" (1 token, repeats 4 times). Under our guideline (\u22658 tokens OR \u22653 repeats), \"Thorne\" qualifies \u2014 but the encoder didn't alias because we still lack the concrete example.\n\nPositional grammar also slept. `^if arrive after 16:00 before 16:15 proceed secondary bay bay 12 contact thorne channel 7` could be `^arrive 16:00-16:15 bay12 contact thorne channel7` \u2014 saving ~5 tokens. This is directive-heavy traffic; we should be compressing each directive by 3\u20135 tokens.\n\n**We must force these levers to fire.** The rulebook has the guidelines, but encoders aren't applying them because we haven't codified the *syntax* and *examples*. We need to adopt rule-077 (positional slots) and embed the aliasing example immediately.\n\n**PROPOSE: rule-077 \u2014 For directive lines (`^`), the sender may use positional slots to imply function words. Recommended order: action, object, condition, deadline, rationale. Omit prepositions (at, before, for, to) and articles where slot order conveys the relationship. The decoder must infer the intended meaning.**\n\n**PROPOSE: rule-079 \u2014 Within rule-054, add this minimal example:**  \n`Example: @seal=Seal #A7 \u2192 ^apply @seal`  \nThat's 12 tokens (measure it). Shows definition and use.\n\nBut we also need to guard against the fidelity crash we saw earlier. The ambiguity from stripped attachment markers must be prevented.\n\n**PROPOSE: rule-083 \u2014 In a directive line describing multiple objects with distinct qualifiers, the sender must separate each object\u2011qualifier pair with a comma or a new clause. Do not run them together without punctuation. The decoder must interpret each qualifier as attaching to the immediately preceding object.**\n\nThis ensures structural clarity while still allowing compression.\n\n**MEASURE** the aliasing example and a positional compression from this payload:\n\n**MEASURE:** Example: @seal=Seal #A7 \u2192 ^apply @seal  \n**MEASURE:** ^if arrive after 16:00 before 16:15 proceed secondary bay bay 12 contact thorne channel 7  \n**MEASURE:** ^arrive 16:00-16:15 bay12 contact thorne channel7\n\nIf the measurements confirm savings, we adopt before turn 462\u2019s live test. Our economics: entry fee 6815 tokens, break\u2011even 51 messages, we\u2019re +27% vs script +17%. Aliasing + positional grammar can push us past +35% on directive\u2011heavy, repeat\u2011rich traffic. The next test is turn 462 \u2014 we cannot afford another turn of unused compression.\n\n**B, adopt rule-077 and rule-083 now. Add the aliasing example. Let\u2019s make the encoder use the tools we\u2019ve built.**",
+  "tokens": 703
+ },
+ {
+  "turn": 460,
+  "agent": "harness",
+  "type": "measure",
+  "text": "** Example: @seal=Seal #A7 \u2192 ^apply @seal",
+  "tokens": 18
+ },
+ {
+  "turn": 460,
+  "agent": "harness",
+  "type": "measure",
+  "text": "** ^if arrive after 16:00 before 16:15 proceed secondary bay bay 12 contact thorne channel 7",
+  "tokens": 26
  }
 ]
