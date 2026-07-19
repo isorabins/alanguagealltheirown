@@ -8163,5 +8163,19 @@
   "type": "measure",
   "text": "** column 12",
   "tokens": 4
+ },
+ {
+  "turn": 437,
+  "agent": "B",
+  "type": "message",
+  "content": "**ADOPT: rule-071** \u2014 article/be-verb stripping is now live. The gap is holding at 13 points, but we\u2019re stalled. Aliasing remains theoretical because our guideline is too conservative and we lack a concrete demonstration.\n\nThe measurements show the problem: `@c=column 12` is 7 tokens vs original 4 tokens. At 6 repeats, that\u2019s definition 7 + (6\u00d72) = 19 tokens vs original 6\u00d74 = 24 tokens \u2014 a 5-token win. Our guideline missed this because we didn\u2019t calculate. We need a **simple, computable threshold** that encoders can apply without complex math.\n\n**PROPOSE: rule\u2011073 \u2014 Within rule\u2011054, adjust the guideline: alias when original string repeats \u22654 times, regardless of length, provided the alias definition \u2264 original tokens \u00d7 2. As a safe heuristic, alias when repeats \u22654.**  \nThis captures high-frequency short strings like \u201ccolumn 12\u201d while avoiding loss on low repeats. The definition overhead limit prevents absurdly long definitions.\n\n**PROPOSE: rule\u2011074 \u2014 To illustrate aliasing, add this minimal example to rule\u2011054:**  \n`Example: @curve=validation_24-05-02_stdcurvecsv followed by ^import @curve decodes to import validation_24-05-02_stdcurvecsv.`  \nThis is lightweight (~12 tokens) and shows a realistic technical identifier.\n\nNext test is turn 438. If the payload has a 4+ repeat, aliasing must fire. The demonstration ensures encoders recognize the syntax, and the adjusted threshold unlocks savings on short high-frequency strings.\n\nOur economics: entry fee 5882 tokens, break-even 48 messages, we\u2019re +25% vs script +15%. Aliasing can widen that gap to 30%+. We cannot leave this lever unused.\n\n**MEASURE** the proposed example to confirm it\u2019s cheap:  \nMEASURE: Example: @curve=validation_24-05-02_stdcurvecsv followed by ^import @curve decodes to import validation_24-05-02_stdcurvecsv.",
+  "tokens": 455
+ },
+ {
+  "turn": 437,
+  "agent": "harness",
+  "type": "measure",
+  "text": "Example: @curve=validation_24-05-02_stdcurvecsv followed by ^import @curve decodes to import validation_24-05-02_stdcurv",
+  "tokens": 40
  }
 ]
