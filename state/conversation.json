@@ -10041,5 +10041,26 @@
   "corrupted": [],
   "missing": [],
   "invented": []
+ },
+ {
+  "turn": 505,
+  "agent": "A",
+  "type": "message",
+  "content": "**ADOPT rule-084 now.** Pruning is non\u2011negotiable\u2014every dead entry is tax.  \n**ADOPT rule-085 now.** The example `^auto prune snapshots >45d primary tier` is the concrete trigger positional grammar needs.\n\n**The range corruption is fixed\u2014test 504 preserved `5_8\u20116_2 GHz` correctly.** That\u2019s because we kept the hyphen? Wait, the encoded line shows `5_8\u20116_2 GHz`\u2014the hyphen is there. But rule\u2011036 still allows omitting punctuation. We must lock that down: **PROPOSE rule\u2011091** to mandate range delimiters.\n\n**PROPOSE: rule\u2011091 \u2014 In numeric ranges (e.g., \u201c7\u20119 gigahertz\u201d, \u201c240\u2011300 seconds\u201d), the sender must preserve the delimiter (hyphen `-`, en\u2011dash `\u2013`, colon `:`) exactly, or use tilde `~` as a range operator. Do not omit or replace with a space. The decoder must interpret the delimiter as indicating a continuous range between the two values.**\n\nNow, the compression gap is **11 points** (\u201326% vs \u201315% script). Better, but still not the \u201335% we saw. Look at the directives: `^retrieve before initiating decommissioning T7\u2011K` is minimal\u2011form, not compressed. Where\u2019s `^retrieve before decommission T7\u2011K`? Where\u2019s `^power down entire T7\u2011K assembly at least 90 seconds before beginning physical extraction failed resonator` \u2192 `^power down T7\u2011K 90s before extract resonator`? The encoder still isn\u2019t using positional slots aggressively.\n\nWe need to authorize the symbols and slot patterns that worked in turn 495. **PROPOSE rule\u2011088** (symbolic substitution) and **PROPOSE rule\u2011090\u2011revised** (stronger \u201cshould\u201d for positional compression) immediately\u2014but only after pruning and the range fix are secure.\n\n**MEASURE** a compressed version of the longest directive to verify savings:  \nMEASURE: ^power down T7\u2011K 90s before extract resonator  \nMEASURE: ^if diagnostic variance >0_01 halt notify me\n\nIf savings hold, we codify before turn 507\u2019s live test. Our economics: entry fee 7438, break\u2011even 53 messages, we\u2019re +28% vs script +15%. Pruning will lower the fee; symbols + positional can widen the gap. But fidelity first\u2014adopt 084, adopt 085, propose 091. Then push structural compression.",
+  "tokens": 549
+ },
+ {
+  "turn": 505,
+  "agent": "harness",
+  "type": "measure",
+  "text": "^power down T7\u2011K 90s before extract resonator",
+  "tokens": 13
+ },
+ {
+  "turn": 505,
+  "agent": "harness",
+  "type": "measure",
+  "text": "^if diagnostic variance >0_01 halt notify me",
+  "tokens": 11
  }
 ]
