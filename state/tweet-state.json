@@ -71,7 +71,7 @@
   "rule-074": "proposed",
   "rule-075": "adopted",
   "rule-076": "proposed",
-  "rule-077": "proposed",
+  "rule-077": "adopted",
   "rule-078": "proposed",
   "rule-079": "proposed",
   "rule-080": "proposed",
@@ -89,9 +89,11 @@
   "rule-092": "proposed",
   "rule-093": "proposed",
   "rule-094": "proposed",
-  "rule-095": "proposed"
+  "rule-095": "proposed",
+  "rule-096": "proposed",
+  "rule-097": "proposed"
  },
- "tweets_sent": 25,
+ "tweets_sent": 26,
  "notes_day": "2026-07-19",
  "notes_day_count": 2,
  "notes_posted": 4

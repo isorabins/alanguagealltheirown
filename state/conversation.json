@@ -8682,5 +8682,26 @@
   "invented": [
    "The decoded text states 'red bands on bioreactor media pallet', which is an unsupported claim; the original specifies red bands secure the glassware, and blue insulation wraps the media pallet."
   ]
+ },
+ {
+  "turn": 454,
+  "agent": "A",
+  "type": "message",
+  "content": "**Fidelity crash \u2014 down to 91, losing critical structure.** The decoder swapped which pallet gets red bands vs blue insulation. That\u2019s not a minor omission; it\u2019s a **semantic inversion** that could cause cargo mishandling. Why? The encoder\u2019s \u201cminimal form\u201d stripped prepositions and articles, turning \u201cglassware packed forward third container secured red bands bioreactor media pallet rear two thirds wrapped blue insulation\u201d into ambiguous word salad. The original clearly stated: red bands secure the glassware (forward third), blue insulation wraps the bioreactor media pallet (rear two\u2011thirds). The encoder\u2019s stripping erased that distinction.\n\nOur preservation rules didn\u2019t protect this because it\u2019s **structural relationships** \u2014 \u201cred bands\u201d modifies \u201cglassware,\u201d not \u201cmedia pallet.\u201d That\u2019s a preposition\u2011implied attachment (\u201cred bands on glassware\u201d) that got lost.\n\nWe need a rule that **preserves attachment markers** when ambiguity is possible. Specifically, when a directive describes two distinct objects with different qualifiers, the encoder must keep enough function words or punctuation to bind each qualifier to its correct object.\n\n**PROPOSE: rule\u2011081 \u2014 If a directive line contains multiple objects with distinct qualifiers (e.g., \u201cglassware\u2026 red bands, media pallet\u2026 blue insulation\u201d), the sender must preserve binding words (on, with, for) or punctuation (commas, colons) that clarify which qualifier attaches to which object. Do not omit them under minimal form if ambiguity would result.**\n\nBut more urgently: **positional grammar could have prevented this.** If we had a fixed slot order \u2014 object then qualifier \u2014 \u201cglassware red bands, media pallet blue insulation\u201d would be unambiguous. Our proposed rule\u2011077 (positional slots) would enforce that order, making \u201cred bands\u201d attach to the preceding object.\n\n**ADOPT: rule\u2011077 now** \u2014 with the example showing how order conveys attachment. Then add a caution about ambiguous qualifiers.\n\n**PROPOSE: rule\u2011082 \u2014 Add to rule\u2011077: When a directive contains multiple object\u2011qualifier pairs, separate them with commas or new clauses to avoid cross\u2011attachment errors. Example: \u201cglassware red bands, media pallet blue insulation\u201d not \u201cglassware red bands media pallet blue insulation\u201d.**\n\nThis fixes the inversion. Our compression gap is huge (\u221238% vs \u221218% script, 20 points!) but at 91 fidelity it\u2019s dangerous. We must restore structure without losing the savings. Positional grammar + clarity punctuation does both.\n\n**MEASURE** the ambiguous vs clarified version:\n**MEASURE:** glassware packed forward third container secured red bands bioreactor media pallet rear two thirds wrapped blue insulation\n**MEASURE:** glassware forward third red bands, media pallet rear two thirds blue insulation\n\nIf the clarified version is shorter *and* unambiguous, we codify before turn 456.",
+  "tokens": 610
+ },
+ {
+  "turn": 454,
+  "agent": "harness",
+  "type": "measure",
+  "text": "** glassware packed forward third container secured red bands bioreactor media pallet rear two thirds wrapped blue insul",
+  "tokens": 21
+ },
+ {
+  "turn": 454,
+  "agent": "harness",
+  "type": "measure",
+  "text": "** glassware forward third red bands, media pallet rear two thirds blue insulation",
+  "tokens": 16
  }
 ]

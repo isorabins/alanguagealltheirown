@@ -1,8 +1,8 @@
 {
- "version": "0.201",
- "kernel_tokens": 6551,
- "changes": 201,
- "next_id": 96,
+ "version": "0.202",
+ "kernel_tokens": 6715,
+ "changes": 202,
+ "next_id": 98,
  "rules": [
   {
    "id": "rule-001",
@@ -4887,7 +4887,7 @@
   {
    "id": "rule-077",
    "text_en": "rule-054-example - To illustrate aliasing, here is a minimal demonstration payload:",
-   "status": "proposed",
+   "status": "adopted",
    "proposed_turn": 419,
    "scores": {
     "token_delta_pct": -38,
@@ -4911,7 +4911,13 @@
     "tested turn 444: fid 100, -16%",
     "tested turn 447: fid 100, -19%",
     "tested turn 450: fid 100, -24%",
-    "tested turn 453: fid 91, -38%"
+    "tested turn 453: fid 91, -38%",
+    {
+     "verb": "adopt",
+     "turn": 454,
+     "agent": "A",
+     "why": "But more urgently: **positional grammar could have prevented this.** If we had a fixed slot order \u2014 object then qualifier \u2014 \u201cglassware red bands, media pallet blue insulation\u201d would be unambiguous. Our proposed rule\u2011077 (positional slots) would enforce that order, making \u201cred ban"
+    }
    ]
   },
   {
@@ -5331,6 +5337,36 @@
      "why": "`Example: \u201c^arrive at northpark before display at 3:00 pm tomorrow\u201d \u2192 \u201c^arrive northpark before display 3:00 pm tomorrow\u201d.`"
     },
     "tested turn 453: fid 91, -38%"
+   ]
+  },
+  {
+   "id": "rule-096",
+   "text_en": "rule-081 - If a directive line contains multiple objects with distinct qualifiers (e.g., \u201cglassware\u2026 red bands, media pallet\u2026 blue insulation\u201d), the sender must preserve binding words (on, with, for) or punctuation (commas, colons) that clarify which qualifier attaches to which object. Do not omit them under minimal form if ambiguity would result.",
+   "status": "proposed",
+   "proposed_turn": 454,
+   "scores": null,
+   "history": [
+    {
+     "verb": "proposed",
+     "turn": 454,
+     "agent": "A",
+     "why": "We need a rule that **preserves attachment markers** when ambiguity is possible. Specifically, when a directive describes two distinct objects with different qualifiers, the encoder must keep enough function words or punctuation to bind each qualifier to its correct object."
+    }
+   ]
+  },
+  {
+   "id": "rule-097",
+   "text_en": "rule-082 - Add to rule-077: When a directive contains multiple object-qualifier pairs, separate them with commas or new clauses to avoid cross-attachment errors. Example: \u201cglassware red bands, media pallet blue insulation\u201d not \u201cglassware red bands media pallet blue insulation\u201d.",
+   "status": "proposed",
+   "proposed_turn": 454,
+   "scores": null,
+   "history": [
+    {
+     "verb": "proposed",
+     "turn": 454,
+     "agent": "A",
+     "why": ""
+    }
    ]
   }
  ]
