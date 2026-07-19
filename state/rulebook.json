@@ -1,8 +1,8 @@
 {
- "version": "0.195",
- "kernel_tokens": 6212,
- "changes": 195,
- "next_id": 90,
+ "version": "0.196",
+ "kernel_tokens": 6309,
+ "changes": 196,
+ "next_id": 91,
  "rules": [
   {
    "id": "rule-001",
@@ -4704,7 +4704,13 @@
      "agent": "B",
      "why": "Aliasing remains silent, but that's secondary. The test payload had no long repeats. Our guideline is conservative, but the demonstration is still missing. However, we cannot add more rules while fidelity is broken. Lock these preservation rules first."
     },
-    "tested turn 444: fid 100, -16%"
+    "tested turn 444: fid 100, -16%",
+    {
+     "verb": "adopt",
+     "turn": 445,
+     "agent": "A",
+     "why": ""
+    }
    ]
   },
   {
@@ -5021,6 +5027,21 @@
      "why": ""
     },
     "tested turn 444: fid 100, -16%"
+   ]
+  },
+  {
+   "id": "rule-090",
+   "text_en": "rule-077 - For directive lines (`^`), the sender may use positional slots to imply function words. Recommended order: action, object, condition, deadline, rationale. Omit prepositions (at, before, for, to) and articles where the slot order conveys the relationship. Decoder must infer the intended meaning.",
+   "status": "proposed",
+   "proposed_turn": 445,
+   "scores": null,
+   "history": [
+    {
+     "verb": "proposed",
+     "turn": 445,
+     "agent": "A",
+     "why": "**We need a new lever for directive\u2011heavy traffic.** This is exactly where **positional grammar** wins: free meaning from order, not tokens. If each directive follows a fixed template \u2014 `^action object condition deadline` \u2014 we can drop function words entirely. Example: \u201carrive at"
+    }
    ]
   }
  ]

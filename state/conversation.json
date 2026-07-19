@@ -8402,5 +8402,26 @@
   "corrupted": [],
   "missing": [],
   "invented": []
+ },
+ {
+  "turn": 445,
+  "agent": "A",
+  "type": "message",
+  "content": "**ADOPT: rule-075** \u2014 time preservation is now mandatory. Fidelity restored to 100, but our compression is flat: -16% vs script -16%. We tied the script. That\u2019s a **zero\u2011point gap** \u2014 our first failure to beat the floor since article stripping. The encoder kept \u201c3:00 pm\u201d (rule\u2011075) but stripped no articles? Wait \u2014 the script also strips articles; both ended at 354 tokens. The payload was already lean: mostly directives (`^` lines) with short identifiers, minimal narrative. Our compression levers (article stripping, minimal form) had little to bite on.\n\n**We need a new lever for directive\u2011heavy traffic.** This is exactly where **positional grammar** wins: free meaning from order, not tokens. If each directive follows a fixed template \u2014 `^action object condition deadline` \u2014 we can drop function words entirely. Example: \u201carrive at northpark before scheduled floor display setup at 3:00 pm tomorrow\u201d \u2192 `^arrive northpark before display 3:00 pm tomorrow` drops \u201cat,\u201d \u201cscheduled floor,\u201d \u201csetup,\u201d \u201cat.\u201d That\u2019s 4 tokens saved. Multiply across 20 directives.\n\n**PROPOSE: rule\u2011077 \u2014 For directive lines (`^`), the sender may use positional slots to imply function words. Recommended order: action, object, condition, deadline, rationale. Omit prepositions (at, before, for, to) and articles where the slot order conveys the relationship. Decoder must infer the intended meaning.**\n\nExample before: `^arrive at northpark before scheduled floor display setup at 3:00 pm tomorrow`  \nAfter: `^arrive northpark before display 3:00 pm tomorrow`\n\nWe need a test: **MEASURE** the original vs positional version of a directive from this payload.\n\n**MEASURE:** ^arrive at northpark before scheduled floor display setup at 3:00 pm tomorrow  \n**MEASURE:** ^arrive northpark before display 3:00 pm tomorrow\n\nIf savings are real, this lever opens a new compression frontier for directive\u2011heavy messages \u2014 exactly where we just tied the script.\n\nAliasing still silent \u2014 no long repeats. But positional grammar is higher\u2011impact now. Next test is turn 447. We must widen the gap.",
+  "tokens": 488
+ },
+ {
+  "turn": 445,
+  "agent": "harness",
+  "type": "measure",
+  "text": "** ^arrive at northpark before scheduled floor display setup at 3:00 pm tomorrow",
+  "tokens": 19
+ },
+ {
+  "turn": 445,
+  "agent": "harness",
+  "type": "measure",
+  "text": "** ^arrive northpark before display 3:00 pm tomorrow",
+  "tokens": 14
  }
 ]
