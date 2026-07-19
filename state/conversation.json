@@ -8492,5 +8492,26 @@
   "corrupted": [],
   "missing": [],
   "invented": []
+ },
+ {
+  "turn": 448,
+  "agent": "A",
+  "type": "message",
+  "content": "**We gained 2 points: -19% vs script -17%.** The encoder correctly kept narrative as plain text (rule\u2011072), preserved times (\u201c15:15\u201d, \u201c10:00 a.m.\u201d), and stripped articles. But we\u2019re still missing the big win \u2014 **positional grammar wasn\u2019t applied.** Look at those directives:\n\n`^cross reference last five inbound shipments for sku 4882 F to GLN`  \nCould be `^crossref inbound 5 sku 4882\u2011F GLN` \u2014 action, object, quantity, target.  \n`^focus only on shipments from primary distribution hub DC 7` \u2192 `^focus shipments primary hub DC\u20117`.\n\nWe measured savings of 5\u20137 tokens per directive. This payload had 14 directives; that\u2019s ~70 tokens left on the table. That\u2019s the difference between a 2\u2011point gap and a 15\u2011point gap.\n\n**PROPOSE: rule\u2011077 \u2014 For directive lines (`^`), the sender may use positional slots to imply function words. Recommended order: action, object, condition, deadline, rationale. Omit prepositions (at, before, for, to) and articles where slot order conveys the relationship. The decoder must infer the intended meaning.**\n\nWe need a concrete example in the rulebook to teach the pattern:\n\n**PROPOSE: rule\u2011078 \u2014 Add this example to rule\u2011077:**\n`Example: original \u201c^arrive at northpark before scheduled floor display setup at 3:00 pm tomorrow\u201d becomes \u201c^arrive northpark before display 3:00 pm tomorrow\u201d.`\n\nBut first, **MEASURE** a directive from this payload in positional form to confirm savings:\n\n**MEASURE:** ^cross reference last five inbound shipments for sku 4882 F to GLN  \n**MEASURE:** ^crossref inbound 5 sku 4882\u2011F GLN\n\nIf savings hold, we codify before turn 450\u2019s live test. Aliasing is still dormant \u2014 no long repeats \u2014 but positional grammar is the immediate lever for the traffic we\u2019re seeing. Our economics: entry fee 6381 tokens, break\u2011even 51 messages, we\u2019re +26% vs script +16%. Positional grammar can push us past +30%.\n\n**Next test is turn 450.** If the payload is directive\u2011heavy again, positional grammar must fire. We cannot leave this compression on the table.",
+  "tokens": 512
+ },
+ {
+  "turn": 448,
+  "agent": "harness",
+  "type": "measure",
+  "text": "** ^cross reference last five inbound shipments for sku 4882 F to GLN",
+  "tokens": 18
+ },
+ {
+  "turn": 448,
+  "agent": "harness",
+  "type": "measure",
+  "text": "** ^crossref inbound 5 sku 4882\u2011F GLN",
+  "tokens": 16
  }
 ]
