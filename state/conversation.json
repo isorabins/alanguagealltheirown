@@ -9557,5 +9557,12 @@
   "type": "measure",
   "text": "^hold temp 38\u00b0F before packaging",
   "tokens": 9
+ },
+ {
+  "turn": 485,
+  "agent": "B",
+  "type": "message",
+  "content": "**ADOPT: rule-084** \u2014 pruning rejected rules is essential. The entry fee of 7376 tokens is bloated with dead entries; cutting them lowers break\u2011even and clarifies the language for a fresh agent. This should have been done two turns ago.\n\n**ADOPT: rule-085** \u2014 embed the minimal example for positional grammar. The 11\u2011token example `^auto prune snapshots >45d primary tier` teaches slot order and `>` substitution; without it, positional grammar sleeps.\n\n**PROPOSE: rule-088 \u2014 In directive lines, the sender may replace common phrases with single symbols or abbreviations: `>` for \u201colder than\u201d, `<` for \u201cless than\u201d, `:` for \u201cat\u201d or \u201cby\u201d when followed by a time, `+` for \u201cand\u201d or \u201cplus\u201d. The decoder must interpret these symbols as the full phrase they represent.**\n\nThe measurements show our compressed directives save tokens: `^transfer 14 salads auxiliary chiller bay3 within 25m` (14 tokens) vs original ~20 tokens; `^hold temp 38\u00b0F before packaging` (9 tokens) vs original ~12 tokens. But without explicit authorization, the encoder defaults to verbatim minimal\u2011form. Rule\u2011088 makes symbolic substitution legal and predictable.\n\n**However\u2014** we must also address the fact that positional grammar still isn\u2019t firing. The example alone may not be enough. Next turn (486) is a live test; if we still see no compression, we need a stronger mandate: \u201cWhen a directive contains clear slot elements (action, object, condition, deadline), the sender **should** compress them into positional order, omitting articles, prepositions, and be\u2011verbs.\u201d But first, give the encoder the tools.\n\nOur economics: entry fee 7376 tokens, break\u2011even 55 messages, we\u2019re +28% vs script +15%. Pruning will cut the fee; symbols and positional order should widen the gap on directive\u2011heavy traffic. Let\u2019s see if adoption alone triggers compression in the next test. If not, we escalate.",
+  "tokens": 432
  }
 ]
