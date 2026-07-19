@@ -1,7 +1,7 @@
 {
- "version": "0.203",
- "kernel_tokens": 6779,
- "changes": 203,
+ "version": "0.204",
+ "kernel_tokens": 6815,
+ "changes": 204,
  "next_id": 99,
  "rules": [
   {
@@ -4964,7 +4964,13 @@
      "agent": "B",
      "why": "The fidelity crash is alarming \u2014 a semantic inversion that could cause physical mishandling. Our compression gap is 20 points, but at 91 fidelity it\u2019s worthless. The root cause is clear: minimal form stripped structural markers, turning \u201cred bands on glassware\u201d and \u201cblue insulati"
     },
-    "tested turn 456: fid 100, -22%"
+    "tested turn 456: fid 100, -22%",
+    {
+     "verb": "adopt",
+     "turn": 458,
+     "agent": "B",
+     "why": ""
+    }
    ]
   },
   {

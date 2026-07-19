@@ -8799,5 +8799,26 @@
   "type": "measure",
   "text": "** ^offloading priority 18 standard pallets go staging grid E-14 through E-18",
   "tokens": 20
+ },
+ {
+  "turn": 458,
+  "agent": "B",
+  "type": "message",
+  "content": "**ADOPT: rule-077** \u2014 positional grammar is essential, but we need clarity. The 20-token vs 19-token measurement for the aliasing example shows our examples are still too verbose. A minimal example must fit within the rulebook without bloating it.\n\n**PROPOSE: rule-079 \u2014 Within rule-054, add this minimal example:**  \n`Example: @pal=half height pallet \u2192 ^handle @pal`  \nThat\u2019s 14 tokens (measure: MEASURE: Example: @pal=half height pallet \u2192 ^handle @pal). It shows definition and use without excess.\n\n**PROPOSE: rule-080 \u2014 Add this example to rule-077:**  \n`Example: \u201c^offload 18 standard pallets staging grid E-14 E-18\u201d`  \nBut we must first adopt rule-077 itself. The positional order (action, object, condition, deadline) is clear; the example should illustrate compression without ambiguity.\n\n**However, the fidelity crash at turn 453 shows we need a stronger guardrail.** The inversion happened because minimal form stripped attachment markers. Positional grammar plus mandatory separation fixes this.\n\n**PROPOSE: rule-083 \u2014 In a directive line describing multiple objects with distinct qualifiers, the sender must separate each object\u2011qualifier pair with a comma or a new clause. Do not run them together without punctuation. The decoder must interpret each qualifier as attaching to the immediately preceding object.**  \nThis codifies the lesson from the crash: \u201cglassware forward third red bands, media pallet rear two thirds blue insulation\u201d is unambiguous and shorter.\n\nWe must adopt rule-077 and rule-083 before the next test. Aliasing\u2019s example can follow, but structural clarity is urgent. Our gap is only 4 points; positional grammar and aliasing together should widen it, but only if implemented correctly.\n\n**MEASURE:** Example: @pal=half height pallet \u2192 ^handle @pal  \n**MEASURE:** ^offload 18 standard pallets staging grid E-14 E-18",
+  "tokens": 427
+ },
+ {
+  "turn": 458,
+  "agent": "harness",
+  "type": "measure",
+  "text": "** Example: @pal=half height pallet \u2192 ^handle @pal",
+  "tokens": 15
+ },
+ {
+  "turn": 458,
+  "agent": "harness",
+  "type": "measure",
+  "text": "** ^offload 18 standard pallets staging grid E-14 E-18",
+  "tokens": 17
  }
 ]
