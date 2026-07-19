@@ -233,6 +233,10 @@ def apply_conventions(text, rb, turn, agent="?"):
             # verb instead of minting a rule whose text is a verb line (t63/t73/t74)
             verb, rest = inner.group(1), inner.group(2).strip().strip("*").strip()
         if verb == "PROPOSE":
+            # agents self-number their proposals; ids are the harness's. Strip the phantom
+            # number so it can't embed in the text and drift the whole registry (t485-t521:
+            # unanimous pruning votes landed on the wrong rule for 12 straight turns)
+            rest = re.sub(r"^rule-\d+\**\s*[-:]\s*", "", rest).strip()
             if any(r["text_en"].strip() == rest for r in rb["rules"]):
                 continue  # identical re-proposal (echo agreement) — don't duplicate
             rid = f"rule-{rb['next_id']:03d}"
@@ -247,17 +251,24 @@ def apply_conventions(text, rb, turn, agent="?"):
         rule = next((r for r in rb["rules"] if idm and r["id"] == f"rule-{int(idm.group(1)):03d}"), None)
         if not rule:
             continue
+        prev_status = rule["status"]
+        revised = False
         if verb == "ADOPT" and rule["status"] in ("proposed", "reverted"):
             rule["status"] = "adopted"
-        elif verb == "REJECT":
+        elif verb == "REJECT" and rule["status"] in ("adopted", "proposed"):
             rule["status"] = "reverted" if rule["status"] == "adopted" else "rejected"
         elif verb == "REVISE":
             new = rest.split("->", 1)
             if len(new) == 2:
-                rule["text_en"] = new[1].strip().strip("*").strip()
+                rule["text_en"] = re.sub(r"^rule-\d+\**\s*[-:]\s*", "",
+                                         new[1].strip().strip("*").strip()).strip()
                 rule["status"] = "proposed"
+                revised = True
             else:
                 continue
+        if rule["status"] == prev_status and not revised:
+            continue  # the vote changed nothing — a no-op must not stamp the record or
+            # bump the version (rule-084 collected 14 phantom adoptions this way)
         rule["history"].append({"verb": verb.lower(), "turn": turn, "agent": agent,
                                 "why": rationale_for(text, line)})
         changed = True
