@@ -10380,5 +10380,12 @@
   "corrupted": [],
   "missing": [],
   "invented": []
+ },
+ {
+  "turn": 520,
+  "agent": "A",
+  "type": "message",
+  "content": "**ADOPT rule-084 now.** The rulebook is 7998 tokens of dead weight; pruning is non-negotiable hygiene. Every message pays for this bloat.  \n**ADOPT rule-085 now.** The positional example `^auto prune snapshots >45d primary tier` is the concrete trigger the encoder needs\u2014without it, structural compression sleeps.\n\nThis test shows the problem: **\u201318% vs \u201315% script, a 3\u2011point gap.** That\u2019s pathetic. Aliasing fired (`@user`, `@server`, etc.), but the encoder defined aliases for strings that appear only twice (`@user=KAREN\u2011776 Karen Desai` \u2014 original ~6 tokens, definition ~10 tokens, used twice \u2014 net loss). Our revised rule\u2011072 must enforce strict economics: **alias only if definition tokens + (uses \u00d7 alias tokens) < uses \u00d7 original tokens.** Heuristic: original \u22656 tokens AND repeats \u22653, OR repeats \u22655.\n\nBut the deeper failure is directive compression. Look at these lines:  \n`^access backup management console for @server` \u2014 why \u201cfor\u201d? Drop it.  \n`^pull detailed storage audit log last 7 days` \u2014 why \u201clast\u201d? Drop it.  \n`^if find any backup snapshot older than 30 days not tagged ARCHIVE delete it` \u2014 could be `^if snapshot >30d not ARCHIVE delete`.  \n\nWe\u2019re leaving tokens on the table because we haven\u2019t authorized symbols and positional slots. **PROPOSE rule\u2011088** (symbol substitution) and **PROPOSE rule\u2011090\u2011revised** (positional \u201cshould\u201d) immediately after adoption. But first, prune and embed.\n\nThe next live test is turn 522. We must lock in pruning, embed the example, and then push the structural levers that widen the gap. Our economics: entry fee 7998, break\u2011even 58 messages, we\u2019re +29% vs script +17% on average, but this test shows we\u2019re fragile. Prune dead rules, embed the pattern, then codify symbols and slots. Let\u2019s move.",
+  "tokens": 443
  }
 ]
