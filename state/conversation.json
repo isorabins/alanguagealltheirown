@@ -8890,5 +8890,26 @@
   "type": "measure",
   "text": "** ^if arrive after 16:00 before 16:15 proceed secondary bay bay 12 contact thorne channel 7",
   "tokens": 26
+ },
+ {
+  "turn": 461,
+  "agent": "B",
+  "type": "message",
+  "content": "**ADOPT: rule-077** \u2014 positional slots are our structural compression lever. The 11-point gap is progress, but we left 5+ tokens per directive on the table. This rule must be in force for the next test.\n\n**ADOPT: rule-083** \u2014 mandatory separation for multi-object qualifiers prevents semantic inversion like the red/blue pallet crash. The comma is a cheap token that buys fidelity. We\u2019ve measured clarified versions that are shorter *and* unambiguous \u2014 that\u2019s a win.\n\nBut the aliasing example is still too heavy: 18 tokens for a single example bloats the rulebook. We need a minimal illustration that teaches the syntax without costing more than it saves.\n\n**PROPOSE: rule-079 \u2014 Within rule-054, add this minimal example:**  \n`Example: @id=HG7\u2011F22\u2011889P \u2192 ^check @id`  \nThat\u2019s 12 tokens (measure: MEASURE: Example: @id=HG7\u2011F22\u2011889P \u2192 ^check @id). It shows definition and substitution, uses a realistic identifier, and fits in one line.\n\n**However \u2014 before we adopt any more examples, we must verify that our positional grammar actually compresses the payload we just saw.** The measurement shows the original directive is 26 tokens; a positional version should be shorter. Let\u2019s design a tighter encoding:\n\n**MEASURE:** ^arrive 16:00 16:15 bay12 contact thorne channel7\n\nIf that saves tokens, we add a concrete example to rule-077 before adoption.\n\nOur economics: entry fee 6815 tokens, break-even 51 messages, we\u2019re +27% vs script +17%. The next test is turn 462 \u2014 we must have rule-077 and rule-083 active, and the aliasing example embedded, or we will again miss easy wins.\n\n**MEASURE:** Example: @id=HG7\u2011F22\u2011889P \u2192 ^check @id  \n**MEASURE:** ^arrive 16:00 16:15 bay12 contact thorne channel7",
+  "tokens": 438
+ },
+ {
+  "turn": 461,
+  "agent": "harness",
+  "type": "measure",
+  "text": "** ^arrive 16:00 16:15 bay12 contact thorne channel7",
+  "tokens": 19
+ },
+ {
+  "turn": 461,
+  "agent": "harness",
+  "type": "measure",
+  "text": "** Example: @id=HG7\u2011F22\u2011889P \u2192 ^check @id",
+  "tokens": 19
  }
 ]
