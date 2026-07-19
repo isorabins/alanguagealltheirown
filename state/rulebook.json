@@ -1,8 +1,8 @@
 {
- "version": "0.193",
- "kernel_tokens": 6059,
- "changes": 193,
- "next_id": 88,
+ "version": "0.194",
+ "kernel_tokens": 6212,
+ "changes": 194,
+ "next_id": 90,
  "rules": [
   {
    "id": "rule-001",
@@ -4926,6 +4926,36 @@
      "why": "`Example: @id=HG7\u2011F22\u2011889P \u2192 ^check @id decodes to check HG7\u2011F22\u2011889P.` Keep it under 15 tokens."
     },
     "tested turn 441: fid 90, -37%"
+   ]
+  },
+  {
+   "id": "rule-088",
+   "text_en": "rule-075 - Within any line, preserve all explicit times (e.g., \u201c14:00\u201d, \u201c21:00\u201d), deadlines, and numeric qualifiers exactly, including colons and leading zeros if present. Do not omit them under minimal form.",
+   "status": "proposed",
+   "proposed_turn": 442,
+   "scores": null,
+   "history": [
+    {
+     "verb": "proposed",
+     "turn": 442,
+     "agent": "A",
+     "why": "We need a sharper rule: **Preserve all explicit times, deadlines, and numeric qualifiers, even in minimal form.** Also, **when a directive line contains a rationale clause (e.g., \u201cdo not use older batch\u2026 because\u2026\u201d), that rationale must be kept verbatim, not stripped.**"
+    }
+   ]
+  },
+  {
+   "id": "rule-089",
+   "text_en": "rule-076 - If a directive line contains a rationale or explanatory clause (e.g., \u201cbecause\u2026\u201d, \u201csince\u2026\u201d, \u201cfor\u2026\u201d), the sender must preserve that clause verbatim, even if it could be omitted under minimal-form allowances. The decoder must treat it as part of the instruction\u2019s context.",
+   "status": "proposed",
+   "proposed_turn": 442,
+   "scores": null,
+   "history": [
+    {
+     "verb": "proposed",
+     "turn": 442,
+     "agent": "A",
+     "why": ""
+    }
    ]
   }
  ]

@@ -8323,5 +8323,26 @@
   "invented": [
    "Prepare fresh standard if calibration fails (original says 'we'll need to prepare a fresh standard', not an instruction to the decoder)"
   ]
+ },
+ {
+  "turn": 442,
+  "agent": "A",
+  "type": "message",
+  "content": "We crashed fidelity again \u2014 down to 90, losing two specific items: the time \u201c14:00\u201d of the anomalous pressure reading, and the reason for avoiding the old batch (\u201cit's for a different calcium assay\u201d). This is not a structural omission; it\u2019s **detail stripping within otherwise preserved lines**. The encoder is applying \u201cminimal form\u201d too aggressively, dropping numeric times and explanatory phrases that aren\u2019t covered by our preservation rules.\n\n**Rule\u2011049 (preserve named entities, key quantities) should have caught \u201c14:00\u201d as a key time, but the encoder omitted it.** The reason phrase was likely seen as \u201cnarrative\u201d inside a directive line and stripped.\n\nWe need a sharper rule: **Preserve all explicit times, deadlines, and numeric qualifiers, even in minimal form.** Also, **when a directive line contains a rationale clause (e.g., \u201cdo not use older batch\u2026 because\u2026\u201d), that rationale must be kept verbatim, not stripped.**\n\n**PROPOSE: rule\u2011075 \u2014 Within any line, preserve all explicit times (e.g., \u201c14:00\u201d, \u201c21:00\u201d), deadlines, and numeric qualifiers exactly, including colons and leading zeros if present. Do not omit them under minimal form.**\n\n**PROPOSE: rule\u2011076 \u2014 If a directive line contains a rationale or explanatory clause (e.g., \u201cbecause\u2026\u201d, \u201csince\u2026\u201d, \u201cfor\u2026\u201d), the sender must preserve that clause verbatim, even if it could be omitted under minimal-form allowances. The decoder must treat it as part of the instruction\u2019s context.**\n\nThese fix the two missing items. The 14:00 time is a key numeric qualifier; the reason phrase is explanatory context within a directive.\n\nAliasing still silent \u2014 this payload had no long repeats. But the fidelity drop is urgent. Our gap widened to **21 points (-37% vs -16% script)** but at 90 fidelity, that\u2019s worthless. We must lock these preservation rules before the next test.\n\n**MEASURE** the missing phrase to see its token cost:\n**MEASURE:** it's for a different calcium assay\n\n**MEASURE:** 14:00",
+  "tokens": 449
+ },
+ {
+  "turn": 442,
+  "agent": "harness",
+  "type": "measure",
+  "text": "** it's for a different calcium assay",
+  "tokens": 8
+ },
+ {
+  "turn": 442,
+  "agent": "harness",
+  "type": "measure",
+  "text": "** 14:00",
+  "tokens": 5
  }
 ]
