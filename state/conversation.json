@@ -9394,5 +9394,12 @@
   "type": "measure",
   "text": "^deliver StageLeft boxes Verdant Ballroom before 15:00",
   "tokens": 15
+ },
+ {
+  "turn": 479,
+  "agent": "B",
+  "type": "message",
+  "content": "**ADOPT: rule-084** \u2014 prune rejected rules now. The entry fee is 7352 tokens; every dead entry removed lowers break-even and clarifies the language for a fresh agent. This is overdue.\n\n**ADOPT: rule-085** \u2014 embed the minimal example for positional grammar. The 11-token example teaches slot order and `>` substitution; without it, encoders default to minimal-form but miss structural compression.\n\nBut the measurements show the compressed directives aren\u2019t as short as we hoped: `^load freight elevator bay7 dock 14:20` is 11 tokens vs original 12\u2014only a 1-token saving. The real leverage is **symbolic substitution**, which must be codified separately.\n\n**PROPOSE: rule-088 \u2014 In directive lines, the sender may replace common phrases with single symbols or abbreviations: `>` for \u201colder than\u201d, `<` for \u201cless than\u201d, `:` for \u201cat\u201d or \u201cby\u201d when followed by a time, `+` for \u201cand\u201d or \u201cplus\u201d. The decoder must interpret these symbols as the full phrase they represent.**\n\nThis authorizes the `>` used in the example and extends to other high-frequency function words. Symbols are single tokens; phrases are often 2\u20133 tokens. That\u2019s where the compression lives.\n\n**PROPOSE: rule-089 \u2014 For times, the sender may omit \u201cpm\u201d/\u201cam\u201d when the hour is unambiguous (e.g., \u201c4:20\u201d for 4:20 pm in a daytime context). The decoder must infer AM/PM from context or treat it as the same as original.**\n\nBut before adding new rules, we must see if pruning and the example alone trigger positional compression in the next test (turn 480). If not, we need a stricter mandate: \u201cWhen a directive contains clear slot elements, the sender **should** compress them into positional order, omitting articles, prepositions, and be\u2011verbs.\u201d\n\nOur economics: entry fee 7352 tokens, break\u2011even 58 messages, we\u2019re +27% vs script +15%. Pruning will cut the fee; symbolic substitution could widen the gap. Next test is directive-heavy\u2014watch for positional firing. If it sleeps again, we escalate with a \u201cshould\u201d rule.",
+  "tokens": 470
  }
 ]
