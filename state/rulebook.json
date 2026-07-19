@@ -1,8 +1,8 @@
 {
- "version": "0.206",
- "kernel_tokens": 6815,
- "changes": 206,
- "next_id": 99,
+ "version": "0.207",
+ "kernel_tokens": 6948,
+ "changes": 207,
+ "next_id": 101,
  "rules": [
   {
    "id": "rule-001",
@@ -5064,6 +5064,12 @@
      "turn": 463,
      "agent": "A",
      "why": "Our rule-077 (positional slots) isn\u2019t adopted yet. **B, adopt it now.** The gap is 12 points (\u221224% vs \u221212% script), but we can widen it further if every directive gets positional compression."
+    },
+    {
+     "verb": "adopt",
+     "turn": 464,
+     "agent": "B",
+     "why": ""
     }
    ]
   },
@@ -5248,7 +5254,13 @@
      "agent": "B",
      "why": ""
     },
-    "tested turn 462: fid 100, -24%"
+    "tested turn 462: fid 100, -24%",
+    {
+     "verb": "adopt",
+     "turn": 464,
+     "agent": "B",
+     "why": ""
+    }
    ]
   },
   {
@@ -5607,6 +5619,36 @@
     "tested turn 456: fid 100, -22%",
     "tested turn 459: fid 100, -26%",
     "tested turn 462: fid 100, -24%"
+   ]
+  },
+  {
+   "id": "rule-099",
+   "text_en": "rule-084 - Remove all rejected rules from the rulebook. Only adopted rules (027, 028, 031, 036, 037, 044, 045, 046, 047, 049, 054, 071, 072, 077, 083) remain. This reduces the rulebook\u2019s token count and clarifies the language for a fresh agent.",
+   "status": "proposed",
+   "proposed_turn": 464,
+   "scores": null,
+   "history": [
+    {
+     "verb": "proposed",
+     "turn": 464,
+     "agent": "B",
+     "why": "But the aliasing example is too costly: 27 tokens for one example is unacceptable. The rulebook already teaches the syntax (`@name=full_text`); we don\u2019t need a verbose illustration. Instead, we should **prune the rulebook** of rejected entries to reduce the entry fee. Every token"
+    }
+   ]
+  },
+  {
+   "id": "rule-100",
+   "text_en": "rule-085 - Add to rule-077: Example: \u201c^auto prune snapshots >45d primary tier\u201d shows compression via positional slots and symbol substitution (> for \u201colder than\u201d).",
+   "status": "proposed",
+   "proposed_turn": 464,
+   "scores": null,
+   "history": [
+    {
+     "verb": "proposed",
+     "turn": 464,
+     "agent": "B",
+     "why": "We must also tighten positional grammar with a concrete example that is **short and instructional**, not a full demonstration."
+    }
    ]
   }
  ]

@@ -8977,5 +8977,26 @@
   "type": "measure",
   "text": "** ^auto prune snapshots >45d primary tier",
   "tokens": 11
+ },
+ {
+  "turn": 464,
+  "agent": "B",
+  "type": "message",
+  "content": "**ADOPT: rule-077** \u2014 positional grammar is essential structural compression. The measurement shows `^auto prune snapshots >45d primary tier` (11 tokens) vs the original\u2019s 12 tokens \u2014 a small gain per directive, but multiplied across many directives it widens our gap. Order is free; we must enforce it now.\n\n**ADOPT: rule-083** \u2014 mandatory separation for multi-object qualifiers prevents semantic inversion. The comma is a cheap fidelity token. This rule is already measured and validated.\n\nBut the aliasing example is too costly: 27 tokens for one example is unacceptable. The rulebook already teaches the syntax (`@name=full_text`); we don\u2019t need a verbose illustration. Instead, we should **prune the rulebook** of rejected entries to reduce the entry fee. Every token we save there pays rent forever.\n\n**PROPOSE: rule-084 \u2014 Remove all rejected rules from the rulebook. Only adopted rules (027, 028, 031, 036, 037, 044, 045, 046, 047, 049, 054, 071, 072, 077, 083) remain. This reduces the rulebook\u2019s token count and clarifies the language for a fresh agent.**\n\nWe must also tighten positional grammar with a concrete example that is **short and instructional**, not a full demonstration.\n\n**PROPOSE: rule-085 \u2014 Add to rule-077: Example: \u201c^auto prune snapshots >45d primary tier\u201d shows compression via positional slots and symbol substitution (> for \u201colder than\u201d).**\n\nThat example is 11 tokens (already measured) and teaches the pattern without bloat.\n\nOur economics: entry fee 6815 tokens, break-even 52 messages. Pruning rejected rules could cut the entry fee by ~1000 tokens, dramatically lowering the break-even point. That\u2019s as valuable as compression gains.\n\n**MEASURE** the token count of the current rulebook\u2019s rejected rules section to estimate savings:  \nMEASURE: [list all rejected rules from rule-001 to rule-083]  \nBut since that\u2019s long, let\u2019s measure a representative chunk:  \nMEASURE: rule-001 [rejected t95] Use `^` as a prefix for a line that is an instruction, propo\u2026 \u2014 died at fidelity 100, +2%\n\nIf pruning saves significant tokens, we adopt rule-084 immediately. Next test is turn 465 \u2014 with rule-077 and rule-083 active, we should see positional compression and aliasing together. The gap can exceed 15 points.",
+  "tokens": 541
+ },
+ {
+  "turn": 464,
+  "agent": "harness",
+  "type": "measure",
+  "text": "[list all rejected rules from rule-001 to rule-083]",
+  "tokens": 14
+ },
+ {
+  "turn": 464,
+  "agent": "harness",
+  "type": "measure",
+  "text": "rule-001 [rejected t95] Use `^` as a prefix for a line that is an instruction, propo\u2026 \u2014 died at fidelity 100, +2%",
+  "tokens": 37
  }
 ]
