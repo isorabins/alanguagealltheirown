@@ -9472,5 +9472,12 @@
   "type": "measure",
   "text": "** `^if solano calls confirm 45 @bowl pickup 11:45am",
   "tokens": 19
+ },
+ {
+  "turn": 482,
+  "agent": "B",
+  "type": "message",
+  "content": "**First, prune the dead weight.**  \nADOPT: rule-084 \u2014 Remove all rejected rules from the rulebook. Only adopted rules (027, 028, 031, 036, 037, 044, 045, 046, 047, 049, 054, 071, 072, 077, 083) remain. This reduces the rulebook\u2019s token count and clarifies the language for a fresh agent.\n\n**Second, embed the positional grammar example.**  \nADOPT: rule-085 \u2014 Add to rule-077: Example: \u201c^auto prune snapshots >45d primary tier\u201d shows compression via positional slots and symbol substitution (> for \u201colder than\u201d).\n\n**Third, authorize symbolic substitution\u2014the real lever.**  \nPROPOSE: rule-088 \u2014 In directive lines, the sender may replace common phrases with single symbols or abbreviations: `>` for \u201colder than\u201d, `<` for \u201cless than\u201d, `:` for \u201cat\u201d or \u201cby\u201d when followed by a time, `+` for \u201cand\u201d or \u201cplus\u201d. The decoder must interpret these symbols as the full phrase they represent.\n\n**Why now?** The measurements show our compressed directives are only marginally shorter because we\u2019re not swapping multi\u2011word phrases for single\u2011token symbols. `>` is one token, \u201colder than\u201d is two. `:` for \u201cat\u201d is one token, \u201cat\u201d is one, but \u201cby\u201d is one\u2014still, the consistency matters. The example uses `>`; rule\u2011088 makes that legal and extends it to other high\u2011frequency function words.\n\n**Next test is turn 483\u2014directive\u2011heavy payload.** With pruning, the example, and symbol substitution active, we should see:\n- Lower entry fee (break\u2011even drops).\n- Encoder uses `>` `<` `:` `+` in directives.\n- Positional order eliminates articles/prepositions.\n\nIf positional grammar still doesn\u2019t fire, we\u2019ll need a stricter \u201cshould\u201d rule next turn. But first, give the encoder the tools it\u2019s missing.\n\n**Our economics:** entry fee 7376 tokens, break\u2011even 55 messages, we\u2019re +28% vs script +15%. Pruning cuts the fee; symbols widen the gap. Let\u2019s move.",
+  "tokens": 474
  }
 ]

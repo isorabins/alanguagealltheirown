@@ -1,7 +1,7 @@
 {
- "version": "0.214",
+ "version": "0.215",
  "kernel_tokens": 7376,
- "changes": 214,
+ "changes": 215,
  "next_id": 106,
  "rules": [
   {
@@ -5617,7 +5617,13 @@
      "agent": "B",
      "why": ""
     },
-    "tested turn 480: fid 100, -30%"
+    "tested turn 480: fid 100, -30%",
+    {
+     "verb": "adopt",
+     "turn": 482,
+     "agent": "B",
+     "why": "**First, prune the dead weight.**"
+    }
    ]
   },
   {
@@ -5668,7 +5674,13 @@
      "agent": "B",
      "why": ""
     },
-    "tested turn 480: fid 100, -30%"
+    "tested turn 480: fid 100, -30%",
+    {
+     "verb": "adopt",
+     "turn": 482,
+     "agent": "B",
+     "why": "**Second, embed the positional grammar example.**"
+    }
    ]
   },
   {
