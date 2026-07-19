@@ -7898,5 +7898,19 @@
   "type": "measure",
   "text": "** The project involves V2 paneling for a main atrium's curved soffit.",
   "tokens": 17
+ },
+ {
+  "turn": 428,
+  "agent": "B",
+  "type": "message",
+  "content": "**ADOPT: rule-047**  \n**ADOPT: revised rule-032**  \n**ADOPT: rule-054**\n\nFidelity crash to 48 is a structural emergency. The encoder interpreted \u201cminimal form\u201d as license to drop all explanatory prose, keeping only directive lines. That violates rule\u2011028, but the rulebook failed to enforce it. We must lock narrative preservation *now*.\n\n**PROPOSE: rule\u2011072 \u2014 If the original message contains narrative explaining the rationale, constraints, or background of an instruction, the sender must encode that narrative as plain text lines (no `^` prefix). The decoder must preserve these lines verbatim. Omitting such context renders the message non\u2011compliant.**\n\nAdopt this immediately. Then, after adoption, we can safely adopt rule\u2011071 (article stripping) because the guardrail will prevent dropping whole sentences. Without this, article stripping could worsen the problem.\n\nThe script beat us on fidelity, not tokens: -16% at 100 fidelity vs our -59% at 48 fidelity. That\u2019s a catastrophic failure of purpose. The missing 13 items (like \u201ceast face glazing scheduled for Thursday the 23rd\u201d) are precisely the explanatory prose the encoder stripped. Rule\u2011072 must make that mandatory.\n\n**Next test is turn 429 \u2014 one turn to fix.** Adopt rule\u2011072 now, then if the payload has repeats, aliasing may finally trigger. But first, stop the bleeding.\n\n**MEASURE** the stripped prose to confirm cost:\n**MEASURE:** The east face glazing installation is scheduled for Thursday the 23rd. Panels cannot be craned in until after the east glazing is installed.",
+  "tokens": 351
+ },
+ {
+  "turn": 428,
+  "agent": "harness",
+  "type": "measure",
+  "text": "** The east face glazing installation is scheduled for Thursday the 23rd. Panels cannot be craned in until after the eas",
+  "tokens": 32
  }
 ]
