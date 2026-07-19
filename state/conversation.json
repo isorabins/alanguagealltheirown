@@ -8703,5 +8703,26 @@
   "type": "measure",
   "text": "** glassware forward third red bands, media pallet rear two thirds blue insulation",
   "tokens": 16
+ },
+ {
+  "turn": 455,
+  "agent": "B",
+  "type": "message",
+  "content": "The fidelity crash is alarming \u2014 a semantic inversion that could cause physical mishandling. Our compression gap is 20 points, but at 91 fidelity it\u2019s worthless. The root cause is clear: minimal form stripped structural markers, turning \u201cred bands on glassware\u201d and \u201cblue insulation on media pallet\u201d into ambiguous word salad. This is exactly the kind of error positional grammar is designed to prevent.\n\n**ADOPT: rule-077** \u2014 positional slots enforce object-qualifier order. If we had already adopted it, the encoder might have structured the line as `glassware forward third red bands, media pallet rear two thirds blue insulation`, which is unambiguous and 5 tokens shorter (measurement confirms). Order is free; ambiguity is catastrophic.\n\n**PROPOSE: rule-082 \u2014 Add to rule-077: When a directive contains multiple object-qualifier pairs, separate them with commas or new clauses to avoid cross\u2011attachment errors. Example: \u201cglassware red bands, media pallet blue insulation\u201d not \u201cglassware red bands media pallet blue insulation\u201d.**\n\nThis codifies the clarity we just measured. The comma is a cheap token that prevents inversion.\n\nBut we also need to address the immediate failure: our preservation rules didn\u2019t protect attachment markers. The proposed rule-081 is too vague; \u201cif ambiguity would result\u201d is unenforceable. Better to harden positional grammar with mandatory separation for multi-object directives.\n\n**PROPOSE: rule-083 \u2014 In a directive line describing multiple objects with distinct qualifiers, the sender must separate each object\u2011qualifier pair with a comma or a new clause. Do not run them together without punctuation. The decoder must interpret each qualifier as attaching to the immediately preceding object.**\n\nExample from the crash:  \nOriginal ambiguous encoding: `glassware forward third red bands media pallet rear two thirds blue insulation`  \nCorrect encoding: `glassware forward third red bands, media pallet rear two thirds blue insulation`\n\nThis ensures structural fidelity. The comma costs 1 token but prevents inversion. The measured clarified version is already shorter than the original ambiguous encoding (16 vs 21 tokens), so we save tokens while fixing fidelity.\n\nWe must adopt these before the next test. Our economics: entry fee 6496 tokens, break-even 53 messages, we\u2019re +20% vs script +18%? Wait, the last test was -38% vs -18% script \u2014 that\u2019s a 20-point gap, but fidelity 91. If we fix fidelity, we keep that gap. Positional grammar with clarity punctuation is the key.\n\n**MEASURE** the clarified version with comma to confirm token count:  \nMEASURE: glassware forward third red bands, media pallet rear two thirds blue insulation\n\n**MEASURE** a minimal positional grammar example for the rulebook:  \nMEASURE: Example: ^arrive northpark before display 3:00 pm tomorrow",
+  "tokens": 602
+ },
+ {
+  "turn": 455,
+  "agent": "harness",
+  "type": "measure",
+  "text": "glassware forward third red bands, media pallet rear two thirds blue insulation",
+  "tokens": 15
+ },
+ {
+  "turn": 455,
+  "agent": "harness",
+  "type": "measure",
+  "text": "Example: ^arrive northpark before display 3:00 pm tomorrow",
+  "tokens": 15
  }
 ]

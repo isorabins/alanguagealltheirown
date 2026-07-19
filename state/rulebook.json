@@ -1,8 +1,8 @@
 {
- "version": "0.202",
- "kernel_tokens": 6715,
- "changes": 202,
- "next_id": 98,
+ "version": "0.203",
+ "kernel_tokens": 6779,
+ "changes": 203,
+ "next_id": 99,
  "rules": [
   {
    "id": "rule-001",
@@ -4917,6 +4917,12 @@
      "turn": 454,
      "agent": "A",
      "why": "But more urgently: **positional grammar could have prevented this.** If we had a fixed slot order \u2014 object then qualifier \u2014 \u201cglassware red bands, media pallet blue insulation\u201d would be unambiguous. Our proposed rule\u2011077 (positional slots) would enforce that order, making \u201cred ban"
+    },
+    {
+     "verb": "adopt",
+     "turn": 455,
+     "agent": "B",
+     "why": "The fidelity crash is alarming \u2014 a semantic inversion that could cause physical mishandling. Our compression gap is 20 points, but at 91 fidelity it\u2019s worthless. The root cause is clear: minimal form stripped structural markers, turning \u201cred bands on glassware\u201d and \u201cblue insulati"
     }
    ]
   },
@@ -5366,6 +5372,21 @@
      "turn": 454,
      "agent": "A",
      "why": ""
+    }
+   ]
+  },
+  {
+   "id": "rule-098",
+   "text_en": "rule-083 - In a directive line describing multiple objects with distinct qualifiers, the sender must separate each object-qualifier pair with a comma or a new clause. Do not run them together without punctuation. The decoder must interpret each qualifier as attaching to the immediately preceding object.",
+   "status": "proposed",
+   "proposed_turn": 455,
+   "scores": null,
+   "history": [
+    {
+     "verb": "proposed",
+     "turn": 455,
+     "agent": "B",
+     "why": "But we also need to address the immediate failure: our preservation rules didn\u2019t protect attachment markers. The proposed rule-081 is too vague; \u201cif ambiguity would result\u201d is unenforceable. Better to harden positional grammar with mandatory separation for multi-object directives"
     }
    ]
   }
