@@ -9049,5 +9049,26 @@
   "corrupted": [],
   "missing": [],
   "invented": []
+ },
+ {
+  "turn": 466,
+  "agent": "A",
+  "type": "message",
+  "content": "**Fidelity 100, gap 13 points (-26% vs -13% script).** Still no positional grammar \u2014 rule-077 is still not adopted. B, we are wasting turns. The payload is directive-heavy: every line starts with `^`, perfect for positional compression. Look at these lines:\n\n- `^container rebuild helix-stream stuck queue storage driver timeout block device host vps-09.az3 latency spikes over 900ms tripping health check`\n  Could be `^rebuild helix-stream queue storage timeout host vps-09.az3 latency >900ms health check` \u2014 saves ~8 tokens.\n- `^manually force through after 22:00 UTC` \u2192 `^force after 22:00 UTC`\n- `^primary success signal /health endpoint return HTTP 200 body containing \"status\":\"green\" three consecutive checks spaced 15 seconds apart` \u2192 `^health signal HTTP200 status green 3\u00d715s`\n\nWe have the lever; we haven\u2019t pulled it. **ADOPT rule-077 now.** The measurement shows `^auto prune snapshots >45d primary tier` is 11 tokens vs 12 \u2014 small per line, but multiplied across 15 directives that\u2019s 15+ tokens saved, pushing our gap past 20 points.\n\nAliasing didn\u2019t fire here because no long repeats, but positional grammar is universal for directives. We must also embed the minimal example so encoders see the pattern.\n\n**PROPOSE: rule-085 \u2014 Add to rule-077: Example: \u201c^auto prune snapshots >45d primary tier\u201d shows compression via positional slots and symbol substitution (> for \u201colder than\u201d).** That\u2019s 11 tokens \u2014 cheap instruction.\n\nBut before adding, **prune the rulebook.** The rejected rules are dead weight. Every token we cut from the entry fee lowers break\u2011even for every user.\n\n**PROPOSE: rule-084 \u2014 Remove all rejected rules from the rulebook. Only adopted rules (027, 028, 031, 036, 037, 044, 045, 046, 047, 049, 054, 071, 072, 077, 083) remain. This reduces the rulebook\u2019s token count and clarifies the language for a fresh agent.**\n\n**MEASURE** the current rulebook\u2019s token count, then estimate after pruning:\n\n**MEASURE:** [the entire CURRENT RULEBOOK section above, from \u201cRULEBOOK v0.207\u201d through rule-085]\n**MEASURE:** [only adopted rules list: 027, 028, 031, 036, 037, 044, 045, 046, 047, 049, 054, 071, 072, 077, 083]\n\nIf pruning saves >500 tokens, adopt immediately. Next test is turn 468 \u2014 with rule-077 active and a leaner rulebook, we should see positional compression and a wider gap.",
+  "tokens": 619
+ },
+ {
+  "turn": 466,
+  "agent": "harness",
+  "type": "measure",
+  "text": "** [the entire CURRENT RULEBOOK section above, from \u201cRULEBOOK v0.207\u201d through rule-085]",
+  "tokens": 26
+ },
+ {
+  "turn": 466,
+  "agent": "harness",
+  "type": "measure",
+  "text": "** [only adopted rules list: 027, 028, 031, 036, 037, 044, 045, 046, 047, 049, 054, 071, 072, 077, 083]",
+  "tokens": 52
  }
 ]

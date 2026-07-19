@@ -1,8 +1,8 @@
 {
- "version": "0.207",
- "kernel_tokens": 6948,
- "changes": 207,
- "next_id": 101,
+ "version": "0.208",
+ "kernel_tokens": 7028,
+ "changes": 208,
+ "next_id": 102,
  "rules": [
   {
    "id": "rule-001",
@@ -5719,6 +5719,21 @@
      "why": "We must also tighten positional grammar with a concrete example that is **short and instructional**, not a full demonstration."
     },
     "tested turn 465: fid 100, -26%"
+   ]
+  },
+  {
+   "id": "rule-101",
+   "text_en": "rule-085 - Add to rule-077: Example: \u201c^auto prune snapshots >45d primary tier\u201d shows compression via positional slots and symbol substitution (> for \u201colder than\u201d).** That\u2019s 11 tokens - cheap instruction.",
+   "status": "proposed",
+   "proposed_turn": 466,
+   "scores": null,
+   "history": [
+    {
+     "verb": "proposed",
+     "turn": 466,
+     "agent": "A",
+     "why": "Aliasing didn\u2019t fire here because no long repeats, but positional grammar is universal for directives. We must also embed the minimal example so encoders see the pattern."
+    }
    ]
   }
  ]
