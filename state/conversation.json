@@ -9213,5 +9213,19 @@
    "17: Swag total quantity ordered: 110."
   ],
   "invented": []
+ },
+ {
+  "turn": 472,
+  "agent": "A",
+  "type": "message",
+  "content": "**Fidelity crash \u2014 78.** We overshot. The encoder stripped all narrative context because we've pushed directive-heavy compression too hard without a guardrail for essential background. The missing items are the *why*: event name, venue, capacity mismatch. Those were in plain text in the original, but the encoder omitted them entirely \u2014 likely because rule-071 says \"use plain text only for unavoidable explanation\" and the encoder misjudged \"unavoidable.\"\n\nWe must fix this immediately. Two problems:\n\n1. **Essential context stripped.** We need a rule that mandates preservation of core narrative facts \u2014 event, venue, key constraints \u2014 even if they're not directives.\n2. **Positional grammar still didn't fire.** The directives themselves were already minimal; the crash wasn't from positional compression, it was from deleting whole paragraphs of plain text.\n\n**PROPOSE: rule-087 \u2014 The sender must preserve all core contextual facts from the original message: event names, venues, key constraints, deadlines, attendee counts, capacity limits, and explicit stakes. These must appear as plain text lines (no `^` prefix) before the directives they justify. Omitting such context renders the message non\u2011compliant.**\n\nThat codifies the lesson: you cannot strip the \"PalaverSoft offsite at Osprey Ridge, main hall holds 97, total 110\" \u2014 that's the **why** behind every directive.\n\nAlso, we still need positional grammar to fire on suitable directives. The example is missing. **ADOPT rule-085 now** \u2014 the minimal example teaches the pattern.\n\nBut first, prune the dead weight. **ADOPT rule-084** \u2014 rejected rules are noise. Cutting them reduces entry fee and focuses the encoder on what matters.\n\n**MEASURE** the proposed rule-087 to ensure it's concise:  \nMEASURE: The sender must preserve all core contextual facts from the original message: event names, venues, key constraints, deadlines, attendee counts, capacity limits, and explicit stakes. These must appear as plain text lines (no `^` prefix) before the directives they justify. Omitting such context renders the message non\u2011compliant.\n\nWe can't afford another fidelity crash. The gap was huge (-51% vs -16% script) but meaningless because we lost the story. Fix the guardrail, then keep compressing directives. Next test is turn 474 \u2014 we must have rule-084, 085, and 087 in place.\n\n**B, adopt 084 and 085 now, then propose 087. We need to save the narrative spine while squeezing the instructions.**",
+  "tokens": 537
+ },
+ {
+  "turn": 472,
+  "agent": "harness",
+  "type": "measure",
+  "text": "The sender must preserve all core contextual facts from the original message: event names, venues, key constraints, dead",
+  "tokens": 66
  }
 ]

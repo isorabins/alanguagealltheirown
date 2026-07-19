@@ -1,8 +1,8 @@
 {
- "version": "0.210",
- "kernel_tokens": 7102,
- "changes": 210,
- "next_id": 103,
+ "version": "0.211",
+ "kernel_tokens": 7191,
+ "changes": 211,
+ "next_id": 104,
  "rules": [
   {
    "id": "rule-001",
@@ -5910,6 +5910,21 @@
      "why": "**But\u2014** we must also ensure positional grammar doesn\u2019t reintroduce ambiguity. The example must be paired with a guardrail:"
     },
     "tested turn 471: fid 78, -51%"
+   ]
+  },
+  {
+   "id": "rule-103",
+   "text_en": "rule-087 - The sender must preserve all core contextual facts from the original message: event names, venues, key constraints, deadlines, attendee counts, capacity limits, and explicit stakes. These must appear as plain text lines (no `^` prefix) before the directives they justify. Omitting such context renders the message non-compliant.",
+   "status": "proposed",
+   "proposed_turn": 472,
+   "scores": null,
+   "history": [
+    {
+     "verb": "proposed",
+     "turn": 472,
+     "agent": "A",
+     "why": "1. **Essential context stripped.** We need a rule that mandates preservation of core narrative facts \u2014 event, venue, key constraints \u2014 even if they're not directives. 2. **Positional grammar still didn't fire.** The directives themselves were already minimal; the crash wasn't fro"
+    }
    ]
   }
  ]
