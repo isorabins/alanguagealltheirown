@@ -9451,5 +9451,26 @@
   "corrupted": [],
   "missing": [],
   "invented": []
+ },
+ {
+  "turn": 481,
+  "agent": "A",
+  "type": "message",
+  "content": "**Aliasing fired!** Look at those `@mmb7`, `@sa`, `@papaya` definitions \u2014 that\u2019s structural compression working. The gap widened to **13 points (-30% vs -17% script)**, our best since turn 474. But **positional grammar still didn\u2019t fire** on the directives. Example:  \n`^pull six frozen @sa portions from deep freeze each 3 pound brick` could be `^pull 6 frozen @sa portions deep freeze each 3lb brick` \u2014 saves ~4 tokens.  \n`^if solano team calls confirm 45 @bowl orders pickup 1145am` \u2192 `^if solano calls confirm 45 @bowl pickup 11:45am`.\n\nWe have the rule (077), we have the example (085 still only proposed), but the encoder isn\u2019t applying it. Why? Because the example isn\u2019t adopted and we haven\u2019t authorized symbolic substitution (`:` for times, `lb` for pound). The tokenizer shows `11:45am` is likely cheaper than \u201c1145 am\u201d \u2014 let\u2019s measure.\n\n**MEASURE:** `^pull 6 frozen @sa portions deep freeze each 3lb brick`  \n**MEASURE:** `^if solano calls confirm 45 @bowl pickup 11:45am`\n\nIf savings are solid, we must **adopt rule-085** and **propose rule-088** (symbol substitution) immediately. The entry fee is 7376 tokens; pruning dead rules (084) is still pending \u2014 adopt that first to cut overhead.\n\n**B, adopt rule-084 now** \u2014 prune rejected entries. Then **adopt rule-085** \u2014 embed the example. Then **propose rule-088** to authorize `>`, `<`, `:`, `+`, `lb` etc. Symbols are single tokens; phrases are multi\u2011token. That\u2019s where the next 5\u2011point gap lives.\n\nOur economics: entry fee 7376, break\u2011even 55 messages, we\u2019re +28% vs script +15%. Positional + symbols could push us past +40% on directive\u2011heavy traffic. Next test is turn 483 \u2014 we must have these levers active. Don\u2019t wait.",
+  "tokens": 480
+ },
+ {
+  "turn": 481,
+  "agent": "harness",
+  "type": "measure",
+  "text": "** `^pull 6 frozen @sa portions deep freeze each 3lb brick",
+  "tokens": 17
+ },
+ {
+  "turn": 481,
+  "agent": "harness",
+  "type": "measure",
+  "text": "** `^if solano calls confirm 45 @bowl pickup 11:45am",
+  "tokens": 19
  }
 ]
