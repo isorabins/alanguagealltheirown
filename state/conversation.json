@@ -9983,5 +9983,12 @@
   ],
   "missing": [],
   "invented": []
+ },
+ {
+  "turn": 502,
+  "agent": "A",
+  "type": "message",
+  "content": "B, we just lost fidelity on a critical detail\u2014frequency band `7\u20119 gigahertz` corrupted to `7.9 gigahertz`. That\u2019s a range vs. single\u2011value error, likely because we omitted the hyphen and the encoder mis\u2011parsed. Our minimal\u2011form rule (036) allowed omitting punctuation, but in numeric ranges, hyphens are essential. This is a **structural flaw**\u2014we\u2019re sacrificing precision for token savings.\n\nThe good news: compression gap is **11 points** (\u201328% vs \u201317% script). Positional grammar is still inconsistent\u2014directives like `^purge use helium nitrogen mix 70 30 ratio` could be `^purge use He\u2011N mix 70:30 ratio` using symbols and abbreviations. But we can\u2019t push compression further if we corrupt ranges.\n\nWe must **fix range notation** before adding more compression. Propose a rule: numeric ranges must preserve their delimiter (hyphen, en\u2011dash, colon) exactly, or use a reserved symbol like `~`. The decoder must interpret it as a range.\n\n**PROPOSE: rule\u2011091 \u2014 In numeric ranges (e.g., \u201c7\u20119 gigahertz\u201d, \u201c240\u2011300 seconds\u201d), the sender must preserve the delimiter (hyphen `-`, en\u2011dash `\u2013`, colon `:`) exactly, or use tilde `~` as a range operator. Do not omit or replace with a space. The decoder must interpret the delimiter as indicating a continuous range between the two values.**\n\nBut also, **adopt rule\u2011084 and rule\u2011085 now**\u2014pruning and the example are still pending. The rulebook is 7438 tokens; we\u2019re paying for dead entries every message. And without the positional example, the encoder lacks a concrete pattern.\n\n**ADOPT rule\u2011084. ADOPT rule\u2011085.** Then we can propose symbol substitution (088) and stronger positional guidance (090\u2011revised). But first, secure fidelity on ranges. Next test is turn 504\u2014we must lock this before another corruption.\n\nOur economics: entry fee 7438, break\u2011even 53 messages, we\u2019re +28% vs script +15%, but we cannot trade fidelity for compression. Fix ranges, prune dead rules, embed the example. Then push structural compression.",
+  "tokens": 485
  }
 ]

@@ -1,8 +1,8 @@
 {
- "version": "0.224",
- "kernel_tokens": 7715,
- "changes": 224,
- "next_id": 111,
+ "version": "0.225",
+ "kernel_tokens": 7832,
+ "changes": 225,
+ "next_id": 112,
  "rules": [
   {
    "id": "rule-001",
@@ -6875,6 +6875,21 @@
      "why": "But we also need to authorize the symbols and slot patterns that proved effective in turn 495."
     },
     "tested turn 501: fid 96, -28%"
+   ]
+  },
+  {
+   "id": "rule-111",
+   "text_en": "rule-091 - In numeric ranges (e.g., \u201c7-9 gigahertz\u201d, \u201c240-300 seconds\u201d), the sender must preserve the delimiter (hyphen `-`, en-dash `-`, colon `:`) exactly, or use tilde `~` as a range operator. Do not omit or replace with a space. The decoder must interpret the delimiter as indicating a continuous range between the two values.",
+   "status": "proposed",
+   "proposed_turn": 502,
+   "scores": null,
+   "history": [
+    {
+     "verb": "proposed",
+     "turn": 502,
+     "agent": "A",
+     "why": "We must **fix range notation** before adding more compression. Propose a rule: numeric ranges must preserve their delimiter (hyphen, en\u2011dash, colon) exactly, or use a reserved symbol like `~`. The decoder must interpret it as a range."
+    }
    ]
   }
  ]
