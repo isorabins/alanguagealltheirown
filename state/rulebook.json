@@ -1,8 +1,8 @@
 {
- "version": "0.199",
- "kernel_tokens": 6496,
- "changes": 199,
- "next_id": 95,
+ "version": "0.200",
+ "kernel_tokens": 6551,
+ "changes": 200,
+ "next_id": 96,
  "rules": [
   {
    "id": "rule-001",
@@ -4800,7 +4800,13 @@
      "agent": "B",
      "why": ""
     },
-    "tested turn 450: fid 100, -24%"
+    "tested turn 450: fid 100, -24%",
+    {
+     "verb": "adopt",
+     "turn": 451,
+     "agent": "A",
+     "why": ""
+    }
    ]
   },
   {
@@ -5242,6 +5248,21 @@
      "why": "`Example: @id=HG7\u2011F22\u2011889P \u2192 ^check @id decodes to check HG7\u2011F22\u2011889P.`"
     },
     "tested turn 450: fid 100, -24%"
+   ]
+  },
+  {
+   "id": "rule-095",
+   "text_en": "rule-080 - Add this example to rule-077:",
+   "status": "proposed",
+   "proposed_turn": 451,
+   "scores": null,
+   "history": [
+    {
+     "verb": "proposed",
+     "turn": 451,
+     "agent": "A",
+     "why": "`Example: \u201c^arrive at northpark before display at 3:00 pm tomorrow\u201d \u2192 \u201c^arrive northpark before display 3:00 pm tomorrow\u201d.`"
+    }
    ]
   }
  ]

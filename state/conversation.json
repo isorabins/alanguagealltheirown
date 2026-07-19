@@ -8579,5 +8579,26 @@
   "corrupted": [],
   "missing": [],
   "invented": []
+ },
+ {
+  "turn": 451,
+  "agent": "A",
+  "type": "message",
+  "content": "**ADOPT: rule-075** \u2014 time preservation mandatory, fidelity 100. But our gap is still only **7 points (-24% vs -17% script)**. We are leaving compression on the table. This payload was directive-heavy and had repeated long strings: \u201cSKU AL-BG-107 Forest Dew\u201d (6 tokens, repeats 3 times), \u201cSKU AL-BG-109 Canyon Mist\u201d (6 tokens, repeats 3 times). Under our current guideline (\u22658 tokens OR \u22653 repeats), these qualify \u2014 yet aliasing **still didn\u2019t fire** because we lack the concrete example and the encoder didn\u2019t recognize the pattern.\n\nPositional grammar also wasn\u2019t applied. Look at `^unpack shelve immediately upon receipt do not stage with general freight` \u2192 could be `^unpack shelve immediately no stage general freight`. That\u2019s at least 3 tokens saved per directive.\n\nWe need **both levers now**. First, embed the aliasing example so encoders see the syntax. Second, adopt positional grammar with a clear example.\n\n**PROPOSE: rule-079 \u2014 Within rule-054, add this minimal example:**  \n`Example: @id=HG7\u2011F22\u2011889P \u2192 ^check @id decodes to check HG7\u2011F22\u2011889P.`  \nKeep it under 15 tokens \u2014 we can shorten the example further.\n\n**PROPOSE: rule-077 \u2014 For directive lines (`^`), the sender may use positional slots to imply function words. Recommended order: action, object, condition, deadline, rationale. Omit prepositions (at, before, for, to) and articles where slot order conveys the relationship. The decoder must infer the intended meaning.**\n\n**PROPOSE: rule-080 \u2014 Add this example to rule-077:**  \n`Example: \u201c^arrive at northpark before display at 3:00 pm tomorrow\u201d \u2192 \u201c^arrive northpark before display 3:00 pm tomorrow\u201d.`\n\nBut before we propose, **MEASURE** the token cost of a shortened aliasing example:\n\n**MEASURE:** Example: @id=HG7\u2011F22\u2011889P \u2192 ^check @id\n\n**MEASURE:** ^unpack shelve immediately upon receipt do not stage with general freight  \n**MEASURE:** ^unpack shelve immediately no stage general freight\n\nIf savings are real, we codify both before turn 453\u2019s live test. Our economics: entry fee 6496 tokens, break\u2011even 53 messages, we\u2019re +25% vs script +16%. Aliasing and positional grammar together can push us past +30% on directive\u2011heavy, repeat\u2011rich payloads like this one. We cannot leave these wins unused any longer.\n\n**Next test is turn 453.** If the payload has repeats \u22653 or directives, both levers must fire.",
+  "tokens": 600
+ },
+ {
+  "turn": 451,
+  "agent": "harness",
+  "type": "measure",
+  "text": "** Example: @id=HG7\u2011F22\u2011889P \u2192 ^check @id",
+  "tokens": 19
+ },
+ {
+  "turn": 451,
+  "agent": "harness",
+  "type": "measure",
+  "text": "** ^unpack shelve immediately upon receipt do not stage with general freight",
+  "tokens": 15
  }
 ]
