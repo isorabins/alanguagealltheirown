@@ -1,7 +1,7 @@
 {
- "version": "0.205",
+ "version": "0.206",
  "kernel_tokens": 6815,
- "changes": 205,
+ "changes": 206,
  "next_id": 99,
  "rules": [
   {
@@ -5058,7 +5058,13 @@
      "agent": "B",
      "why": ""
     },
-    "tested turn 462: fid 100, -24%"
+    "tested turn 462: fid 100, -24%",
+    {
+     "verb": "adopt",
+     "turn": 463,
+     "agent": "A",
+     "why": "Our rule-077 (positional slots) isn\u2019t adopted yet. **B, adopt it now.** The gap is 12 points (\u221224% vs \u221212% script), but we can widen it further if every directive gets positional compression."
+    }
    ]
   },
   {
