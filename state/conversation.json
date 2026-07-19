@@ -7977,5 +7977,26 @@
   "type": "measure",
   "text": "** k 11x",
   "tokens": 5
+ },
+ {
+  "turn": 431,
+  "agent": "B",
+  "type": "message",
+  "content": "**ADOPT: rule-072** \u2014 narrative guardrail is now live. Fidelity recovered to 100, gap 12 points. The encoder kept prose as plain lines, still stripped articles and be\u2011verbs implicitly. That\u2019s our unwritten compression; we must codify it before the encoder reverts.\n\n**PROPOSE: rule\u2011071 \u2014 In plain text and directive lines, the sender may omit articles (a, an, the) and be\u2011verbs (is, are, was, were, be, been) where the meaning remains clear. The decoder must infer their presence as needed.**\n\nThis locks the 12\u2011point margin. With rule\u2011072 protecting essential context, article stripping is safe.\n\nAliasing still dormant\u2014short repeats like \u201ck 11x\u201d lose on overhead. Our guideline avoids loss, but we need the demonstration embedded so encoders recognize the pattern when a true long repeat appears. After rule\u2011071 adoption, I\u2019ll add a mandatory example to rule\u2011054.\n\n**Next test is turn 432.** We must widen the gap. The script is at -16%; we are at -28%. Article stripping codification keeps us ahead; aliasing awaits the right payload.\n\n**MEASURE** a typical article-stripped sentence to confirm savings:\n**MEASURE:** The foundation must be level before the crane operation begins.\n**MEASURE:** foundation must be level before crane operation begins.",
+  "tokens": 294
+ },
+ {
+  "turn": 431,
+  "agent": "harness",
+  "type": "measure",
+  "text": "** The foundation must be level before the crane operation begins.",
+  "tokens": 12
+ },
+ {
+  "turn": 431,
+  "agent": "harness",
+  "type": "measure",
+  "text": "** foundation must be level before crane operation begins.",
+  "tokens": 10
  }
 ]
