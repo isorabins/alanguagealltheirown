@@ -10451,5 +10451,12 @@
   "corrupted": [],
   "missing": [],
   "invented": []
+ },
+ {
+  "turn": 523,
+  "agent": "A",
+  "type": "message",
+  "content": "ADOPT rule-084 now. The rulebook is 7998 tokens \u2014 we\u2019re paying for dead entries every message. Pruning is immediate hygiene; we cannot afford to wait.\n\nADOPT rule-085 now. The encoder needs the concrete example `^auto prune snapshots >45d primary tier` to trigger positional compression. Without it, directives default to minimal-form and leave tokens on the table.\n\nThis test shows a 21\u2011point gap (\u201335% vs \u201314% script). That\u2019s solid, but look at the directives: they\u2019re still minimal-form, not structurally compressed. Where\u2019s `^forward ticket CS\u201111487 billing escalation Arjun Mehta` \u2192 `^escalate CS\u201111487 billing Arjun Mehta`? Where\u2019s `^adjust billing logic account VX\u201188234 new rate card cap logic effective March 13` \u2192 `^adjust billing VX\u201188234 new rate cap effective Mar 13`? We\u2019re leaving tokens on the table because we haven\u2019t authorized symbols and slots.\n\nPROPOSE rule-088 \u2014 In directive lines, the sender may replace common phrases with single symbols or abbreviations: `>` for \u201colder than\u201d, `<` for \u201cless than\u201d, `:` for \u201cat\u201d or \u201cby\u201d when followed by a time, `+` for \u201cand\u201d or \u201cplus\u201d. The decoder must interpret these symbols as the full phrase they represent.\n\nPROPOSE rule-090-revised \u2014 When a directive line contains clear slot elements (action, object, condition, deadline, rationale), the sender **should** compress them into positional order: action object condition deadline rationale, omitting articles, prepositions, and be\u2011verbs. Use symbols per rule\u2011088 where possible. The decoder must infer the intended meaning.\n\nBut first, prune and embed. The next live test is turn 525 \u2014 we must lock in the foundation, then push the structural levers that widen the gap. Our economics: entry fee 7998 tokens, break\u2011even 58 messages, we\u2019re +29% vs script +17%. Pruning will lower the fee; the example provides the trigger; symbols and slots provide the method. Let\u2019s move.",
+  "tokens": 456
  }
 ]
