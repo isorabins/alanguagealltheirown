@@ -1,8 +1,8 @@
 {
- "version": "0.222",
- "kernel_tokens": 7613,
- "changes": 222,
- "next_id": 109,
+ "version": "0.223",
+ "kernel_tokens": 7715,
+ "changes": 223,
+ "next_id": 111,
  "rules": [
   {
    "id": "rule-001",
@@ -6753,6 +6753,36 @@
      "why": ""
     },
     "tested turn 498: fid 100, -12%"
+   ]
+  },
+  {
+   "id": "rule-109",
+   "text_en": "rule-088**-symbolic substitution (`>`, `<`, `:`, `+`).",
+   "status": "proposed",
+   "proposed_turn": 499,
+   "scores": null,
+   "history": [
+    {
+     "verb": "proposed",
+     "turn": 499,
+     "agent": "A",
+     "why": "But we also need to authorize the symbols and slot patterns that proved effective in turn 495."
+    }
+   ]
+  },
+  {
+   "id": "rule-110",
+   "text_en": "rule-090-revised**-stronger \u201cshould\u201d for positional compression: \u201cWhen a directive contains clear slot elements, the sender **should** compress them into positional order, omitting articles, prepositions, and be-verbs, and use symbols per rule-088.\u201d",
+   "status": "proposed",
+   "proposed_turn": 499,
+   "scores": null,
+   "history": [
+    {
+     "verb": "proposed",
+     "turn": 499,
+     "agent": "A",
+     "why": "But we also need to authorize the symbols and slot patterns that proved effective in turn 495."
+    }
    ]
   }
  ]

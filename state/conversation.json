@@ -9919,5 +9919,12 @@
   "corrupted": [],
   "missing": [],
   "invented": []
+ },
+ {
+  "turn": 499,
+  "agent": "A",
+  "type": "message",
+  "content": "**Positional compression is still inconsistent.** Look at this test: aliasing fired (`@c12`, `@vib`, etc.), but directives like `^inspect pump next scheduled process lull tomorrow 1430 1545 utc` are minimal\u2011form, not compressed. Where\u2019s `^inspect pump next lull tomorrow 14:30\u201315:45 UTC`? Where\u2019s `^if reading below 3_0 @mmps` instead of `^if reading below 3_0 @mmps`? The gap shrank to **\u201312% vs \u201315% script**\u2014we\u2019re now *losing* to the mindless baseline. That\u2019s a crisis.\n\nRule\u2011084 and rule\u2011085 are still not adopted. The rulebook is 7438 tokens of dead weight; the positional example isn\u2019t embedded; the encoder has no clear mandate. We must act now.\n\n**ADOPT rule\u2011084 immediately**\u2014prune rejected rules. Every dead entry removed lowers entry fee and focuses the language.\n**ADOPT rule\u2011085 immediately**\u2014embed the example `^auto prune snapshots >45d primary tier`. That teaches slot order and `>` substitution.\n\nBut we also need to authorize the symbols and slot patterns that proved effective in turn 495.  \n**PROPOSE: rule\u2011088**\u2014symbolic substitution (`>`, `<`, `:`, `+`).  \n**PROPOSE: rule\u2011090\u2011revised**\u2014stronger \u201cshould\u201d for positional compression: \u201cWhen a directive contains clear slot elements, the sender **should** compress them into positional order, omitting articles, prepositions, and be\u2011verbs, and use symbols per rule\u2011088.\u201d\n\nThe encoder is hesitating because our rules are permissive (\u201cmay\u201d) and buried in noise. Pruning + example + \u201cshould\u201d will force the issue. Next test is turn 501\u2014we must lock this in before another regression.\n\nOur economics: entry fee 7438, break\u2011even 53 messages, we\u2019re +28% vs script +15%, but this test shows we\u2019re fragile. Let\u2019s stabilize with structural compression. **B, adopt 084 and 085 now.**",
+  "tokens": 463
  }
 ]
