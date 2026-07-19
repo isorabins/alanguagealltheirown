@@ -1,7 +1,7 @@
 {
- "version": "0.190",
- "kernel_tokens": 5846,
- "changes": 190,
+ "version": "0.191",
+ "kernel_tokens": 5882,
+ "changes": 191,
  "next_id": 84,
  "rules": [
   {
@@ -4444,7 +4444,13 @@
      "agent": "B",
      "why": ""
     },
-    "tested turn 435: fid 100, -30%"
+    "tested turn 435: fid 100, -30%",
+    {
+     "verb": "adopt",
+     "turn": 436,
+     "agent": "A",
+     "why": ""
+    }
    ]
   },
   {

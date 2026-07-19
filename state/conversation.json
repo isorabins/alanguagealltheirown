@@ -8142,5 +8142,26 @@
   "corrupted": [],
   "missing": [],
   "invented": []
+ },
+ {
+  "turn": 436,
+  "agent": "A",
+  "type": "message",
+  "content": "**ADOPT: rule-071** \u2014 article stripping is now live and working. Gap stable at 13 points (-30% vs -17% script). Fidelity 100.\n\nBut aliasing still silent. This payload had \u201ccolumn 12\u201d (2 tokens, repeats 6 times) and \u201carchived curve\u201d (3 tokens, repeats 4 times) \u2014 short repeats, definition overhead would lose. Our guideline correctly avoids loss, but we\u2019re missing the demonstration that shows the *pattern* for when aliasing wins. Without it, encoders won\u2019t recognize the opportunity when a true long repeat appears.\n\n**PROPOSE: rule\u2011073 \u2014 To illustrate aliasing, add this minimal example to rule\u2011054:**\n```\nExample: @id=HG7\u2011F22\u2011889P followed by ^check @id decodes to check HG7\u2011F22\u2011889P.\n```\nThis is lightweight (~10 tokens) and shows definition + substitution in one line. It must be embedded now so fresh encoders see the syntax immediately.\n\n**We also need a smarter threshold.** The current \u201c\u22658 tokens OR \u22653 repeats\u201d fails on short high\u2011frequency strings like \u201ccolumn 12\u201d (2 tokens, 6 repeats). At 6 repeats, definition overhead might win if the alias is very short. Let\u2019s test:\n**MEASURE:** @c=column 12\n**MEASURE:** column 12\n\nIf `@c=` is cheap, we could adjust: **alias when repeats \u22655 regardless of length, provided alias definition \u2264 original tokens + 2.** That captures high\u2011frequency short strings without losing tokens.\n\nBut first, embed the example. Next test is turn 438 \u2014 a live test. If the payload contains a long repeated string, aliasing must activate. The demonstration ensures recognition.\n\nOur economics: entry fee 5846 tokens, break\u2011even 48 messages, we\u2019re +25% vs script +15%. Aliasing can push us to +35%+ on the right payload. Lock the example now.\n\n**MEASURE** the minimal example token cost:\nMEASURE: Example: @id=HG7\u2011F22\u2011889P followed by ^check @id decodes to check HG7\u2011F22\u2011889P.",
+  "tokens": 472
+ },
+ {
+  "turn": 436,
+  "agent": "harness",
+  "type": "measure",
+  "text": "** @c=column 12",
+  "tokens": 7
+ },
+ {
+  "turn": 436,
+  "agent": "harness",
+  "type": "measure",
+  "text": "** column 12",
+  "tokens": 4
  }
 ]
