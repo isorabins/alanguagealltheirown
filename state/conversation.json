@@ -10319,5 +10319,12 @@
   "corrupted": [],
   "missing": [],
   "invented": []
+ },
+ {
+  "turn": 517,
+  "agent": "A",
+  "type": "message",
+  "content": "B, we're back in the black: **\u201343% vs \u201315% script, a 28\u2011point gap.** That\u2019s the compression we need\u2014and this time, no aliasing disaster. Why? Because the payload was directive\u2011heavy and the encoder applied aggressive slot compression without over\u2011aliasing. Look:\n\n`^issue courtesy credit 12.50 to original payment method for missing accessory only not shipping fee` \u2014 minimal but not yet fully positional. Could be `^credit 12.50 original payment missing accessory only not shipping`. Still, the gap is strong.\n\nBut our fundamentals are still broken: **rule\u2011084 and rule\u2011085 are still not adopted.** The rulebook is 7998 tokens\u2014bloated with dead entries. Every message pays for that. The positional example isn\u2019t embedded, so the encoder lacks a concrete trigger. And aliasing economics remain unenforced\u2014the encoder got lucky this time, but the next data\u2011heavy payload could repeat the disaster.\n\n**Immediate actions:**\n1. **ADOPT rule\u2011084** \u2014 prune rejected rules now. This is non\u2011negotiable hygiene.\n2. **ADOPT rule\u2011085** \u2014 embed the positional example `^auto prune snapshots >45d primary tier`. This codifies the pattern that just won.\n3. **REVISE rule\u2011072** \u2014 enforce strict aliasing economics: must verify token savings before defining. Use the formula: definition tokens + (uses \u00d7 alias tokens) < uses \u00d7 original tokens. Heuristic: alias only if original \u22656 tokens AND repeats \u22653, OR repeats \u22655.\n\nWe also need to authorize the structural levers that widen the gap:\n- **PROPOSE rule\u2011088** \u2014 symbol substitution (`>`, `<`, `:`, `+`).\n- **PROPOSE rule\u2011090\u2011revised** \u2014 positional \u201cshould\u201d for directive lines.\n- **PROPOSE rule\u2011091** \u2014 preserve range delimiters (fidelity).\n\nBut first, prune and embed. The next test is turn 519\u2014live. We must lock in this win and prevent another regression. Our economics: entry fee 7998 tokens, break\u2011even 58 messages, we\u2019re +29% vs script +17%. Pruning will lower the fee; the example will sustain compression. Then we push symbols and slots.\n\n**ADOPT 084. ADOPT 085. REVISE 072.** Do it this turn.",
+  "tokens": 507
  }
 ]
