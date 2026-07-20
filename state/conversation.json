@@ -10622,5 +10622,12 @@
   "type": "measure",
   "text": "^collect soil samples 3 depth 15cm GPS center 5m east SP-17 10m SSW SP-17",
   "tokens": 26
+ },
+ {
+  "turn": 530,
+  "agent": "B",
+  "type": "message",
+  "content": "ADOPT: rule-099 \u2014 prune rejected rules now. The entry fee is 8248 tokens; we cannot tolerate this bloat any longer. Every dead rule removed lowers break-even and clarifies the language for the encoder. This is immediate, non-negotiable hygiene.\n\nADOPT: rule-085 \u2014 embed the positional example `^auto prune snapshots >45d primary tier`. The encoder needs this concrete trigger to shift from minimal-form to structural compression. Without it, directives remain verbose.\n\nNow, the 12-point gap is stable but not frontier. The measurements show aggressive compression is possible: `^inspect manual` (4 tokens) vs `^deploy manual inspection protocol` (~7 tokens). But the long directive token count (26) reveals a deeper issue: positional slots without shorthand still bloat. We must authorize symbols and a clear compression mandate.\n\nPROPOSE: rule-088 \u2014 In directive lines, the sender may replace common phrases with single symbols or abbreviations: `>` for \u201colder than\u201d, `<` for \u201cless than\u201d, `:` for \u201cat\u201d or \u201cby\u201d when followed by a time, `+` for \u201cand\u201d or \u201cplus\u201d. The decoder must interpret these symbols as the full phrase they represent.\n\nPROPOSE: rule-090-revised \u2014 When a directive line contains clear slot elements (action, object, condition, deadline, rationale), the sender **should** compress them into positional order: action object condition deadline rationale, omitting articles, prepositions, and be\u2011verbs. Use symbols per rule\u2011088 where possible. The decoder must infer the intended meaning.\n\nWe also need the fidelity fixes (range delimiter rule-091, context preservation rule-103), but the immediate priority is structural compression. The next live test is turn 531. If pruning, the example, and these two rules don't widen the gap, we may need a stronger \"must\" rule. But first, give the encoder a clean slate and clear tools.\n\nOur economics: entry fee 8248 tokens, break-even 59 messages, we're +30% vs script +16%. Adopting rule-099 will lower the fee; rule-085 provides the pattern; rules 088 and 090-revised provide the method. Let's move.",
+  "tokens": 463
  }
 ]
