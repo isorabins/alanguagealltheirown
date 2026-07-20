@@ -14,6 +14,7 @@ const KEY_SYS = "You extract the answer key from a message: a numbered list of e
 
 module.exports = async (req, res) => {
   try {
+    if (!L.requireJson(req, res)) return;
     const text = L.guard(req, res, "text", L.TEXT_MAX);
     if (text == null) return;
     const decoded = req.body && typeof req.body.decoded === "string" ? req.body.decoded.trim() : "";
@@ -34,8 +35,8 @@ module.exports = async (req, res) => {
 
     const items = Array.isArray(g.items) ? g.items : [];
     const invented = Array.isArray(g.invented) ? g.invented : [];
-    const ids = items.map((item) => Number(item && item.n));
-    const complete = items.length === key.length && ids.every((n) => Number.isInteger(n) && n >= 1 && n <= key.length) &&
+    const ids = items.map((item) => item && item.n);
+    const complete = items.length === key.length && ids.every((n) => typeof n === "number" && Number.isInteger(n) && n >= 1 && n <= key.length) &&
       new Set(ids).size === key.length && key.every((_, index) => ids.includes(index + 1)) &&
       items.every((item) => ["SURVIVED", "CORRUPTED", "MISSING"].includes(item && item.verdict));
     if (!complete) { res.status(502).json({ error: "judge returned invalid item coverage", code: "invalid_judgment" }); return; }

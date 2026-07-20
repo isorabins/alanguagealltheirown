@@ -554,7 +554,7 @@ function render(S) {
   }).join('') || '<p class="status">No research requests yet.</p>';
   document.getElementById("asks").innerHTML = (collaboration.asks || []).slice(-4).reverse().map(function (r) {
     return '<p><strong>' + esc(r.question) + '</strong><br><span class="status">' + esc(r.status) +
-      (r.answer ? ' · answered by Iso' : '') + '</span></p>';
+      (r.answer ? ' · Iso: “' + esc(r.answer) + '”' : '') + '</span></p>';
   }).join('') || '<p class="status">No questions awaiting Iso.</p>';
   document.getElementById("suggestions").innerHTML = (collaboration.suggestions || []).slice(-4).reverse().map(function (r) {
     return '<p><strong>' + esc(r.id) + '</strong><br><span class="status">' + esc(r.status) +
@@ -587,7 +587,7 @@ function loadState() {
   var getOptional = function (f, fallbackValue) { return get(f).catch(function () { return fallbackValue; }); };
   var lastCommit = fetch(COMMITS, {cache: "no-store"}).then(function (r) { return r.json(); }).catch(function () { return null; });
   Promise.all([get("conversation.json"), get("rulebook.json"), lastCommit,
-    getOptional("collaboration.json", {research: [], asks: [], suggestions: []}), getOptional("conversations.json", []),
+    getOptional("public-collaboration.json", {research: [], asks: [], suggestions: []}), getOptional("conversations.json", []),
     getOptional("tweet-state.json", {})]).then(function (both) {
     var when = both[2] && both[2].commit && both[2].commit.committer && both[2].commit.committer.date;
     if (when) {

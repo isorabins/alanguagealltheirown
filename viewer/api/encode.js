@@ -1,9 +1,11 @@
 // POST {text} -> {encoded, orig_tokens, enc_tokens, delta_pct, rulebook_version}
 // Runs the real encoder: same model, same system prompt, same rulebook as the loop's exams.
 const L = require("./_lib.js");
+const crypto = require("crypto");
 
 module.exports = async (req, res) => {
   try {
+    if (!L.requireJson(req, res)) return;
     const text = L.guard(req, res, "text", L.TEXT_MAX);
     if (text == null) return;
     const rb = await L.getRulebook();
@@ -18,6 +20,7 @@ module.exports = async (req, res) => {
     const orig_tokens = await L.tokenCount(text);
     const enc_tokens = await L.tokenCount(encoded);
     res.status(200).json({
+      journey_id: crypto.randomUUID(),
       encoded,
       orig_tokens,
       enc_tokens,

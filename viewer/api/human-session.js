@@ -8,12 +8,13 @@ module.exports = async (req, res) => {
       res.status(200).json({ authenticated: true, expires_at: current.expires_at }); return;
     }
     if (req.method === "POST") {
+      C.requireJson(req);
       const result = await C.login(req.body && req.body.password);
       C.setSessionCookie(res, result.token);
-      res.status(200).json({ authenticated: true, expires_at: result.expires_at }); return;
+      res.status(204).end(); return;
     }
     if (req.method === "DELETE") {
-      await C.logout(req, res); res.status(200).json({ authenticated: false }); return;
+      await C.logout(req, res); res.status(204).end(); return;
     }
     res.status(405).json({ error: "unsupported method", code: "method_not_allowed" });
   } catch (error) { C.fail(res, error); }

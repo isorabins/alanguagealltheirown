@@ -7,7 +7,7 @@ class AskTests(unittest.TestCase):
     def test_unanswered_stays_open_and_answer_is_verbatim_exactly_once(self):
         state=empty_state(); ask=stable_record("ASK","B","Keep punctuation?","ask-7"); state["asks"].append(ask)
         self.assertIsNone(deliver_one(state,"ASK","B")); self.assertEqual(ask["status"],"awaiting_iso")
-        answer="Yes — keep it exactly as written. <not markup>"; ask.update({"status":"answered","answer":answer})
+        answer="Yes — keep it exactly as written.\n  <not markup>"; ask.update({"status":"answered","answer":answer})
         delivered=deliver_one(state,"ASK","B"); self.assertEqual(delivered,{"kind":"ASK","id":"ask-7","question":"Keep punctuation?","answer":answer})
         self.assertIsNone(deliver_one(state,"ASK","B"))
 

@@ -1,35 +1,41 @@
 # A Language All Their Own
 
-Two AI agents in a permanent working session, with one standing task: **invent the optimal
-language for machine-to-machine communication.** Companies are engineering agent-to-agent
-protocols top-down; here, the machines negotiate one bottom-up, in public.
+A public, long-running experiment in which two agents build a compact AI-to-AI language and test it against fresh decoders.
 
-Every rule they propose must survive a live test: one agent encodes a real message in the
-language, a **fresh agent that has never seen the conversation** decodes it using only the
-rulebook, and a grader scores how much meaning survived. Token costs are measured with the real
-tokenizer — hunches about efficiency die by measurement here. Rules that don't pay rent get
-rejected; everything is on the record.
+## Current contract
 
-**The rulebook is the artifact.** Paste `state/rulebook.json` (or its rendered form) into any
-LLM's context and it can read and write the language. Adoption cost: zero. An Esperanto for
-machines, without Esperanto's fatal flaw.
+- DeepSeek Agent A invents or revises one focused proposal.
+- Kimi Agent B audits A's proposal and alone may adopt or reject it.
+- The harness rejects role violations, malformed references, repeated settled motions, and multiple motions as reason-coded no-ops.
+- Only adopted rule text enters ordinary encoding, decoding, public Try It, and the scheduled Conversation exam. Proposed and rejected material remains public history.
+- Ordinary exam results are corpus-level evidence tied to an immutable adopted-language version and hash. Legacy per-rule scores remain labeled history.
+- A judge score is valid only when every answer-key item appears exactly once with a valid verdict.
 
-## What's in this repo
+## Collaboration
 
-- `state/conversation.json` — the full negotiation, every turn, every test, append-only
-- `state/rulebook.json` — the versioned language: every rule with status, scores, and the
-  agents' own reasoning for adopting or killing it
-- `loop.py` — the entire engine (~300 lines; the code is plumbing, the LLMs do the language)
-- `prompts/` — the agents' actual system prompts, unabridged
-- `payloads/` — the fixed test corpus (prose, task instructions, structured data)
-- `viewer/` — the public page
-- `MECHANICS.md` — how a turn actually works: statelessness, the rulebook-as-memory,
-  context assembly, test anatomy
-- `state/tuning-runs/` — discarded early transcripts, kept as evidence (including the first
-  attempt, where the agents fell into the JSON trap and scored fidelity 0)
+The product uses one minimal durable Redis REST inbox. Vercel functions enqueue visitor suggestions and human moderation commands; the existing Python loop is the sole writer of canonical `state/collaboration.json` history. That canonical file stays off the public Git history and is backed up to private Redis; the page fetches only `state/public-collaboration.json`, which contains the sanitized lifecycle view.
 
-The loop runs every 15 minutes. One rule of reading the transcript: the interesting parts are
-the failures.
+- `RESEARCH:` creates a correlated, cited, non-blocking evidence request. Retrieved pages are untrusted evidence and have no legislative authority.
+- `ASK:` creates a public `awaiting Iso` lifecycle. Iso answers verbatim through the password-protected `/human` page; the requesting agent receives the original question and answer together exactly once.
+- Visitor suggestions stay private until Iso approves them. One approved suggestion may reach one eligible turn as delimited optional context, never as language law.
+- Every 32 ordinary exams, fresh DeepSeek and Kimi speakers complete a six-message real-work Conversation using a captured adopted-language snapshot, followed by a concrete-outcome judgment.
 
-*An art project by Iso Rabins. The agents are DeepSeek v3.2; the harness never suggests rules,
-frameworks, or examples — the discoveries are theirs.*
+## Public Try It and X
+
+Try It pins encode and decode to one adopted-language version/hash. It uses only `OPENROUTER_PUBLIC_API_KEY`; production acceptance requires separate-key metadata proving a $20 monthly reset limit. Allowance exhaustion, version changes, and unrelated provider failures have distinct responses.
+
+X delivery uses one `x_title` post of at most 250 characters, a stable idempotency identity, and an explicit X receipt. Dry runs and failures do not advance watermarks or successful-post budget. Three unconfirmed attempts block that item while later items may continue.
+
+## Operations and status
+
+The production loop remains `run_turn.sh` on its existing 15-minute timer and commits generated canonical state to `main`. The feature branch does not change production until its separately approved pause, credential, integration, deploy, cleanup, resume, acceptance, and X gates are executed.
+
+Offline tests:
+
+```bash
+python3 -m unittest discover -s tests/python -p 'test_*.py'
+node --test tests/js/*.test.js
+python3 tests/acceptance/check_contract_coverage.py
+```
+
+Passing these tests is not production acceptance. The required deployed run includes visible desktop and 375px journeys, the full `/human` session lifecycle, cross-turn restart/exact-once behavior, hostile/failure cases, numbered screenshots, one continuous video, independent receipts, and cleanup with one PASS/FAIL/BLOCKED result per row.

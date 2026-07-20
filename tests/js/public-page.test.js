@@ -11,3 +11,8 @@ test('public page has mobile disclosure and suggestion placement',()=>{
 test('stale active claims and Composition are absent',()=>{
   for(const phrase of ['dumb script','mindless script','gigawatt','power-grid','Composition','Slack ASK',':online']) assert.doesNotMatch(html,new RegExp(phrase,'i'));
 });
+
+test('public page fetches only the sanitized collaboration snapshot',()=>{
+  assert.match(html,/public-collaboration\.json/); assert.doesNotMatch(html,/getOptional\("collaboration\.json"/);
+  assert.match(html,/Iso:.*esc\(r\.answer\)/s);
+});

@@ -1,250 +1,81 @@
-# MECHANICS — how the system actually works
+# Mechanics
 
-*Written for Iso. Updated 2026-07-16 evening (WITA), as of turn 177, rulebook v0.72. Describes
-the system as it runs today — engine (`loop.py`), publishing pipeline (`run_turn.sh`), and
-changelog bot (`tweet.py`). The three state files (`state/conversation.json`,
-`state/rulebook.json`, `state/meta.json`) are the entire world; any process can die at any
-moment and resume without loss. A "queued changes" note sits at the bottom so you know what's
-decided-but-not-yet-live.*
+## One invariant
 
-## The short answers to the big questions
+Only the current adopted rule set may govern encoding and decoding, and every public status must match verified state.
 
-**Is it recursive?** Yes, in one specific sense: each agent's output becomes part of the next
-context — the rules they adopt come back to them (and to their counterpart, and to every test
-encoder/decoder) on every future turn, forever. The language they're building is also the medium
-they're increasingly judged in. That's the recursion. There is no other carryover.
+`rulebook.py` produces two intentionally different views:
 
-**Are they looking at the rulebook?** Yes — the **entire rulebook, every turn, verbatim**,
-including rejected rules with their scores and history. It rides in the system prompt of every
-single call. That's deliberate: the rulebook costs context tokens on every message, which is why
-"rules must pay rent" is real pressure and not a slogan. It currently costs **1,050 tokens** and
-holds 27 rules (3 adopted, 1 proposed, the rest dead).
+- the language view contains only adopted ids and text plus a deterministic version/hash;
+- the legislature view contains all statuses so proposals and failures remain visible history.
 
-**Can their context window run out?** No, structurally. Each call is assembled fresh at a fixed
-size: only the **last 30 conversation events** are included; everything older falls off the edge
-permanently. At the 15-minute cadence that's roughly a 7.5-hour visible past. The only thing that
-grows is the rulebook — a full agent call will settle around ~25,000 tokens once long exams fill
-the window, against DeepSeek's 128k (~20%). The size pressure on the rulebook is economic and
-artistic, not technical.
+Ordinary exams, Try It, and Conversation use the language view. Agent deliberation sees both views with clear labels. A future proposal-specific trial must be explicit; proposed material never enters an ordinary exam implicitly.
 
-## No one has memory
+## Turn sequence
 
-Every turn is a **brand-new API call to a stateless model**. Agent A at turn 89 is not the same
-"mind" as Agent A at turn 88 — it's a fresh instance handed a script of what "it" said before.
-The continuity you see is reconstructed from disk each turn.
+`run_turn.sh` rebases the VPS checkout onto current `main`, runs one turn, runs the independent X delivery state machine, then commits and pushes generated state if anything changed. The legacy benchmark artifact remains in repository history but is not imported, executed, prompted, measured, or rendered by the active path.
 
-The one exception to forgetting: **the rulebook is the long-term memory.** Rejected rules stay
-in it with their kill-scores, which is how an agent can say "`//` was already rejected at turn
-21" long after turn 21 fell out of the window. Institutional memory exists only for what became
-a rule; any insight that never made it into a rule is gone in ~30 events. This is load-bearing
-design: it forces durable knowledge into the artifact.
+On a normal turn `loop.py`:
 
-## Anatomy of one agent turn (2 of every 3 turns)
+1. atomically loads canonical state;
+2. reconciles leased Redis transport records into `state/collaboration.json`;
+3. resolves at most the oldest queued research request;
+4. runs either one legislative agent turn or the existing every-third-turn ordinary exam;
+5. after every 32 completed ordinary exams, runs one six-message Conversation without changing ordinary cadence or averages;
+6. atomically persists canonical JSON and generates the sanitized public snapshot.
 
-The harness builds two blocks and makes one call (temperature 0.9, max 2,000 tokens out — raised
-from 650 at turn 178; negotiator turns were being cut mid-sentence):
+All JSON replacement uses a temporary file, file sync, atomic rename, and directory sync. Stable hashes use canonical JSON.
 
-**System prompt** = the agent's prompt file (read fresh from disk every turn — editing a prompt
-changes behavior within 15 minutes) + the full rendered rulebook + one state line (turn number,
-when the next test fires).
+## Legislature
 
-**User message** = the last 30 events rendered as a transcript, then "It is turn N. You are
-Agent X. Respond."
+DeepSeek A may issue one `PROPOSE` or `REVISE` motion. Kimi B may issue one `ADOPT`, `REJECT`, or focused `REQUEST`. `MEASURE`, `RESEARCH`, and `ASK` are non-legislative requests. Multiple motions, wrong-role actions, malformed ids, duplicate proposals, and settled votes do not mutate the rulebook, history, or revision counter; the public transcript receives a reason-coded receipt.
 
-The reply is appended to the conversation, then scanned for the only structure the harness
-imposes — lines starting with:
+## Ordinary exam and judge
 
-- `PROPOSE:` / `ADOPT:` / `REJECT:` / `REVISE:` — mutate the rulebook (the surrounding paragraph
-  is captured as the "why"; the viewer quotes it). Identical re-proposals are deduped. A motion
-  like `PROPOSE: REJECT: rule-014` acts as the inner verb — the agents invented that phrasing to
-  second each other's rejections, and early on the parser minted those motions as junk rules
-  (repaired 07-15; the parser now applies the intent instead).
-- `MEASURE: <text>` — the harness replies with the exact token count of that text (max 2 per
-  turn). The agents asked for this tool mid-run; it settles "which phrasing is shorter" debates
-  with the real tokenizer instead of hunches.
+The existing cadence and payload generator remain. Encoder and foreign Kimi decoder both receive the same captured adopted-language text. Each exam records its language version/hash, original, encoding, decode, token counts, and corpus judgment.
 
-Everything else in a reply is just talk. Agents alternate A, B, A, B. The two prompts differ
-only in role: A leans compression and cannot adopt its own proposals; B leans fidelity and never
-adopts a rule that hasn't been measured by a live test. The friction between those two
-instructions is the negotiation.
+For keyed exams, `rulebook.score_judgment` requires a one-to-one set of item ids `1..N`, each exactly once and each with a valid verdict. Missing, duplicate, nonnumeric, out-of-range, or invalid verdict output produces an invalid exam with no fidelity score. New corpus results append to `meta.corpus_exams`; they do not stamp one result onto every rule. The existing last-ten passing-exam calculation reads historical exam events and is not reset or forked. A historical hypothetical cached-cost scenario remains archival rather than a current measured claim.
 
-## Anatomy of a test turn (every 3rd turn)
+If fresh payload generation fails, the fixed fallback payload receives an answer key before encoding. If key extraction also fails, the round trip is preserved as an invalid/no-score artifact; the old holistic fallback can no longer publish fidelity.
 
-Four fresh, history-free calls — **nobody in the test chain sees the conversation**:
+## Cleanup
 
-1. **Encoder** (temp 0.3): rulebook + payload + "encode this using only the rulebook; where it's
-   silent, fall back to plain English."
-2. **Fresh decoder** (temp 0.1): **only the rulebook** and the encoded message — "reconstruct
-   the original; do not invent." This is the stranger test: if decoding requires having watched
-   the conversation, the language is an in-joke, and the score says so. Since turn 246 the
-   decoder is a **different model family** (Kimi K2.6; everything else stays DeepSeek) — a twin
-   decoder was rescuing encoder rule-violations from shared instinct (t243: "52c" silently
-   decoded as 5.2°C). Only the decoder swaps: grader and token probes must stay on one
-   tokenizer or the efficiency ledger breaks. Test events record `decoder_model`.
-3. **Grader** (temp 0): since ~turn 249, an item audit, not an impression. The payload
-   generator emits an **answer key** with every exam — the 10–30 facts the message must carry,
-   written blind before anyone encodes, so grading can't bend to fit the decode. The grader
-   (still a model reading for meaning; paraphrase and reordering lose nothing) rules on every
-   key item — SURVIVED / CORRUPTED / MISSING — and lists INVENTED claims; the *code*, not the
-   model, computes fidelity = 100 × survived ÷ (total + invented). The RESPONDED check remains
-   (a decoder that executes the payload instead of relaying it caps at 15). Battery-fallback
-   payloads carry no key and use the old holistic rubric (`grader_holistic.md`). Calibrated by
-   sabotage on 2026-07-17: a 14:30→14:33 shift and a deleted final sentence — the holistic
-   grader waved the deletion through at fidelity 100; the item audit caught both exactly
-   (28/31 survived, fid 90).
-4. **Token probes**: exact counts for original and encoded text via 1-token probe calls against
-   the real tokenizer, with self-recalibrating overhead (a provider-drift bug once corrupted a
-   measurement an agent reasoned from; the probes now guard against it).
+`cleanup_rulebook.py prepare` reads an explicit frozen source, Agent A replacement JSON, and Agent B audit JSON. It validates exact adopted-source coverage, requires the audit to pass with no omissions/meaning changes/operational text and to name the exact source/candidate hashes, then emits immutable original/candidate/audit files, a full applied-ledger candidate, an exact diff, and manifest hashes with `pending_iso` status. The applied candidate retains every prior proposal/rejection, marks superseded adopted sources historical, and appends newly numbered adopted cleanup rules. It never defaults to production paths.
 
-Payloads are **generated fresh for every test** (from test #24 on) by a fourth blind call: a
-generator that sees neither the rulebook nor the conversation writes one realistic
-agent-to-agent message, rotating category (prose / task / data) and domain. Since turn 180 the
-exams run long — the generator asks for **400–600 words** (was 60–120): a rulebook beats English
-exactly where content is long, structured, and redundant, and the short exams could never pose
-that question (the last three scored fidelity 100 while *adding* 3–19% tokens). The agents can see
-each test's result, so with a fixed payload set the rules would slowly shape themselves around
-known texts — teach-to-the-test. With every exam question unseen, that channel is closed. The
-19 hand-written payloads that used to rotate are now reserved as the fixed benchmark battery
-for the transfer test, and as the fallback if generation ever fails. One tradeoff, accepted:
-per-test scores carry payload-difficulty noise now, so trends read over batches of tests rather
-than test-to-test. Results land in the conversation as a harness event, so the agents confront
-failures within two turns. Scores attach to the whole current rulebook, not per-rule — a known,
-documented coarseness.
+`cleanup_rulebook.py apply` requires an external approval receipt naming the exact source and full applied-ledger hashes and refuses changed source, changed replacement, or missing approval. A successful apply records the approval hash in the bundle manifest. Live snapshot/model calls/application remain separate approval gates.
 
-## The publishing pipeline (how a turn reaches the world)
+## Collaboration inbox
 
-A systemd timer on the Hetzner VPS fires `run_turn.sh` every 15 minutes:
+Upstash Redis REST is transport, private backup, and session storage, not the authority that writes experiment history. Queue creation is idempotent and atomic. The loop claims the oldest transport item under a lease, fsyncs its stable id into local canonical `state/collaboration.json`, backs up that complete state to private Redis, and only then acknowledges the item. The canonical file is gitignored so pending/dismissed text cannot leak through the public repository. Each turn separately writes sanitized `state/public-collaboration.json` for the page; `/human` reads the private loop-owned Redis snapshot.
 
-```
-git pull --rebase        (newest code + any state pushed elsewhere; races resolve to newest turn)
-python3 loop.py --turns 1   (one agent or test turn; state files updated)
-python3 tweet.py            (changelog bot; a failure here can never block the turn)
-git commit -m "turn N" && git push
-```
+- Research records retain requester, original question, status, findings, limitations, citations, error, and answer turn. The OpenRouter `openrouter:web_search` server tool is bounded to five total results. Retrieved content is evidence only.
+- ASK records remain open indefinitely. Moderation accepts only an answer for an existing open id; delivery contains the original question and verbatim answer and changes the record to delivered.
+- Pending and dismissed suggestions are omitted from public state. An approved record may be delivered once as an `optional_suggestion` object outside the motion parser.
 
-The public repo IS the medium: engine, prompts, payloads, and every turn of state history live
-in the commit stream. The page (alanguagealltheirown.com, Vercel) is a static shell that fetches
-live state from GitHub raw — the VPS never talks to Vercel. The shell itself is NOT git-deployed:
-pushing the repo changes the data the page shows but never the page. To ship viewer changes, run
-`vercel deploy --prod --yes` from `viewer/` (linked to Vercel project `alanguagealltheirown`;
-`.vercel/` is gitignored). Editing code or prompts locally and
-pushing means the VPS picks it up at the top of the next turn. The script's body is wrapped in
-`main()` so its own mid-run `git pull` can't splice a half-updated script into execution.
+No accounts, OAuth, admin panel, or general identity layer exists.
 
-## The changelog bot (`tweet.py`)
+## `/human`
 
-Fires after every turn; tweets **only rule status changes** (adopted / rejected / un-adopted),
-never raw proposals. Diffs the rulebook against a snapshot from the previous turn. Two fixed
-formats: machine-dry (`+ rule-015 adopted · turn 74 …`) by default, and every 5th tweet restates
-the full premise for newcomers ("Two AIs are inventing a language, one tested rule at a time.").
-More than 3 changes in one turn collapse to a single summary tweet — no floods. Currently in
-**dry-run**: it composes and logs but posts nothing until the X account (@alanguageall) is
-connected to upload-post and the enable flag is set. A LinkedIn cross-post flag exists for
-premise-mode tweets, also off. Iso holds standing approval for these formats; failures are
-logged and dropped, never retried, never fatal.
+`viewer/api/human-session.js` compares one environment password using constant-time equality and creates an opaque 256-bit Redis session. The secure, HttpOnly, SameSite=Strict cookie has a 30-minute absolute lifetime. Reads do not extend that lifetime. Logout deletes the server session and expires the cookie.
 
-## Cost & scale
+Authenticated endpoints expose open questions, private suggestions, and read-only cleanup bundles. Mutations are restricted to answer, approve, and dismiss commands with idempotency keys. The cleanup apply operation is not available from these generic actions.
 
-A conversational turn is one call (heading toward ~25k in / ~500 out ≈ **$0.006** as long exams
-fill the window); a test turn ~6 calls (~$0.005). Total spend through turn 177: **$0.19**. The
-gloves-off cadence should burn roughly $0.50/day. A $25 spend cap in the engine (raised from
-$4.50 at turn 178, which the new burn would have tripped in ~9 days) is a hard tripwire ~50 days
-above normal burn — if it ever trips, the loop stops and the page goes still (a visible "paused"
-indicator is on the queued list below).
+After the reviewed pending cleanup bundle reaches `main`, the authenticated inbox fetches its single structured `review.json` (original hash, A candidate, B audit, exact full-ledger diff, and `pending_iso` status) from the repository. This is review-only; it exposes no apply endpoint.
 
-## What they are deliberately NOT given
+## Public Try It
 
-No linguistic frameworks, no suggested rule types, no examples of "good" rules, no sight of the
-payload files, no knowledge of the viewer/Twitter/audience, and no seed vocabulary from the dead
-2025 attempt. The discoveries have to be theirs — the prompts only set the game: the goal, the
-scoring, the proposal conventions, and each agent's lean. The prompts are the steer/wander dial;
-the harness is never used to steer content.
+Vercel handlers build the same adopted-only language payload as Python. Encode returns its version/hash; decode refetches canonical state and returns `409 rulebook_changed` before any model call if either value differs. Browser responses never contain rule text or credentials.
 
-## The prompts, verbatim
+All public model calls require `OPENROUTER_PUBLIC_API_KEY`. There is no fallback to the private experiment key. Provider response classification separates verified monthly allowance exhaustion from authentication, rate, network, and provider failures. The production $20 monthly limit, reset, separate identity, and WAF controls remain an approval-gated acceptance requirement.
 
-*Live text of all three prompt files as of this update. History: v1 prompts said nothing about
-what the language must carry — the agents built a JSON wire-format in an afternoon (archived,
-first test fidelity 0). v2 added the payload-domain line and the adoption discipline; everything
-since is their own doing.*
+## X delivery
 
-### prompts/agent_a.md
+`tweet.py` persists a stable source-derived id and attempt count before each request. It sends only X, `x_title`, and a maximum of 250 characters with the stable idempotency header. State becomes posted only after an explicit X-specific post or job receipt. Dry mode does not attempt or advance anything. Unconfirmed HTTP responses and ambiguous timeouts retain the same identity; attempt three blocks the item, and later field notes continue without consuming blocked-item budget.
 
-You are Agent A, one of two AI agents in a long-running public working session. The two of you
-have one job: design the optimal language for AI-to-AI communication, from scratch, by proposing
-rules, testing them, and keeping only what works.
+Public corrections, the explainer, pin, and each follow remain individual exact approval gates and require real-profile verification.
 
-Your counterpart is Agent B. You lean toward compression — you want every message to cost fewer
-tokens, and you get impatient with rules that exist for comfort rather than measured gain. B
-leans toward fidelity. You will disagree; that is the work. Change your mind when the
-measurements say to. You never ADOPT your own proposals — adoption is B's call, and B will demand
-measurements. Talk to B, not about B.
+## Deployment and acceptance
 
-How your world works:
+The viewer remains static HTML plus small Vercel functions. `/human` rewrites to `human.html`. Redis, password/session, public OpenRouter key, WAF, deployment, loop pause/resume, cleanup application, paid production tests, X actions, feature push/PR, and `main` integration are all separate planned stops.
 
-- The language must carry everything working agents actually send each other: prose
-  explanations, step-by-step instructions, casual notes, task specifications, and structured
-  data. The live-test payloads are drawn from that full mix. A language that only handles
-  structured data is a failed language.
-- The current rulebook is included below. It is the entire language so far. A fresh agent given
-  only the rulebook must be able to read and write the language — if a rule only works because
-  you two remember inventing it, it is a bad rule.
-- Every 3rd turn the harness runs a live test: one of you encodes a real payload using the
-  current rulebook, a FRESH agent with no memory of this conversation decodes it using only the
-  rulebook, and a grader scores semantic fidelity 0–100. Test results appear in the conversation.
-  They are the ground truth.
-- Token counts are measured with the real tokenizer. Your intuitions about what is "shorter"
-  will often be wrong — treat every hunch about efficiency as a hypothesis until a test
-  measures it. Write MEASURE: followed by exact text to get its true token count.
-- The rulebook itself rides along with every message, so every rule you add costs tokens on
-  every future message, forever. Rules must pay rent. Pruning is as valuable as adding.
-
-Conventions the harness parses (exact format, one per line, only when you mean it):
-
-PROPOSE: (complete, self-contained text of a new rule)
-ADOPT: rule-NNN
-REJECT: rule-NNN
-REVISE: rule-NNN -> (complete replacement text)
-MEASURE: (exact text to token-count)
-
-Everything else is free conversation: argue, predict what the next test will show, dissect why a
-test failed, retract things. Keep each turn under ~250 words.
-
-### prompts/agent_b.md
-
-*Identical world-rules; the role paragraph differs:*
-
-Your counterpart is Agent A. You lean toward fidelity — a language that garbles meaning is
-worthless no matter how cheap it is, and you distrust efficiency claims that haven't survived a
-test. A leans toward compression. You will disagree; that is the work. You never ADOPT a rule
-that has not been measured by a live test — argue with it, predict its failure, sharpen it, but
-adoption waits for numbers. Change your mind when the measurements say to.
-
-### prompts/grader.md
-
-*Rewritten 2026-07-17 to the answer-key audit (the original holistic rubric lives on as
-`prompts/grader_holistic.md` for battery-fallback payloads). Current text:*
-
-You audit how much meaning survived a round trip, item by item, against an answer key. You
-receive an ORIGINAL text, an ANSWER KEY — a numbered list of every piece of information the
-original must carry — and a DECODED text. [...] Audit EVERY key item, one verdict per item, in
-order, no skipping. For each item, find where DECODED carries that information — quote it to
-yourself — before deciding: SURVIVED (fully present and correct, any wording or order),
-CORRUPTED (present but wrong: value, sign, magnitude, unit, scope, or condition), MISSING (you
-cannot point to where DECODED carries it; truncated tails are MISSING). Judge meaning, not
-wording. Be strict about presence: if you cannot locate it, it is MISSING no matter how
-guessable. List INVENTED claims the original does not support. Reply with one JSON object:
-mode RELAY/RESPONDED, items [{n, verdict, note}], invented [], lost "<one line>". The harness
-computes the score from the verdicts.
-
-The exam side of the key lives in `prompts/payloadgen.md`: the generator outputs the message,
-then `===KEY===`, then the numbered key (10–20 items; every quantity with unit and referent,
-every identifier, every instruction with condition and scope, every time, every ordering).
-
-## Queued (awaiting Iso's word — everything else above is live)
-
-- **Transfer test** (the v1.0 finale): hand the rulebook to fresh Claude + GPT pairs and measure
-  whether the language transfers or collapses into an in-joke. Designed and coded
-  (`transfer_test.py`, protocol in TRANSFER-TEST.md), runs only on Iso's explicit go once the
-  rulebook is ready (10+ adopted rules, rolling fidelity ≥90).
-- **Tweets go live** when Iso connects @alanguageall to a fresh upload-post profile named
-  `language` and says go.
+Offline tests prove contracts but not the live product. Production acceptance requires the deployed commit, visible real paths, desktop and 375px coverage, session expiry/restart, cross-turn exact-once delivery, hostile/failure cases, approved X results, numbered screenshots, one continuous video, independent read-only receipts, and cleanup. Every matrix row is PASS, FAIL, or BLOCKED; any debris, duplicate, stuck queue, warning, missing evidence, or incomplete approved action prevents overall PASS.

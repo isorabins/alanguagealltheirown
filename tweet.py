@@ -55,7 +55,7 @@ def compose(rulebook: dict[str, Any], rule: dict[str, Any]) -> str:
 
 
 def _x_receipt(data: Any) -> dict[str, Any] | None:
-    """Accept only an explicit X success carrying a durable post or job id."""
+    """Accept only an explicit terminal X success carrying a durable post id/URL."""
     candidates: list[dict[str, Any]] = []
     if isinstance(data, dict):
         if isinstance(data.get("results"), dict) and isinstance(data["results"].get("x"), dict):
@@ -69,13 +69,29 @@ def _x_receipt(data: Any) -> dict[str, Any] | None:
         candidates.append(data)
     for item in candidates:
         platform = str(item.get("platform") or item.get("provider") or "").lower()
-        success = item.get("success") is True or str(item.get("status", "")).lower() in {
-            "success", "posted", "published", "completed", "queued", "processing"
-        }
+        status = str(item.get("status", "")).lower()
+        success = status in {"success", "posted", "published", "completed"} or (
+            item.get("success") is True and status not in {"queued", "pending", "processing"})
         receipt_id = item.get("post_id") or item.get("id") or item.get("url")
         if platform in {"x", "twitter"} and success and receipt_id:
             return {"platform": "x", "status": str(item.get("status", "confirmed")).lower(),
                     "receipt_id": str(receipt_id), "url": item.get("url")}
+    return None
+
+
+def _x_pending_id(data: Any) -> str | None:
+    if not isinstance(data, dict):
+        return None
+    direct = data.get("request_id") or data.get("job_id")
+    if direct:
+        return str(direct)
+    results = data.get("results")
+    x_result = results.get("x") if isinstance(results, dict) else None
+    if isinstance(x_result, dict) and str(x_result.get("status", "")).lower() in {
+        "queued", "pending", "processing"
+    }:
+        pending = x_result.get("request_id") or x_result.get("job_id") or x_result.get("id")
+        return str(pending) if pending else None
     return None
 
 
@@ -104,7 +120,7 @@ def attempt_post(text: str, delivery: dict[str, Any], state_path: Path) -> dict[
         raise ValueError(f"X copy exceeds {MAX_LEN} characters")
     key, user = env("UPLOAD_POST_API_KEY"), env("UPLOAD_POST_USER")
     if env("TWEET_ENABLE") != "1" or not key or not user:
-        return {"status": "dry", "confirmed": False}
+        return {"id": delivery.get("id"), "status": "dry", "confirmed": False, "text": text}
     if delivery.get("status") in {"posted", "blocked"}:
         return delivery
     if delivery.get("request_id"):
@@ -129,6 +145,7 @@ def attempt_post(text: str, delivery: dict[str, Any], state_path: Path) -> dict[
         if poll_state != "not_found" or delivery["status"] == "blocked":
             return delivery
     delivery["attempts"] = int(delivery.get("attempts", 0)) + 1
+    delivery["request_id"] = delivery["id"]
     delivery["status"] = "attempting"
     delivery["last_attempt_at"] = datetime.now(timezone.utc).isoformat(timespec="seconds")
     state = load_json(state_path, {})
@@ -146,9 +163,9 @@ def attempt_post(text: str, delivery: dict[str, Any], state_path: Path) -> dict[
         receipt = _x_receipt(data) if response.ok else None
         if receipt:
             delivery.update({"status": "posted", "confirmed": True, "receipt": receipt})
-        elif response.ok and data.get("success") is True and data.get("request_id"):
+        elif response.ok and _x_pending_id(data):
             delivery.update({"status": "pending_confirmation", "confirmed": False,
-                             "request_id": str(data["request_id"])})
+                             "request_id": _x_pending_id(data)})
         else:
             delivery.update({"status": "failed", "confirmed": False,
                              "last_error": f"unconfirmed_http_{response.status_code}"})

@@ -352,8 +352,9 @@ The implementation plan MUST include planned stops before:
 
 ## Implementation State Ledger
 
-**Closeout Status**: Not started
+**Closeout Status**: Offline implementation PASS; production acceptance BLOCKED at the first live gate
 
 | Date | Current Implementation Pass | Official / Production Path State | Remaining Contract Gaps |
 |------|-----------------------------|----------------------------------|-------------------------|
 | 2026-07-20 | Specification and audit handoff only | Production unchanged; remote state observed at turn 537 | Clarify/plan/tasks, approvals, clean worktree, implementation, evidence, deploy/public gates |
+| 2026-07-20 | Clean-worktree offline implementation passes 47 Python tests, 26 Node tests, 55-requirement coverage, API/HTML parse checks, state-hash preservation, diff/secret/bypass/privacy review, and Spec Kit convergence | Branch is local and unpushed; production state/site/loop/credentials/X are unchanged; every live DoD row is BLOCKED | T107–T133: reviewed feature push/PR, fresh live preflight, pause/snapshot/paid cleanup, credentials/caps/WAF, integration/deploy, visible cleanup/apply/resume, G10 production acceptance, per-item X approvals, cleanup, final convergence/closeout |

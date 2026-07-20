@@ -5,6 +5,7 @@ const L = require("./_lib.js");
 
 module.exports = async (req, res) => {
   try {
+    if (!L.requireJson(req, res)) return;
     const encoded = L.guard(req, res, "encoded", 6000);
     if (encoded == null) return;
     const expectedVersion = req.body && req.body.rulebook_version;
@@ -13,7 +14,7 @@ module.exports = async (req, res) => {
     const rb = await L.getRulebook(true);
     const language = L.languagePayload(rb);
     if (expectedVersion !== language.version || expectedHash !== language.hash) {
-      res.status(409).json({ error: "the language changed; encode again", code: "rulebook_changed",
+      res.status(409).json({ error: "rulebook_changed", message: "The language changed. Encode your message again.", code: "rulebook_changed",
         current_version: language.version, current_hash: language.hash }); return;
     }
     const decSys = "You are a fresh agent. You have never seen any prior conversation. Below is the " +

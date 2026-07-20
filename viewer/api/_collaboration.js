@@ -2,6 +2,7 @@ const crypto = require("crypto");
 
 const NAMESPACE = "alato:v1";
 const SESSION_SECONDS = 30 * 60;
+const CLEANUP_REVIEW = "https://raw.githubusercontent.com/isorabins/alanguagealltheirown/main/specs/001-experiment-repair/evidence/cleanup-live/review.json";
 
 function config() {
   const url = String(process.env.UPSTASH_REDIS_REST_URL || "").replace(/\/$/, "");
@@ -22,10 +23,16 @@ async function command(...parts) {
 
 function cleanText(value, max) {
   if (typeof value !== "string") throw Object.assign(new Error("text is required"), { status: 400, code: "invalid_input" });
-  const clean = value.replace(/\s+/g, " ").trim();
+  const clean = value.replace(/\r\n?/g, "\n").trim();
   if (!clean || clean.length > max) throw Object.assign(new Error("text must contain 1-" + max + " characters"),
     { status: 400, code: "invalid_input" });
   return clean;
+}
+
+function requireJson(req) {
+  if (!/^application\/json(?:\s*;|$)/i.test(String(req.headers["content-type"] || ""))) {
+    throw Object.assign(new Error("application/json required"), { status: 415, code: "invalid_content_type" });
+  }
 }
 
 function recordId(kind, idempotencyKey) {
@@ -41,15 +48,38 @@ async function enqueue(kind, record, idempotencyKey) {
   return { id, created: Number(created) === 1 };
 }
 
+async function existingEnqueue(kind, idempotencyKey) {
+  const id = recordId(kind, idempotencyKey);
+  const exists = await command("EXISTS", `${NAMESPACE}:id:${id}`);
+  return Number(exists) > 0 ? { id, created: false } : null;
+}
+
+async function reserveAction(target, value) {
+  const fingerprint = crypto.createHash("sha256").update(JSON.stringify(value)).digest("hex");
+  const key = `${NAMESPACE}:action-target:${recordId("TARGET", target)}`;
+  const created = await command("SET", key, fingerprint, "NX", "EX", 86400);
+  if (created) return true;
+  return await command("GET", key) === fingerprint;
+}
+
 function cookies(req) {
-  return Object.fromEntries(String(req.headers.cookie || "").split(";").map((part) => part.trim().split(/=(.*)/s).slice(0, 2))
-    .filter((pair) => pair.length === 2).map(([key, value]) => [key, decodeURIComponent(value)]));
+  const result = {};
+  for (const part of String(req.headers.cookie || "").split(";")) {
+    const index = part.indexOf("="); if (index < 0) continue;
+    const key = part.slice(0, index).trim();
+    try { result[key] = decodeURIComponent(part.slice(index + 1)); } catch (_) {}
+  }
+  return result;
+}
+
+function sessionKey(token) {
+  return `${NAMESPACE}:session:${crypto.createHash("sha256").update(token).digest("hex")}`;
 }
 
 async function session(req) {
   const token = cookies(req).alato_human;
   if (!token || !/^[a-f0-9]{64}$/.test(token)) return null;
-  const raw = await command("GET", `${NAMESPACE}:session:${token}`);
+  const raw = await command("GET", sessionKey(token));
   if (!raw) return null;
   const parsed = JSON.parse(raw);
   return parsed.expires_at > Date.now() ? parsed : null;
@@ -64,13 +94,14 @@ async function requireSession(req) {
 async function login(password) {
   const expected = String(process.env.HUMAN_PASSWORD || "");
   if (!expected) throw Object.assign(new Error("human login unavailable"), { status: 503, code: "not_configured" });
-  const supplied = Buffer.from(String(password || "")); const target = Buffer.from(expected);
-  if (supplied.length !== target.length || !crypto.timingSafeEqual(supplied, target)) {
-    throw Object.assign(new Error("wrong password"), { status: 401, code: "wrong_password" });
+  const supplied = crypto.createHash("sha256").update(String(password || "")).digest();
+  const target = crypto.createHash("sha256").update(expected).digest();
+  if (!crypto.timingSafeEqual(supplied, target)) {
+    throw Object.assign(new Error("authentication failed"), { status: 401, code: "unauthorized" });
   }
   const token = crypto.randomBytes(32).toString("hex");
   const value = JSON.stringify({ created_at: Date.now(), expires_at: Date.now() + SESSION_SECONDS * 1000 });
-  await command("SET", `${NAMESPACE}:session:${token}`, value, "EX", SESSION_SECONDS, "NX");
+  await command("SET", sessionKey(token), value, "EX", SESSION_SECONDS, "NX");
   return { token, expires_at: JSON.parse(value).expires_at };
 }
 
@@ -84,7 +115,7 @@ function clearSessionCookie(res) {
 
 async function logout(req, res) {
   const token = cookies(req).alato_human;
-  if (token && /^[a-f0-9]{64}$/.test(token)) await command("DEL", `${NAMESPACE}:session:${token}`);
+  if (token && /^[a-f0-9]{64}$/.test(token)) await command("DEL", sessionKey(token));
   clearSessionCookie(res);
 }
 
@@ -95,10 +126,20 @@ async function privateRecords() {
   const pending = (pendingRows || []).map((row) => JSON.parse(row));
   const suggestions = [...(canonical.suggestions || [])];
   for (const row of pending) if (!suggestions.some((item) => item.id === row.id)) suggestions.push(row);
-  return { ask: canonical.asks || [], suggestion: suggestions, cleanup: canonical.cleanup || [] };
+  return { asks: canonical.asks || [], suggestions };
+}
+
+async function cleanupReview() {
+  const response = await fetch(CLEANUP_REVIEW, { cache: "no-store" });
+  if (response.status === 404) return null;
+  let data = {}; try { data = await response.json(); } catch (_) {}
+  if (!response.ok || !data.bundle_id || !data.source_rulebook_hash || !data.replacement_hash) {
+    throw Object.assign(new Error("cleanup review unavailable"), { status: 503, code: "cleanup_unavailable" });
+  }
+  return data;
 }
 
 function fail(res, error) { res.status(error.status || 500).json({ error: error.message, code: error.code || "internal_error" }); }
 
-module.exports = { cleanText, enqueue, command, session, requireSession, login, logout, setSessionCookie,
-  clearSessionCookie, privateRecords, fail, NAMESPACE };
+module.exports = { cleanText, requireJson, enqueue, existingEnqueue, reserveAction, command, session, requireSession, login, logout, setSessionCookie,
+  clearSessionCookie, privateRecords, cleanupReview, fail, NAMESPACE };

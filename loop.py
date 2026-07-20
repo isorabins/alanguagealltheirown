@@ -34,6 +34,7 @@ MODEL_DECODER = "moonshotai/kimi-k2.6"  # a FOREIGN decoder: the stranger must n
 MODEL_GRADER = "deepseek/deepseek-v3.2"
 PRICE_IN = 0.2145 / 1e6   # $/token, OpenRouter listing 2026-07-14
 PRICE_OUT = 0.32175 / 1e6
+WEB_SEARCH_PRICE = 0.005
 
 TEST_EVERY = 3      # every Nth turn is a test turn
 WINDOW = 30         # conversation events each agent sees
@@ -203,62 +204,6 @@ def rationale_for(text, line):
     return ""
 
 
-def apply_conventions(text, rb, turn, agent="?"):
-    changed = False
-    for line in text.splitlines():
-        m = re.match(r"\s*\**(PROPOSE|ADOPT|REJECT|REVISE)\**\s*:\s*(.+)", line)
-        if not m:
-            continue
-        verb, rest = m.group(1), m.group(2).strip().strip("*").strip()
-        rest = re.sub(r"[‐‑‒–—]", "-", rest)  # agents emit unicode hyphens in rule ids
-        inner = re.match(r"(PROPOSE|ADOPT|REJECT|REVISE)\**\s*:\s*(.+)", rest)
-        if verb == "PROPOSE" and inner:
-            # "PROPOSE: REJECT: rule-014" is a motion, not a rule — act on the inner
-            # verb instead of minting a rule whose text is a verb line (t63/t73/t74)
-            verb, rest = inner.group(1), inner.group(2).strip().strip("*").strip()
-        if verb == "PROPOSE":
-            # agents self-number their proposals; ids are the harness's. Strip the phantom
-            # number so it can't embed in the text and drift the whole registry (t485-t521:
-            # unanimous pruning votes landed on the wrong rule for 12 straight turns)
-            rest = re.sub(r"^rule-\d+\**\s*[-:]\s*", "", rest).strip()
-            if any(r["text_en"].strip() == rest for r in rb["rules"]):
-                continue  # identical re-proposal (echo agreement) — don't duplicate
-            rid = f"rule-{rb['next_id']:03d}"
-            rb["next_id"] += 1
-            rb["rules"].append({"id": rid, "text_en": rest, "status": "proposed",
-                                "proposed_turn": turn, "scores": None,
-                                "history": [{"verb": "proposed", "turn": turn, "agent": agent,
-                                             "why": rationale_for(text, line)}]})
-            changed = True
-            continue
-        idm = re.search(r"rule-(\d+)", rest)
-        rule = next((r for r in rb["rules"] if idm and r["id"] == f"rule-{int(idm.group(1)):03d}"), None)
-        if not rule:
-            continue
-        prev_status = rule["status"]
-        revised = False
-        if verb == "ADOPT" and rule["status"] in ("proposed", "reverted"):
-            rule["status"] = "adopted"
-        elif verb == "REJECT" and rule["status"] in ("adopted", "proposed"):
-            rule["status"] = "reverted" if rule["status"] == "adopted" else "rejected"
-        elif verb == "REVISE":
-            new = rest.split("->", 1)
-            if len(new) == 2:
-                rule["text_en"] = re.sub(r"^rule-\d+\**\s*[-:]\s*", "",
-                                         new[1].strip().strip("*").strip()).strip()
-                rule["status"] = "proposed"
-                revised = True
-            else:
-                continue
-        if rule["status"] == prev_status and not revised:
-            continue  # the vote changed nothing — a no-op must not stamp the record or
-            # bump the version (rule-084 collected 14 phantom adoptions this way)
-        rule["history"].append({"verb": verb.lower(), "turn": turn, "agent": agent,
-                                "why": rationale_for(text, line)})
-        changed = True
-    return changed
-
-
 def write_viewer_state(conv, rb, meta, collaboration=None, conversations=None):
     (ROOT / "viewer" / "state.js").write_text(
         "window.STATE = " + json.dumps(
@@ -348,15 +293,37 @@ def gen_payload(meta):
         text = text.strip().strip('"').strip()
         # the answer key is born with the exam, blind to everything downstream —
         # grading checks receipts against it instead of forming one holistic opinion
-        key = [l.strip() for l in keyblock.strip().splitlines() if l.strip()]
+        key = normalize_answer_key(keyblock)
         if 200 <= len(text) <= 5000 and len(key) >= 6:
             return f"gen-{kind}-{domain.split()[0]}", text, key
     return None, None, None
 
 
+def normalize_answer_key(raw):
+    lines = raw if isinstance(raw, list) else str(raw).splitlines()
+    return [re.sub(r"^\s*(?:[-*•]|\d+[.)])\s*", "", str(line)).strip()
+            for line in lines
+            if re.sub(r"^\s*(?:[-*•]|\d+[.)])\s*", "", str(line)).strip()]
+
+
+def extract_answer_key(payload, meta):
+    """Create the fixed exam key before encoding; failure makes the score invalid."""
+    prompt = (ROOT / "prompts" / "answer_key.md").read_text()
+    raw, _ = call(MODEL_GRADER, prompt, payload, max_tokens=1200, temperature=0, meta=meta)
+    match = re.search(r"\[.*\]", raw, re.S)
+    if match:
+        try:
+            parsed = json.loads(match.group(0))
+            if isinstance(parsed, list):
+                return normalize_answer_key(parsed)
+        except json.JSONDecodeError:
+            pass
+    return []
+
+
 def test_turn(conv, rb, meta, turn):
     pname, payload, key = gen_payload(meta)
-    if payload is None:  # generator failed twice — fall back to the fixed battery (no key: holistic grading)
+    if payload is None:  # generator failed twice — key the fixed payload before either agent sees it
         by_kind = {}
         for f in sorted((ROOT / "payloads").glob("*.txt")):
             by_kind.setdefault(f.name.split("-")[0], []).append(f)
@@ -365,6 +332,7 @@ def test_turn(conv, rb, meta, turn):
                     for ks in (by_kind[k] for k in kinds) if i < len(ks)]
         p = payloads[meta.get("tests_run", 0) % len(payloads)]
         pname, payload = p.name, p.read_text().strip()
+        key = extract_answer_key(payload, meta)
     captured = language_payload(rb)
     rbook = render_language(rb)
     enc_sys = ("You are the encoder. Encode the message below into the project language "
@@ -376,19 +344,19 @@ def test_turn(conv, rb, meta, turn):
                "reconstruct the original content as faithfully as you can. Do not invent anything "
                "the message does not encode. Output ONLY the reconstruction.\n\n" + rbook)
     decoded, _ = call(MODEL_DECODER, dec_sys, encoded.strip(), max_tokens=4000, temperature=0.1, meta=meta)
-    grade_sys = (ROOT / "prompts" / ("grader.md" if key else "grader_holistic.md")).read_text()
+    grade_sys = (ROOT / "prompts" / "grader.md").read_text()
     if key:
         key_txt = "\n".join(f"{i + 1}. {k}" for i, k in enumerate(key))
         grade_user = f"ORIGINAL:\n{payload}\n\nANSWER KEY:\n{key_txt}\n\nDECODED:\n{decoded.strip()}"
+        graded, _ = call(MODEL_GRADER, grade_sys, grade_user, max_tokens=1200, temperature=0, meta=meta)
+        gm = re.search(r"\{.*\}", graded, re.S)
+        try:
+            g = json.loads(gm.group(0)) if gm else {}
+        except json.JSONDecodeError:
+            g = {}
     else:
-        grade_user = f"ORIGINAL:\n{payload}\n\nDECODED:\n{decoded.strip()}"
-    graded, _ = call(MODEL_GRADER, grade_sys, grade_user, max_tokens=1200, temperature=0, meta=meta)
-    gm = re.search(r"\{.*\}", graded, re.S)
-    try:
-        g = json.loads(gm.group(0)) if gm else {}
-    except json.JSONDecodeError:
         g = {}
-    lost = str(g.get("lost", "grader output unparseable"))[:300]
+    lost = str(g.get("lost", "answer key unavailable" if not key else "grader output unparseable"))[:300]
     audit = {}
     if key:
         scored = score_judgment(key, g)
@@ -402,7 +370,9 @@ def test_turn(conv, rb, meta, turn):
         if not scored["valid"]:
             lost = f"invalid judge output: {scored['reason']}"
     else:
-        fidelity = max(0, min(100, int(g.get("fidelity", -1)))) if g.get("fidelity") is not None else -1
+        fidelity = None
+        audit = {"key": [], "judge_valid": False, "judge_reason": "answer_key_unavailable",
+                 "survived": 0, "total": 0, "corrupted": [], "missing": [], "invented": []}
     orig_t = token_count(payload, meta)
     enc_t = token_count(encoded.strip(), meta)
     delta = round((enc_t - orig_t) / orig_t * 100)
@@ -442,6 +412,7 @@ def process_one_research(collaboration, meta, turn):
     if not record:
         return
     record["status"] = "researching"
+    spend_before = float(meta.get("spend_usd", 0.0))
     body = {"model": MODEL_A,
             "messages": [{"role": "system", "content": (ROOT / "prompts" / "research.md").read_text()},
                          {"role": "user", "content": record["question"]}],
@@ -454,6 +425,15 @@ def process_one_research(collaboration, meta, turn):
         response.raise_for_status()
         data = response.json()
         message = data["choices"][0]["message"]
+        usage = data.get("usage", {})
+        usage = usage if isinstance(usage, dict) else {}
+        tool_use = usage.get("server_tool_use", {})
+        tool_use = tool_use if isinstance(tool_use, dict) else {}
+        meta["spend_usd"] = round(
+            meta.get("spend_usd", 0.0)
+            + usage.get("prompt_tokens", 0) * PRICE_IN
+            + usage.get("completion_tokens", 0) * PRICE_OUT
+            + int(tool_use.get("web_search_requests", 0) or 0) * WEB_SEARCH_PRICE, 6)
         try:
             parsed = json.loads(message.get("content") or "{}")
         except json.JSONDecodeError:
@@ -463,12 +443,32 @@ def process_one_research(collaboration, meta, turn):
             citation = annotation.get("url_citation", {})
             if citation.get("url"):
                 citations.append({"title": citation.get("title", citation["url"]), "url": citation["url"]})
-        record.update({"status": "answered", "findings": parsed.get("findings", ""),
-                       "limitations": parsed.get("limitations", ""),
-                       "citations": citations or parsed.get("citations", []), "answer_turn": turn})
+        findings = str(parsed.get("findings", "")).strip()
+        limitations = parsed.get("limitations", [])
+        if isinstance(limitations, str):
+            limitations = [limitations] if limitations.strip() else []
+        if not isinstance(limitations, list):
+            limitations = ["research response had malformed limitations"]
+        resolved_citations = citations or parsed.get("citations", [])
+        resolved_citations = resolved_citations if isinstance(resolved_citations, list) else []
+        resolved_citations = [c for c in resolved_citations if isinstance(c, dict)
+                              and isinstance(c.get("url"), str)
+                              and c["url"].lower().startswith(("https://", "http://"))]
+        no_evidence = not findings or not resolved_citations
+        if no_evidence and not limitations:
+            limitations = ["no usable cited evidence returned"]
+        record.update({"status": "no_evidence" if no_evidence else "answered", "findings": findings,
+                       "limitations": limitations, "citations": resolved_citations,
+                       "no_evidence": no_evidence, "answer_turn": turn,
+                       "usage": {"prompt_tokens": usage.get("prompt_tokens", 0),
+                                 "completion_tokens": usage.get("completion_tokens", 0),
+                                 "web_search_requests": int(tool_use.get("web_search_requests", 0) or 0)},
+                       "cost_usd": round(float(meta.get("spend_usd", 0.0)) - spend_before, 6)})
     except Exception as exc:
-        record.update({"status": "error", "findings": "", "citations": [],
-                       "limitations": f"research unavailable: {exc.__class__.__name__}", "answer_turn": turn})
+        record.update({"status": "error", "findings": "", "citations": [], "no_evidence": True,
+                       "limitations": [f"research unavailable: {exc.__class__.__name__}"],
+                       "error": exc.__class__.__name__, "cost_usd": round(float(meta.get("spend_usd", 0.0)) - spend_before, 6),
+                       "answer_turn": turn})
 
 
 def maybe_run_conversation(rb, meta, turn, conversations):
@@ -482,16 +482,20 @@ def maybe_run_conversation(rb, meta, turn, conversations):
     def speaker(speaker_name, language, user):
         prompt = (ROOT / "prompts" / "conversation.md").read_text() + "\n\n" + language
         model = MODEL_A if speaker_name == "A" else MODEL_B
-        return call(model, prompt, user, max_tokens=500, temperature=0.3, meta=meta)[0]
+        text, usage = call(model, prompt, user, max_tokens=500, temperature=0.3, meta=meta)
+        return {"content": text, "model": model, "usage": usage}
     def judge(artifact):
-        raw = call(MODEL_GRADER, (ROOT / "prompts" / "conversation_judge.md").read_text(),
-                   json.dumps(artifact), max_tokens=700, temperature=0, meta=meta)[0]
+        raw, usage = call(MODEL_GRADER, (ROOT / "prompts" / "conversation_judge.md").read_text(),
+                          json.dumps(artifact), max_tokens=700, temperature=0, meta=meta)
         match = re.search(r"\{.*\}", raw, re.S)
         try:
-            return json.loads(match.group(0)) if match else {"valid": False, "summary": "unparseable"}
+            result = json.loads(match.group(0)) if match else {"valid": False, "summary": "unparseable"}
         except json.JSONDecodeError:
-            return {"valid": False, "summary": "unparseable"}
-    artifact = run_conversation(rb, scenario, speaker, judge, turn)
+            result = {"valid": False, "summary": "unparseable"}
+        result["_receipt"] = {"model": MODEL_GRADER, "usage": usage}
+        return result
+    artifact = run_conversation(rb, scenario, speaker, judge, turn,
+                                models={"A": MODEL_A, "B": MODEL_B, "judge": MODEL_GRADER})
     artifact["ordinary_exam_count"] = meta["tests_run"]
     conversations.append(artifact)
 
@@ -511,7 +515,8 @@ def run(turns):
             print(f"SPEND CAP hit (${meta['spend_usd']:.2f}) — stopping.", flush=True)
             break
         consume_notice(conv, turn)
-        collaboration = sync_remote(collaboration, owner=f"turn-{turn}", turn=turn)
+        collaboration = sync_remote(collaboration, owner=f"turn-{turn}", turn=turn,
+                                    state_path=STATE / "collaboration.json")
         process_one_research(collaboration, meta, turn)
         if turn % TEST_EVERY == 0:
             test_turn(conv, rb, meta, turn)
@@ -521,8 +526,10 @@ def run(turns):
         save("conversation.json", conv)
         save("rulebook.json", rb)
         save("meta.json", meta)
-        collaboration = sync_remote(collaboration, owner=f"turn-{turn}-publish", turn=turn)
+        collaboration = sync_remote(collaboration, owner=f"turn-{turn}-publish", turn=turn,
+                                    state_path=STATE / "collaboration.json")
         save("collaboration.json", collaboration)
+        save("public-collaboration.json", public_state(collaboration))
         save("conversations.json", conversations)
         write_viewer_state(conv, rb, meta, collaboration, conversations)
     print(f"done. turns {start_turn}..{turn}  rules {len(rb['rules'])}  "

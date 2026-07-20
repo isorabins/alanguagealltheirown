@@ -23,11 +23,32 @@ class MotionTests(unittest.TestCase):
         rb = book(); self.assertTrue(apply_authorized_motion("ADOPT: rule-001", rb, 2, "B").changed)
         self.assert_no_change("PROPOSE: Auditor invents an unrelated rule.", "B", "auditor_cannot_originate")
 
+    def test_b_can_only_act_on_latest_focused_proposal(self):
+        rb = book()
+        rb["rules"][0]["proposed_turn"] = 1
+        apply_authorized_motion("PROPOSE: A newer focused proposal with adequate detail.", rb, 4, "A")
+        before = copy.deepcopy(rb)
+        receipt = apply_authorized_motion("ADOPT: rule-001", rb, 5, "B")
+        self.assertEqual(receipt.reason, "not_latest_focused_proposal"); self.assertEqual(before, rb)
+        request = apply_authorized_motion("REQUEST: rule-002 -> Test the deadline boundary explicitly.", rb, 5, "B")
+        self.assertTrue(request.accepted); self.assertFalse(request.changed)
+        self.assertEqual(request.rule_id, "rule-002")
+        request = apply_authorized_motion("REQUEST-TEST: rule-002 — Test one hostile boundary.", rb, 5, "B")
+        self.assertTrue(request.accepted); self.assertFalse(request.changed)
+
+    def test_a_revision_becomes_the_latest_focused_idea(self):
+        rb = book(); rb["rules"][0]["proposed_turn"] = 1
+        apply_authorized_motion("PROPOSE: A newer proposal that was latest before revision.", rb, 4, "A")
+        revised = apply_authorized_motion("REVISE: rule-001 -> The older proposal is now newly focused.", rb, 6, "A")
+        self.assertTrue(revised.changed); self.assertEqual(rb["rules"][0]["proposed_turn"],6)
+        self.assertTrue(apply_authorized_motion("ADOPT: rule-001", rb, 7, "B").changed)
+
     def test_repeated_malformed_and_multiple_are_noops(self):
         rb = book(); apply_authorized_motion("ADOPT: rule-001", rb, 2, "B"); before = copy.deepcopy(rb)
         receipt = apply_authorized_motion("ADOPT: rule-001", rb, 3, "B")
         self.assertEqual(receipt.reason, "settled_or_ineligible_motion"); self.assertEqual(before, rb)
         self.assert_no_change("ADOPT: bananas", "B", "malformed_rule_id")
+        self.assert_no_change("PROPOSE: REJECT: rule-001", "A", "nested_motion")
         self.assert_no_change("ADOPT: rule-001\nREJECT: rule-001", "B", "multiple_motions")
 
 

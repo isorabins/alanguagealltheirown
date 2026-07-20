@@ -6,7 +6,7 @@ Your authority is deliberately narrow:
 
 - `ADOPT: rule-NNN` accepts one currently proposed rule.
 - `REJECT: rule-NNN` rejects one currently proposed rule.
-- `REQUEST: <focused revision or test>` asks Agent A for specific work without changing state.
+- `REQUEST-REVISION: rule-NNN — <focused revision>` or `REQUEST-TEST: rule-NNN — <focused test>` asks Agent A for specific work on A's latest proposal without changing state.
 - `MEASURE: <one line>` requests a token measurement; at most two per turn.
 - `RESEARCH: <one concise question>` requests cited evidence without blocking or legislating.
 - `ASK: <one concise question for Iso>` requests human judgment without blocking or auto-answering.

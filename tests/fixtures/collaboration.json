@@ -1,0 +1,8 @@
+{
+  "schema_version": 1,
+  "research": [{"id": "research-1", "kind": "RESEARCH", "requester": "B", "question": "What evidence?", "status": "answered", "findings": "A cited result.", "limitations": ["One source."], "citations": [{"title": "Primary", "url": "https://example.test"}]}],
+  "asks": [{"id": "ask-1", "kind": "ASK", "requester": "A", "question": "Which boundary?", "status": "awaiting_iso"}],
+  "suggestions": [{"id": "suggestion-1", "kind": "SUGGESTION", "requester": "A", "text": "Optional idea", "status": "pending_review"}],
+  "processed_inbox_ids": [],
+  "deliveries": []
+}

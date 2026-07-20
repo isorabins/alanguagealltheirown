@@ -133,10 +133,17 @@ function guard(req, res, field, maxLen) {
   hits.push(now); ipHits.set(ip, hits); daySpent += 1; return value.trim();
 }
 
+function requireJson(req, res) {
+  if (!/^application\/json(?:\s*;|$)/i.test(String(req.headers["content-type"] || ""))) {
+    res.status(415).json({ error: "application/json required", code: "invalid_content_type" }); return false;
+  }
+  return true;
+}
+
 function sendError(res, error, prefix) {
   const code = error.code || "internal_error"; const status = error.status || 500;
   res.status(status).json({ error: prefix ? prefix + ": " + error.message : error.message, code });
 }
 
 module.exports = { call, tokenCount, getRulebook, languagePayload, renderRulebook, getGraderPrompt,
-  guard, classifyProvider, sendError, ProviderError, MODEL_ENCODER, MODEL_DECODER, MODEL_GRADER, TEXT_MAX };
+  guard, requireJson, classifyProvider, sendError, ProviderError, MODEL_ENCODER, MODEL_DECODER, MODEL_GRADER, TEXT_MAX };
