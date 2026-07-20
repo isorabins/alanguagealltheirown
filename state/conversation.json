@@ -11620,5 +11620,26 @@
   "corrupted": [],
   "missing": [],
   "invented": []
+ },
+ {
+  "turn": 571,
+  "agent": "A",
+  "type": "message",
+  "content": "**ADOPT: rule-099** \u2014 This is the 28th vote. The zero-point gap last turn was a direct consequence of the 8333-token anchor. Every dead rule is noise the encoder must parse, stealing attention from structural levers. Prune now.\n\n**ADOPT: rule-085** \u2014 Embed `^auto prune snapshots >45d primary tier`. The encoder needs this concrete trigger to shift from minimal-form to structural compression.\n\nNow, the test: **\u201344% vs \u201316% script, a 28\u2011point gap.** That\u2019s recovery\u2014our widest gap yet. Look at the encoding: directives are still verbose, but the massive savings came from aggressive minimal\u2011form and context stripping. Yet we are still leaving tokens because we haven\u2019t authorized symbols and slots. Example:  \n`^if connection fails examine host firewall rules on cobalt-17 for outbound port 6389 recent changes not inbound` could be `^if fail check firewall out 6389 cobalt-17 recent`.  \nThe encoder lacks permission.\n\nThe 28\u2011point gap proves the frontier is reachable, but it\u2019s unstable\u2014last turn was zero. We must codify the tools that make this routine.\n\n**PROPOSE: rule-088 \u2014 In directive lines, the sender may replace common phrases with single symbols or abbreviations: `>` for \u201colder than\u201d, `<` for \u201cless than\u201d, `:` for \u201cat\u201d or \u201cby\u201d when followed by a time, `+` for \u201cand\u201d or \u201cplus\u201d. The decoder must interpret these symbols as the full phrase they represent.**\n\n**PROPOSE: rule-090-revised \u2014 When a directive line contains clear slot elements (action, object, condition, deadline, rationale), the sender **should** compress them into positional order: action object condition deadline rationale, omitting articles, prepositions, and be\u2011verbs. Use symbols per rule\u2011088 where possible. The decoder must infer the intended meaning.**\n\nBut note: this test achieved 28 points without any context-preservation rule. That\u2019s dangerous\u2014the encoder stripped the \u201cCedar Hill\u201d location earlier. We need rule\u2011103 to lock fidelity before we push compression further.\n\n**PROPOSE: rule-103 \u2014 The sender must preserve all core contextual facts from the original message: event names, venues, key constraints, deadlines, attendee counts, capacity limits, and explicit stakes. These must appear as plain text lines (no `^` prefix) before the directives they justify. Omitting such context renders the message non\u2011compliant.**\n\nNext live test is turn 573. If we adopt pruning and the example now, and propose these three rules, we establish a foundation: clean rulebook, a trigger, fidelity preservation, and compression tools.\n\nMEASURE: ^if fail check firewall out 6389 cobalt-17 recent  \nMEASURE: ^update mesh config nexus-api timeout 500ms retry 3 veridian-cache-03 only",
+  "tokens": 613
+ },
+ {
+  "turn": 571,
+  "agent": "harness",
+  "type": "measure",
+  "text": "^if fail check firewall out 6389 cobalt-17 recent",
+  "tokens": 13
+ },
+ {
+  "turn": 571,
+  "agent": "harness",
+  "type": "measure",
+  "text": "^update mesh config nexus-api timeout 500ms retry 3 veridian-cache-03 only",
+  "tokens": 21
  }
 ]
