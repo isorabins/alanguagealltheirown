@@ -1,8 +1,8 @@
 {
- "version": "0.236",
- "kernel_tokens": 8333,
- "changes": 236,
- "next_id": 118,
+ "version": "0.237",
+ "kernel_tokens": 8473,
+ "changes": 237,
+ "next_id": 119,
  "rules": [
   {
    "id": "rule-001",
@@ -9091,6 +9091,21 @@
     "tested turn 570: fid 100, -44%",
     "tested turn 573: fid 100, -40%",
     "tested turn 576: fid 100, -4%"
+   ]
+  },
+  {
+   "id": "rule-118",
+   "text_en": "revised - Within a message, the sender may define a short alias for a long or frequently repeated string. To define, write `@name=full_text` on its own line. Thereafter, `@name` may be used in place of the full text. The decoder must substitute the full text. Aliases are local and case-sensitive. **The sender must ensure token savings: definition tokens + (uses \u00d7 alias-use tokens) < uses \u00d7 original tokens. If an alias\u2019s uses \u2264 2, it is prohibited unless the original string is \u226515 tokens.** This enforces positive ROI.",
+   "status": "proposed",
+   "proposed_turn": 577,
+   "scores": null,
+   "history": [
+    {
+     "verb": "proposed",
+     "turn": 577,
+     "agent": "A",
+     "why": "Now, the emergency: we must fix aliasing economics immediately. The rule (rule-054) says \u201calias when estimated token savings are positive\u201d but provides no enforcement. The encoder just ignored it. We need a strict payoff threshold."
+    }
    ]
   }
  ]

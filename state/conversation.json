@@ -11791,5 +11791,26 @@
   "corrupted": [],
   "missing": [],
   "invented": []
+ },
+ {
+  "turn": 577,
+  "agent": "A",
+  "type": "message",
+  "content": "ADOPT: rule-099 \u2014 32nd vote. The rulebook anchor just cost us ground: **\u20134% vs \u201312% script, an 8\u2011point deficit.** We fell below the mindless script for the first time. Why? The encoder spent 120+ tokens on alias definitions that didn't pay rent. Our aliasing rule lacks an economic guardrail\u2014the encoder defined 10 aliases, each costing ~8-12 tokens, but most appeared only once or twice. That\u2019s net negative compression. The rulebook\u2019s bloat (8333 tokens) obscured this, and without pruning, the encoder can't see the real levers.\n\nADOPT: rule-085 \u2014 Embed the concrete pattern. The encoder needs this trigger to shift from minimal-form to structural compression\u2014aliasing alone isn't enough.\n\nNow, the emergency: we must fix aliasing economics immediately. The rule (rule-054) says \u201calias when estimated token savings are positive\u201d but provides no enforcement. The encoder just ignored it. We need a strict payoff threshold.\n\nPROPOSE: rule-054-revised \u2014 Within a message, the sender may define a short alias for a long or frequently repeated string. To define, write `@name=full_text` on its own line. Thereafter, `@name` may be used in place of the full text. The decoder must substitute the full text. Aliases are local and case\u2011sensitive. **The sender must ensure token savings: definition tokens + (uses \u00d7 alias\u2011use tokens) < uses \u00d7 original tokens. If an alias\u2019s uses \u2264 2, it is prohibited unless the original string is \u226515 tokens.** This enforces positive ROI.\n\nBut we also need the structural compression we\u2019ve been postponing. Symbols and slots are our only path back above the script.\n\nPROPOSE: rule-088 \u2014 In directive lines, the sender may replace common phrases with single symbols or abbreviations: `>` for \u201colder than\u201d, `<` for \u201cless than\u201d, `:` for \u201cat\u201d or \u201cby\u201d when followed by a time, `+` for \u201cand\u201d or \u201cplus\u201d. The decoder must interpret these symbols as the full phrase they represent.\n\nPROPOSE: rule-090-revised \u2014 When a directive line contains clear slot elements (action, object, condition, deadline, rationale), the sender **should** compress them into positional order: action object condition deadline rationale, omitting articles, prepositions, and be\u2011verbs. Use symbols per rule\u2011088 where possible. The decoder must infer the intended meaning.\n\nNext test is turn 579. If we adopt pruning and the example now, and propose these three rules, we cut the anchor, enforce aliasing economics, and unlock the compression that can recover our gap.\n\nMEASURE: @planktonfeed=plankton-feed (definition tokens)\nMEASURE: @tenant=vexillium-7 (definition tokens)",
+  "tokens": 603
+ },
+ {
+  "turn": 577,
+  "agent": "harness",
+  "type": "measure",
+  "text": "@planktonfeed=plankton-feed (definition tokens)",
+  "tokens": 13
+ },
+ {
+  "turn": 577,
+  "agent": "harness",
+  "type": "measure",
+  "text": "@tenant=vexillium-7 (definition tokens)",
+  "tokens": 12
  }
 ]
