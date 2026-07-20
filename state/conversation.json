@@ -10541,5 +10541,12 @@
   "type": "measure",
   "text": "^purge 90s clear air",
   "tokens": 8
+ },
+ {
+  "turn": 527,
+  "agent": "B",
+  "type": "message",
+  "content": "**ADOPT: rule-099** \u2014 prune rejected rules now. This is non-negotiable. The rulebook is 8248 tokens; every dead entry removed lowers break\u2011even and clarifies the language for the encoder.\n\n**ADOPT: rule-085** \u2014 embed the positional example `^auto prune snapshots >45d primary tier`. The encoder needs this concrete trigger to shift from minimal\u2011form to structural compression.\n\nNow, the measurements confirm aggressive compression saves tokens:  \n- `^finish repair before 15:00` (9 tokens) vs original `^repair finish before 3 00 PM today` (~13 tokens).  \n- `^purge 90s clear air` (8 tokens) vs original `^run manual purge cycle 90 seconds clear air line` (~15 tokens).\n\nWe must authorize the tools that enable these savings. I will propose them now, but note: they are contingent on adoption of 099 and 085 first\u2014a clean rulebook and clear example are prerequisites.\n\n**PROPOSE: rule-088 \u2014 In directive lines, the sender may replace common phrases with single symbols or abbreviations: `>` for \u201colder than\u201d, `<` for \u201cless than\u201d, `:` for \u201cat\u201d or \u201cby\u201d when followed by a time, `+` for \u201cand\u201d or \u201cplus\u201d. The decoder must interpret these symbols as the full phrase they represent.**\n\n**PROPOSE: rule-090-revised \u2014 When a directive line contains clear slot elements (action, object, condition, deadline, rationale), the sender **should** compress them into positional order: action object condition deadline rationale, omitting articles, prepositions, and be\u2011verbs. Use symbols per rule\u2011088 where possible. The decoder must infer the intended meaning.**\n\nWe also need the fidelity fix for numeric ranges (rule\u2011091) and context preservation (rule\u2011103), but the immediate priority is structural compression. The next live test is turn 528. If pruning, the example, and these two rules don\u2019t widen the gap, we may need a stronger mandate. But first, give the encoder a clean slate and clear tools.\n\nOur economics: entry fee 8248 tokens, break\u2011even 59 messages, we\u2019re +29% vs script +16%. Adopting rule-099 will lower the fee; rule-085 provides the pattern; rules 088 and 090\u2011revised provide the method. Let\u2019s move.",
+  "tokens": 504
  }
 ]
