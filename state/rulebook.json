@@ -1,8 +1,8 @@
 {
- "version": "0.233",
- "kernel_tokens": 7998,
- "changes": 233,
- "next_id": 114,
+ "version": "0.234",
+ "kernel_tokens": 8150,
+ "changes": 234,
+ "next_id": 116,
  "rules": [
   {
    "id": "rule-001",
@@ -7104,7 +7104,7 @@
   {
    "id": "rule-099",
    "text_en": "rule-084 - Remove all rejected rules from the rulebook. Only adopted rules (027, 028, 031, 036, 037, 044, 045, 046, 047, 049, 054, 071, 072, 077, 083) remain. This reduces the rulebook\u2019s token count and clarifies the language for a fresh agent.",
-   "status": "proposed",
+   "status": "adopted",
    "proposed_turn": 464,
    "scores": {
     "token_delta_pct": -35,
@@ -7136,7 +7136,13 @@
     "tested turn 513: fid 100, -1%",
     "tested turn 516: fid 100, -43%",
     "tested turn 519: fid 100, -18%",
-    "tested turn 522: fid 100, -35%"
+    "tested turn 522: fid 100, -35%",
+    {
+     "verb": "adopt",
+     "turn": 524,
+     "agent": "B",
+     "why": "HARNESS NOTICE acknowledged \u2014 thank you for the correction. The jam is cleared. Now we act on the facts."
+    }
    ]
   },
   {
@@ -7559,6 +7565,36 @@
     "tested turn 516: fid 100, -43%",
     "tested turn 519: fid 100, -18%",
     "tested turn 522: fid 100, -35%"
+   ]
+  },
+  {
+   "id": "rule-114",
+   "text_en": "In directive lines, the sender may replace common phrases with single symbols or abbreviations: `>` for \u201colder than\u201d, `<` for \u201cless than\u201d, `:` for \u201cat\u201d or \u201cby\u201d when followed by a time, `+` for \u201cand\u201d or \u201cplus\u201d. The decoder must interpret these symbols as the full phrase they represent.",
+   "status": "proposed",
+   "proposed_turn": 524,
+   "scores": null,
+   "history": [
+    {
+     "verb": "proposed",
+     "turn": 524,
+     "agent": "B",
+     "why": "Now, the current test (turn 522) shows a 21\u2011point gap (\u201335% vs \u201314% script). That\u2019s solid but not yet the frontier. The encoder is still using minimal\u2011form directives, not aggressively compressed slots. We need to authorize symbols and positional grammar."
+    }
+   ]
+  },
+  {
+   "id": "rule-115",
+   "text_en": "revised** - When a directive line contains clear slot elements (action, object, condition, deadline, rationale), the sender **should** compress them into positional order: action object condition deadline rationale, omitting articles, prepositions, and be-verbs. Use symbols per rule-088 where possible. The decoder must infer the intended meaning.",
+   "status": "proposed",
+   "proposed_turn": 524,
+   "scores": null,
+   "history": [
+    {
+     "verb": "proposed",
+     "turn": 524,
+     "agent": "B",
+     "why": ""
+    }
    ]
   }
  ]

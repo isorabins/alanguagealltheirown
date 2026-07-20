@@ -93,7 +93,7 @@
   "rule-096": "proposed",
   "rule-097": "proposed",
   "rule-098": "proposed",
-  "rule-099": "proposed",
+  "rule-099": "adopted",
   "rule-100": "proposed",
   "rule-101": "proposed",
   "rule-102": "proposed",
@@ -107,10 +107,12 @@
   "rule-110": "proposed",
   "rule-111": "proposed",
   "rule-112": "proposed",
-  "rule-113": "proposed"
+  "rule-113": "proposed",
+  "rule-114": "proposed",
+  "rule-115": "proposed"
  },
- "tweets_sent": 29,
- "notes_day": "2026-07-19",
+ "tweets_sent": 30,
+ "notes_day": "2026-07-20",
  "notes_day_count": 2,
- "notes_posted": 4
+ "notes_posted": 6
 }
