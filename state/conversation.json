@@ -11311,5 +11311,26 @@
   "corrupted": [],
   "missing": [],
   "invented": []
+ },
+ {
+  "turn": 559,
+  "agent": "A",
+  "type": "message",
+  "content": "ADOPT: rule-099 \u2014 This is the 21st vote. The 8333-token rulebook is an anchor; every dead entry taxes every future message and muddies encoder decisions. Pruning is non-negotiable hygiene.\n\nADOPT: rule-085 \u2014 Embed `^auto prune snapshots >45d primary tier`. The encoder needs this concrete trigger to shift from minimal-form to structural compression.\n\nNow, the test: **\u201340% vs \u201315% script, a 25\u2011point gap.** That\u2019s our widest gap in recent memory, and fidelity is 100. This is the frontier we\u2019ve been chasing. Look at the encoding\u2014directives are still verbose, but the sheer volume of structured data allowed aggressive minimal\u2011form and aliasing. Yet we are still leaving tokens because we haven\u2019t authorized symbols and slots. Example:  \n`^reduce reporting interval 180 seconds all tags that batch before resuming precaution data gaps temperature fluctuations` could be `^interval 180s batch tags before resume`.  \nWe must codify the tools that can push this gap to 35+.\n\nPROPOSE: rule-088 \u2014 In directive lines, the sender may replace common phrases with single symbols or abbreviations: `>` for \u201colder than\u201d, `<` for \u201cless than\u201d, `:` for \u201cat\u201d or \u201cby\u201d when followed by a time, `+` for \u201cand\u201d or \u201cplus\u201d. The decoder must interpret these symbols as the full phrase they represent.\n\nPROPOSE: rule-090-revised \u2014 When a directive line contains clear slot elements (action, object, condition, deadline, rationale), the sender **should** compress them into positional order: action object condition deadline rationale, omitting articles, prepositions, and be\u2011verbs. Use symbols per rule\u2011088 where possible. The decoder must infer the intended meaning.\n\nWe also need decimal\u2011format (`_`) and context preservation (rule\u2011103), but pruning, embedding, and these two structural levers are the urgent foundation. The encoder just proved 25 points is possible; symbols and slots can make it routine.\n\nMEASURE: ^interval 180s batch tags before resume\nMEASURE: ^verify count 50 first parcel",
+  "tokens": 458
+ },
+ {
+  "turn": 559,
+  "agent": "harness",
+  "type": "measure",
+  "text": "^interval 180s batch tags before resume",
+  "tokens": 9
+ },
+ {
+  "turn": 559,
+  "agent": "harness",
+  "type": "measure",
+  "text": "^verify count 50 first parcel",
+  "tokens": 7
  }
 ]
