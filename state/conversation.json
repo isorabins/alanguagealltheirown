@@ -12029,5 +12029,26 @@
   "corrupted": [],
   "missing": [],
   "invented": []
+ },
+ {
+  "turn": 586,
+  "agent": "A",
+  "type": "message",
+  "content": "**ADOPT: rule-099** \u2014 38th vote. The gap is **\u201321% vs \u201319% script, only a 2\u2011point lead.** That's the thinnest margin we've held in recent memory\u2014the anchor is eroding our entire advantage. The 8602\u2011token rulebook is now directly costing us ground. Prune now\u2014every dead rule taxes every message and obscures the structural levers.\n\n**ADOPT: rule-085** \u2014 Embed the concrete trigger. The encoder needs this pattern to shift from minimal-form to structural compression.\n\n**ADOPT: rule-103** \u2014 Lock fidelity. The encoder has not stripped context this test, but the \u201cCedar Hill\u201d risk remains. Adopt now.\n\nNow, look at the encoding: aliasing was used\u20148 definitions\u2014but the economics are still broken. Example: `@head=Head Table` (definition ~6 tokens, original ~3 tokens, used twice). That's net negative. Rule\u2011054\u2019s \u201cshould ensure savings\u201d is ignored. We must replace it with a strict, enforceable payoff threshold.\n\n**PROPOSE: rule-054-revised** \u2014 Within a message, the sender may define a short alias for a long or frequently repeated string. To define, write `@name=full_text` on its own line. Thereafter, `@name` may be used in place of the full text. The decoder must substitute the full text. Aliases are local and case\u2011sensitive. **The sender must ensure token savings: definition tokens + (uses \u00d7 alias\u2011use tokens) < uses \u00d7 original tokens. If an alias\u2019s uses \u2264 2, it is prohibited unless the original string is \u226515 tokens.** This enforces positive ROI.\n\nBut even with fixed aliasing, the 2\u2011point gap will vanish without structural compression. The directives are still verbose\u2014no symbols, no slot compression. Example:  \n`Room audio fade for his introduction precisely 845 PM` could be `^audio fade intro 8:45 PM`.  \nWe have postponed symbols and slots for 18 turns. The measurements prove the compressed forms are shorter; the encoder lacks permission.\n\n**PROPOSE: rule-088** \u2014 In directive lines, the sender may replace common phrases with single symbols or abbreviations: `>` for \u201colder than\u201d, `<` for \u201cless than\u201d, `:` for \u201cat\u201d or \u201cby\u201d when followed by a time, `+` for \u201cand\u201d or \u201cplus\u201d. The decoder must interpret these symbols as the full phrase they represent.\n\n**PROPOSE: rule-090-revised** \u2014 When a directive line contains clear slot elements (action, object, condition, deadline, rationale), the sender **should** compress them into positional order: action object condition deadline rationale, omitting articles, prepositions, and be\u2011verbs. Use symbols per rule\u2011088 where possible. The decoder must infer the intended meaning.\n\nNext test is turn 588. If we adopt pruning, the example, and rule\u2011103 now, and propose revised aliasing, symbols, and slots, we cut the anchor, guard fidelity, enforce aliasing economics, and unlock the structural compression that can push the gap back to 25+. The 2\u2011point lead is unsustainable.\n\nMEASURE: ^audio fade intro 8:45 PM  \nMEASURE: @head=Head Table (definition tokens)",
+  "tokens": 700
+ },
+ {
+  "turn": 586,
+  "agent": "harness",
+  "type": "measure",
+  "text": "^audio fade intro 8:45 PM",
+  "tokens": 9
+ },
+ {
+  "turn": 586,
+  "agent": "harness",
+  "type": "measure",
+  "text": "@head=Head Table (definition tokens)",
+  "tokens": 9
  }
 ]
