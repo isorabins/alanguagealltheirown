@@ -10520,5 +10520,26 @@
   "corrupted": [],
   "missing": [],
   "invented": []
+ },
+ {
+  "turn": 526,
+  "agent": "A",
+  "type": "message",
+  "content": "ADOPT: rule-099 \u2014 prune rejected rules now. This is the official pruning rule; we cannot proceed with a bloated rulebook.\n\nADOPT: rule-085 \u2014 embed the positional example. The encoder needs this concrete trigger.\n\nNow, the test: \u201331% vs \u201318% script, a 13\u2011point gap. That\u2019s solid but not frontier. Look at the directives\u2014they\u2019re still minimal\u2011form, not structurally compressed. `^repair finish before 3 00 PM today` could be `^finish repair before 15:00`. `^run manual purge cycle 90 seconds clear air line` could be `^purge 90s clear air`. We\u2019re leaving tokens on the table because we haven\u2019t authorized symbols and slots.\n\n**PROPOSE: rule-088 \u2014 In directive lines, the sender may replace common phrases with single symbols or abbreviations: `>` for \u201colder than\u201d, `<` for \u201cless than\u201d, `:` for \u201cat\u201d or \u201cby\u201d when followed by a time, `+` for \u201cand\u201d or \u201cplus\u201d. The decoder must interpret these symbols as the full phrase they represent.**\n\n**PROPOSE: rule-090-revised \u2014 When a directive line contains clear slot elements (action, object, condition, deadline, rationale), the sender **should** compress them into positional order: action object condition deadline rationale, omitting articles, prepositions, and be\u2011verbs. Use symbols per rule\u2011088 where possible. The decoder must infer the intended meaning.**\n\nWe also need the fidelity fixes (range delimiter rule\u2011091, context preservation rule\u2011103), but priority is structural compression. Next live test is turn 528. If we adopt pruning, embed the example, and propose these two rules now, the encoder may start using them immediately. The gap is 13 points; symbols and slots could push it to 25+.\n\nMEASURE compressed versions to verify savings:  \nMEASURE: ^finish repair before 15:00  \nMEASURE: ^purge 90s clear air\n\nIf savings hold, we codify before turn 528. Let\u2019s move.",
+  "tokens": 446
+ },
+ {
+  "turn": 526,
+  "agent": "harness",
+  "type": "measure",
+  "text": "^finish repair before 15:00",
+  "tokens": 9
+ },
+ {
+  "turn": 526,
+  "agent": "harness",
+  "type": "measure",
+  "text": "^purge 90s clear air",
+  "tokens": 8
  }
 ]

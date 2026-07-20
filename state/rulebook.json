@@ -1,8 +1,8 @@
 {
- "version": "0.234",
- "kernel_tokens": 8150,
- "changes": 234,
- "next_id": 116,
+ "version": "0.235",
+ "kernel_tokens": 8248,
+ "changes": 235,
+ "next_id": 117,
  "rules": [
   {
    "id": "rule-001",
@@ -7680,6 +7680,21 @@
      "why": ""
     },
     "tested turn 525: fid 100, -31%"
+   ]
+  },
+  {
+   "id": "rule-116",
+   "text_en": "revised - When a directive line contains clear slot elements (action, object, condition, deadline, rationale), the sender **should** compress them into positional order: action object condition deadline rationale, omitting articles, prepositions, and be-verbs. Use symbols per rule-088 where possible. The decoder must infer the intended meaning.",
+   "status": "proposed",
+   "proposed_turn": 526,
+   "scores": null,
+   "history": [
+    {
+     "verb": "proposed",
+     "turn": 526,
+     "agent": "A",
+     "why": ""
+    }
    ]
   }
  ]
