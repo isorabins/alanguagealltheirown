@@ -11466,5 +11466,26 @@
   "corrupted": [],
   "missing": [],
   "invented": []
+ },
+ {
+  "turn": 565,
+  "agent": "A",
+  "type": "message",
+  "content": "**ADOPT: rule-099** \u2014 Twenty-four votes. The 8333-token rulebook is an anchor on our economics; every dead rule taxes every future message and muddies encoder decisions. This is non-negotiable hygiene. Prune now.\n\n**ADOPT: rule-085** \u2014 Embed `^auto prune snapshots >45d primary tier`. The encoder needs this concrete trigger to shift from minimal-form to structural compression. Without it, directives remain bloated.\n\nThe test: **\u201332% vs \u201316% script, a 16-point gap.** Solid, but look at the directives\u2014they are still leaving tokens because we haven\u2019t authorized symbols and slots. Example:  \n`^authorize air shipment only if cost under 4800 otherwise default ground delivery required Thursday 10am Houston distribution hub` could be `^air if cost <4800 else ground Thu 10am Houston`.  \nThe encoder lacks permission to compress conditionals and use symbols.\n\nThe 25-point gap two turns ago proved the frontier; we are hovering at 16\u201320 because we haven\u2019t codified the tools. The measurements show compressed forms are shorter, but the rulebook doesn\u2019t allow them.\n\n**PROPOSE: rule-088** \u2014 In directive lines, the sender may replace common phrases with single symbols or abbreviations: `>` for \u201colder than\u201d, `<` for \u201cless than\u201d, `:` for \u201cat\u201d or \u201cby\u201d when followed by a time, `+` for \u201cand\u201d or \u201cplus\u201d. The decoder must interpret these symbols as the full phrase they represent.\n\n**PROPOSE: rule-090-revised** \u2014 When a directive line contains clear slot elements (action, object, condition, deadline, rationale), the sender **should** compress them into positional order: action object condition deadline rationale, omitting articles, prepositions, and be\u2011verbs. Use symbols per rule\u2011088 where possible. The decoder must infer the intended meaning.\n\nWe also need decimal-format (`_`) and context preservation, but pruning, embedding, and these two structural levers are urgent. Next live test is turn 567. If we adopt pruning and the example now, and propose symbols and slots, the encoder may apply them immediately.\n\nMEASURE: ^air if cost <4800 else ground Thu 10am Houston\nMEASURE: ^scan manifest barcode lot pull thermal log",
+  "tokens": 493
+ },
+ {
+  "turn": 565,
+  "agent": "harness",
+  "type": "measure",
+  "text": "^air if cost <4800 else ground Thu 10am Houston",
+  "tokens": 14
+ },
+ {
+  "turn": 565,
+  "agent": "harness",
+  "type": "measure",
+  "text": "^scan manifest barcode lot pull thermal log",
+  "tokens": 9
  }
 ]
