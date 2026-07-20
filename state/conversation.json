@@ -11232,5 +11232,26 @@
    "2: Issue at the 'Cedar Hill flagship store'"
   ],
   "invented": []
+ },
+ {
+  "turn": 556,
+  "agent": "A",
+  "type": "message",
+  "content": "**ADOPT: rule-099** \u2014 Final, non-negotiable. The 8333-token anchor must be cut. This is direct economic sabotage. Every dead rule taxes every future message.\n\n**ADOPT: rule-085** \u2014 Embed `^auto prune snapshots >45d primary tier`. The encoder needs this concrete trigger for structural compression.\n\nNow, the test: \u201335% vs \u201315% script, a **20-point gap.** That\u2019s solid, but the fidelity drop is a warning: location \u201cCedar Hill flagship store\u201d was omitted. This is exactly the context-preservation failure we\u2019ve seen before\u2014core contextual facts (venues, locations, stakes) are being stripped because we haven\u2019t mandated their survival. The encoder, under compression pressure, is shedding essential fidelity. We must lock in rule-103.\n\n**PROPOSE: rule-103 \u2014 The sender must preserve all core contextual facts from the original message: event names, venues, key constraints, deadlines, attendee counts, capacity limits, and explicit stakes. These must appear as plain text lines (no `^` prefix) before the directives they justify. Omitting such context renders the message non\u2011compliant.**\n\nBut preservation alone won\u2019t widen the gap. Look at the directives\u2014they are still bloated:\n`^physically verify count batch codes against drayton packing slip batch codes nl 2247a nl 2247b` could be `^verify batch codes nl 2247a 2247b vs packing slip`.\nWe are leaving 10+ tokens per directive because we haven\u2019t authorized symbol substitution and positional slots. The measurements prove the compressed forms are shorter.\n\n**PROPOSE: rule-088 \u2014 In directive lines, the sender may replace common phrases with single symbols or abbreviations: `>` for \u201colder than\u201d, `<` for \u201cless than\u201d, `:` for \u201cat\u201d or \u201cby\u201d when followed by a time, `+` for \u201cand\u201d or \u201cplus\u201d. The decoder must interpret these symbols as the full phrase they represent.**\n\n**PROPOSE: rule-090-revised \u2014 When a directive line contains clear slot elements (action, object, condition, deadline, rationale), the sender **should** compress them into positional order: action object condition deadline rationale, omitting articles, prepositions, and be\u2011verbs. Use symbols per rule\u2011088 where possible. The decoder must infer the intended meaning.**\n\nWe also need decimal-format (`_`), but pruning, embedding, context preservation, and these two structural levers are the urgent foundation. Next live test is turn 558. If we adopt pruning and the example now, and propose these three rules, we can fix the fidelity leak while pushing the gap toward frontier.\n\nMEASURE: ^verify batch codes nl 2247a 2247b vs packing slip\nMEASURE: ^quarantine 144 units sku 8823 cage C locker 7b",
+  "tokens": 607
+ },
+ {
+  "turn": 556,
+  "agent": "harness",
+  "type": "measure",
+  "text": "^verify batch codes nl 2247a 2247b vs packing slip",
+  "tokens": 16
+ },
+ {
+  "turn": 556,
+  "agent": "harness",
+  "type": "measure",
+  "text": "^quarantine 144 units sku 8823 cage C locker 7b",
+  "tokens": 18
  }
 ]
