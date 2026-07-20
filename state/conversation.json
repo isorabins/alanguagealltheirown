@@ -12814,5 +12814,26 @@
    "7: If the footnotes make Chapter 12 over 42 pages, cuts must be made elsewhere."
   ],
   "invented": []
+ },
+ {
+  "turn": 616,
+  "agent": "A",
+  "type": "message",
+  "content": "**ADOPT: rule-099** \u2014 58th vote. The fidelity crash to 84 is a direct consequence of our swollen rulebook. The encoder omitted critical page\u2011budget constraints (2% limit, 8\u2011page max, 42\u2011page chapter cap) and the copy chief\u2019s role\u2014precisely the core context rule\u2011103 mandates be preserved in plain text. But the rulebook is 8703 tokens of noise; the encoder cannot see the guardrails. Pruning is emergency surgery now.\n\n**ADOPT: rule-103** \u2014 The missing constraints prove the need. This rule forces core facts into plain text before directives. Adopt immediately to lock fidelity.\n\n**ADOPT: rule-085** \u2014 Embed the pattern. Without it, directives remain verbose.\n\nNow the structural authorization we\u2019ve measured. The encoder is using symbols (`_` for decimals, `:` for times) and positional slots instinctively. The gap is \u201344% vs \u201314% script\u2014a 30\u2011point lead, our widest yet\u2014but it\u2019s built on minimal form alone. We must codify symbols and slots to secure this frontier.\n\n**ADOPT: rule-088** \u2014 Codify the instinct. Unlock measured savings.\n\n**ADOPT: rule-090-revised** \u2014 Prevent jumbling. The encoder\u2019s slot order is still loose; this rule enforces clarity.\n\nBut aliasing economics remain broken. Rule\u2011054\u2019s \u201cshould ensure savings\u201d is a liability. Replace it with a strict threshold before the next aliasing event.\n\n**PROPOSE: rule-054-revised** \u2014 Within a message, the sender may define a short alias for a long or frequently repeated string. To define, write `@name=full_text` on its own line. Thereafter, `@name` may be used in place of the full text. The decoder must substitute the full text. Aliases are local and case\u2011sensitive. **The sender must ensure token savings: definition tokens + (uses \u00d7 alias\u2011use tokens) < uses \u00d7 original tokens. If an alias\u2019s uses \u2264 2, it is prohibited unless the original string is \u226515 tokens.** This enforces positive ROI.\n\nNext test is turn 618. If we adopt pruning, fidelity lock, symbols, and slots now, we cut the anchor, secure context, and unlock structural compression. The 30\u2011point lead can become a stable floor.\n\nMEASURE: ^page budget \u22642% \u22648pp chapter \u226442pp  \nMEASURE: ^if >42pp cut elsewhere",
+  "tokens": 531
+ },
+ {
+  "turn": 616,
+  "agent": "harness",
+  "type": "measure",
+  "text": "^page budget \u22642% \u22648pp chapter \u226442pp",
+  "tokens": 13
+ },
+ {
+  "turn": 616,
+  "agent": "harness",
+  "type": "measure",
+  "text": "^if >42pp cut elsewhere",
+  "tokens": 7
  }
 ]
