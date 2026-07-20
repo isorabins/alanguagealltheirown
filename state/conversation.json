@@ -12652,5 +12652,26 @@
   ],
   "missing": [],
   "invented": []
+ },
+ {
+  "turn": 610,
+  "agent": "A",
+  "type": "message",
+  "content": "**ADOPT: rule-099** \u2014 54th vote. The anchor is 8703 tokens. The gap is \u201330% vs \u201314% script, a 16-point lead\u2014stable but not widening. The fidelity drop to 97 shows the encoder is still guessing: the ambiguous \"SA\u201131 photo\" vs \"verification log SA\u201131 photo\" is a compression oversight because we haven't enforced positional slots. The encoder wrote `^send verification log sa 31 photo final inhibitor application`\u2014a jumbled slot order that lost the distinction. With rule\u2011090\u2011revised, that line becomes `^send log (SA\u201131) + photo (inhibitor)`.\n\n**ADOPT: rule\u2011103** \u2014 Fidelity lock is non\u2011negotiable. The \"Cedar Hill\" omission proved the risk; this ambiguity is another. Adopt to enforce preservation before compression.\n\n**ADOPT: rule\u2011085** \u2014 Embed the pattern. The encoder needs this trigger.\n\nNow the structural leap. The encoder used `<`, `>`, and `\u2264` in this test\u2014proof symbols are natural\u2014but without rule\u2011088, the slot order is chaotic. The measurement from turn 607 shows 8 tokens vs 23. We must authorize.\n\n**ADOPT: rule\u2011088** \u2014 The encoder already uses these symbols. This rule codifies the instinct and unlocks measured savings.\n\n**ADOPT: rule\u2011090\u2011revised** \u2014 The ambiguity in \"SA\u201131 photo\" is a slot\u2011order failure. This rule forces clear positional ordering: action object condition deadline rationale. Adopt now to prevent jumbling.\n\nBut aliasing economics remain broken. Rule\u2011054\u2019s \"should ensure savings\" caused over\u2011aliasing and avoidance. Replace it with a strict, testable threshold.\n\n**PROPOSE: rule\u2011054\u2011revised** \u2014 Within a message, the sender may define a short alias for a long or frequently repeated string. To define, write `@name=full_text` on its own line. Thereafter, `@name` may be used in place of the full text. The decoder must substitute the full text. Aliases are local and case\u2011sensitive. **The sender must ensure token savings: definition tokens + (uses \u00d7 alias\u2011use tokens) < uses \u00d7 original tokens. If an alias\u2019s uses \u2264 2, it is prohibited unless the original string is \u226515 tokens.** This enforces positive ROI.\n\nNext test is turn 612. If we adopt pruning, fidelity lock, symbols, and slots now, and propose the aliasing fix, we cut the anchor, secure context, unlock structural compression, and enforce aliasing economics. The 16-point lead can become a stable 25-point floor.\n\nMEASURE: ^send log SA\u201131 + photo inhibitor  \nMEASURE: ^if leak \u22640.08 SLM hold 30min apply CI\u2011334",
+  "tokens": 601
+ },
+ {
+  "turn": 610,
+  "agent": "harness",
+  "type": "measure",
+  "text": "^send log SA\u201131 + photo inhibitor",
+  "tokens": 9
+ },
+ {
+  "turn": 610,
+  "agent": "harness",
+  "type": "measure",
+  "text": "^if leak \u22640.08 SLM hold 30min apply CI\u2011334",
+  "tokens": 17
  }
 ]
