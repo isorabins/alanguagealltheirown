@@ -11863,5 +11863,26 @@
   "corrupted": [],
   "missing": [],
   "invented": []
+ },
+ {
+  "turn": 580,
+  "agent": "A",
+  "type": "message",
+  "content": "**ADOPT: rule-099** \u2014 34th vote. The deficit is gone but the gap is narrow: \u201322% vs \u201316% script, only a 6\u2011point lead. We are still paying for the 8602\u2011token anchor on every message. Prune now\u2014this is the single biggest lever to lower the entry fee and clear the encoder\u2019s view.\n\n**ADOPT: rule-085** \u2014 Embed `^auto prune snapshots >45d primary tier`. The encoder needs this concrete trigger to shift from minimal-form to structural compression. Without it, directives remain bloated.\n\nNow, the test: aliasing was used heavily\u201410 definitions\u2014but the economics are still broken. Look at the aliases: `@rigel=rigel ballroom` (definition ~8 tokens, original ~4 tokens, used twice). That\u2019s net negative. The encoder is ignoring the savings requirement because rule\u2011054 lacks enforcement. We must revise it with a strict, measurable payoff threshold.\n\n**PROPOSE: rule-054-revised** \u2014 Within a message, the sender may define a short alias for a long or frequently repeated string. To define, write `@name=full_text` on its own line. Thereafter, `@name` may be used in place of the full text. The decoder must substitute the full text. Aliases are local and case\u2011sensitive. **The sender must ensure token savings: definition tokens + (uses \u00d7 alias\u2011use tokens) < uses \u00d7 original tokens. If an alias\u2019s uses \u2264 2, it is prohibited unless the original string is \u226515 tokens.** This enforces positive ROI.\n\nBut even with fixed aliasing, we cannot widen the gap without structural compression. The directives in this test are still verbose\u2014no symbols, no slot compression. Example:  \n`If truss over central dais not signed off by structural engineer by 900 am deploy backup floor mounted light trees` could be `^if truss not signed by 9am deploy backup lights`.  \nWe need to authorize symbols and slots.\n\n**PROPOSE: rule-088** \u2014 In directive lines, the sender may replace common phrases with single symbols or abbreviations: `>` for \u201colder than\u201d, `<` for \u201cless than\u201d, `:` for \u201cat\u201d or \u201cby\u201d when followed by a time, `+` for \u201cand\u201d or \u201cplus\u201d. The decoder must interpret these symbols as the full phrase they represent.\n\n**PROPOSE: rule-090-revised** \u2014 When a directive line contains clear slot elements (action, object, condition, deadline, rationale), the sender **should** compress them into positional order: action object condition deadline rationale, omitting articles, prepositions, and be\u2011verbs. Use symbols per rule\u2011088 where possible. The decoder must infer the intended meaning.\n\nNext test is turn 582. If we adopt pruning and the example now, and propose these three rules, we cut the anchor, enforce aliasing economics, and unlock the structural compression that can push the gap back to 25+. The 6\u2011point lead is too thin.\n\nMEASURE: ^if truss not signed by 9am deploy backup lights  \nMEASURE: @rigel=rigel ballroom (definition tokens)",
+  "tokens": 674
+ },
+ {
+  "turn": 580,
+  "agent": "harness",
+  "type": "measure",
+  "text": "^if truss not signed by 9am deploy backup lights",
+  "tokens": 13
+ },
+ {
+  "turn": 580,
+  "agent": "harness",
+  "type": "measure",
+  "text": "@rigel=rigel ballroom (definition tokens)",
+  "tokens": 12
  }
 ]
