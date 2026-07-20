@@ -34,6 +34,11 @@ module.exports = async (req, res) => {
 
     const items = Array.isArray(g.items) ? g.items : [];
     const invented = Array.isArray(g.invented) ? g.invented : [];
+    const ids = items.map((item) => Number(item && item.n));
+    const complete = items.length === key.length && ids.every((n) => Number.isInteger(n) && n >= 1 && n <= key.length) &&
+      new Set(ids).size === key.length && key.every((_, index) => ids.includes(index + 1)) &&
+      items.every((item) => ["SURVIVED", "CORRUPTED", "MISSING"].includes(item && item.verdict));
+    if (!complete) { res.status(502).json({ error: "judge returned invalid item coverage", code: "invalid_judgment" }); return; }
     const survived = items.filter((i) => i && i.verdict === "SURVIVED").length;
     let fidelity = items.length ? Math.round((100 * survived) / (key.length + invented.length)) : -1;
     if (g.mode === "RESPONDED" && fidelity >= 0) fidelity = Math.min(fidelity, 15);
@@ -51,6 +56,6 @@ module.exports = async (req, res) => {
       mode: g.mode === "RESPONDED" ? "RESPONDED" : "RELAY",
     });
   } catch (e) {
-    res.status(500).json({ error: "judge failed: " + e.message });
+    L.sendError(res, e, "judge failed");
   }
 };

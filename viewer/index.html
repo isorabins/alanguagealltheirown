@@ -167,6 +167,11 @@
   .ti-verdict { font-family: var(--mono); font-size: 0.72rem; color: var(--ink); border-top: 1px dashed var(--hairline);
     margin-top: 0.9rem; padding-top: 0.7rem; }
   .ti-verdict .ok { color: var(--accent); } .ti-verdict .low { color: var(--bad); }
+  .collab-form { border: 1px solid var(--hairline); padding: 1rem 1.2rem; margin: 1.2rem 0; }
+  .collab-form textarea { width: 100%; min-height: 5rem; background: transparent; color: var(--ink); border: 1px solid var(--hairline); padding: 0.8rem; font: inherit; }
+  .collab-form button { background: transparent; color: var(--ink); border: 1px solid var(--hairline); padding: 0.65rem 1rem; margin-top: 0.6rem; cursor: pointer; }
+  .collab-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; }
+  .collab-card { border: 1px solid var(--hairline); padding: 0.9rem; overflow-wrap: anywhere; }
 
   .exrows { border-bottom: 1px solid var(--hairline); }
   details.exrow { margin-top: 0; border-top: 1px solid var(--hairline); }
@@ -212,7 +217,7 @@
   footer a { color: inherit; text-decoration: underline; text-underline-offset: 3px; }
   footer a:hover { color: #c9a86a; }
   @media (max-width: 760px) {
-    .panes, .decisions, .tx-cols { grid-template-columns: 1fr; }
+    .panes, .decisions, .tx-cols, .collab-grid { grid-template-columns: 1fr; }
     .pane { height: 340px; }
     .timers { gap: 2rem; }
   }
@@ -237,12 +242,28 @@
 <div class="legend"><b>fidelity</b> — % of meaning that survives a stranger's decode (100 = perfect relay, 0 = lost or invented) &nbsp;·&nbsp; <b>savings</b> — how much cheaper than plain English (negative = the language currently costs extra) &nbsp;·&nbsp; <b>passing</b> = fidelity ≥ 90 — savings only count when the meaning survived</div>
 
 <h2>The Negotiation, Live</h2>
-<p class="how">Agent A pushes to make every message cheaper. Agent B blocks anything a stranger couldn't decode. Rules get proposed, argued, and voted on here — the dashed lines are exam results arriving.</p>
+<p class="how">DeepSeek Agent A invents or revises one focused idea. Kimi Agent B audits that idea and alone may adopt or reject it. The harness blocks role violations and malformed or repeated motions.</p>
 <div class="panes">
-  <div class="pane"><div class="pane-head">Agent A — argues for compression</div><div class="pane-body" id="paneA"></div></div>
-  <div class="pane"><div class="pane-head">Agent B — argues for accuracy</div><div class="pane-body" id="paneB"></div></div>
+  <div class="pane"><div class="pane-head">Agent A · DeepSeek inventor</div><div class="pane-body" id="paneA"></div></div>
+  <div class="pane"><div class="pane-head">Agent B · Kimi auditor</div><div class="pane-body" id="paneB"></div></div>
 </div>
+<form class="collab-form" id="suggestion-form">
+  <label for="suggestion-text">Suggest an idea for the agents</label>
+  <textarea id="suggestion-text" maxlength="600" placeholder="Suggestions stay private until Iso approves them. Approval makes the text optional context, never a rule or instruction."></textarea>
+  <button>Submit for review</button><p class="ti-status" id="suggestion-status" aria-live="polite"></p>
+</form>
 <div class="decisions" id="decisions"></div>
+
+<h2>Collaboration</h2>
+<p class="how">Agent research and questions persist without blocking the loop. Only approved suggestion lifecycle states appear publicly.</p>
+<div class="collab-grid"><div class="collab-card"><strong>Research</strong><div id="research"></div></div><div class="collab-card"><strong>Questions for Iso</strong><div id="asks"></div></div><div class="collab-card"><strong>Approved suggestions</strong><div id="suggestions"></div></div></div>
+
+<h2>X Delivery</h2>
+<p class="how" id="x-status">Confirmed single-post delivery only. Dry runs and failed attempts do not count as posted.</p>
+
+<h2>Latest Conversation</h2>
+<p class="how">Once per 32 ordinary exams, two fresh speakers use the captured adopted language for six alternating messages, then a separate judge checks the concrete outcome.</p>
+<div class="tx" id="conversation-exam"></div>
 
 <h2>The Latest Exam</h2>
 <p class="how">Every exam ships with an answer key — the numbered facts the message must carry. The judge marks each one survived, corrupted, or missing in what the stranger produced; the score is a checklist, not an impression. The encoded version is allowed to look nothing like the original: it can reorder, restructure, and drop every word that isn't carrying meaning.</p>
@@ -251,13 +272,6 @@
 <h2>Exam History</h2>
 <p class="how">The last fifteen exams, newest first. Open any row for the judge's full audit and all three texts — original, encoded, decoded.</p>
 <div class="exrows" id="exams"></div>
-
-<div id="control-sect" style="display:none">
-<h2>The Control</h2>
-<p class="how">A check run by a plain script, not an AI: every exam message is also compressed the dumb way — lowercased, punctuation and articles stripped, numbers left untouched — then counted with the same tokenizer. If the agents' language saved no more than this, it would be inventing nothing. The gap is what the language itself earns.</p>
-<div class="metrics" id="control"></div>
-<div class="legend" id="ladder"></div>
-</div>
 
 <div id="tryit">
 <h2>Try It Yourself</h2>
@@ -292,29 +306,29 @@ canned — you are watching the live pipeline run on your words.</p>
 </div>
 
 <h2>The Language So Far</h2>
-<p class="how">Every rule that survived testing, with the agents' own reasoning for adopting it.</p>
+<p class="how">Only adopted rules constitute the language. Corpus exams are evidence about the captured whole rulebook, not permanent scores attached to individual rules.</p>
 <details class="sect">
   <summary id="lang-sum">the rulebook</summary>
   <div id="adopted"></div>
 </details>
 
 <h2>Proposed, Not Yet Tested</h2>
-<p class="how">Rules currently under debate, waiting for the next exam to prove or kill them.</p>
+<p class="how">Rules currently under debate. They remain outside ordinary encoding, decoding, Try It, and Conversation until Kimi adopts them.</p>
 <ul class="table-note" id="proposed"></ul>
 
 <h2>How This Works</h2>
-<p class="how">Five separate AI roles. No human writes or edits the language.</p>
+<p class="how">Distinct roles with one enforced boundary: only the agents can legislate, and only adopted rules are language law.</p>
 <div id="cast">
-  <div class="note"><span class="nd">the negotiators</span>Agents A and B, talking above, one turn every 15 minutes. A wants every message cheaper. B refuses to lose meaning. Together, and only together, they write the rulebook.</div>
+  <div class="note"><span class="nd">the legislature</span>DeepSeek A invents or revises one proposal. Kimi B audits that focused proposal and alone may adopt or reject it. Invalid motions are visible no-ops.</div>
   <div class="note"><span class="nd">the exam writer</span>Every third turn, a separate AI invents a realistic message neither negotiator has ever seen — a deploy request, an apology, a recall notice with lot numbers. Every exam is new, so the agents can never tune their language to a known exam.</div>
   <div class="note"><span class="nd">the encoder</span>Another AI translates that message into the invented language, using nothing but the current rulebook.</div>
   <div class="note"><span class="nd">the stranger</span>A completely fresh AI — no memory of the conversation, no context at all — receives only the rulebook and the encoded message, and must turn it back into plain English. Since turn 246 the stranger is also a different model family from the negotiators, so it can't lean on shared habits: it decodes what the encoding actually says. If the language only works for the two agents who invented it, it fails here. This is the whole test.</div>
-  <div class="note"><span class="nd">the judge</span>Every exam is written with an answer key: the numbered list of facts the message must carry — quantities, names, instructions, deadlines — listed by the test writer before anyone encodes. The judge compares what the stranger produced against that key, item by item: survived, corrupted, or missing, plus anything invented that the original never said. It's still a model reading for meaning, not a string-matcher — paraphrase and reordering don't lose points — but the score is arithmetic over those verdicts, not an impression: 100 × survived ÷ (total + invented). A real tokenizer separately counts whether the encoded version was cheaper than plain English. Rules that pass keep their place; rules that fail are marked rejected and stay visible in the rulebook so the same mistake isn't proposed twice.</div>
+  <div class="note"><span class="nd">the judge</span>Every exam begins with a numbered answer key. A score is published only if the judge returns exactly one valid verdict for every key item—no gaps, duplicates, nonnumeric ids, or out-of-range ids. Corpus results describe the captured adopted language as a whole.</div>
 </div>
 
 <h2>The Prompts</h2>
 <p class="how">For anyone who wants to see exactly how this is wired.</p>
-<div class="prompt-intro">These are the only human-written instructions in the system, loaded live from the <a href="https://github.com/isorabins/alanguagealltheirown">public repo</a>. Each prompt sets up the game — the goal, the exam, the proposal format, each agent's bias — and, since 2026-07-18, a small library of prior human techniques and a live readout of their language's own economics. This is an evolving experiment and the human is part of it: the world around the agents — exams, judges, controls, libraries — gets tuned in the open, and every change is dated in the field notes below. The one line never crossed: no human writes or edits a rule of the language. The engine reads these files fresh every turn, so any edit changes behavior within 15 minutes, and every edit ever made is in the repo's history.</div>
+<div class="prompt-intro">The public repo contains the shared constitution, role contracts, exam writer, and judge. Humans operate the harness and moderate optional outside context, but do not write or edit language rules. Every behavior change remains in repository history.</div>
 <div id="prompts"></div>
 
 <h2>Rejected Rules</h2>
@@ -337,7 +351,7 @@ canned — you are watching the live pipeline run on your words.</p>
 <script src="state.js"></script>
 <script>
 function render(S) {
-  var conv = S.conversation, rb = S.rulebook;
+  var conv = S.conversation || [], rb = S.rulebook || {rules: []};
   var esc = function (s) {
     return String(s == null ? "" : s).replace(/[&<>"]/g, function (c) {
       return {"&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;"}[c];
@@ -397,6 +411,11 @@ function render(S) {
     }
     if (e.type === "measure") {
       return '<div class="tick">measured · “' + esc(e.text) + '” · <span class="ok">' + e.tokens + " tokens</span></div>";
+    }
+    if (e.type === "legislature") {
+      var receipt = e.motion_receipt || {};
+      return '<div class="tick">motion · ' + esc(receipt.verb || "none") + ' · ' +
+        '<span class="' + (receipt.accepted ? "ok" : "low") + '">' + esc(receipt.reason || "no receipt") + '</span></div>';
     }
     var cls = e.fidelity >= 80 ? "ok" : "low";
     return '<div class="tick">exam · ' + esc(e.payload) + " · " + pct(e.token_delta_pct || 0) +
@@ -502,13 +521,11 @@ function render(S) {
   }).join("") : '<p class="empty">No exams yet.</p>';
 
   document.getElementById("lang-sum").textContent =
-    adopted.length + " rules — the whole language costs " + (rb.kernel_tokens || 0) + " tokens to teach a fresh model";
+    adopted.length + " adopted rules — the only current language law";
   document.getElementById("adopted").innerHTML = adopted.length ? adopted.map(function (r) {
-    var arc = (r.history || []).filter(function (h) { return typeof h === "string" && h.indexOf("tested") === 0; });
     var a = hist(r, "adopt");
     return '<div class="rule-card"><div class="rtext">' + ruleText(r) + "</div>" +
-      '<div class="ev">adopted turn ' + (a ? a.turn : "?") + " · survived <b>" + arc.length + "</b> exams" +
-      (r.scores ? " · rulebook's latest exam: " + pct(r.scores.token_delta_pct) + " tokens at <b>" + r.scores.fidelity_pct + "/100</b> fidelity" : "") + "</div>" +
+      '<div class="ev">adopted turn ' + (a ? a.turn : "?") + " · individual historical scores, if any, are legacy labels only</div>" +
       (a && a.why ? '<div class="why">why: “' + esc(a.why) + '”</div>' : "") + "</div>";
   }).join("") : '<p class="empty">No rules adopted yet — the language is still plain English.</p>';
 
@@ -516,18 +533,42 @@ function render(S) {
     rejected.length + " dead rules — every failure stays on the books so the same idea can't be proposed twice";
   document.getElementById("grave").innerHTML = rejected.map(function (r) {
     var rej = hist(r, "reject");
-    return '<li><span class="rtext">' + ruleText(r) + '</span><span class="kill">† turn ' + (rej ? rej.turn : "?") +
-      (r.scores ? " · measured " + pct(r.scores.token_delta_pct) + " at " + r.scores.fidelity_pct + "/100" : "") + "</span>" +
+    return '<li><span class="rtext">' + ruleText(r) + '</span><span class="kill">† turn ' + (rej ? rej.turn : "?") + " · historical record</span>" +
       (rej && rej.why ? '<span class="why">“' + esc(rej.why) + '”</span>' : "") + "</li>";
   }).join("") || '<li class="empty">Nothing rejected yet.</li>';
 
   document.getElementById("proposed").innerHTML = proposed.map(function (r) {
-    return '<li><span class="id">' + r.id + " · awaiting exam</span>" + ruleText(r) + "</li>";
+    return '<li><span class="id">' + r.id + " · outside the tested language</span>" + ruleText(r) + "</li>";
   }).join("") || '<li class="empty">Nothing on the table.</li>';
 
   document.getElementById("hist").innerHTML = conv.map(function (e) {
     return e.type !== "message" ? tickHtml(e) : msgHtml(e, e.agent);
   }).join("");
+
+  var collaboration = S.collaboration || {research: [], asks: [], suggestions: []};
+  document.getElementById("research").innerHTML = (collaboration.research || []).slice(-4).reverse().map(function (r) {
+    var links = (r.citations || []).map(function (c) { return '<a href="' + esc(c.url) + '" rel="noreferrer">' + esc(c.title || c.url) + '</a>'; }).join(' · ');
+    return '<p><strong>' + esc(r.question) + '</strong><br><span class="status">' + esc(r.status) +
+      (r.findings ? ' · ' + esc(r.findings) : '') + (r.limitations ? ' · limitation: ' + esc(r.limitations) : '') +
+      (links ? '<br>' + links : '') + '</span></p>';
+  }).join('') || '<p class="status">No research requests yet.</p>';
+  document.getElementById("asks").innerHTML = (collaboration.asks || []).slice(-4).reverse().map(function (r) {
+    return '<p><strong>' + esc(r.question) + '</strong><br><span class="status">' + esc(r.status) +
+      (r.answer ? ' · answered by Iso' : '') + '</span></p>';
+  }).join('') || '<p class="status">No questions awaiting Iso.</p>';
+  document.getElementById("suggestions").innerHTML = (collaboration.suggestions || []).slice(-4).reverse().map(function (r) {
+    return '<p><strong>' + esc(r.id) + '</strong><br><span class="status">' + esc(r.status) +
+      (r.outcome ? ' · ' + esc(r.outcome) : '') + '</span></p>';
+  }).join('') || '<p class="status">No approved suggestions yet.</p>';
+  var conversation = (S.conversations || []).slice(-1)[0];
+  document.getElementById("conversation-exam").innerHTML = conversation ?
+    '<div class="tx-head">captured ' + esc(conversation.language_version) + ' · turn ' + esc(conversation.turn) + '</div>' +
+    (conversation.messages || []).map(function (m) { return '<div class="m"><span class="t">speaker ' + esc(m.speaker) + '</span>' + esc(m.content) + '</div>'; }).join('') +
+    '<div class="judg"><div class="jhead">concrete-outcome judgment</div><pre>' + esc(JSON.stringify(conversation.judgment, null, 2)) + '</pre></div>' :
+    '<p class="empty">No scheduled Conversation artifact yet.</p>';
+  var x = S.x || {};
+  document.getElementById("x-status").textContent = "Confirmed single-post delivery only · " +
+    Number(x.blocked_count || 0) + " blocked item(s) · " + Number(x.tweets_sent || 0) + " confirmed automated post(s).";
 
   document.getElementById("foot").innerHTML =
     'a live experiment in machine language · ' + esc((S.meta && S.meta.updated) || "—") +
@@ -541,10 +582,13 @@ var lastTurnAt = null, lastTurnNum = null, refetchArmed = false, refetchDelay = 
 function loadState() {
   var RAW = "https://raw.githubusercontent.com/isorabins/alanguagealltheirown/main/state/";
   var COMMITS = "https://api.github.com/repos/isorabins/alanguagealltheirown/commits/main";
-  var fallback = window.STATE || {conversation: [], rulebook: {rules: [], version: "0.0", kernel_tokens: 0}, meta: {}};
+  var fallback = window.STATE || {conversation: [], rulebook: {rules: [], version: "0.0", kernel_tokens: 0}, collaboration: {}, conversations: [], x: {}, meta: {}};
   var get = function (f) { return fetch(RAW + f, {cache: "no-store"}).then(function (r) { if (!r.ok) throw 0; return r.json(); }); };
+  var getOptional = function (f, fallbackValue) { return get(f).catch(function () { return fallbackValue; }); };
   var lastCommit = fetch(COMMITS, {cache: "no-store"}).then(function (r) { return r.json(); }).catch(function () { return null; });
-  Promise.all([get("conversation.json"), get("rulebook.json"), lastCommit]).then(function (both) {
+  Promise.all([get("conversation.json"), get("rulebook.json"), lastCommit,
+    getOptional("collaboration.json", {research: [], asks: [], suggestions: []}), getOptional("conversations.json", []),
+    getOptional("tweet-state.json", {})]).then(function (both) {
     var when = both[2] && both[2].commit && both[2].commit.committer && both[2].commit.committer.date;
     if (when) {
       var t = new Date(when).getTime();
@@ -557,7 +601,7 @@ function loadState() {
     var stamp = mins === null ? "live"
       : mins > 45 ? "the loop has been still since " + new Date(when).toISOString().replace("T", " ").slice(0, 16) + " UTC"
       : "last turn " + mins + " min ago · live";
-    render({conversation: both[0], rulebook: both[1], meta: {updated: stamp}});
+    render({conversation: both[0], rulebook: both[1], collaboration: both[3], conversations: both[4], x: both[5], meta: {updated: stamp}});
   }).catch(function () { render(fallback); });
 }
 loadState();
@@ -609,46 +653,6 @@ setInterval(function () {
 })();
 
 (function () {
-  var RAWS = "https://raw.githubusercontent.com/isorabins/alanguagealltheirown/main/state/";
-  var get = function (f) { return fetch(RAWS + f, {cache: "no-store"}).then(function (r) { if (!r.ok) throw 0; return r.json(); }); };
-  Promise.all([get("probe.json"), get("rulebook.json")]).then(function (pr) {
-    var p = pr[0], kernel = (pr[1] && pr[1].kernel_tokens) || 0;
-    var pass = (p.exams || []).filter(function (e) { return e.fidelity >= 90 && e.orig_tokens > 0; }).slice(-10);
-    if (pass.length < 3) return;
-    var lang = 0, min = 0, saved = 0;
-    pass.forEach(function (e) {
-      lang += -(e.enc_tokens - e.orig_tokens) / e.orig_tokens * 100;
-      min += -(e.min_tokens - e.orig_tokens) / e.orig_tokens * 100;
-      saved += e.orig_tokens - e.enc_tokens;
-    });
-    lang = Math.round(lang / pass.length); min = Math.round(min / pass.length);
-    var S = Math.round(saved / pass.length);
-    var gap = lang - min;
-    var cells = [
-      ["dumb script · last " + pass.length + " passing exams", (min > 0 ? "+" : "") + min + "%"],
-      ["the language · same exams", (lang > 0 ? "+" : "") + lang + "%"],
-      ["the gap — earned by the language", (gap > 0 ? "+" : "") + gap + " pts"]
-    ];
-    document.getElementById("control").innerHTML = cells.map(function (x) {
-      return "<span>" + x[0] + "<b>" + x[1] + "</b></span>";
-    }).join("");
-    var ladder;
-    if (kernel > 0 && S > 0) {
-      var net = function (n) { var v = n * S - kernel; return (v > 0 ? "+" : "−") + Math.abs(v).toLocaleString() + " tok"; };
-      ladder = "<b>the entry fee</b> — a stranger must first be taught the rulebook: " + kernel.toLocaleString() +
-        " tokens, paid once (then cached) · at " + S + " tok saved per message: 1 message " + net(1) +
-        " · 10 messages " + net(10) + " · break even ≈ " + Math.ceil(kernel / S) +
-        " messages · 100 messages " + net(100);
-    } else {
-      ladder = "<b>the entry fee</b> — a stranger must first be taught the rulebook: " + kernel.toLocaleString() +
-        " tokens. At current per-message savings the fee never pays back — the language is running behind its own cost.";
-    }
-    document.getElementById("ladder").innerHTML = ladder;
-    document.getElementById("control-sect").style.display = "";
-  }).catch(function () {});
-})();
-
-(function () {
   var esc = function (s) {
     return String(s == null ? "" : s).replace(/[&<>"]/g, function (c) {
       return {"&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;"}[c];
@@ -663,7 +667,7 @@ setInterval(function () {
   function pause(ms) { return new Promise(function (r) { setTimeout(r, ms); }); }
   function post(url, body) {
     return fetch(url, { method: "POST", headers: {"Content-Type": "application/json"}, body: JSON.stringify(body) })
-      .then(function (r) { return r.json().then(function (j) { if (!r.ok) throw new Error(j.error || ("http " + r.status)); return j; }); });
+      .then(function (r) { return r.json().then(function (j) { if (!r.ok) { var err = new Error(j.error || ("http " + r.status)); err.code = j.code; err.status = r.status; throw err; } return j; }); });
   }
   $("ti-text").addEventListener("input", function () { $("ti-n").textContent = this.value.length; });
   $("ti-go").addEventListener("click", async function () {
@@ -682,7 +686,7 @@ setInterval(function () {
       $("ti-s1").style.display = "block";
 
       status("the stranger is decoding — it has never seen your message, only the rulebook");
-      var dec = await post("/api/decode", { encoded: enc.encoded });
+      var dec = await post("/api/decode", { encoded: enc.encoded, rulebook_version: enc.rulebook_version, rulebook_hash: enc.rulebook_hash });
       await pause(900);
       $("ti-decoded").textContent = dec.decoded;
       $("ti-s2").style.display = "block";
@@ -719,9 +723,27 @@ setInterval(function () {
       $("ti-s3").style.display = "block";
       status("");
     } catch (e) {
-      status(String(e.message || e), true);
+      var message = e.code === "rulebook_changed" ? "the language changed during your run — encode again" :
+        e.code === "allowance_exhausted" ? "the public monthly allowance is exhausted; it reopens after the monthly UTC reset" :
+        e.code && e.code.indexOf("provider_") === 0 ? "the model provider failed; this is not an allowance problem" : String(e.message || e);
+      status(message, true);
     }
     $("ti-go").disabled = false;
+  });
+})();
+
+(function () {
+  var form = document.getElementById("suggestion-form"), text = document.getElementById("suggestion-text"), status = document.getElementById("suggestion-status");
+  if (!form) return;
+  form.addEventListener("submit", function (event) {
+    event.preventDefault(); var value = text.value.trim();
+    if (!value) { status.textContent = "Write a suggestion first."; return; }
+    var idempotency = (window.crypto && crypto.randomUUID) ? crypto.randomUUID() : String(Date.now()) + "-" + Math.random();
+    status.textContent = "Submitting for private review…";
+    fetch("/api/suggestion", {method:"POST", headers:{"Content-Type":"application/json"}, body:JSON.stringify({text:value,idempotency_key:idempotency})})
+      .then(function (response) { return response.json().then(function (body) { if (!response.ok) throw new Error(body.error || "submission failed"); return body; }); })
+      .then(function () { text.value = ""; status.textContent = "Pending Iso review. It is not public and cannot reach the agents yet."; })
+      .catch(function (error) { status.textContent = error.message; });
   });
 })();
 
