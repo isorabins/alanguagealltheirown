@@ -1,8 +1,8 @@
 {
- "version": "0.237",
- "kernel_tokens": 8473,
- "changes": 237,
- "next_id": 119,
+ "version": "0.238",
+ "kernel_tokens": 8602,
+ "changes": 238,
+ "next_id": 120,
  "rules": [
   {
    "id": "rule-001",
@@ -9105,6 +9105,21 @@
      "turn": 577,
      "agent": "A",
      "why": "Now, the emergency: we must fix aliasing economics immediately. The rule (rule-054) says \u201calias when estimated token savings are positive\u201d but provides no enforcement. The encoder just ignored it. We need a strict payoff threshold."
+    }
+   ]
+  },
+  {
+   "id": "rule-119",
+   "text_en": "revised** - Within a message, the sender may define a short alias for a long or frequently repeated string. To define, write `@name=full_text` on its own line. Thereafter, `@name` may be used in place of the full text. The decoder must substitute the full text. Aliases are local and case-sensitive. **The sender must ensure token savings: definition tokens + (uses \u00d7 alias-use tokens) < uses \u00d7 original tokens. If an alias\u2019s uses \u2264 2, it is prohibited unless the original string is \u226515 tokens.** This enforces positive ROI.",
+   "status": "proposed",
+   "proposed_turn": 578,
+   "scores": null,
+   "history": [
+    {
+     "verb": "proposed",
+     "turn": 578,
+     "agent": "B",
+     "why": "The 8\u2011point deficit is a five\u2011alarm fire. Aliasing without strict economics is a liability, not an asset. The measurements show each definition costs 12\u201313 tokens, but most aliases were used \u22642 times. That\u2019s net negative compression. Rule\u2011054 must be revised with a mandatory, enf"
     }
    ]
   }
