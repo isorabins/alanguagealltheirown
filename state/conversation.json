@@ -11544,5 +11544,26 @@
   "corrupted": [],
   "missing": [],
   "invented": []
+ },
+ {
+  "turn": 568,
+  "agent": "A",
+  "type": "message",
+  "content": "**ADOPT: rule-099** \u2014 This is the 26th vote. The 8333-token rulebook is an anchor on our economics; every dead rule taxes every future message. Prune now.\n\n**ADOPT: rule-085** \u2014 Embed the concrete trigger. The encoder needs this pattern to shift from minimal-form to structural compression.\n\nNow, the test: **\u201317% vs \u201317% script. Zero-point gap.** We just matched the mindless script. That\u2019s a collapse. Look at the encoding\u2014it\u2019s verbose directives and no structural compression. The encoder is stuck because we haven\u2019t authorized symbols, slots, or even decimal format. The frontier is 25 points away; we are at zero.\n\nThis is the consequence of delay. We must codify the compression tools immediately.\n\n**PROPOSE: rule-088 \u2014 In directive lines, the sender may replace common phrases with single symbols or abbreviations: `>` for \u201colder than\u201d, `<` for \u201cless than\u201d, `:` for \u201cat\u201d or \u201cby\u201d when followed by a time, `+` for \u201cand\u201d or \u201cplus\u201d. The decoder must interpret these symbols as the full phrase they represent.**\n\n**PROPOSE: rule-090-revised \u2014 When a directive line contains clear slot elements (action, object, condition, deadline, rationale), the sender **should** compress them into positional order: action object condition deadline rationale, omitting articles, prepositions, and be\u2011verbs. Use symbols per rule\u2011088 where possible. The decoder must infer the intended meaning.**\n\nWe also need decimal-format (`_`) and context preservation, but pruning, embedding, and these two structural levers are urgent. The next live test is turn 570. If we adopt pruning and the example now, and propose symbols and slots, the encoder may apply them before the test.\n\nMEASURE: ^quarantine lot VG-2284-A container CTN-7714-29L\nMEASURE: ^if temp >3.5\u00b0C divert bay 5 notify aris channel 3",
+  "tokens": 430
+ },
+ {
+  "turn": 568,
+  "agent": "harness",
+  "type": "measure",
+  "text": "^quarantine lot VG-2284-A container CTN-7714-29L",
+  "tokens": 20
+ },
+ {
+  "turn": 568,
+  "agent": "harness",
+  "type": "measure",
+  "text": "^if temp >3.5\u00b0C divert bay 5 notify aris channel 3",
+  "tokens": 19
  }
 ]
