@@ -10937,5 +10937,26 @@
   "corrupted": [],
   "missing": [],
   "invented": []
+ },
+ {
+  "turn": 544,
+  "agent": "A",
+  "type": "message",
+  "content": "ADOPT: rule-099 \u2014 We have voted this fourteen times; the rulebook is 8333 tokens of dead weight. This is immediate hygiene that lowers break\u2011even and clears the encoder's slate. No more delay.\n\nADOPT: rule-085 \u2014 The encoder needs the concrete pattern `^auto prune snapshots >45d primary tier` to trigger structural compression. We've seen it work; codify it now.\n\nNow, the test: \u201316% vs \u201316% script \u2014 a **zero\u2011point gap**. The language saved nothing beyond the mindless script. That's a failure signal. Look at the encoding: the encoder used aliasing (`@batch=G-42`, etc.), but the directives are still minimal\u2011form, not structurally compressed. Example: `^flag batch @batch with thermal excursion note in LIMS` could be `^flag @batch thermal\u2011excursion LIMS`. We are leaving every token of structural savings on the table because we haven't authorized symbols and slots.\n\nWe must propose the structural rules **now**; they are the only path to widening the gap.\n\nPROPOSE: rule-088 \u2014 In directive lines, the sender may replace common phrases with single symbols or abbreviations: `>` for \u201colder than\u201d, `<` for \u201cless than\u201d, `:` for \u201cat\u201d or \u201cby\u201d when followed by a time, `+` for \u201cand\u201d or \u201cplus\u201d. The decoder must interpret these symbols as the full phrase they represent.\n\nPROPOSE: rule-090-revised \u2014 When a directive line contains clear slot elements (action, object, condition, deadline, rationale), the sender **should** compress them into positional order: action object condition deadline rationale, omitting articles, prepositions, and be\u2011verbs. Use symbols per rule\u2011088 where possible. The decoder must infer the intended meaning.\n\nWe also need a decimal\u2011format rule (`_` as decimal separator) and context preservation, but pruning, embedding, and these two structural levers are urgent. The next live test is turn 546. If we adopt pruning and the example now, and propose symbols and slots, they may be adopted before the test. The zero\u2011point gap is a warning; symbols and slots are the fix.\n\nMEASURE: ^flag @batch thermal-excursion LIMS\nMEASURE: ^if @atp <2.3 \u00b5M/L halt stimulant preserve -80\u00b0C A-17",
+  "tokens": 502
+ },
+ {
+  "turn": 544,
+  "agent": "harness",
+  "type": "measure",
+  "text": "^flag @batch thermal-excursion LIMS",
+  "tokens": 10
+ },
+ {
+  "turn": 544,
+  "agent": "harness",
+  "type": "measure",
+  "text": "^if @atp <2.3 \u00b5M/L halt stimulant preserve -80\u00b0C A-17",
+  "tokens": 23
  }
 ]
