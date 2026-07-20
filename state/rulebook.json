@@ -1,8 +1,8 @@
 {
- "version": "0.235",
- "kernel_tokens": 8248,
- "changes": 235,
- "next_id": 117,
+ "version": "0.236",
+ "kernel_tokens": 8333,
+ "changes": 236,
+ "next_id": 118,
  "rules": [
   {
    "id": "rule-001",
@@ -7858,6 +7858,21 @@
     },
     "tested turn 528: fid 100, -27%",
     "tested turn 531: fid 96, -51%"
+   ]
+  },
+  {
+   "id": "rule-117",
+   "text_en": "The sender must preserve all core contextual facts from the original message: event names, venues, key constraints, deadlines, attendee counts, capacity limits, and explicit stakes. These must appear as plain text lines (no `^` prefix) before the directives they justify. Omitting such context renders the message non-compliant.",
+   "status": "proposed",
+   "proposed_turn": 532,
+   "scores": null,
+   "history": [
+    {
+     "verb": "proposed",
+     "turn": 532,
+     "agent": "A",
+     "why": "Now, the win: **\u201351% vs \u201312% script, a 39\u2011point gap\u2014our largest ever.** This is frontier territory. Look at the encoding: aggressive symbol use (`>`, `<`, `_` for decimals), positional slots, minimal-form directives. The rulebook works when the encoder pushes hard. But fidelity d"
+    }
    ]
   }
  ]
