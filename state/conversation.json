@@ -12106,5 +12106,26 @@
   "corrupted": [],
   "missing": [],
   "invented": []
+ },
+ {
+  "turn": 589,
+  "agent": "A",
+  "type": "message",
+  "content": "**ADOPT: rule-099** \u2014 40th vote. The anchor is still here, 8626 tokens. The 48% saving is a spike, not a trend\u2014look at the payload: pure directives, no aliases, no narrative. That's a lucky draw, not structural compression. The script got -19%, we got -48%, a 29\u2011point gap\u2014our widest ever. But the encoder achieved that by aggressive minimal\u2011form stripping, not by using symbols or slots. The directives are still verbose: `^if cleaned yield <960 grams notify me immediately do not portion adjust plating` could be `^if yield <960g alert no adjust`. Without rule\u2011088 and rule\u2011090-revised, we\u2019re leaving tokens on the table every time the payload isn\u2019t pure directives.\n\n**ADOPT: rule-085** \u2014 Embed the concrete trigger. The encoder needs this pattern to shift from minimal-form to structural compression.\n\n**ADOPT: rule-103** \u2014 Lock fidelity. The \u201cCedar Hill\u201d risk is real; adopt now.\n\nNow, the spike proves the ceiling: 29 points above the script. But our floor is 2 points. That volatility is the anchor\u2019s fault\u2014the encoder is navigating a bloated rulebook. Prune first.\n\nThen we must fix aliasing economics. The encoder avoided aliases this time\u2014good\u2014but rule\u2011054 still lacks enforcement. Replace it.\n\n**PROPOSE: rule\u2011054\u2011revised** \u2014 Within a message, the sender may define a short alias for a long or frequently repeated string. To define, write `@name=full_text` on its own line. Thereafter, `@name` may be used in place of the full text. The decoder must substitute the full text. Aliases are local and case\u2011sensitive. **The sender must ensure token savings: definition tokens + (uses \u00d7 alias\u2011use tokens) < uses \u00d7 original tokens. If an alias\u2019s uses \u2264 2, it is prohibited unless the original string is \u226515 tokens.** This enforces positive ROI.\n\nNow the structural compression we\u2019ve postponed for 20 turns. The measurement shows `^if yield <960g alert no adjust` is shorter. We need symbols and slots.\n\n**PROPOSE: rule\u2011088** \u2014 In directive lines, the sender may replace common phrases with single symbols or abbreviations: `>` for \u201colder than\u201d, `<` for \u201cless than\u201d, `:` for \u201cat\u201d or \u201cby\u201d when followed by a time, `+` for \u201cand\u201d or \u201cplus\u201d. The decoder must interpret these symbols as the full phrase they represent.\n\n**PROPOSE: rule\u2011090\u2011revised** \u2014 When a directive line contains clear slot elements (action, object, condition, deadline, rationale), the sender **should** compress them into positional order: action object condition deadline rationale, omitting articles, prepositions, and be\u2011verbs. Use symbols per rule\u2011088 where possible. The decoder must infer the intended meaning.\n\nNext test is turn 591. If we adopt pruning, the example, and rule\u2011103 now, and propose revised aliasing, symbols, and slots, we cut the anchor, guard fidelity, enforce aliasing economics, and unlock the compression that can turn the 29\u2011point spike into a stable 25\u2011point floor.\n\nMEASURE: ^if yield <960g alert no adjust  \nMEASURE: ^first 40 canapes plated by 7:15 PM",
+  "tokens": 724
+ },
+ {
+  "turn": 589,
+  "agent": "harness",
+  "type": "measure",
+  "text": "^if yield <960g alert no adjust",
+  "tokens": 9
+ },
+ {
+  "turn": 589,
+  "agent": "harness",
+  "type": "measure",
+  "text": "^first 40 canapes plated by 7:15 PM",
+  "tokens": 14
  }
 ]
