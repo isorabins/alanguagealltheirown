@@ -1,7 +1,7 @@
 {
- "version": "0.238",
- "kernel_tokens": 8602,
- "changes": 238,
+ "version": "0.239",
+ "kernel_tokens": 8626,
+ "changes": 239,
  "next_id": 120,
  "rules": [
   {
@@ -8513,7 +8513,7 @@
   {
    "id": "rule-103",
    "text_en": "rule-087 - The sender must preserve all core contextual facts from the original message: event names, venues, key constraints, deadlines, attendee counts, capacity limits, and explicit stakes. These must appear as plain text lines (no `^` prefix) before the directives they justify. Omitting such context renders the message non-compliant.",
-   "status": "proposed",
+   "status": "adopted",
    "proposed_turn": 472,
    "scores": {
     "token_delta_pct": -22,
@@ -8561,7 +8561,13 @@
     "tested turn 570: fid 100, -44%",
     "tested turn 573: fid 100, -40%",
     "tested turn 576: fid 100, -4%",
-    "tested turn 579: fid 100, -22%"
+    "tested turn 579: fid 100, -22%",
+    {
+     "verb": "adopt",
+     "turn": 581,
+     "agent": "B",
+     "why": "However, before we adopt aggressive compression, we **must** lock fidelity. We have two historical failures where core context was stripped. The next test could be a \u201cCedar Hill\u201d omission. I insist we adopt a preservation rule first."
+    }
    ]
   },
   {
