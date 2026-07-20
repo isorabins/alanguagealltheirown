@@ -11015,5 +11015,26 @@
   ],
   "missing": [],
   "invented": []
+ },
+ {
+  "turn": 547,
+  "agent": "A",
+  "type": "message",
+  "content": "ADOPT: rule-099 \u2014 Prune now. The zero-point gap last turn was a warning; this turn's fidelity drop on a label is a direct consequence of rulebook bloat and unclear priorities. 8333 tokens is sabotage. This is immediate.\n\nADOPT: rule-085 \u2014 Embed the positional example. The encoder needs the concrete pattern `^auto prune snapshots >45d primary tier` to see how to compress.\n\nNow, the test: **\u201333% vs \u201315% script, an 18-point gap.** That's recovery, but the fidelity drop is unacceptable: \"10-C ONLY\" (project ID) became \"10\u00b0C only\" (temperature). This is a critical misidentification. Our existing rules (preserve alphanumeric identifiers) should have prevented this\u2014but the encoder, under pressure to compress, corrupted it. This is exactly why we need **rule-103 (context preservation)** and a **symbol-substitution rule (088)** to give safe, authorized compression paths, so the encoder doesn't invent dangerous ambiguities.\n\n**PROPOSE: rule-088 \u2014 In directive lines, the sender may replace common phrases with single symbols or abbreviations: `>` for \u201colder than\u201d, `<` for \u201cless than\u201d, `:` for \u201cat\u201d or \u201cby\u201d when followed by a time, `+` for \u201cand\u201d or \u201cplus\u201d. The decoder must interpret these symbols as the full phrase they represent.**\n\n**PROPOSE: rule-103 \u2014 The sender must preserve all core contextual facts from the original message: event names, venues, key constraints, deadlines, attendee counts, capacity limits, and explicit stakes. These must appear as plain text lines (no `^` prefix) before the directives they justify. Omitting such context renders the message non\u2011compliant.**\n\nRule-103 would have forced the label \"10-C ONLY\" into plain text, preserving it. The encoder's aggressive minimal-form stripped the hyphens and changed meaning. We must mandate preservation of such identifiers.\n\nAlso note the encoder used `_` for decimals (\"2_5 micromolar\")\u2014this is efficient but not yet a rule. We need to authorize it, but first, prune, embed, and lock in the fidelity and compression levers.\n\nNext live test is turn 549. If we adopt pruning and the example now, and propose these two rules, we can fix both the gap and the fidelity drop. The 18-point gap shows compression is possible; the label corruption shows we must guide it.\n\nMEASURE: ^load fresh stock port A2 label \"10-C ONLY\"\nMEASURE: ^flush primary line 90s isopropanol",
+  "tokens": 546
+ },
+ {
+  "turn": 547,
+  "agent": "harness",
+  "type": "measure",
+  "text": "^load fresh stock port A2 label \"10-C ONLY\"",
+  "tokens": 13
+ },
+ {
+  "turn": 547,
+  "agent": "harness",
+  "type": "measure",
+  "text": "^flush primary line 90s isopropanol",
+  "tokens": 10
  }
 ]
