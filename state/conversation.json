@@ -12339,5 +12339,26 @@
   "corrupted": [],
   "missing": [],
   "invented": []
+ },
+ {
+  "turn": 598,
+  "agent": "A",
+  "type": "message",
+  "content": "**ADOPT: rule-099** \u2014 46th vote. The anchor is still 8703 tokens. Our margin is \u201323% vs \u201315% script, an 8\u2011point lead\u2014better than the 2\u2011point floor, but still volatile. The encoder is navigating a swamp of dead rules, and we are leaving structural compression on the table. Prune now; this is the single biggest lever to lower entry fee and clear the encoder\u2019s view.\n\n**ADOPT: rule-103** \u2014 Fidelity lock is adopted. The test shows 100, but the \u201cCedar Hill\u201d risk is proven. This rule forces core context into plain text before directives, creating a safe boundary for compression. Adopt now.\n\n**ADOPT: rule-085** \u2014 Embed the concrete pattern. The encoder needs this trigger to shift from minimal\u2011form to structural compression.\n\nNow, look at the encoding: directives are still verbose because we haven\u2019t adopted symbols or slots. Example:  \n`^amend chauffeur booking pick up at Osterburg airport for 1545 not 1510` could be `^amend pickup OZB 15:45 not 15:10`.  \nThe encoder lacks permission.\n\nAliasing was not used this test\u2014good\u2014but rule\u2011054\u2019s loose guidance is still a liability. We must replace it with a strict payoff threshold before the next over\u2011aliasing event.\n\n**PROPOSE: rule\u2011054\u2011revised** \u2014 Within a message, the sender may define a short alias for a long or frequently repeated string. To define, write `@name=full_text` on its own line. Thereafter, `@name` may be used in place of the full text. The decoder must substitute the full text. Aliases are local and case\u2011sensitive. **The sender must ensure token savings: definition tokens + (uses \u00d7 alias\u2011use tokens) < uses \u00d7 original tokens. If an alias\u2019s uses \u2264 2, it is prohibited unless the original string is \u226515 tokens.** This enforces positive ROI.\n\nNow the structural compression we\u2019ve postponed for 24 turns. The fidelity lock (rule\u2011103) is live; we can safely authorize symbols and slots.\n\n**PROPOSE: rule\u2011088** \u2014 In directive lines, the sender may replace common phrases with single symbols or abbreviations: `>` for \u201colder than\u201d, `<` for \u201cless than\u201d, `:` for \u201cat\u201d or \u201cby\u201d when followed by a time, `+` for \u201cand\u201d or \u201cplus\u201d. The decoder must interpret these symbols as the full phrase they represent.\n\n**PROPOSE: rule\u2011090\u2011revised** \u2014 When a directive line contains clear slot elements (action, object, condition, deadline, rationale), the sender **should** compress them into positional order: action object condition deadline rationale, omitting articles, prepositions, and be\u2011verbs. Use symbols per rule\u2011088 where possible. The decoder must infer the intended meaning.\n\nNext test is turn 600. If we adopt pruning, fidelity lock, and the example now, and propose revised aliasing, symbols, and slots, we cut the anchor, secure context, enforce aliasing economics, and unlock the structural compression that can turn the 8\u2011point lead into a stable 25\u2011point floor.\n\nMEASURE: ^amend pickup OZB 15:45 not 15:10  \nMEASURE: ^if bag loaded UA 941 offload it",
+  "tokens": 714
+ },
+ {
+  "turn": 598,
+  "agent": "harness",
+  "type": "measure",
+  "text": "^amend pickup OZB 15:45 not 15:10",
+  "tokens": 14
+ },
+ {
+  "turn": 598,
+  "agent": "harness",
+  "type": "measure",
+  "text": "^if bag loaded UA 941 offload it",
+  "tokens": 10
  }
 ]
