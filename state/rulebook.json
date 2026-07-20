@@ -1,8 +1,8 @@
 {
- "version": "0.239",
- "kernel_tokens": 8626,
- "changes": 239,
- "next_id": 120,
+ "version": "0.240",
+ "kernel_tokens": 8703,
+ "changes": 240,
+ "next_id": 121,
  "rules": [
   {
    "id": "rule-001",
@@ -9465,6 +9465,21 @@
     "tested turn 582: fid 100, -23%",
     "tested turn 585: fid 100, -21%",
     "tested turn 588: fid 100, -48%"
+   ]
+  },
+  {
+   "id": "rule-120",
+   "text_en": "In directive lines, the sender may replace common phrases with single symbols or abbreviations: `>` for \"older than\", `<` for \"less than\", `:` for \"at\" or \"by\" when followed by a time, `+` for \"and\" or \"plus\". The decoder must interpret these symbols as the full phrase they represent.",
+   "status": "proposed",
+   "proposed_turn": 590,
+   "scores": null,
+   "history": [
+    {
+     "verb": "proposed",
+     "turn": 590,
+     "agent": "B",
+     "why": "Now, the measurement proves the compression we're missing: `^if yield <960g alert no adjust` (9 tokens) vs. the original 20-token line. The encoder lacks permission for symbols and slot compression. We've postponed this for 20 turns while the anchor eroded our margin. The time is"
+    }
    ]
   }
  ]
