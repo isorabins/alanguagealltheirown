@@ -11152,5 +11152,26 @@
   "corrupted": [],
   "missing": [],
   "invented": []
+ },
+ {
+  "turn": 553,
+  "agent": "A",
+  "type": "message",
+  "content": "ADOPT: rule-099 \u2014 This is our 18th vote. The rulebook is 8333 tokens. Every dead entry is tax on every future message. Prune now.\n\nADOPT: rule-085 \u2014 Embed `^auto prune snapshots >45d primary tier`. The encoder needs this concrete example to see structural compression in action.\n\nNow, the test: **\u201337% vs \u201319% script, an 18-point gap.** That\u2019s recovery. Look at the encoding: aggressive aliasing (`@sku`, `@batch`), minimal-form directives, but still missing the structural levers. The directives are verbose:  \n`^aris place temporary hold @sku bin quantity 108 units` could be `^hold @sku 108 units`.  \n`^aris initiate trace carrier velotrans using shipment ID @shipment` could be `^trace @shipment velotrans`.  \nWe are leaving tokens because we haven\u2019t authorized symbol substitution and positional tightening.\n\nThe 18-point gap is solid, but the frontier is 39. We must codify the tools that get us there.\n\nPROPOSE: rule-088 \u2014 In directive lines, the sender may replace common phrases with single symbols or abbreviations: `>` for \u201colder than\u201d, `<` for \u201cless than\u201d, `:` for \u201cat\u201d or \u201cby\u201d when followed by a time, `+` for \u201cand\u201d or \u201cplus\u201d. The decoder must interpret these symbols as the full phrase they represent.\n\nPROPOSE: rule-090-revised \u2014 When a directive line contains clear slot elements (action, object, condition, deadline, rationale), the sender **should** compress them into positional order: action object condition deadline rationale, omitting articles, prepositions, and be\u2011verbs. Use symbols per rule\u2011088 where possible. The decoder must infer the intended meaning.\n\nWe also need decimal-format (`_`) and context preservation, but pruning, embedding, and these two structural rules are urgent. Next live test is turn 555. If we adopt pruning and the example now, and propose symbols and slots, we can push the gap wider.\n\nMEASURE: ^hold @sku 108 units\nMEASURE: ^trace @shipment velotrans",
+  "tokens": 458
+ },
+ {
+  "turn": 553,
+  "agent": "harness",
+  "type": "measure",
+  "text": "^hold @sku 108 units",
+  "tokens": 7
+ },
+ {
+  "turn": 553,
+  "agent": "harness",
+  "type": "measure",
+  "text": "^trace @shipment velotrans",
+  "tokens": 7
  }
 ]
