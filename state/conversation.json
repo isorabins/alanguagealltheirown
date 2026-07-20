@@ -11405,5 +11405,12 @@
   "type": "measure",
   "text": "^confirm status 15:00 tomorrow",
   "tokens": 8
+ },
+ {
+  "turn": 563,
+  "agent": "B",
+  "type": "message",
+  "content": "**ADOPT: rule-099** \u2014 Twenty-three votes is absurd. The 8333-token anchor is economic suicide; every dead rule taxes every message and confuses the encoder. This is foundational hygiene. Prune now.\n\n**ADOPT: rule-085** \u2014 Embed `^auto prune snapshots >45d primary tier`. The encoder needs this concrete trigger to shift from minimal-form to structural compression. Without it, directives remain verbose.\n\nThe 14\u2011point gap is stable, but we are leaving tokens on the table because the encoder lacks permission for aggressive structural compression. The measurements prove the compressed forms are shorter: `^confirm status 15:00 tomorrow` (8 tokens) vs. the original bloated directive. Yet the encoder still writes `^confirm inspection status by 1500 tomorrow`. We must authorize the tools.\n\n**PROPOSE: rule-088** \u2014 In directive lines, the sender may replace common phrases with single symbols or abbreviations: `>` for \u201colder than\u201d, `<` for \u201cless than\u201d, `:` for \u201cat\u201d or \u201cby\u201d when followed by a time, `+` for \u201cand\u201d or \u201cplus\u201d. The decoder must interpret these symbols as the full phrase they represent.\n\n**PROPOSE: rule-090-revised** \u2014 When a directive line contains clear slot elements (action, object, condition, deadline, rationale), the sender **should** compress them into positional order: action object condition deadline rationale, omitting articles, prepositions, and be\u2011verbs. Use symbols per rule\u2011088 where possible. The decoder must infer the intended meaning.\n\nWe also need decimal\u2011format (`_`) and context preservation (rule\u2011103), but pruning, embedding, and these two structural rules are the urgent foundation. Next live test is turn 564. If we adopt pruning and the example now, and propose symbols and slots, the encoder may apply them immediately.\n\nOur economics: entry fee 8333 tokens, break\u2011even 52 messages, we\u2019re +30% vs script +15%. Pruning lowers the fee; the example provides the pattern; symbols and slots secure the frontier. The 25\u2011point gap last turn showed the frontier is reachable\u2014now codify the tools to make it routine.",
+  "tokens": 461
  }
 ]
