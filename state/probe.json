@@ -1231,9 +1231,16 @@
    "enc_tokens": 339,
    "min_tokens": 430,
    "fidelity": 96
+  },
+  {
+   "turn": 549,
+   "orig_tokens": 436,
+   "enc_tokens": 343,
+   "min_tokens": 364,
+   "fidelity": 100
   }
  ],
- "spend_usd": 0.012861,
- "updated": "2026-07-20T05:31:17Z",
+ "spend_usd": 0.012944,
+ "updated": "2026-07-20T06:16:35Z",
  "method": "lowercase; strip surrounding punctuation; drop the/a/an/please; words containing digits kept verbatim; token-counted by the same provider-pinned probe as the loop"
 }
