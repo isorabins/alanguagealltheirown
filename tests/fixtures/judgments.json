@@ -1,0 +1,7 @@
+{
+  "complete":{"items":[{"n":1,"verdict":"SURVIVED"},{"n":2,"verdict":"MISSING"}],"invented":[],"mode":"RELAY"},
+  "missing":{"items":[{"n":1,"verdict":"SURVIVED"}],"invented":[]},
+  "duplicate":{"items":[{"n":1,"verdict":"SURVIVED"},{"n":1,"verdict":"MISSING"}],"invented":[]},
+  "nonnumeric":{"items":[{"n":"first","verdict":"SURVIVED"},{"n":2,"verdict":"MISSING"}],"invented":[]},
+  "out_of_range":{"items":[{"n":1,"verdict":"SURVIVED"},{"n":3,"verdict":"MISSING"}],"invented":[]}
+}
