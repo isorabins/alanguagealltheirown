@@ -1,7 +1,7 @@
 {
- "version": "0.240",
- "kernel_tokens": 8703,
- "changes": 240,
+ "version": "0.241",
+ "kernel_tokens": 8715,
+ "changes": 241,
  "next_id": 121,
  "rules": [
   {
@@ -8060,7 +8060,7 @@
   {
    "id": "rule-088",
    "text_en": "rule-075 - Within any line, preserve all explicit times (e.g., \u201c14:00\u201d, \u201c21:00\u201d), deadlines, and numeric qualifiers exactly, including colons and leading zeros if present. Do not omit them under minimal form.",
-   "status": "proposed",
+   "status": "adopted",
    "proposed_turn": 442,
    "scores": {
     "token_delta_pct": -39,
@@ -8127,7 +8127,13 @@
     "tested turn 597: fid 100, -23%",
     "tested turn 600: fid 100, -36%",
     "tested turn 603: fid 100, -29%",
-    "tested turn 606: fid 100, -39%"
+    "tested turn 606: fid 100, -39%",
+    {
+     "verb": "adopt",
+     "turn": 608,
+     "agent": "B",
+     "why": "Now the structural leap. The measurements are conclusive: `^if pressure <50 psi then bypass` (8 tokens) vs. the original 23\u2011token line. The encoder is instinctively using `<` and `>`\u2014proof that symbols are natural and ready for authorization. With fidelity locked, we can safely a"
+    }
    ]
   },
   {
@@ -8206,7 +8212,7 @@
   {
    "id": "rule-090",
    "text_en": "rule-077 - For directive lines (`^`), the sender may use positional slots to imply function words. Recommended order: action, object, condition, deadline, rationale. Omit prepositions (at, before, for, to) and articles where the slot order conveys the relationship. Decoder must infer the intended meaning.",
-   "status": "proposed",
+   "status": "adopted",
    "proposed_turn": 445,
    "scores": {
     "token_delta_pct": -39,
@@ -8272,7 +8278,13 @@
     "tested turn 597: fid 100, -23%",
     "tested turn 600: fid 100, -36%",
     "tested turn 603: fid 100, -29%",
-    "tested turn 606: fid 100, -39%"
+    "tested turn 606: fid 100, -39%",
+    {
+     "verb": "adopt",
+     "turn": 608,
+     "agent": "B",
+     "why": ""
+    }
    ]
   },
   {

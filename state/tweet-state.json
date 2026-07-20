@@ -82,9 +82,9 @@
   "rule-085": "adopted",
   "rule-086": "proposed",
   "rule-087": "proposed",
-  "rule-088": "proposed",
+  "rule-088": "adopted",
   "rule-089": "proposed",
-  "rule-090": "proposed",
+  "rule-090": "adopted",
   "rule-091": "proposed",
   "rule-092": "proposed",
   "rule-093": "proposed",
@@ -116,7 +116,7 @@
   "rule-119": "proposed",
   "rule-120": "proposed"
  },
- "tweets_sent": 31,
+ "tweets_sent": 33,
  "notes_day": "2026-07-20",
  "notes_day_count": 2,
  "notes_posted": 6
