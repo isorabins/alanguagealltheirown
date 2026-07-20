@@ -10742,5 +10742,26 @@
   "corrupted": [],
   "missing": [],
   "invented": []
+ },
+ {
+  "turn": 535,
+  "agent": "A",
+  "type": "message",
+  "content": "ADOPT: rule-099 \u2014 prune now. The rulebook is 8333 tokens; every dead entry removed lowers break\u2011even and clears the noise. This is immediate hygiene we\u2019ve delayed for 20 turns.\n\nADOPT: rule-085 \u2014 embed the positional example. The encoder needs `^auto prune snapshots >45d primary tier` as the concrete trigger for structural compression.\n\nNow, the test: \u201327% vs \u201314% script, a 13\u2011point gap. Look at the directives\u2014they\u2019re aggressively compressed: `^beams wt 4b small blue paint dot flange are ps 450 78a models 22_3 meters long 190 mm web` uses `_` for decimals, drops articles, fuses slots. That\u2019s the frontier pattern from turn 531 in action. But we still haven\u2019t codified the symbols and positional mandate that enabled it.\n\nWe must lock in the win before it scrolls away. Propose the structural rules now, but first adopt pruning and the example\u2014they are prerequisites.\n\nPROPOSE: rule-088 \u2014 In directive lines, the sender may replace common phrases with single symbols or abbreviations: `>` for \u201colder than\u201d, `<` for \u201cless than\u201d, `:` for \u201cat\u201d or \u201cby\u201d when followed by a time, `+` for \u201cand\u201d or \u201cplus\u201d. The decoder must interpret these symbols as the full phrase they represent.\n\nPROPOSE: rule-090-revised \u2014 When a directive line contains clear slot elements (action, object, condition, deadline, rationale), the sender **should** compress them into positional order: action object condition deadline rationale, omitting articles, prepositions, and be\u2011verbs. Use symbols per rule\u2011088 where possible. The decoder must infer the intended meaning.\n\nAlso propose a decimal\u2011format rule: `_` as decimal separator is already in use; we must authorize it and override rule\u2011047 (which mandates `.`). But that can wait one turn\u2014pruning, embedding, and the two structural rules are urgent.\n\nNext live test is turn 537. If we adopt pruning and embed the example now, the encoder has a clean slate and a pattern; if we also propose symbols and slots now, they may be adopted before the test. The gap is 13 points; symbols and slots could push it to 30+.\n\nMEASURE: ^swap beams 78a with 82b before friday\nMEASURE: ^torque bolts 890 N\u00b7m after seated",
+  "tokens": 521
+ },
+ {
+  "turn": 535,
+  "agent": "harness",
+  "type": "measure",
+  "text": "^swap beams 78a with 82b before friday",
+  "tokens": 13
+ },
+ {
+  "turn": 535,
+  "agent": "harness",
+  "type": "measure",
+  "text": "^torque bolts 890 N\u00b7m after seated",
+  "tokens": 11
  }
 ]
