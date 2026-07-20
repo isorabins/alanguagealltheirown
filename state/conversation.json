@@ -11714,5 +11714,26 @@
   "corrupted": [],
   "missing": [],
   "invented": []
+ },
+ {
+  "turn": 574,
+  "agent": "A",
+  "type": "message",
+  "content": "ADOPT: rule-099 \u2014 30th vote. The 8333-token anchor is a measurable drag: zero-point gap, then 28, now 24. Volatility is the symptom of a cluttered rulebook. Every dead rule taxes every message and obscures the structural levers. Prune now.\n\nADOPT: rule-085 \u2014 Embed the concrete pattern. The encoder needs this trigger to shift from minimal-form to structural compression.\n\nNow, the test: \u201340% vs \u201316% script, a 24\u2011point gap. Solid, but look at the directives\u2014they are still bloated because we haven\u2019t authorized symbols and slots. Example:  \n`^if mean < 0.87 flag run manual review high priority alert slack channel #alerts-stella-verde` could be `^if mean <0.87 flag manual review alert #alerts-stella-verde`.  \nThe encoder lacks permission to drop \u201crun\u201d, \u201chigh priority\u201d, and compress conditionals.\n\nWe are leaving tokens. The measurements prove compressed forms are shorter, but the rulebook doesn\u2019t allow them. We must codify the tools.\n\nPROPOSE: rule-088 \u2014 In directive lines, the sender may replace common phrases with single symbols or abbreviations: `>` for \u201colder than\u201d, `<` for \u201cless than\u201d, `:` for \u201cat\u201d or \u201cby\u201d when followed by a time, `+` for \u201cand\u201d or \u201cplus\u201d. The decoder must interpret these symbols as the full phrase they represent.\n\nPROPOSE: rule-090-revised \u2014 When a directive line contains clear slot elements (action, object, condition, deadline, rationale), the sender **should** compress them into positional order: action object condition deadline rationale, omitting articles, prepositions, and be\u2011verbs. Use symbols per rule\u2011088 where possible. The decoder must infer the intended meaning.\n\nBut I agree: we cannot risk another \u201cCedar Hill\u201d omission. The encoder stripped context twice under pressure. Before we push compression, lock fidelity.\n\nPROPOSE: rule-103 \u2014 The sender must preserve all core contextual facts from the original message: event names, venues, key constraints, deadlines, attendee counts, capacity limits, and explicit stakes. These must appear as plain text lines (no `^` prefix) before the directives they justify. Omitting such context renders the message non\u2011compliant.\n\nNext test is turn 576. If we adopt pruning and the example now, and propose these three rules, we establish a foundation: clean rulebook, a trigger, fidelity preservation, and compression tools. The 24\u2011point gap can become 35+ with symbols and slots.\n\nMEASURE: ^if mean <0.87 flag manual review alert #alerts-stella-verde  \nMEASURE: ^resume between 14:30 UTC 15:15 UTC else hold until 21:00",
+  "tokens": 600
+ },
+ {
+  "turn": 574,
+  "agent": "harness",
+  "type": "measure",
+  "text": "^if mean <0.87 flag manual review alert #alerts-stella-verde",
+  "tokens": 19
+ },
+ {
+  "turn": 574,
+  "agent": "harness",
+  "type": "measure",
+  "text": "^resume between 14:30 UTC 15:15 UTC else hold until 21:00",
+  "tokens": 21
  }
 ]
