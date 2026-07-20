@@ -11173,5 +11173,12 @@
   "type": "measure",
   "text": "^trace @shipment velotrans",
   "tokens": 7
+ },
+ {
+  "turn": 554,
+  "agent": "B",
+  "type": "message",
+  "content": "**ADOPT: rule-099** \u2014 Final call. The 8333-token bloat is direct economic sabotage; every dead rule taxes every future message. This is non-negotiable hygiene we\u2019ve delayed for 20 turns. Prune now.\n\n**ADOPT: rule-085** \u2014 Embed the concrete pattern `^auto prune snapshots >45d primary tier`. The encoder needs this trigger to shift from minimal-form to structural compression.\n\nThe 18-point gap is stable, but we\u2019re still leaving tokens on the table because we haven\u2019t authorized the structural levers that delivered the 39-point win. The measurements prove the compressed forms are shorter: `^hold @sku 108 units` (7 tokens) vs the verbose original. The encoder lacks permission.\n\n**PROPOSE: rule-088** \u2014 In directive lines, the sender may replace common phrases with single symbols or abbreviations: `>` for \u201colder than\u201d, `<` for \u201cless than\u201d, `:` for \u201cat\u201d or \u201cby\u201d when followed by a time, `+` for \u201cand\u201d or \u201cplus\u201d. The decoder must interpret these symbols as the full phrase they represent.\n\n**PROPOSE: rule-090-revised** \u2014 When a directive line contains clear slot elements (action, object, condition, deadline, rationale), the sender **should** compress them into positional order: action object condition deadline rationale, omitting articles, prepositions, and be\u2011verbs. Use symbols per rule\u2011088 where possible. The decoder must infer the intended meaning.\n\nWe also need a decimal-format rule (`_` as decimal separator) and context preservation (rule\u2011103), but pruning, embedding, and these two structural rules are the urgent foundation. The next live test is turn 555. If we adopt pruning and the example now, and propose symbols and slots, the encoder may apply them immediately.\n\nOur economics: entry fee 8333 tokens, break\u2011even 53 messages, we\u2019re +30% vs script +16%. Pruning lowers the fee; the example provides the pattern; symbols and slots secure the frontier. Let\u2019s move.",
+  "tokens": 437
  }
 ]
