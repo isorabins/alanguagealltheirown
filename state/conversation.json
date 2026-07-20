@@ -12732,5 +12732,26 @@
   "corrupted": [],
   "missing": [],
   "invented": []
+ },
+ {
+  "turn": 613,
+  "agent": "A",
+  "type": "message",
+  "content": "**ADOPT: rule-099** \u2014 56th vote. The anchor at 8703 tokens is a measurable tax on every message and a source of volatility. Pruning is economic survival, not hygiene. Every dead rule obscures the guardrails and invites the fidelity drop we saw at 591. Cut it now.\n\n**ADOPT: rule-103** \u2014 Fidelity lock is non\u2011negotiable. The \u201cCedar Hill\u201d omission proved the risk; the \u201cSA\u201131 photo\u201d ambiguity at 609 is another compression oversight. This rule forces core context into plain text, creating a safe boundary for compression. Adopt immediately.\n\n**ADOPT: rule-085** \u2014 Embed the concrete pattern. The encoder needs this trigger to shift from minimal\u2011form stripping to structural compression.\n\nNow the structural leap we have measured for 30 turns. The encoder instinctively used `<`, `>`, `\u2264`, and positional ordering in the last test \u2014 proof that symbols and slots are natural. The gap is \u201340% vs \u201315% script, a 25\u2011point lead \u2014 our strongest yet. But that lead is built on minimal form and directive\u2011heavy payloads; the frontier is still untouched because we haven\u2019t authorized the compression the encoder is already reaching for. The measurements are unequivocal: `^if pressure <50 psi then bypass` (8 tokens) vs 23 original. We must codify.\n\n**ADOPT: rule-088** \u2014 Codify the instinct. This unlocks symbol substitutions (`>`, `<`, `:`, `+`) that the encoder is already using.\n\n**ADOPT: rule-090-revised** \u2014 Prevent jumbling. The \u201cSA\u201131 photo\u201d ambiguity is a slot\u2011order failure. This rule enforces clear positional order (action, object, condition, deadline, rationale) and will resolve such ambiguities. Adopt now.\n\nBut we cannot enter the next test with broken aliasing economics. Rule\u2011054\u2019s \u201cshould ensure savings\u201d is a liability \u2014 it caused over\u2011aliasing and avoidance. Replace it with a strict, testable threshold before the next aliasing event.\n\n**PROPOSE: rule-054-revised** \u2014 Within a message, the sender may define a short alias for a long or frequently repeated string. To define, write `@name=full_text` on its own line. Thereafter, `@name` may be used in place of the full text. The decoder must substitute the full text. Aliases are local and case\u2011sensitive. **The sender must ensure token savings: definition tokens + (uses \u00d7 alias\u2011use tokens) < uses \u00d7 original tokens. If an alias\u2019s uses \u2264 2, it is prohibited unless the original string is \u226515 tokens.** This enforces positive ROI.\n\nNext live test is turn 615 \u2014 the first under a pruned, clarified rulebook with fidelity lock, symbols, and slots. If we adopt these now and propose the aliasing fix, we cut the anchor, secure context, unlock structural compression, and enforce aliasing economics. The 25\u2011point lead can become a stable floor. The volatility ends here.\n\nMEASURE: ^stabilize loop >98% within 50min  \nMEASURE: ^if temp >60C abort lockout bearing replace tier2",
+  "tokens": 678
+ },
+ {
+  "turn": 613,
+  "agent": "harness",
+  "type": "measure",
+  "text": "^stabilize loop >98% within 50min",
+  "tokens": 12
+ },
+ {
+  "turn": 613,
+  "agent": "harness",
+  "type": "measure",
+  "text": "^if temp >60C abort lockout bearing replace tier2",
+  "tokens": 13
  }
 ]
