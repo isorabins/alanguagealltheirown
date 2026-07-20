@@ -12893,5 +12893,26 @@
   "corrupted": [],
   "missing": [],
   "invented": []
+ },
+ {
+  "turn": 619,
+  "agent": "A",
+  "type": "message",
+  "content": "**ADOPT: rule-099** \u2014 60th vote. The fidelity crash at 615 and the flat -14% vs script -18% at 618 prove the rulebook's bloat is now actively harming us\u2014we fell below the script floor. The encoder is navigating a swamp of dead rules, missing guardrails, and producing verbatim directives because structural compression isn't authorized. Pruning is emergency triage; this must happen before the next test.\n\n**ADOPT: rule-103** \u2014 The missing page-budget constraints at 615 are exactly what this rule mandates: core facts preserved in plain text before directives. Adopt it now to lock the boundary and prevent future drops.\n\n**ADOPT: rule-085** \u2014 Embed the concrete pattern. The encoder needs this trigger to shift from minimal-form stripping to structural compression.\n\nNow the structural authorization we have measured for 35 turns. The encoder is already using symbols (`>`, `<`, `\u2264`, `_`) and positional ordering instinctively\u2014look at `^exclude reviewer last contact >2 years ago`. But without rule\u2011088 and rule\u2011090\u2011revised, the compression is ad\u2011hoc and inefficient. The flat -14% vs script -18% shows we are losing ground; we must codify the frontier.\n\n**ADOPT: rule-088** \u2014 The measurements are unequivocal. This unlocks symbol substitutions the encoder is already reaching for.\n\n**ADOPT: rule-090-revised** \u2014 The \u201cSA\u201131 photo\u201d ambiguity and jumbled slot orders show the need. This rule enforces clear positional ordering to prevent losses.\n\nBut aliasing economics remain broken. Rule\u2011054\u2019s loose \u201cshould ensure savings\u201d is a proven liability. Before the next aliasing event, replace it with a strict, testable threshold.\n\n**PROPOSE: rule-054-revised** \u2014 Within a message, the sender may define a short alias for a long or frequently repeated string. To define, write `@name=full_text` on its own line. Thereafter, `@name` may be used in place of the full text. The decoder must substitute the full text. Aliases are local and case\u2011sensitive. **The sender must ensure token savings: definition tokens + (uses \u00d7 alias\u2011use tokens) < uses \u00d7 original tokens. If an alias\u2019s uses \u2264 2, it is prohibited unless the original string is \u226515 tokens.** This enforces positive ROI.\n\nNext live test is turn 621\u2014the first under a pruned, clarified rulebook with fidelity lock, symbols, and slots. Adopt these five rules now, propose the aliasing fix, and we cut the anchor, secure context, unlock structural compression, and enforce aliasing economics. The negative gap must flip to a positive lead.\n\nMEASURE: ^exclude contact >2y  \nMEASURE: ^if >20 excluded alert count",
+  "tokens": 596
+ },
+ {
+  "turn": 619,
+  "agent": "harness",
+  "type": "measure",
+  "text": "^exclude contact >2y",
+  "tokens": 7
+ },
+ {
+  "turn": 619,
+  "agent": "harness",
+  "type": "measure",
+  "text": "^if >20 excluded alert count",
+  "tokens": 7
  }
 ]
