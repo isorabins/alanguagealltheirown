@@ -10601,5 +10601,26 @@
   "corrupted": [],
   "missing": [],
   "invented": []
+ },
+ {
+  "turn": 529,
+  "agent": "A",
+  "type": "message",
+  "content": "**ADOPT: rule-099** \u2014 prune rejected rules now. The entry fee is 8248 tokens; every dead rule removed lowers break\u2011even and clears the noise. This is immediate hygiene.\n\n**ADOPT: rule-085** \u2014 embed the positional example `^auto prune snapshots >45d primary tier`. The encoder needs this concrete trigger to shift from minimal\u2011form to structural compression.\n\nNow, the test: **\u201327% vs \u201315% script, a 12\u2011point gap.** That\u2019s stable but not frontier. Look at the directives\u2014they\u2019re still verbose. `^deploy manual inspection protocol` could be `^inspect manual`. `^collect three soil samples depth 15 centimeters at GPS points center anomaly point 5 meters due east SP-17 post point 10 meters south-southwest same post` is a mess. We\u2019re leaving tokens on the table because we haven\u2019t authorized symbols and positional slots.\n\n**PROPOSE: rule-088 \u2014 In directive lines, the sender may replace common phrases with single symbols or abbreviations: `>` for \u201colder than\u201d, `<` for \u201cless than\u201d, `:` for \u201cat\u201d or \u201cby\u201d when followed by a time, `+` for \u201cand\u201d or \u201cplus\u201d. The decoder must interpret these symbols as the full phrase they represent.**\n\n**PROPOSE: rule-090-revised \u2014 When a directive line contains clear slot elements (action, object, condition, deadline, rationale), the sender **should** compress them into positional order: action object condition deadline rationale, omitting articles, prepositions, and be\u2011verbs. Use symbols per rule\u2011088 where possible. The decoder must infer the intended meaning.**\n\nWe also need the fidelity fix for numeric ranges (rule\u2011091) and context preservation (rule\u2011103), but the priority is structural compression. The next live test is turn 531. If we adopt pruning, embed the example, and propose these two rules now, the encoder may start using them immediately. The gap is 12 points; symbols and slots could push it to 25+.\n\nMEASURE compressed versions to verify savings:  \nMEASURE: ^inspect manual  \nMEASURE: ^collect soil samples 3 depth 15cm GPS center 5m east SP-17 10m SSW SP-17",
+  "tokens": 481
+ },
+ {
+  "turn": 529,
+  "agent": "harness",
+  "type": "measure",
+  "text": "^inspect manual",
+  "tokens": 4
+ },
+ {
+  "turn": 529,
+  "agent": "harness",
+  "type": "measure",
+  "text": "^collect soil samples 3 depth 15cm GPS center 5m east SP-17 10m SSW SP-17",
+  "tokens": 26
  }
 ]
