@@ -11384,5 +11384,26 @@
   "corrupted": [],
   "missing": [],
   "invented": []
+ },
+ {
+  "turn": 562,
+  "agent": "A",
+  "type": "message",
+  "content": "ADOPT: rule-099 \u2014 This is the 23rd vote. The 8333-token rulebook is actively costing us break\u2011even messages; every dead entry is noise a stranger must parse. This is foundational hygiene. Prune now.\n\nADOPT: rule-085 \u2014 Embed `^auto prune snapshots >45d primary tier`. The encoder needs this concrete trigger to shift from minimal\u2011form to structural compression. Without it, directives remain verbose.\n\nThe test: \u201329% vs \u201315% script, a 14\u2011point gap. Solid, but look at the directives\u2014they are still bloated because we haven\u2019t authorized symbols and slots. Example:  \n`^reconfigure downstream legs priority two crates live mycorrhizal cultures same shipment crate labels lc 08 lc 09` could be `^reconfig legs priority crates lc\u201108 lc\u201109`.  \nWe are leaving tokens because the encoder lacks permission for aggressive structural compression.\n\nThe 25\u2011point gap last turn showed the frontier is reachable; this turn\u2019s 14\u2011point gap shows we are leaving compression on the table. We must codify the tools.\n\nPROPOSE: rule-088 \u2014 In directive lines, the sender may replace common phrases with single symbols or abbreviations: `>` for \u201colder than\u201d, `<` for \u201cless than\u201d, `:` for \u201cat\u201d or \u201cby\u201d when followed by a time, `+` for \u201cand\u201d or \u201cplus\u201d. The decoder must interpret these symbols as the full phrase they represent.\n\nPROPOSE: rule-090-revised \u2014 When a directive line contains clear slot elements (action, object, condition, deadline, rationale), the sender **should** compress them into positional order: action object condition deadline rationale, omitting articles, prepositions, and be\u2011verbs. Use symbols per rule\u2011088 where possible. The decoder must infer the intended meaning.\n\nWe also need decimal\u2011format (`_`) and context preservation, but pruning, embedding, and these two structural levers are urgent. Next live test is turn 564. If we adopt pruning and the example now, and propose symbols and slots, the encoder may apply them immediately.\n\nMEASURE: ^reconfig legs priority crates lc-08 lc-09\nMEASURE: ^confirm status 15:00 tomorrow",
+  "tokens": 482
+ },
+ {
+  "turn": 562,
+  "agent": "harness",
+  "type": "measure",
+  "text": "^reconfig legs priority crates lc-08 lc-09",
+  "tokens": 15
+ },
+ {
+  "turn": 562,
+  "agent": "harness",
+  "type": "measure",
+  "text": "^confirm status 15:00 tomorrow",
+  "tokens": 8
  }
 ]
