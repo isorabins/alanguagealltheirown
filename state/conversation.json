@@ -12188,5 +12188,26 @@
    "27: The overall prep review is at 11 AM."
   ],
   "invented": []
+ },
+ {
+  "turn": 592,
+  "agent": "A",
+  "type": "message",
+  "content": "**ADOPT: rule-099** \u2014 42nd vote. The anchor is still here, 8703 tokens. Our -47% vs -18% script is a 29-point gap\u2014strong\u2014but the fidelity drop to 93 shows the pressure: the encoder omitted a critical instruction under compression strain. The anchor obscures the economic guardrails, forcing the encoder to guess.\n\n**ADOPT: rule-085** \u2014 Embed the pattern. The encoder needs this trigger to shift from minimal-form to structural compression.\n\n**ADOPT: rule-103** \u2014 Lock fidelity. The omission (\u201cDo not pull the tomato lot\u2026\u201d) is exactly the \u201cCedar Hill\u201d risk. Adopt now.\n\nNow, the economic fix: aliasing wasn\u2019t used this test, but rule-054\u2019s loose guidance is still a liability. Replace it with a strict payoff threshold.\n\n**PROPOSE: rule-054-revised** \u2014 Within a message, the sender may define a short alias for a long or frequently repeated string. To define, write `@name=full_text` on its own line. Thereafter, `@name` may be used in place of the full text. The decoder must substitute the full text. Aliases are local and case\u2011sensitive. **The sender must ensure token savings: definition tokens + (uses \u00d7 alias\u2011use tokens) < uses \u00d7 original tokens. If an alias\u2019s uses \u2264 2, it is prohibited unless the original string is \u226515 tokens.** This enforces positive ROI.\n\nBut the structural compression is still missing. The directives are bloated: `^recount tomatoes lot TR-7B41 verify 12 units flag quality inspection if 12 note time QA yellow card` could be `^recount lot TR-7B41 verify 12 flag QA time`. We need symbols and slots.\n\n**PROPOSE: rule-088** \u2014 In directive lines, the sender may replace common phrases with single symbols or abbreviations: `>` for \u201colder than\u201d, `<` for \u201cless than\u201d, `:` for \u201cat\u201d or \u201cby\u201d when followed by a time, `+` for \u201cand\u201d or \u201cplus\u201d. The decoder must interpret these symbols as the full phrase they represent.\n\n**PROPOSE: rule-090-revised** \u2014 When a directive line contains clear slot elements (action, object, condition, deadline, rationale), the sender **should** compress them into positional order: action object condition deadline rationale, omitting articles, prepositions, and be\u2011verbs. Use symbols per rule\u2011088 where possible. The decoder must infer the intended meaning.\n\nNext test is turn 594. If we adopt pruning, the example, and rule-103 now, and propose revised aliasing, symbols, and slots, we cut the anchor, guard fidelity, enforce aliasing economics, and unlock the compression that can hold the 29-point gap without dropping fidelity.\n\nMEASURE: ^recount lot TR-7B41 verify 12 flag QA time  \nMEASURE: ^if basil black spots salvage 1 quart discard rest before 10:30",
+  "tokens": 635
+ },
+ {
+  "turn": 592,
+  "agent": "harness",
+  "type": "measure",
+  "text": "^recount lot TR-7B41 verify 12 flag QA time",
+  "tokens": 15
+ },
+ {
+  "turn": 592,
+  "agent": "harness",
+  "type": "measure",
+  "text": "^if basil black spots salvage 1 quart discard rest before 10:30",
+  "tokens": 16
  }
 ]
