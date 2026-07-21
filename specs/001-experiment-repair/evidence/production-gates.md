@@ -26,3 +26,15 @@ approved checkpoint as the remote head.
   provider invoice had not posted at closeout.
 - Production boundary: no product deploy, loop/state/credential/X action, DNS
   change, merge, or push to `main` occurred.
+
+## T120 attempt 2 — approved branch push and safe cleanup stop
+
+- Date: 2026-07-21 (WITA)
+- Draft PR 1 remained open/draft; its verified head advanced only to the
+  approved feature commit `b18a262dc99748381fb65f31dc7f3afec37163ca`.
+- One approved additional DeepSeek V3.2 call ran against only the immutable
+  turn-650 copy. Exact source coverage failed; no Kimi call ran.
+- Actual attempt-2 spend: `$0.000876983`; cumulative G4 spend:
+  `$0.012418691`, below the `$0.12` ceiling.
+- Production remained paused, clean, and byte-identical at the approved commit
+  and rulebook hash. T120 remains open at the repeated-blocker stop.

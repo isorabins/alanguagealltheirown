@@ -29,3 +29,10 @@ The first A output failed validation before a candidate bundle could be formed.
 Production remained byte-identical at the source file hash above. No apply
 command, Kimi call, merge, deploy, credential change, or X action occurred.
 The timer remains paused as explicitly approved.
+
+Attempt 2 used the approved minimal id/text-only payload and preserved the raw
+response before validation, but its candidate omitted three of 23 required
+source ids. The validator stopped before Kimi. Cumulative G4 paid-call spend is
+`$0.012418691`; production remains unchanged and paused. Because exact source
+coverage failed twice, the contract's repeated-blocker rule stops further calls
+without a revised approved approach.

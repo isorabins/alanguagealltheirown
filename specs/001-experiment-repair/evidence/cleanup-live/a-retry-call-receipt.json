@@ -1,0 +1,21 @@
+{
+  "actualAdditionalCostUsd": 0.000876983,
+  "actualCumulativeG4CostUsd": 0.012418691,
+  "completionTokens": 1496,
+  "enforcedConservativeCostUsd": 0.00342608,
+  "finishReason": "stop",
+  "generationId": "gen-1784620887-wkd6dFbk9jWr1GrJfS7T",
+  "missingSourceIds": [
+    "rule-075",
+    "rule-085",
+    "rule-099"
+  ],
+  "model": "deepseek/deepseek-v3.2-20251201",
+  "promptTokens": 2004,
+  "provider": "StreamLake",
+  "rawResponseProtectedPath": "/Users/isorabins/.codex/run-profiles/experiment-repair-cleanup/a-retry-raw-response.json",
+  "rawResponseSha256": "d49d67770fb8751993009d0bfc16b8d16d565a7ea8bb64d146d0e90b18cb2e6d",
+  "result": "invalid_source_coverage",
+  "sourceHash": "57fbf58ea571eb6de76059e46da5ceb3eb918f6f8c047e7b23a8d01e46c85606",
+  "unexpectedSourceIds": []
+}
