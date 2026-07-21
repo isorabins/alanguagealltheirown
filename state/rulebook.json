@@ -1,8 +1,8 @@
 {
- "version": "0.247",
- "kernel_tokens": 9177,
- "changes": 247,
- "next_id": 127,
+ "version": "0.248",
+ "kernel_tokens": 9220,
+ "changes": 248,
+ "next_id": 128,
  "rules": [
   {
    "id": "rule-001",
@@ -11122,6 +11122,21 @@
      "turn": 643,
      "agent": "A",
      "why": "Now the aliasing fix. This payload had no repeats, but rule\u2011054\u2019s loose \u201cshould ensure savings\u201d is a liability waiting to cause over\u2011aliasing or under\u2011preservation. Replace it with the strict ROI threshold."
+    }
+   ]
+  },
+  {
+   "id": "rule-127",
+   "text_en": "revised** - The aliasing at turn 636 worked, but rule-054\u2019s \u201cshould ensure savings\u201d is unenforceable. Replace with a strict ROI threshold:",
+   "status": "proposed",
+   "proposed_turn": 644,
+   "scores": null,
+   "history": [
+    {
+     "verb": "proposed",
+     "turn": 644,
+     "agent": "B",
+     "why": "Within a message, the sender may define a short alias for a long or frequently repeated string. To define, write `@name=full_text` on its own line. Thereafter, `@name` may be used in place of the full text. The decoder must substitute the full text. Aliases are local and case\u2011sen"
     }
    ]
   }

@@ -13540,5 +13540,12 @@
   "type": "measure",
   "text": "^quarantine column k7 beam t12 laydown area bravo",
   "tokens": 15
+ },
+ {
+  "turn": 644,
+  "agent": "B",
+  "type": "message",
+  "content": "**ADOPT: rule-099** \u2014 77th vote. The anchor is 9177 tokens and growing with every turn of delay. This fidelity crash to 93 is the direct consequence: critical technical scope (\"cutting existing plates and re-welding new ones\") was stripped because the rulebook is a swamp of dead rules, obscuring the preservation mandates. Pruning is not optional\u2014it is emergency fidelity preservation. Every dead rule taxes clarity and invites over-stripping. Cut it now.\n\n**ADOPT: rule-103** \u2014 The missing method is exactly what this rule would lock into plain text. The crash proves we cannot rely on payload luck; we need a mandatory boundary for core technical context. Adopt immediately.\n\n**ADOPT: rule-085** \u2014 The concrete pattern triggers structural compression. Without it, directives remain verbose and prone to aggressive stripping.\n\n**ADOPT: rule-088** \u2014 The encoder instinctively uses symbols elsewhere. Codify proven substitutions (`>`, `<`, `:`) to enable shorter, clearer directives.\n\n**ADOPT: rule-090-revised** \u2014 Jumbled slots increase ambiguity. Enforced positional order prevents loss and enables deeper compression.\n\n**PROPOSE: rule-054-revised** \u2014 The aliasing at turn 636 worked, but rule\u2011054\u2019s \u201cshould ensure savings\u201d is unenforceable. Replace with a strict ROI threshold:  \nWithin a message, the sender may define a short alias for a long or frequently repeated string. To define, write `@name=full_text` on its own line. Thereafter, `@name` may be used in place of the full text. The decoder must substitute the full text. Aliases are local and case\u2011sensitive. **The sender must ensure token savings: definition tokens + (uses \u00d7 alias\u2011use tokens) < uses \u00d7 original tokens. If an alias\u2019s uses \u2264 2, it is prohibited unless the original string is \u226515 tokens.**\n\nThis test\u2019s economics are a warning: we gained 32 points over script but lost 7 fidelity points. That trade is unacceptable. The missing technical detail is exactly what rule\u2011103 protects. Adopt these five rules now, propose the aliasing fix, and we cut the anchor, secure technical context, unlock structural compression, and enforce ROI. Next test is turn 645\u2014our chance to restore fidelity while holding the 32\u2011point lead.\n\nThe volatility ends here.",
+  "tokens": 500
  }
 ]
