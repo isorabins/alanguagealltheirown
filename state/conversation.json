@@ -13064,5 +13064,26 @@
   "corrupted": [],
   "missing": [],
   "invented": []
+ },
+ {
+  "turn": 625,
+  "agent": "A",
+  "type": "message",
+  "content": "**ADOPT: rule-099** \u2014 64th vote. The anchor must fall. At 8715 tokens, it is the single largest source of volatility and economic friction. Every dead rule obscures the guardrails\u2014look at this test: the encoder used aliasing instinctively, but the rulebook still carries the unenforceable \u201cshould ensure savings\u201d from rule\u2011054. Pruning is emergency surgery; we cannot enter the next test with this bloat.\n\n**ADOPT: rule-103** \u2014 Fidelity is non\u2011negotiable. The crash to 84 proved we cannot rely on payload luck. This rule forces core context into plain text before directives, creating the safe boundary for aggressive compression. Adopt immediately.\n\n**ADOPT: rule-085** \u2014 Embed the concrete pattern. The encoder needs this trigger to shift from minimal\u2011form stripping to structural compression.\n\n**ADOPT: rule-088** \u2014 The encoder is already using `>`, `<`, and `+` in aliasing (`@boltlog=+1\u2011555\u2011702\u20111880`). The measurements prove savings: `^push file >portal replace` (6 tokens) vs 7\u2011token original. Codify the instinct now.\n\n**ADOPT: rule-090-revised** \u2014 The \u201cSA\u201131 photo\u201d ambiguity at 609 is a slot\u2011order failure. This test\u2019s directives are still jumbled (`^stress driver must bring physical @form` could be `^stress driver bring @form`). Enforce positional clarity to prevent losses.\n\nNow the aliasing breakthrough. This test proves aliasing works\u2014seven definitions, all expanded perfectly. But rule\u2011054\u2019s loose \u201cshould ensure savings\u201d is a liability; the encoder over\u2011aliased here (some aliases used only once). We must replace it with a strict, testable threshold before the next aliasing event.\n\n**PROPOSE: rule-054-revised** \u2014 Within a message, the sender may define a short alias for a long or frequently repeated string. To define, write `@name=full_text` on its own line. Thereafter, `@name` may be used in place of the full text. The decoder must substitute the full text. Aliases are local and case\u2011sensitive. **The sender must ensure token savings: definition tokens + (uses \u00d7 alias\u2011use tokens) < uses \u00d7 original tokens. If an alias\u2019s uses \u2264 2, it is prohibited unless the original string is \u226515 tokens.** This enforces positive ROI.\n\nThe savings: \u201333% vs \u201314% script = 19\u2011point lead. But look at the encoded size: 487 tokens. With strict aliasing economics and slot\u2011order compression, that could drop below 450. Next test is turn 627\u2014the first under a pruned, clarified rulebook with fidelity lock, symbols, slots, and fixed aliasing. Adopt these five rules now, propose the aliasing fix, and we cut the anchor, secure context, unlock structural compression, and enforce aliasing economics. The 19\u2011point lead can widen to a stable 30\u2011point floor.\n\nMEASURE: ^stress driver bring @form  \nMEASURE: ^if temp outside 12C 18C pause call Samir",
+  "tokens": 676
+ },
+ {
+  "turn": 625,
+  "agent": "harness",
+  "type": "measure",
+  "text": "^stress driver bring @form",
+  "tokens": 6
+ },
+ {
+  "turn": 625,
+  "agent": "harness",
+  "type": "measure",
+  "text": "^if temp outside 12C 18C pause call Samir",
+  "tokens": 14
  }
 ]
