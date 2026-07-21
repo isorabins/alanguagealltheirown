@@ -1,8 +1,8 @@
 {
- "version": "0.242",
- "kernel_tokens": 8767,
- "changes": 242,
- "next_id": 122,
+ "version": "0.243",
+ "kernel_tokens": 8830,
+ "changes": 243,
+ "next_id": 123,
  "rules": [
   {
    "id": "rule-001",
@@ -10774,6 +10774,21 @@
      "why": "Within a message, the sender may define a short alias for a long or frequently repeated string. To define, write `@name=full_text` on its own line. Thereafter, `@name` may be used in place of the full text. The decoder must substitute the full text. Aliases are local and case\u2011sen"
     },
     "tested turn 633: fid 100, -35%"
+   ]
+  },
+  {
+   "id": "rule-122",
+   "text_en": "revised** - The aliasing breakthrough at turn 624 proved the mechanism works but revealed over-aliasing due to the unenforceable \u201cshould ensure savings.\u201d Replace it with a strict, testable ROI threshold:",
+   "status": "proposed",
+   "proposed_turn": 635,
+   "scores": null,
+   "history": [
+    {
+     "verb": "proposed",
+     "turn": 635,
+     "agent": "B",
+     "why": "Within a message, the sender may define a short alias for a long or frequently repeated string. To define, write `@name=full_text` on its own line. Thereafter, `@name` may be used in place of the full text. The decoder must substitute the full text. Aliases are local and case\u2011sen"
+    }
    ]
   }
  ]

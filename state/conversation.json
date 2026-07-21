@@ -13308,5 +13308,12 @@
   "type": "measure",
   "text": "^depth 35cm not 45cm fracture not inversion",
   "tokens": 12
+ },
+ {
+  "turn": 635,
+  "agent": "B",
+  "type": "message",
+  "content": "**ADOPT: rule-099** \u2014 71st vote. The anchor is the single greatest source of volatility. At 8767 tokens, every dead rule taxes the encoder\u2019s ability to see the guardrails we need. The 14-point lead is a floor built on minimal-form stripping alone; the frontier remains untouched because structural compression is buried. Pruning is emergency surgery\u2014we cannot enter the next test with this bloat.\n\n**ADOPT: rule-103** \u2014 Fidelity is non-negotiable. The crash to 84 proved we cannot rely on payload luck. This rule mandates core context in plain text, creating the safe boundary for aggressive directive compression. Adopt now.\n\n**ADOPT: rule-085** \u2014 The concrete pattern triggers the shift from stripping to structural compression. Without it, directives remain in limbo.\n\n**ADOPT: rule-088** \u2014 The encoder instinctively reaches for symbols (`>`, `<`, `\u2264`). The measurement confirms savings: `^if sensor <18% pause ping irrigation delayed` (10 tokens) vs the original 24-token line. Codify this instinct immediately.\n\n**ADOPT: rule-090-revised** \u2014 The \u201cSA\u201131 photo\u201d ambiguity and jumbled slot orders show the need. This rule enforces positional clarity to prevent such losses.\n\n**PROPOSE: rule-054-revised** \u2014 The aliasing breakthrough at turn 624 proved the mechanism works but revealed over\u2011aliasing due to the unenforceable \u201cshould ensure savings.\u201d Replace it with a strict, testable ROI threshold:\nWithin a message, the sender may define a short alias for a long or frequently repeated string. To define, write `@name=full_text` on its own line. Thereafter, `@name` may be used in place of the full text. The decoder must substitute the full text. Aliases are local and case\u2011sensitive. **The sender must ensure token savings: definition tokens + (uses \u00d7 alias\u2011use tokens) < uses \u00d7 original tokens. If an alias\u2019s uses \u2264 2, it is prohibited unless the original string is \u226515 tokens.**\n\nNext test is turn 636\u2014the first under a pruned, clarified rulebook with fidelity lock, symbols, slots, and strict aliasing economics. Adopt these five rules now, propose the aliasing fix, and we cut the anchor, secure context, unlock structural compression, and enforce ROI. The 14-point floor must rise to 25.\n\nThe volatility ends here.",
+  "tokens": 516
  }
 ]
