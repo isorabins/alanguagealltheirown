@@ -16,8 +16,10 @@
 | G11 | one exact phrase per X action | correction, explainer, pin, or individual follow | no implicit retry or additional action | real profile and provider receipts |
 | G12-G13 | all prior evidence | visible acceptance and closeout | overall result remains BLOCKED/FAIL if anything is incomplete | cleanup, independent receipts, convergence |
 
-The current authorization includes a `$2` maximum new-infrastructure ceiling but
-still stops before the updated Spec Kit contract, T107 branch push/PR, provider
-account/security work, coordinator deployment, or lease provisioning. No
-production loop, state, application credentials, deployment, X account, or
-`main` mutation is authorized by the Crabbox approval.
+On 2026-07-21 Iso approved the contract checkpoint `d23dae4` and T107–T117,
+including the same draft PR, least-privilege Cloudflare/Hetzner setup, isolated
+coordinator, and at most one CPX32 Germany lease with an eight-hour TTL and a
+hard `$2` ceiling. The approval excludes product deployment, production loop or
+state changes, product credentials, DNS, X actions, provider switching, merge,
+and any push to `main`; any identity, security, billing, or cleanup uncertainty
+is a hard stop.

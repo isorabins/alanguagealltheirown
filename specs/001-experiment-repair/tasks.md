@@ -237,7 +237,7 @@ X simulations prove no false posted state, duplicate, implicit thread, or frozen
 Every STOP below requires the exact immutable targets and one-time approval phrase
 defined in `plan.md`. No earlier approval carries forward.
 
-- [ ] T107 STOP and obtain approval to push `codex/experiment-repair` at the reviewed offline checkpoint, open/update its draft review PR, and update that same PR with scoped Crabbox contract/runner commits through T117; no merge/deploy; record branch/PR state in `specs/001-experiment-repair/evidence/production-gates.md`
+- [X] T107 STOP and obtain approval to push `codex/experiment-repair` at the reviewed offline checkpoint, open/update its draft review PR, and update that same PR with scoped Crabbox contract/runner commits through T117; no merge/deploy; record branch/PR state in `specs/001-experiment-repair/evidence/production-gates.md`
 
 ---
 

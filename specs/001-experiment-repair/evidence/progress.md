@@ -16,3 +16,4 @@
 - Crabbox addendum consistency: 55 FRs and 23 SCs have task traceability; T001–T143 are sequential; `git diff --check` passes. The pre-addendum coverage script correctly remains red on its hard-coded T001–T133 set until approved implementation task T112 updates it.
 - Product regression check after planning-only edits: 58 Python tests and 27 Node tests PASS; no product source file changed.
 - No Crabbox binary, provider credential, account change, coordinator, lease, branch push, PR, production action, or spend occurred during planning.
+- 2026-07-21 T107: Iso approved checkpoint `d23dae4` and the bounded T107–T117 runway. Branch `codex/experiment-repair` was pushed at that SHA and draft PR #1 was opened against `main`; no merge, deployment, product mutation, DNS, or public action occurred.
