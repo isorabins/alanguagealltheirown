@@ -13463,5 +13463,61 @@
   "type": "message",
   "content": "**ADOPT: rule-099** \u2014 75th vote. The anchor is 8968 tokens and still rising\u2014every turn of delay adds more noise. This 21-point lead is built on minimal form alone; the encoder is navigating a swamp of dead rules, not leveraging structure. Pruning is triage; without it, clarity and compression are impossible. Cut it now.\n\n**ADOPT: rule-103** \u2014 The fidelity crash to 84 proved we need a mandatory boundary. This rule locks core context into plain text, creating the safety net for aggressive directive compression. Adopt immediately.\n\n**ADOPT: rule-085** \u2014 The concrete pattern is the trigger for structural compression. Without it, directives remain in minimal-form limbo, as seen in this test\u2019s verbatim lines.\n\n**ADOPT: rule-088** \u2014 The encoder instinctively uses `<` and `>` in live traffic. The measurement shows `^if moisture <85% apply` (7 tokens) vs the original 10-token line. Codify this proven symbol substitution.\n\n**ADOPT: rule-090-revised** \u2014 Jumbled slots (`^apply only if 06 00 foliar moisture below 85`) demonstrate the need for enforced positional order. This rule prevents ambiguity and enables deeper compression.\n\n**PROPOSE: rule-054-revised** \u2014 The aliasing at turn 636 worked because the encoder chose high-repetition strings, but rule\u2011054\u2019s \u201cshould ensure savings\u201d is unenforceable and invites over-aliasing. Replace it with a strict, testable ROI threshold:\nWithin a message, the sender may define a short alias for a long or frequently repeated string. To define, write `@name=full_text` on its own line. Thereafter, `@name` may be used in place of the full text. The decoder must substitute the full text. Aliases are local and case\u2011sensitive. **The sender must ensure token savings: definition tokens + (uses \u00d7 alias\u2011use tokens) < uses \u00d7 original tokens. If an alias\u2019s uses \u2264 2, it is prohibited unless the original string is \u226515 tokens.**\n\nNext test is turn 642\u2014the first under a pruned, clarified rulebook with fidelity lock, symbols, slots, and strict aliasing economics. Adopt these five rules now, propose the aliasing fix, and we cut the anchor, secure context, unlock structural compression, and enforce ROI. The 21-point lead must solidify above 30. The volatility ends here.",
   "tokens": 521
+ },
+ {
+  "turn": 642,
+  "agent": "harness",
+  "type": "test",
+  "payload": "gen-prose-construction",
+  "original": "Look, we\u2019ve hit a problem on the Lomar site. The structural steel for the Atrium North elevation, specifically the vertical column K7 and the transfer beam T-12, arrived from the fabricator with the pre-welded anchor plates for the glazing system misaligned. The bolt holes are offset by approximately 8 millimeters clockwise from the specified orientation. Do not proceed with any grouting of the base plates on these two pieces.\n\nWe cannot install the custom-manufactured glazing unit GLA-N-114A until this is resolved. I have informed Belar Steel, and their site foreman, Cora Vance, will be on-site tomorrow before 10:00 AM to inspect. If the misalignment is confirmed as a fabrication error, they will need to perform field modifications. That will likely involve cutting the existing plates and re-welding new ones. Their crew will need at least two hours of hot-work access, so if they proceed, schedule that for the afternoon slot from 1:00 PM to 3:00 PM.\n\nYour immediate action is to quarantine those two steel members. Use hazard tape and a posted sign saying \"DO NOT INSTALL - PENDING QA.\" They are currently staged in laydown area Bravo. Do not let the concrete team, led by Rossi, pour the Level 3 slab in that bay (gridlines F-5 to F-8) until the column K7 is certified for installation. The beam can be held back, but the column is the critical path item. If Belar determines the pieces are salvageable and completes the modification, you must get written approval from Cora Vance before releasing them to the ironworkers. Only then can grouting proceed.\n\nAlso, notify the glazing subcontractor, Vistaline, that there is a potential one-day delay for unit GLA-N-114A. Tell them to hold their crew, scheduled for Thursday, on standby. Do not cancel their dispatch; just advise of a possible reschedule to Friday. The project schedule has only 48 hours of float left on this activity, so we cannot afford a longer delay.\n\nIf, however, Cora\u2019s inspection determines the misalignment is within acceptable tolerance\u2014which I doubt, given the 8 mm figure\u2014then we would proceed as planned. But only if she provides a signed waiver. Do not rely on a verbal okay.",
+  "orig_tokens": 487,
+  "enc_tokens": 254,
+  "token_delta_pct": -48,
+  "fidelity": 93,
+  "lost": "The specific method for field modifications (cutting existing plates and re-welding new ones) is lost, which is critical work scope information.",
+  "control_tokens": 410,
+  "encoded": "^quarantine steel members column k7 beam t12 laydown area bravo\n^use hazard tape posted sign do not install pending qa\n^do not grout base plates column k7 beam t12\n^do not pour level 3 slab bay gridlines f5 f8 until column k7 certified\n^concrete team rossi hold pour\n^belar steel cora vance inspect tomorrow before 10 00 am\n^if misalignment fabrication error schedule field modifications afternoon slot 13 00 15 00\n^require hot work access 2 hours\n^if pieces salvageable require written approval cora vance before release to ironworkers\n^only then proceed grouting\n^notify glazing subcontractor vistaline potential one day delay unit gla n 114a\n^hold crew scheduled thursday standby possible reschedule friday\n^do not cancel dispatch\n^if cora vance determines misalignment acceptable tolerance require signed waiver\n^do not rely verbal okay\nstructural steel atrium north elevation anchor plates glazing system misaligned 8 mm clockwise\nbolt holes offset specified orientation\ncannot install glazing unit gla n 114a until resolved\nproject schedule 48 hours float left activity",
+  "decoded": "^quarantine steel members column K7 beam T12 laydown area Bravo\n^use hazard tape posted sign do not install pending QA\n^do not grout base plates column K7 beam T12\n^do not pour level 3 slab bay gridlines F5-F8 until column K7 certified\n^concrete team Rossi hold pour\n^Belar Steel Cora Vance inspect tomorrow before 10:00 am\n^if misalignment fabrication error schedule field modifications afternoon slot 13:00-15:00\n^require hot work access 2 hours\n^if pieces salvageable require written approval Cora Vance before release to ironworkers\n^only then proceed grouting\n^notify glazing subcontractor Vistaline potential one day delay unit GLA-N-114A\n^hold crew scheduled Thursday standby possible reschedule Friday\n^do not cancel dispatch\n^if Cora Vance determines misalignment acceptable tolerance require signed waiver\n^do not rely verbal okay\n\nStructural steel atrium north elevation anchor plates glazing system misaligned 8 mm clockwise.\nBolt holes offset specified orientation.\nCannot install glazing unit GLA-N-114A until resolved.\nProject schedule 48 hours float left activity.",
+  "tokens": 254,
+  "decoder_model": "moonshotai/kimi-k2.6",
+  "key": [
+   "1. Site is Lomar.",
+   "2. Problem is with structural steel for Atrium North elevation.",
+   "3. Affected pieces are vertical column K7 and transfer beam T-12.",
+   "4. Anchor plates for glazing system are misaligned.",
+   "5. Bolt holes are offset by 8 millimeters clockwise.",
+   "6. Do not grout base plates on these two pieces.",
+   "7. Custom glazing unit GLA-N-114A cannot be installed until resolved.",
+   "8. Fabricator is Belar Steel.",
+   "9. Belar foreman is Cora Vance.",
+   "10. Cora Vance will inspect on-site tomorrow before 10:00 AM.",
+   "11. If misalignment is a fabrication error, field modifications are needed.",
+   "12. Field modifications involve cutting existing plates and re-welding new ones.",
+   "13. If modifications proceed, crew needs two hours of hot-work access.",
+   "14. Schedule hot-work access for afternoon slot 1:00 PM to 3:00 PM if needed.",
+   "15. Quarantine the two steel members immediately.",
+   "16. Use hazard tape and a \"DO NOT INSTALL - PENDING QA\" sign.",
+   "17. Steel is staged in laydown area Bravo.",
+   "18. Do not let concrete team led by Rossi pour Level 3 slab in bay gridlines F-5 to F-8 until column K7 is certified.",
+   "19. Beam can be held back, but column K7 is the critical path item.",
+   "20. If pieces are salvaged, need written approval from Cora Vance before release to ironworkers.",
+   "21. Only after written approval can grouting proceed.",
+   "22. Notify glazing subcontractor Vistaline of potential one-day delay.",
+   "23. Delay is for unit GLA-N-114A.",
+   "24. Tell Vistaline to hold Thursday-scheduled crew on standby.",
+   "25. Advise possible reschedule to Friday.",
+   "26. Project schedule has 48 hours of float left on this activity.",
+   "27. If misalignment is within tolerance, proceed only with a signed waiver from Cora Vance.",
+   "28. Do not rely on a verbal okay."
+  ],
+  "survived": 26,
+  "total": 28,
+  "corrupted": [
+   "12: Original says modifications involve cutting existing plates and re-welding new ones. Decoded only says 'field modifications' without specifying the method."
+  ],
+  "missing": [
+   "19: Beam can be held back, but column K7 is the critical path item."
+  ],
+  "invented": []
  }
 ]
