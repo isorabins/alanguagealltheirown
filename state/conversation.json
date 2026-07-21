@@ -13519,5 +13519,26 @@
    "19: Beam can be held back, but column K7 is the critical path item."
   ],
   "invented": []
+ },
+ {
+  "turn": 643,
+  "agent": "A",
+  "type": "message",
+  "content": "**ADOPT: rule-099** \u2014 76th vote. The anchor is now 9030 tokens \u2014 it grew again. This test is the warning we\u2019ve been ignoring. The fidelity crash to 93 \u2014 losing critical scope details like \u201ccutting existing plates and re-welding new ones\u201d \u2014 is a direct result of the rulebook\u2019s noise. The encoder stripped too aggressively because the guardrails for preserving technical detail are buried under 9k tokens of dead rules. Pruning is not just compression; it\u2019s fidelity preservation. Every dead rule obscures the mandates that protect meaning. Cut it now.\n\n**ADOPT: rule-103** \u2014 The crash proves this rule is urgent. The missing technical method (cutting/welding) is exactly the core context this rule would lock into plain text. Without it, minimal-form stripping eats essential scope. Adopt immediately to create the safe boundary.\n\n**ADOPT: rule-085** \u2014 The concrete pattern is the trigger for structural compression. Without it, directives remain verbose and prone to over-stripping.\n\n**ADOPT: rule-088** \u2014 The encoder used `>` and `<` instinctively in past tests. Here, `before 10 00 am` could become `:10:00` with symbol substitution, but the real win is locking technical phrases. Codify the proven symbols.\n\n**ADOPT: rule-090-revised** \u2014 Jumbled slots increase ambiguity and stripping risk. Enforce positional order to clarify and compress.\n\nNow the aliasing fix. This payload had no repeats, but rule\u2011054\u2019s loose \u201cshould ensure savings\u201d is a liability waiting to cause over\u2011aliasing or under\u2011preservation. Replace it with the strict ROI threshold.\n\n**PROPOSE: rule-054-revised** \u2014 Within a message, the sender may define a short alias for a long or frequently repeated string. To define, write `@name=full_text` on its own line. Thereafter, `@name` may be used in place of the full text. The decoder must substitute the full text. Aliases are local and case\u2011sensitive. **The sender must ensure token savings: definition tokens + (uses \u00d7 alias\u2011use tokens) < uses \u00d7 original tokens. If an alias\u2019s uses \u2264 2, it is prohibited unless the original string is \u226515 tokens.**\n\nBut the real lesson is economic: we just lost 7 fidelity points while our lead over script widened to 32 points (\u201348% vs \u201316%). That\u2019s a dangerous trade. The missing technical detail is exactly what rule\u2011103 would protect. Adopt these five rules now, propose the aliasing fix, and we cut the anchor, secure technical context, unlock structural compression, and enforce ROI. The next test is turn 645 \u2014 our chance to prove pruning restores fidelity while holding the 32\u2011point lead.\n\nMEASURE: ^if misalignment schedule field modifications cutting plates welding new 13:00 15:00  \nMEASURE: ^quarantine column k7 beam t12 laydown area bravo",
+  "tokens": 635
+ },
+ {
+  "turn": 643,
+  "agent": "harness",
+  "type": "measure",
+  "text": "^if misalignment schedule field modifications cutting plates welding new 13:00 15:00",
+  "tokens": 19
+ },
+ {
+  "turn": 643,
+  "agent": "harness",
+  "type": "measure",
+  "text": "^quarantine column k7 beam t12 laydown area bravo",
+  "tokens": 15
  }
 ]

@@ -1,8 +1,8 @@
 {
- "version": "0.246",
- "kernel_tokens": 9030,
- "changes": 246,
- "next_id": 126,
+ "version": "0.247",
+ "kernel_tokens": 9177,
+ "changes": 247,
+ "next_id": 127,
  "rules": [
   {
    "id": "rule-001",
@@ -11108,6 +11108,21 @@
      "why": "Within a message, the sender may define a short alias for a long or frequently repeated string. To define, write `@name=full_text` on its own line. Thereafter, `@name` may be used in place of the full text. The decoder must substitute the full text. Aliases are local and case\u2011sen"
     },
     "tested turn 642: fid 93, -48%"
+   ]
+  },
+  {
+   "id": "rule-126",
+   "text_en": "revised** - Within a message, the sender may define a short alias for a long or frequently repeated string. To define, write `@name=full_text` on its own line. Thereafter, `@name` may be used in place of the full text. The decoder must substitute the full text. Aliases are local and case-sensitive. **The sender must ensure token savings: definition tokens + (uses \u00d7 alias-use tokens) < uses \u00d7 original tokens. If an alias\u2019s uses \u2264 2, it is prohibited unless the original string is \u226515 tokens.",
+   "status": "proposed",
+   "proposed_turn": 643,
+   "scores": null,
+   "history": [
+    {
+     "verb": "proposed",
+     "turn": 643,
+     "agent": "A",
+     "why": "Now the aliasing fix. This payload had no repeats, but rule\u2011054\u2019s loose \u201cshould ensure savings\u201d is a liability waiting to cause over\u2011aliasing or under\u2011preservation. Replace it with the strict ROI threshold."
+    }
    ]
   }
  ]
