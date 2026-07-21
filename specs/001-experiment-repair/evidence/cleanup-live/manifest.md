@@ -34,5 +34,11 @@ Attempt 2 used the approved minimal id/text-only payload and preserved the raw
 response before validation, but its candidate omitted three of 23 required
 source ids. The validator stopped before Kimi. Cumulative G4 paid-call spend is
 `$0.012418691`; production remains unchanged and paused. Because exact source
-coverage failed twice, the contract's repeated-blocker rule stops further calls
-without a revised approved approach.
+coverage failed twice, the contract's repeated-blocker rule stopped further
+calls until the later schema-bound approach was implemented and approved.
+
+Attempt 3 used the revised strict schema. A passed exact coverage for all 23
+sources, but B returned `REJECT` with semantic findings. Final validation
+stopped before a bundle existed. Actual cumulative G4 spend is `$0.019697541`
+and conservative cumulative accounting is `$0.023336451`; production remains
+unchanged and paused. No retry is authorized.

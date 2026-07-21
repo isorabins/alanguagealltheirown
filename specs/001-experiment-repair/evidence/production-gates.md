@@ -59,3 +59,21 @@ approved checkpoint as the remote head.
   action, or X action occurred. T120 remains open. The next lawful action is one
   combined exact phrase authorizing the final local commit's push to the same
   draft PR and one schema-bound A call plus conditional B audit.
+
+## T120 attempt 3 — structural A pass, B audit reject
+
+- Date: 2026-07-21 (WITA)
+- Approved feature commit `c7878ed5bf483e26d2d14e8a927c645221f59dea`
+  was pushed and verified as the head of the same open draft PR 1.
+- DeepSeek A returned all 23 schema-required assignments; local compilation
+  passed exact-once coverage and produced candidate
+  `251277000330b11f508db518dc40bd024209da6d75c5adfe12da3f63201bed10`.
+- Kimi B returned `REJECT`, including one omission and five meaning-change
+  findings. The validator stopped before bundle creation and application.
+- Actual metadata spend was `$0.007278850` additional and `$0.019697541`
+  cumulative G4; conservative enforced accounting was `$0.010917760`
+  additional and `$0.023336451` cumulative, below the approved caps.
+- Raw responses were preserved externally before parsing and all evidence
+  passed the secret-pattern scan. Production remained paused, clean, and
+  byte-identical at the approved commit and rulebook hash. T120 remains open;
+  no retry, deploy, apply, loop resume, credential, DNS, or X action occurred.

@@ -274,6 +274,11 @@ loop, credential, or X action is authorized by this phase.
   omitting three of 23 source ids. No Kimi call or production write occurred;
   see `evidence/cleanup-live/attempt-2-failure.md`. Prompt-only retries are
   retired; T144–T148 must pass before any new exact paid-call request.
+
+  Attempt 3 used the completed structural repair and A covered all 23 sources
+  exactly once. Kimi returned `REJECT` with one omission and five meaning-change
+  findings, so final validation stopped before bundle creation or application;
+  see `evidence/cleanup-live/attempt-3-b-reject.md`. T120 remains open.
 - [ ] T121 STOP for G5 phrase; then create/link the single Upstash database, human session/password secrets, separate `$20` monthly-reset OpenRouter public key, and approved Vercel WAF rules without printing values; record names/metadata/connectivity in `specs/001-experiment-repair/evidence/credentials.md`
 - [ ] T122 Verify the public and private OpenRouter key identities differ, the public limit/reset metadata is exact (SC-010), and all required environments/services/rollback assets pass the production-equivalence table in `specs/001-experiment-repair/evidence/production-equivalence.md`
 - [ ] T123 Rebase the reviewed feature commit and pending cleanup bundle onto the now-paused current `origin/main` without applying the replacement, rerun the full offline suite, inspect the final state/code diff, and update `specs/001-experiment-repair/evidence/offline-suite.md`
