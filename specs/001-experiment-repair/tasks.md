@@ -243,8 +243,8 @@ defined in `plan.md`. No earlier approval carries forward.
 
 ## Phase 13: User Story 9 - Crabbox Remote Acceptance Infrastructure (Priority: P1)
 
-- [ ] T108 [US9] Recheck Crabbox v0.40.0 release provenance, checksums, advisories, issue 1176, install behavior, and Semaphore exclusion; record the YELLOW dependency decision in `specs/001-experiment-repair/evidence/crabbox/dependency-safety.md`
-- [ ] T109 [US9] Install only the verified macOS arm64 Crabbox v0.40.0 binary, confirm its checksum/version without exposing secrets, and record the receipt in `specs/001-experiment-repair/evidence/crabbox/install.md`
+- [X] T108 [US9] Recheck Crabbox v0.40.0 release provenance, checksums, advisories, issue 1176, install behavior, and Semaphore exclusion; record the YELLOW dependency decision in `specs/001-experiment-repair/evidence/crabbox/dependency-safety.md`
+- [X] T109 [US9] Install only the verified macOS arm64 Crabbox v0.40.0 binary, confirm its checksum/version without exposing secrets, and record the receipt in `specs/001-experiment-repair/evidence/crabbox/install.md`
 - [ ] T110 [US9] Initialize `/Users/isorabins/.codex/skills/run-crabbox-human-tests/` with skill-creator, then add concise `SKILL.md`, `agents/openai.yaml`, only necessary scripts/references, and the pinned v0.40.0 source-snapshot pointer
 - [ ] T111 [US9] Add an isolated exact-pinned Playwright acceptance package and lockfile under `tests/acceptance/production/` with lifecycle scripts disabled until reviewed; record dependency evidence in `specs/001-experiment-repair/evidence/crabbox/dependency-safety.md`
 - [ ] T112 [US9] Implement the repository-owned 26-row visible acceptance runner, evidence naming, independent receipt hooks, failure controls, and cleanup contract in `tests/acceptance/production/`; update `tests/acceptance/check_contract_coverage.py` for FR-048–FR-055, SC-020–SC-023, and T001–T143; embed no credentials or production mutations

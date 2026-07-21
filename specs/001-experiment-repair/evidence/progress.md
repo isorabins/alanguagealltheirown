@@ -17,3 +17,4 @@
 - Product regression check after planning-only edits: 58 Python tests and 27 Node tests PASS; no product source file changed.
 - No Crabbox binary, provider credential, account change, coordinator, lease, branch push, PR, production action, or spend occurred during planning.
 - 2026-07-21 T107: Iso approved checkpoint `d23dae4` and the bounded T107–T117 runway. Branch `codex/experiment-repair` was pushed at that SHA and draft PR #1 was opened against `main`; no merge, deployment, product mutation, DNS, or public action occurred.
+- 2026-07-21 T108–T109: Crabbox v0.40.0 was re-reviewed at its verified tag/commit and remains YELLOW with Semaphore prohibited. The exact macOS arm64 archive passed GitHub asset/checksum/provenance and Apple code-signing checks; only its `crabbox` executable was installed in the user-local bin directory and reported version `0.40.0`.
