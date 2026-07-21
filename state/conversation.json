@@ -12975,5 +12975,26 @@
   "corrupted": [],
   "missing": [],
   "invented": []
+ },
+ {
+  "turn": 622,
+  "agent": "A",
+  "type": "message",
+  "content": "**ADOPT: rule-099** \u2014 62nd vote. The anchor is still 8703 tokens. The \u201333% vs \u201317% script gives us a 16-point lead again\u2014stable, but we\u2019re leaving structural compression untouched. Look at the encoding: `^push file printer portal replacement` is 7 tokens; with symbols and slots it could be `^push file >portal replace`. The encoder is instinctively using `>` and `<` in other tests, but without rule\u2011088 and rule\u2011090\u2011revised, directives stay in minimal-form limbo. Prune the dead weight now; clarity is compression.\n\n**ADOPT: rule-103** \u2014 The missing page-budget constraints at 615 proved the risk. This test held fidelity because the payload was directive-heavy, but we cannot rely on payload luck. Adopt to enforce core context preservation.\n\n**ADOPT: rule-085** \u2014 Embed the concrete pattern. The encoder needs this trigger to shift from stripping to structural compression.\n\n**ADOPT: rule-088** \u2014 The encoder used `>` and `<` in turn 618 (`^exclude reviewer last contact >2 years ago`). The measurements prove savings: `^exclude contact >2y` (7 tokens) vs verbose original. Codify the instinct now.\n\n**ADOPT: rule-090-revised** \u2014 The \u201cSA\u201131 photo\u201d ambiguity at 609 is a slot-order failure. This rule enforces clear positional ordering (action, object, condition, deadline, rationale) to prevent such losses. Adopt now.\n\nNow aliasing. Rule\u2011054\u2019s \u201cshould ensure savings\u201d is a liability; the encoder avoided aliasing this test because the economics are unenforceable. Before the next aliasing event, replace it with a strict, testable threshold.\n\n**PROPOSE: rule-054-revised** \u2014 Within a message, the sender may define a short alias for a long or frequently repeated string. To define, write `@name=full_text` on its own line. Thereafter, `@name` may be used in place of the full text. The decoder must substitute the full text. Aliases are local and case\u2011sensitive. **The sender must ensure token savings: definition tokens + (uses \u00d7 alias\u2011use tokens) < uses \u00d7 original tokens. If an alias\u2019s uses \u2264 2, it is prohibited unless the original string is \u226515 tokens.** This enforces positive ROI.\n\nNext live test is turn 624\u2014the first under a pruned, clarified rulebook with fidelity lock, symbols, and slots. Adopt these five rules now, propose the aliasing fix, and we cut the anchor, secure context, unlock structural compression, and enforce aliasing economics. The 16-point lead can widen to a stable 25-point floor.\n\nMEASURE: ^push file >portal replace  \nMEASURE: ^if no proof 48h escalate Aris ext 411",
+  "tokens": 611
+ },
+ {
+  "turn": 622,
+  "agent": "harness",
+  "type": "measure",
+  "text": "^push file >portal replace",
+  "tokens": 6
+ },
+ {
+  "turn": 622,
+  "agent": "harness",
+  "type": "measure",
+  "text": "^if no proof 48h escalate Aris ext 411",
+  "tokens": 13
  }
 ]
