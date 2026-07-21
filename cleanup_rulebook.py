@@ -16,8 +16,8 @@ from state_store import atomic_write_json, load_json, snapshot_hash
 OPERATIONAL = re.compile(r"\b(system prompt|api key|password|deploy|timer|cron|vote|adopt|reject|human approval)\b", re.I)
 
 
-def validate_replacement(source: dict[str, Any], replacement: dict[str, Any],
-                         audit: dict[str, Any]) -> None:
+def validate_candidate(source: dict[str, Any], replacement: dict[str, Any]) -> None:
+    """Reject an A candidate before spending a second provider call on audit."""
     adopted_ids = {r["id"] for r in source.get("rules", []) if r.get("status") == "adopted"}
     covered: list[str] = []
     for rule in replacement.get("rules", []):
@@ -31,6 +31,12 @@ def validate_replacement(source: dict[str, Any], replacement: dict[str, Any],
         covered.extend(sources)
     if set(covered) != adopted_ids or len(covered) != len(set(covered)):
         raise ValueError("replacement must cover every adopted source exactly once")
+
+
+def validate_replacement(source: dict[str, Any], replacement: dict[str, Any],
+                         audit: dict[str, Any]) -> None:
+    validate_candidate(source, replacement)
+    adopted_ids = {r["id"] for r in source.get("rules", []) if r.get("status") == "adopted"}
     if audit.get("verdict") != "pass":
         raise ValueError("audit must explicitly pass")
     audit_covered = audit.get("covered_source_ids")
@@ -155,11 +161,21 @@ def main() -> None:
     app.add_argument("--active", type=Path, required=True)
     app.add_argument("--bundle", type=Path, required=True)
     app.add_argument("--approval", type=Path, required=True)
+    candidate = sub.add_parser("validate-candidate")
+    candidate.add_argument("--source", type=Path, required=True)
+    candidate.add_argument("--replacement", type=Path, required=True)
     args = parser.parse_args()
     if args.command == "prepare":
         print(json.dumps(prepare(args.source, args.replacement, args.audit, args.output), indent=2))
-    else:
+    elif args.command == "apply":
         apply_bundle(args.active, args.bundle, args.approval)
+    else:
+        source = load_json(args.source, None)
+        replacement = load_json(args.replacement, None)
+        if not isinstance(source, dict) or not isinstance(replacement, dict):
+            raise ValueError("source and replacement must be JSON objects")
+        validate_candidate(source, replacement)
+        print(json.dumps({"result": "PASS", "candidate_hash": snapshot_hash(replacement)}))
 
 
 if __name__ == "__main__":

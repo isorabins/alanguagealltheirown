@@ -3,7 +3,7 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from cleanup_rulebook import apply_bundle, build_applied_rulebook, prepare
+from cleanup_rulebook import apply_bundle, build_applied_rulebook, prepare, validate_candidate
 from state_store import snapshot_hash
 
 ROOT = Path(__file__).parents[2]
@@ -49,6 +49,20 @@ class CleanupTests(unittest.TestCase):
             bad = json.loads((FIX / "replacement.json").read_text()); bad["rules"][0]["text_en"] += " deploy the timer"
             bad_path = directory / "bad.json"; bad_path.write_text(json.dumps(bad))
             with self.assertRaises(ValueError): prepare(FIX / "source.json", bad_path, FIX / "audit.json", bundle)
+
+    def test_candidate_is_rejected_before_audit_on_missing_or_duplicate_source(self):
+        source = json.loads((FIX / "source.json").read_text())
+        for sources in (["rule-001"], ["rule-001", "rule-001", "rule-002"]):
+            candidate = json.loads((FIX / "replacement.json").read_text())
+            candidate["rules"][0]["source_ids"] = sources
+            with self.assertRaises(ValueError):
+                validate_candidate(source, candidate)
+
+    def test_candidate_can_pass_before_audit(self):
+        validate_candidate(
+            json.loads((FIX / "source.json").read_text()),
+            json.loads((FIX / "replacement.json").read_text()),
+        )
 
     def test_audit_omission_or_non_pass_fails_closed(self):
         with tempfile.TemporaryDirectory() as directory:

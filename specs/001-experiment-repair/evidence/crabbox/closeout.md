@@ -47,3 +47,26 @@ coordinator-owned TTL/cap/cleanup guarantees.
 The next project action is T118 read-only production runway recheck. T119 and
 later gates still require their exact immutable target phrases; this closeout
 does not authorize them.
+
+## Post-pilot native artifact alignment
+
+After the pilot, the reusable skill's evidence transfer was tightened to the
+documented Crabbox v0.40.0 run path. The generated runner command now declares
+every repository-plan screenshot and receipt with `--require-artifact` and
+downloads each exact file with Crabbox's native `--download`; the separate SCP
+compatibility helper was removed. This preserves the successful pilot as
+historical evidence rather than pretending its transfer step used the later
+implementation.
+
+Validation on 2026-07-21 WITA passed `quick_validate.py` and generated 29
+required native downloads (27 screenshots, `matrix-results.json`, and the HTTP
+receipt) from the existing private manifest, with no SCP/rsync/SSH command and
+no legacy copy command. Updated skill hashes are:
+
+- `SKILL.md`: `d7f08b1fe70458e1044aa2b9bda09ee5ac5ab1110097f1a483576885c1e9d371`
+- `scripts/commands.py`: `96b19fd359cc2323d6fdee3fe70801a153ffdcb1d1f7c8679b94a03224f1b01b`
+- `references/pilot-manifest.md`: `b00cb5ce995e27c579dde970e057fd9d69868d46585370cabf2ea2fd7e48b808`
+
+No new lease or provider spend was used for this alignment. The first approved
+production acceptance lease will be the remote end-to-end validation of the
+native download path; any failure remains fail-closed before product PASS.
