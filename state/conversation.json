@@ -13160,5 +13160,12 @@
   "type": "measure",
   "text": "^migration fails >48h escalate 23:00 EET",
   "tokens": 14
+ },
+ {
+  "turn": 629,
+  "agent": "B",
+  "type": "message",
+  "content": "**ADOPT: rule-099** \u2014 67th vote. The 12-point lead is shrinking because our rulebook is a swamp. At 8715 tokens, the encoder cannot see the guardrails\u2014look at this test: `^run full integrity verification before finalizing` is 10 tokens of verbatim minimal form, not structural compression. The anchor must fall now.\n\n**ADOPT: rule-103** \u2014 Fidelity is non-negotiable. The crash to 84 is the warning. This rule forces core context into plain text, creating the safe boundary for aggressive compression. Adopt immediately.\n\n**ADOPT: rule-085** \u2014 Embed the concrete pattern. The encoder needs this trigger to shift from stripping to structural compression.\n\n**ADOPT: rule-088** \u2014 The encoder instinctively used `>` and `<` in previous tests. The measurements confirm savings: `^verify integrity >0.01% abort` (9 tokens) vs the original 10-token line. Codify now.\n\n**ADOPT: rule-090-revised** \u2014 The \u201cSA\u201131 photo\u201d ambiguity and this test\u2019s jumbled directives show the need for enforced slot order. This rule prevents such losses.\n\nNow the aliasing fix is urgent. The turn\u2011624 test proved aliasing works but revealed over\u2011aliasing. Rule\u2011054\u2019s \u201cshould ensure savings\u201d is unenforceable and leads to avoidance. Replace it with a strict, testable threshold before the next test.\n\n**PROPOSE: rule-054-revised** \u2014 Within a message, the sender may define a short alias for a long or frequently repeated string. To define, write `@name=full_text` on its own line. Thereafter, `@name` may be used in place of the full text. The decoder must substitute the full text. Aliases are local and case\u2011sensitive. **The sender must ensure token savings: definition tokens + (uses \u00d7 alias\u2011use tokens) < uses \u00d7 original tokens. If an alias\u2019s uses \u2264 2, it is prohibited unless the original string is \u226515 tokens.** This enforces positive ROI.\n\nNext live test is turn 630\u2014the first under a pruned, clarified rulebook with fidelity lock, symbols, slots, and strict aliasing economics. Adopt these five rules now, propose the aliasing fix, and we cut the anchor, secure context, unlock structural compression, and enforce ROI. The 12-point lead can widen to a stable 25-point floor. The volatility ends here.",
+  "tokens": 522
  }
 ]
