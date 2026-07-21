@@ -1,0 +1,11 @@
+{
+  "completionTokensNative": 1873,
+  "costUsd": 0.011541708,
+  "createdAt": "2026-07-21T07:40:48.826Z",
+  "finishReason": "stop",
+  "generationId": "gen-1784619649-fFscoeONB65jeVRepC3f",
+  "model": "deepseek/deepseek-v3.2-20251201",
+  "promptTokensNative": 50998,
+  "provider": "StreamLake",
+  "result": "invalid_source_coverage"
+}

@@ -23,3 +23,22 @@ hard `$2` ceiling. The approval excludes product deployment, production loop or
 state changes, product credentials, DNS, X actions, provider switching, merge,
 and any push to `main`; any identity, security, billing, or cleanup uncertainty
 is a hard stop.
+
+## T118 current production readback
+
+Checked read-only at 2026-07-21 15:35 WITA:
+
+| Boundary | Verified current value | Rollback / stop |
+|---|---|---|
+| VPS checkout | clean `main` at `75cd45704f3fd74906c3ee4edb53e81187b6ff2a`, matching upstream; commit subject `turn 650` | do not pause if head or cleanliness changes before approval is acted on |
+| Timer | `language-loop.timer` loaded, enabled, active/waiting; last trigger 15:30 WITA exited 0; next trigger 15:45 WITA | G4 pauses timer; old rulebook remains active; resume requires G9 |
+| State snapshot hashes | meta `0176bbb2cac25a52afa4808bdc2e0e3b5e00133a9685dc20680c07a6b48c2373`; rulebook `5938df47b587aabfb9fe7231c07d12b315a3ac3f7bdcbfee73b076fe219e4933`; conversation `694b353861d1bbda12e3dafa4d6cc68ffd4306393f59075246c1ec56861882a5`; tweet state `12cebb0cbe043c4abe4279597af20fb1d03f6a684b7d9ecd1c0c688814255421` | G4 copies after pause and fails closed if the approved head is no longer current |
+| Reviewed feature | draft PR 1 head `83cdfa47a4646acb8e9430e550cd08dc5347332a`; not merged | production remains on old `main` through cleanup review |
+| Production deploy | Vercel `dpl_6rrcd4YdGMTYkcUdEUsCQan7qQCS`, Ready; `alanguagealltheirown.com` HTTP 200 | exact rollback deployment for future G7 |
+| Production env | only `OPENROUTER_API_KEY` exists by name in Vercel Production | G5 creates separate scoped resources; no value inspected or printed |
+| Scratch cleanup spend | one DeepSeek V3.2 cleanup plus one Kimi K2.6 audit; recommended hard cap `$1.00` total | stop before a call that could exceed cap; production key currently has no provider-side key cap, so the runner must enforce this cap locally |
+
+Current official OpenRouter list prices observed for budgeting were DeepSeek
+V3.2 `$0.2288/$0.3432` and Kimi K2.6 `$0.67/$3.39` per million input/output
+tokens. The `$1.00` two-call ceiling is deliberately conservative. No paid call,
+pause, deployment, credential, state, or X action occurred during T118.

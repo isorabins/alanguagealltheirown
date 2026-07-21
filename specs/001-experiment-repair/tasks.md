@@ -262,9 +262,13 @@ loop, credential, or X action is authorized by this phase.
 
 ## Phase 14: Approval-Gated Production Preparation and Cutover
 
-- [ ] T118 Recheck live VPS/main/turn/timer/deploy state read-only and refresh rollback values in `specs/001-experiment-repair/evidence/runway-preflight.md`
-- [ ] T119 STOP for G4 phrase, then pause `language-loop.timer`, verify it is inactive, fetch the final state commit, and create immutable state/commit/service receipts in `specs/001-experiment-repair/evidence/cleanup-live/manifest.md`
+- [X] T118 Recheck live VPS/main/turn/timer/deploy state read-only and refresh rollback values in `specs/001-experiment-repair/evidence/runway-preflight.md`
+- [X] T119 STOP for G4 phrase, then pause `language-loop.timer`, verify it is inactive, fetch the final state commit, and create immutable state/commit/service receipts in `specs/001-experiment-repair/evidence/cleanup-live/manifest.md`
 - [ ] T120 With the approved paid scratch-call cap, run one DeepSeek A cleanup and one Kimi B audit against only the copied snapshot; save original/replacement/audit/diff/hashes under `specs/001-experiment-repair/evidence/cleanup-live/` and verify production state is unchanged
+
+  Attempt 1 stopped safely after the single approved DeepSeek output failed the
+  exact adopted-source coverage check. No Kimi call or production-state write
+  occurred; see `evidence/cleanup-live/attempt-1-failure.md`.
 - [ ] T121 STOP for G5 phrase; then create/link the single Upstash database, human session/password secrets, separate `$20` monthly-reset OpenRouter public key, and approved Vercel WAF rules without printing values; record names/metadata/connectivity in `specs/001-experiment-repair/evidence/credentials.md`
 - [ ] T122 Verify the public and private OpenRouter key identities differ, the public limit/reset metadata is exact (SC-010), and all required environments/services/rollback assets pass the production-equivalence table in `specs/001-experiment-repair/evidence/production-equivalence.md`
 - [ ] T123 Rebase the reviewed feature commit and pending cleanup bundle onto the now-paused current `origin/main` without applying the replacement, rerun the full offline suite, inspect the final state/code diff, and update `specs/001-experiment-repair/evidence/offline-suite.md`
