@@ -1,0 +1,10 @@
+{
+  "createdAt": "2026-07-21T06:23:27Z",
+  "crabboxVersion": "0.40.0",
+  "leaseId": "cbx_d2e0ea884dc5",
+  "slug": "pearl-crayfish",
+  "provider": "hetzner",
+  "network": "auto",
+  "targetOS": "linux",
+  "runId": "run_c18ed7c8d500"
+}

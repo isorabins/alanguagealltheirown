@@ -14,6 +14,7 @@ Date: 2026-07-21 WITA
 - Screenshot spot check: the row-7 image visibly shows the fixture identity,
   exact row/claim, PASS state, and no-production marker.
 
-These are browser/runner proofs only. T114 remains open until the same fixtures
-run on the disposable X11 desktop with one continuous outer MP4, proof bundle,
-and verified teardown; local Playwright evidence is not used as a substitute.
+The generic and project fixture checks satisfy T114. The disposable X11 proof
+was then run separately under T116: 26/26 rows passed in the remote desktop,
+with one continuous outer MP4, proof bundle, and verified teardown. Local
+Playwright evidence is not used as a substitute for that remote proof.

@@ -1,0 +1,120 @@
+{
+  "id": "run_c18ed7c8d500",
+  "leaseID": "cbx_d2e0ea884dc5",
+  "leaseIDs": [
+    "cbx_d2e0ea884dc5"
+  ],
+  "slug": "pearl-crayfish",
+  "owner": "crabbox-pilot@local",
+  "org": "crabbox-iso-pilot",
+  "leaseOwners": [
+    {
+      "owner": "crabbox-pilot@local",
+      "org": "crabbox-iso-pilot"
+    }
+  ],
+  "provider": "hetzner",
+  "target": "linux",
+  "windowsMode": "normal",
+  "class": "beast",
+  "serverType": "cpx32",
+  "command": [
+    "/home/crabbox/.local/node-v22.23.1/bin/node",
+    "tests/acceptance/production/runner.mjs",
+    "--plan",
+    "tests/acceptance/production/fixtures/project-plan.json",
+    "--output",
+    "tests/acceptance/production/.remote-evidence/project"
+  ],
+  "state": "succeeded",
+  "phase": "succeeded",
+  "exitCode": 0,
+  "syncMs": 10698,
+  "commandMs": 9652,
+  "durationMs": 23370,
+  "logBytes": 7597,
+  "logTruncated": false,
+  "telemetry": {
+    "start": {
+      "capturedAt": "2026-07-21T06:20:55.000Z",
+      "source": "ssh-linux",
+      "load1": 0.11,
+      "load5": 0.17,
+      "load15": 0.1,
+      "cpuCount": 4,
+      "memoryUsedBytes": 1241759744,
+      "memoryTotalBytes": 8121942016,
+      "memoryPercent": 15.29,
+      "diskUsedBytes": 3596255232,
+      "diskTotalBytes": 160938012672,
+      "diskPercent": 2.23,
+      "uptimeSeconds": 402
+    },
+    "end": {
+      "capturedAt": "2026-07-21T06:21:13.000Z",
+      "source": "ssh-linux",
+      "load1": 0.63,
+      "load5": 0.28,
+      "load15": 0.13,
+      "cpuCount": 4,
+      "memoryUsedBytes": 1236414464,
+      "memoryTotalBytes": 8121942016,
+      "memoryPercent": 15.22,
+      "diskUsedBytes": 3599015936,
+      "diskTotalBytes": 160938012672,
+      "diskPercent": 2.24,
+      "uptimeSeconds": 420
+    },
+    "samples": [
+      {
+        "capturedAt": "2026-07-21T06:20:55.000Z",
+        "source": "ssh-linux",
+        "load1": 0.11,
+        "load5": 0.17,
+        "load15": 0.1,
+        "cpuCount": 4,
+        "memoryUsedBytes": 1241759744,
+        "memoryTotalBytes": 8121942016,
+        "memoryPercent": 15.29,
+        "diskUsedBytes": 3596255232,
+        "diskTotalBytes": 160938012672,
+        "diskPercent": 2.23,
+        "uptimeSeconds": 402
+      },
+      {
+        "capturedAt": "2026-07-21T06:21:11.000Z",
+        "source": "ssh-linux",
+        "load1": 0.25,
+        "load5": 0.2,
+        "load15": 0.1,
+        "cpuCount": 4,
+        "memoryUsedBytes": 1480093696,
+        "memoryTotalBytes": 8121942016,
+        "memoryPercent": 18.22,
+        "diskUsedBytes": 3628519424,
+        "diskTotalBytes": 160938012672,
+        "diskPercent": 2.25,
+        "uptimeSeconds": 419
+      },
+      {
+        "capturedAt": "2026-07-21T06:21:13.000Z",
+        "source": "ssh-linux",
+        "load1": 0.63,
+        "load5": 0.28,
+        "load15": 0.13,
+        "cpuCount": 4,
+        "memoryUsedBytes": 1236414464,
+        "memoryTotalBytes": 8121942016,
+        "memoryPercent": 15.22,
+        "diskUsedBytes": 3599015936,
+        "diskTotalBytes": 160938012672,
+        "diskPercent": 2.24,
+        "uptimeSeconds": 420
+      }
+    ]
+  },
+  "startedAt": "2026-07-21T06:20:50.565Z",
+  "lastEventAt": "2026-07-21T06:21:13.935Z",
+  "eventCount": 9,
+  "endedAt": "2026-07-21T06:21:13.935Z"
+}

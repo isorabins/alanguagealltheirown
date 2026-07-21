@@ -1,10 +1,10 @@
 # Feature Specification: Experiment Repair and Public Collaboration
 
-**Feature Branch**: Planned `codex/experiment-repair` (not created during specification)
+**Feature Branch**: `codex/experiment-repair` (published to draft PR 1; not merged)
 
 **Created**: 2026-07-20 WITA
 
-**Status**: Offline product implementation complete; Crabbox acceptance-infrastructure addendum awaiting approval before T107+
+**Status**: Offline product implementation and Crabbox acceptance-infrastructure pilot complete; production product gates remain blocked at T118+
 
 **Input**: Repair the experimental contract of “A Language All Their Own,” preserve its history, add bounded public collaboration, and make every public claim match verified state. This specification consolidates Iso's line-by-line decisions from the skeptical audit completed on 2026-07-20.
 
@@ -416,3 +416,4 @@ The implementation plan MUST include planned stops before:
 | 2026-07-20 | Clean-worktree offline implementation passes 47 Python tests, 26 Node tests, 55-requirement coverage, API/HTML parse checks, state-hash preservation, diff/secret/bypass/privacy review, and Spec Kit convergence | Branch is local and unpushed; production state/site/loop/credentials/X are unchanged; every live DoD row is BLOCKED | Skeptical-review D1–D4 repairs approved for a second offline pass before T107; production gates remain unchanged |
 | 2026-07-21 | D1–D4 corrected offline pass: 58 Python tests, 27 Node tests, 66-requirement coverage, desktop/375px local copy inspection, baseline-aware state preservation, and zero-gap Spec Kit convergence | Branch remains local and unpushed; read-only fetch observed remote generated state at turn 630; no production service, credential, loop, deployment, paid call, or X action changed | T107–T143; all 26 production acceptance rows remain BLOCKED |
 | 2026-07-21 | Crabbox acceptance-infrastructure addendum drafted from official v0.40.0 source review; `$2` maximum new-infrastructure spend approved | No binary installed, account/credential created, coordinator deployed, lease provisioned, branch pushed, or production surface changed | Approve updated spec/plan/tasks; then T107–T117 before any production gate |
+| 2026-07-21 | Crabbox v0.40.0 pilot PASS: reusable skill validated; remote fixture 26/26; one continuous 300-second outer MP4 visibly spans a browser-process restart; proof, cap, secret-audit, and teardown checks PASS | Draft branch/PR only; free workers.dev coordinator remains idle; zero leases/servers/SSH keys; product deployment, loop/state, credentials, X, and production acceptance unchanged | T118+ retain their exact immutable production/live gates; no full production acceptance result exists yet |

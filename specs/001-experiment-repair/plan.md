@@ -271,13 +271,13 @@ Production completion requires each later exact live/public approval.
 |---|---|---|---|---|
 | Current remote main | Worktree/rebase | available; `72badf9` at synchronized planning baseline, recheck required | implementer | `ls-remote`/fetch receipt |
 | Dirty local `main` user work | Preservation | available, must not be stashed/overwritten | implementer | status + manifest |
-| Clean worktree path/branch | Implementation | planned_stop G0 | Iso approves plan | worktree list/status |
-| Reviewed feature push/PR | Repository runner checkpoint | blocked at T107 | Iso approves feature push/draft PR | remote branch/PR receipt |
-| Crabbox v0.40.0 binary | Local acceptance plumbing | pre-approved after contract approval; not installed | Iso approved Crabbox with `$2` ceiling | release checksum/version receipt |
+| Clean worktree path/branch | Implementation | PASS; isolated `codex/experiment-repair` worktree | Iso approved plan | worktree list/status |
+| Reviewed feature push/PR | Repository runner checkpoint | PASS; draft PR 1 on the feature branch | T107 approval received | `evidence/production-gates.md` |
+| Crabbox v0.40.0 binary | Local acceptance plumbing | PASS; checksum-verified binary installed | Iso approved Crabbox with `$2` ceiling | `evidence/crabbox/install.md` |
 | Local pinned Crabbox snapshot | Review/skill reference | available | implementer | clean exact-tag checkout + snapshot receipt |
-| Cloudflare account/API access | Durable coordinator | blocked; cached OAuth expired and no Bitwarden token found | Iso/account login or scoped token | account id/token-name metadata only |
-| Hetzner account/project/token | Disposable X11 desktop | blocked; no CLI/token metadata found | Iso/account login, billing readiness, exact G3B phrase | project/token-name metadata only |
-| Crabbox coordinator/lease | Remote proof | planned_stop G3B | exact live-change phrase | coordinator lease/cap/TTL readbacks |
+| Cloudflare account/API access | Durable coordinator | PASS; Workers-Scripts-only token stored externally and coordinator deployed | account/security approval received | `evidence/crabbox/pilot/coordinator-deploy.json` |
+| Hetzner account/project/token | Disposable X11 desktop | PASS; isolated project/token used and provider returned to zero resources | exact G3B phrase received | `evidence/crabbox/pilot/hetzner-cleanup.json` |
+| Crabbox coordinator/lease | Remote proof | PASS; free idle coordinator retained, disposable lease released | exact live-change phrase received | `evidence/crabbox/pilot/` |
 | `$2` new-infrastructure ceiling | Remote proof | pre-approved | Iso, 2026-07-21 WITA | current conversation + cost receipt |
 | VPS SSH and repo | Snapshot/timer/state | available read-only; writes planned_stop | Iso live phrase | service/git receipts |
 | Vercel project/domain | Deploy/human/Try It | available read-only; deploy/env planned_stop | Iso live phrase | project/deploy receipt |
@@ -286,14 +286,14 @@ Production completion requires each later exact live/public approval.
 | Separate public OpenRouter key | Try It | planned_stop; absent | Iso/live phrase | key hash/limit/reset metadata |
 | Private experiment key | Loop/research/Conversation | available historically; no value inspected | existing production | name/provider health receipt |
 | Upload-Post/X profile | X delivery | available historically; every action planned_stop | Iso per item | profile/provider receipts |
-| Browser desktop/mobile surfaces | Visible acceptance | Crabbox remote X11 path designed; unverified until G3B | implementer | preflight screenshot |
-| Continuous recorder | Cross-turn evidence | Crabbox X11 source path verified; executable proof planned_stop G3B | implementer | MP4 inspection across browser restart |
+| Browser desktop/mobile surfaces | Visible acceptance | remote fixture PASS on X11 at desktop and 375px; production remains separately gated | implementer | pilot screenshots and matrix receipt |
+| Continuous recorder | Cross-turn evidence | PASS; one 300-second H.264 outer-desktop MP4 visibly spans browser restart | implementer | `evidence/crabbox/pilot/video-inspection.json` |
 | Natural test data and cleanup | Acceptance | design available; live use planned_stop | implementer/Iso for public effects | matrix ids/cleanup plan |
 | Rollback state/deployment/commit | Every live gate | must be captured immediately before gate | implementer | hashes/deployment id |
 
-**Preflight Result**: NOT_READY to the remote-pilot target because T107,
-Cloudflare/Hetzner access, and G3B exact approval remain unresolved. Local
-planning is complete; production DoD cannot be claimed without G4-G12 approvals
+**Preflight Result**: PASS for the remote-pilot target; T107–T117 completed with
+the free coordinator idle and provider resources at zero. The production target
+remains NOT_READY and no production DoD can be claimed without G4–G12 approvals
 and evidence.
 
 ## Project Structure

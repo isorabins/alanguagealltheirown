@@ -1,0 +1,18 @@
+{
+  "leaseId": "cbx_d2e0ea884dc5",
+  "slug": "pearl-crayfish",
+  "providerServerId": 153412659,
+  "provider": "hetzner",
+  "serverType": "cpx32",
+  "location": "fsn1",
+  "desktopEnvironment": "xfce",
+  "ttlSeconds": 28800,
+  "idleTimeoutSeconds": 1800,
+  "runtimeSeconds": 738,
+  "runnerRunId": "run_c18ed7c8d500",
+  "runnerRowsPassed": 26,
+  "runnerRowsTotal": 26,
+  "browserRestarts": 1,
+  "released": true,
+  "releasedAt": "2026-07-21T06:25:00Z"
+}

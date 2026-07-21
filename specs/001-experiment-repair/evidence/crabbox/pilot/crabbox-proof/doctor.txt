@@ -1,0 +1,11 @@
+session ok DISPLAY=:99
+session ok display
+session ok xfwm4
+session ok panel
+vm ok vnc
+input ok xdotool
+input ok clipboard
+session ok browser=/usr/local/bin/crabbox-browser
+capture ok ffmpeg
+session ok screen=1920x1080
+capture ok screenshot

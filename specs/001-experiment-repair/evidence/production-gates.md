@@ -13,3 +13,16 @@
 
 Verification used both `gh pr view 1` and `git ls-remote`; both reported the
 approved checkpoint as the remote head.
+
+## T115–T117 — isolated Crabbox pilot
+
+- Date: 2026-07-21 (WITA)
+- Exact live-change approval: received for the isolated workers.dev coordinator,
+  one Hetzner CPX32 Germany lease, eight-hour TTL, and `$2` maximum.
+- Pilot result: PASS; remote fixture 26/26, continuous cross-restart video PASS,
+  proof bundle PASS, reusable skill validation PASS.
+- Cleanup: zero coordinator leases, zero matching Hetzner servers and SSH keys.
+- Spend: Crabbox metered `$0.01`; eight-hour reservation estimate `$0.56`; the
+  provider invoice had not posted at closeout.
+- Production boundary: no product deploy, loop/state/credential/X action, DNS
+  change, merge, or push to `main` occurred.

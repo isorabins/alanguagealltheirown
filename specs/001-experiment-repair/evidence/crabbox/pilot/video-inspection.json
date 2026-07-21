@@ -1,0 +1,19 @@
+{
+  "inspectedAt": "2026-07-21T06:29:32Z",
+  "file": "00-cross-turn-workflow.mp4",
+  "sha256": "07bb6acac9dea45a1cc9ce33e4ccb67d3a7f5fc629501694f983b4102f1b5bc8",
+  "codec": "h264",
+  "width": 1920,
+  "height": 1080,
+  "fps": 15,
+  "durationSeconds": 300,
+  "singleContinuousFile": true,
+  "browserVisible": true,
+  "browserRestartVisible": true,
+  "mobileViewportVisible": true,
+  "credentialEntryVisible": false,
+  "eventContactSheet": "00-cross-turn-workflow.event-contact.png",
+  "eventContactSheetSha256": "424e4f631af525973c3f5fa90ae9fb5354109144f341a379464da69c2d72dda8",
+  "eventSegmentOffsetSeconds": 41,
+  "notes": "The browser appears, closes during the scripted restart, reappears in the same unbroken outer recording, then advances through 375px mobile states."
+}

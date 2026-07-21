@@ -1,0 +1,11 @@
+{
+  "checkedAt": "2026-07-21T06:29:32Z",
+  "actualNewInfrastructureUsd": 0.01,
+  "actualRuntimeSeconds": 738,
+  "coordinatorEstimatedUsd": 0.01,
+  "reservedEightHourUsd": 0.56,
+  "hetznerFsn1HourlyGrossEur": 0.0673,
+  "maximumApprovedUsd": 2.0,
+  "withinApprovedMaximum": true,
+  "basis": "Crabbox coordinator metering at teardown; the Hetzner monthly invoice had not yet posted."
+}
