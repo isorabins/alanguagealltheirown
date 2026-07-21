@@ -18,10 +18,11 @@ from pathlib import Path
 
 import requests
 
-from collaboration import deliver_one, empty_state, public_state, stable_record, sync_remote
+from collaboration import (deliver_one, empty_state, import_inbox_spool, public_state,
+                           stable_record, write_outbox)
 from conversation_exam import run_conversation
 from rulebook import (apply_authorized_motion, language_payload, render_language,
-                      render_legislature, score_judgment)
+                      render_legislature, score_judgment, motion_line)
 from state_store import atomic_write_json, load_json
 
 ROOT = Path(__file__).resolve().parent
@@ -180,10 +181,12 @@ def render_window(conv):
                     if e.get(lab):
                         bits.append(f"{lab}: " + "; ".join(str(x) for x in e[lab][:4]))
                 audit = "\n" + " | ".join(bits)
+            score = (f"decode fidelity {e['fidelity']}/100" if e.get("fidelity") is not None
+                     else f"no valid score ({e.get('judge_reason', 'invalid')})")
             out.append(
                 f"[turn {e['turn']} — LIVE TEST | payload: {e['payload']}]\n"
                 f"original {e['orig_tokens']} tokens -> encoded {e['enc_tokens']} tokens "
-                f"({e['token_delta_pct']:+d}%) | decode fidelity {e.get('fidelity', 'invalid')}/100\n"
+                f"({e['token_delta_pct']:+d}%) | {score}\n"
                 f"encoded: {e['encoded']}\n"
                 f"fresh decoder returned: {render_decode(e['decoded'])}\n"
                 f"grader: {e['lost']}" + audit)
@@ -193,12 +196,12 @@ def render_window(conv):
 
 
 def rationale_for(text, line):
-    """The paragraph around a PROPOSE/ADOPT/REJECT line, minus verb lines — the 'why'."""
+    """The paragraph around the exact matched motion line, minus verb lines — the 'why'."""
     paras = text.split("\n\n")
     idx = next((i for i, p in enumerate(paras) if line in p), 0)
     for cand in (paras[idx], paras[idx - 1] if idx else ""):
         why = " ".join(l for l in cand.splitlines()
-                       if not re.match(r"\s*\**(PROPOSE|ADOPT|REJECT|REVISE)", l)).strip()
+                       if not re.match(r"\s*\**(PROPOSE|REPEAL|ADOPT|REJECT|REVISE|REQUEST(?:-REVISION|-TEST)?)", l)).strip()
         if len(why) > 20:
             return why[:280]
     return ""
@@ -212,11 +215,6 @@ def write_viewer_state(conv, rb, meta, collaboration=None, conversations=None):
              "conversations": conversations or [],
              "meta": {"spend_usd": meta.get("spend_usd", 0), "model": MODEL_A,
                       "updated": now_iso(), "run": meta.get("run", "local")}}) + ";\n")
-
-
-def econ_line(rb):
-    """The former benchmark is historical; no active comparison enters prompts."""
-    return ""
 
 
 def agent_turn(conv, rb, meta, collaboration, turn):
@@ -245,7 +243,9 @@ def agent_turn(conv, rb, meta, collaboration, turn):
         conv.append({"turn": turn, "agent": "harness", "type": "measure",
                      "text": probe_text[:120], "tokens": n})
         print(f"[t{turn} MEASURE] \"{probe_text[:40]}\" = {n}tok", flush=True)
-    receipt = apply_authorized_motion(text, rb, turn, agent, rationale_for(text, text.splitlines()[-1]))
+    matched_line = motion_line(text)
+    receipt = apply_authorized_motion(text, rb, turn, agent,
+                                      rationale_for(text, matched_line) if matched_line else "")
     conv.append({"turn": turn, "agent": "harness", "type": "legislature",
                  "motion_receipt": receipt.dict()})
     if receipt.changed:
@@ -385,9 +385,11 @@ def test_turn(conv, rb, meta, turn):
              "language_hash": captured["hash"]}
     event.update(audit)
     conv.append(event)
-    meta.setdefault("corpus_exams", []).append({"turn": turn, "language_version": captured["version"],
-                                                 "language_hash": captured["hash"], "fidelity": fidelity,
-                                                 "token_delta_pct": delta, "valid": fidelity is not None})
+    exams = meta.setdefault("corpus_exams", [])
+    exams.append({"turn": turn, "language_version": captured["version"],
+                  "language_hash": captured["hash"], "fidelity": fidelity,
+                  "token_delta_pct": delta, "valid": fidelity is not None})
+    meta["corpus_exams"] = exams[-500:]
     print(f"[t{turn} TEST] {pname}  {orig_t}->{enc_t}tok ({delta:+d}%)  fid {fidelity}  "
           f"${meta['spend_usd']:.3f}", flush=True)
 
@@ -515,8 +517,9 @@ def run(turns):
             print(f"SPEND CAP hit (${meta['spend_usd']:.2f}) — stopping.", flush=True)
             break
         consume_notice(conv, turn)
-        collaboration = sync_remote(collaboration, owner=f"turn-{turn}", turn=turn,
-                                    state_path=STATE / "collaboration.json")
+        collaboration = import_inbox_spool(
+            collaboration, STATE / "collaboration-inbox.json", turn=turn)
+        save("collaboration.json", collaboration)
         process_one_research(collaboration, meta, turn)
         if turn % TEST_EVERY == 0:
             test_turn(conv, rb, meta, turn)
@@ -526,9 +529,8 @@ def run(turns):
         save("conversation.json", conv)
         save("rulebook.json", rb)
         save("meta.json", meta)
-        collaboration = sync_remote(collaboration, owner=f"turn-{turn}-publish", turn=turn,
-                                    state_path=STATE / "collaboration.json")
         save("collaboration.json", collaboration)
+        write_outbox(STATE / "collaboration-outbox.json", collaboration)
         save("public-collaboration.json", public_state(collaboration))
         save("conversations.json", conversations)
         write_viewer_state(conv, rb, meta, collaboration, conversations)

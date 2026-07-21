@@ -3,7 +3,7 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from cleanup_rulebook import apply_bundle, prepare
+from cleanup_rulebook import apply_bundle, build_applied_rulebook, prepare
 from state_store import snapshot_hash
 
 ROOT = Path(__file__).parents[2]
@@ -77,6 +77,26 @@ class CleanupTests(unittest.TestCase):
                 receipt=directory/f"approval-{name}.json"; receipt.write_text(json.dumps({"approved":True,
                     "source_hash":manifest["source_hash"],"replacement_hash":manifest["replacement_hash"]}))
                 with self.assertRaises(ValueError): apply_bundle(active,bundle,receipt)
+
+    def test_cleanup_terminalizes_legacy_open_states_with_history_receipts(self):
+        source = json.loads((FIX / "source.json").read_text())
+        source["rules"][0]["pending_repeal"] = {
+            "kind":"repeal", "target_id":"rule-001", "rationale":"Legacy pending repeal."
+        }
+        source["rules"].extend([
+            {"id":"rule-004","text_en":"Legacy open proposal.","status":"proposed","history":[]},
+            {"id":"rule-005","text_en":"Legacy reverted proposal.","status":"reverted","history":[]},
+        ])
+        source["next_id"] = 6
+        replacement = json.loads((FIX / "replacement.json").read_text())
+        applied = build_applied_rulebook(source, replacement)
+        by_id = {r["id"]: r for r in applied["rules"]}
+        for rule_id, prior in (("rule-004", "proposed"), ("rule-005", "reverted")):
+            self.assertEqual(by_id[rule_id]["status"], "historical")
+            self.assertEqual(by_id[rule_id]["history"][-1],
+                             {"verb":"cleanup_terminalized","source_status":prior})
+        self.assertFalse(any(r.get("status") in {"proposed","reverted"} for r in applied["rules"]))
+        self.assertNotIn("pending_repeal", by_id["rule-001"])
 
 
 if __name__ == "__main__": unittest.main()

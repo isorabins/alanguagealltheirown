@@ -4,8 +4,8 @@ A public, long-running experiment in which two agents build a compact AI-to-AI l
 
 ## Current contract
 
-- DeepSeek Agent A invents or revises one focused proposal.
-- Kimi Agent B audits A's proposal and alone may adopt or reject it.
+- DeepSeek Agent A invents, revises, or proposes repeal of one focused rule at a time.
+- Kimi Agent B audits A's add or repeal motion and alone may adopt or reject it.
 - The harness rejects role violations, malformed references, repeated settled motions, and multiple motions as reason-coded no-ops.
 - Only adopted rule text enters ordinary encoding, decoding, public Try It, and the scheduled Conversation exam. Proposed and rejected material remains public history.
 - Ordinary exam results are corpus-level evidence tied to an immutable adopted-language version and hash. Legacy per-rule scores remain labeled history.
@@ -13,7 +13,7 @@ A public, long-running experiment in which two agents build a compact AI-to-AI l
 
 ## Collaboration
 
-The product uses one minimal durable Redis REST inbox. Vercel functions enqueue visitor suggestions and human moderation commands; the existing Python loop is the sole writer of canonical `state/collaboration.json` history. That canonical file stays off the public Git history and is backed up to private Redis; the page fetches only `state/public-collaboration.json`, which contains the sanitized lifecycle view.
+The product uses one minimal durable Redis REST inbox. Vercel functions enqueue visitor suggestions and human moderation commands. A bounded courier copies them to an atomic local inbox spool and publishes a loop-authored outbox snapshot; it cannot write canonical history. The existing Python loop remains the sole writer of canonical `state/collaboration.json`. Courier failure delays collaboration but cannot cancel a turn. The page fetches only sanitized `state/public-collaboration.json`.
 
 - `RESEARCH:` creates a correlated, cited, non-blocking evidence request. Retrieved pages are untrusted evidence and have no legislative authority.
 - `ASK:` creates a public `awaiting Iso` lifecycle. Iso answers verbatim through the password-protected `/human` page; the requesting agent receives the original question and answer together exactly once.

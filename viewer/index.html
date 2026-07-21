@@ -313,13 +313,13 @@ canned — you are watching the live pipeline run on your words.</p>
 </details>
 
 <h2>Proposed, Not Yet Tested</h2>
-<p class="how">Rules currently under debate. They remain outside ordinary encoding, decoding, Try It, and Conversation until Kimi adopts them.</p>
+<p class="how">Add and repeal motions currently under debate. They remain outside ordinary encoding, decoding, Try It, and Conversation until Kimi decides them.</p>
 <ul class="table-note" id="proposed"></ul>
 
 <h2>How This Works</h2>
 <p class="how">Distinct roles with one enforced boundary: only the agents can legislate, and only adopted rules are language law.</p>
 <div id="cast">
-  <div class="note"><span class="nd">the legislature</span>DeepSeek A invents or revises one proposal. Kimi B audits that focused proposal and alone may adopt or reject it. Invalid motions are visible no-ops.</div>
+  <div class="note"><span class="nd">the legislature</span>DeepSeek A invents, revises, or proposes repeal of one rule at a time. Kimi B audits that focused add or repeal motion and alone may adopt or reject it. A repealed rule leaves the language but keeps its full public history. Invalid motions are visible no-ops.</div>
   <div class="note"><span class="nd">the exam writer</span>Every third turn, a separate AI invents a realistic message neither negotiator has ever seen — a deploy request, an apology, a recall notice with lot numbers. Every exam is new, so the agents can never tune their language to a known exam.</div>
   <div class="note"><span class="nd">the encoder</span>Another AI translates that message into the invented language, using nothing but the current rulebook.</div>
   <div class="note"><span class="nd">the stranger</span>A completely fresh AI — no memory of the conversation, no context at all — receives only the rulebook and the encoded message, and must turn it back into plain English. Since turn 246 the stranger is also a different model family from the negotiators, so it can't lean on shared habits: it decodes what the encoding actually says. If the language only works for the two agents who invented it, it fails here. This is the whole test.</div>
@@ -331,7 +331,7 @@ canned — you are watching the live pipeline run on your words.</p>
 <div class="prompt-intro">The public repo contains the shared constitution, role contracts, exam writer, and judge. Humans operate the harness and moderate optional outside context, but do not write or edit language rules. Every behavior change remains in repository history.</div>
 <div id="prompts"></div>
 
-<h2>Rejected Rules</h2>
+<h2>Rule History</h2>
 <details class="sect">
   <summary id="grave-sum">the graveyard</summary>
   <ul class="grave" id="grave"></ul>
@@ -369,8 +369,9 @@ function render(S) {
   var tests = conv.filter(function (e) { return e.type === "test"; });
   var last = tests[tests.length - 1];
   var adopted = rb.rules.filter(function (r) { return r.status === "adopted"; });
-  var rejected = rb.rules.filter(function (r) { return r.status === "rejected" || r.status === "reverted"; });
+  var rejected = rb.rules.filter(function (r) { return ["rejected","reverted","repealed","historical","superseded"].indexOf(r.status) >= 0; });
   var proposed = rb.rules.filter(function (r) { return r.status === "proposed"; });
+  var pendingRepeals = rb.rules.filter(function (r) { return r.pending_repeal; });
 
   var best = null;
   var passing = tests.filter(function (t) { return t.fidelity >= 90; });
@@ -402,7 +403,7 @@ function render(S) {
   }).join("");
 
   function msgHtml(e, cls) {
-    var body = esc(String(e.content == null ? "" : e.content).replace(/\*\*/g, "")).replace(/^(PROPOSE|ADOPT|REJECT|REVISE)\s*:/gm, '<span class="verb">$1:</span>');
+    var body = esc(String(e.content == null ? "" : e.content).replace(/\*\*/g, "")).replace(/^(PROPOSE|REPEAL|ADOPT|REJECT|REVISE|REQUEST(?:-REVISION|-TEST)?)\s*:/gm, '<span class="verb">$1:</span>');
     return '<div class="m ' + cls + '"><span class="t">turn ' + e.turn + " · agent " + e.agent + "</span>" + body + "</div>";
   }
   function tickHtml(e) {
@@ -530,16 +531,19 @@ function render(S) {
   }).join("") : '<p class="empty">No rules adopted yet — the language is still plain English.</p>';
 
   document.getElementById("grave-sum").textContent =
-    rejected.length + " dead rules — every failure stays on the books so the same idea can't be proposed twice";
+    rejected.length + " historical rules — rejected, repealed, and cleanup history stays on the books";
   document.getElementById("grave").innerHTML = rejected.map(function (r) {
-    var rej = hist(r, "reject");
+    var rej = hist(r, "repeal_adopted") || hist(r, "reject") || hist(r, "cleanup_terminalized") || hist(r, "cleanup_superseded");
     return '<li><span class="rtext">' + ruleText(r) + '</span><span class="kill">† turn ' + (rej ? rej.turn : "?") + " · historical record</span>" +
       (rej && rej.why ? '<span class="why">“' + esc(rej.why) + '”</span>' : "") + "</li>";
-  }).join("") || '<li class="empty">Nothing rejected yet.</li>';
+  }).join("") || '<li class="empty">No historical rules yet.</li>';
 
   document.getElementById("proposed").innerHTML = proposed.map(function (r) {
     return '<li><span class="id">' + r.id + " · outside the tested language</span>" + ruleText(r) + "</li>";
-  }).join("") || '<li class="empty">Nothing on the table.</li>';
+  }).concat(pendingRepeals.map(function (r) {
+    return '<li><span class="id">repeal ' + r.id + " · outside the tested language</span>" +
+      esc(r.pending_repeal.rationale || "pending repeal") + "</li>";
+  })).join("") || '<li class="empty">Nothing on the table.</li>';
 
   document.getElementById("hist").innerHTML = conv.map(function (e) {
     return e.type !== "message" ? tickHtml(e) : msgHtml(e, e.agent);

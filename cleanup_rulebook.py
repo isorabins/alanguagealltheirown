@@ -52,8 +52,15 @@ def build_applied_rulebook(source: dict[str, Any], replacement: dict[str, Any]) 
     for rule in applied.get("rules", []):
         if rule.get("status") == "adopted":
             rule["status"] = "historical"
+            rule.pop("pending_repeal", None)
             rule.setdefault("history", []).append({"verb": "cleanup_superseded",
                                                     "source_status": "adopted"})
+        elif rule.get("status") in {"proposed", "reverted"}:
+            previous = rule["status"]
+            rule["status"] = "historical"
+            rule.pop("pending_repeal", None)
+            rule.setdefault("history", []).append({"verb": "cleanup_terminalized",
+                                                    "source_status": previous})
     for candidate in replacement.get("rules", []):
         new_rule = copy.deepcopy(candidate)
         new_rule["id"] = f"rule-{next_id:03d}"

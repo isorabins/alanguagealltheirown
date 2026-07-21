@@ -12,6 +12,10 @@ test('stale active claims and Composition are absent',()=>{
   for(const phrase of ['dumb script','mindless script','gigawatt','power-grid','Composition','Slack ASK',':online']) assert.doesNotMatch(html,new RegExp(phrase,'i'));
 });
 
+test('public explanation includes agent repeal power and preserved history',()=>{
+  assert.match(html,/repeal/i); assert.match(html,/<h2>Rule History<\/h2>/i);
+});
+
 test('public page fetches only the sanitized collaboration snapshot',()=>{
   assert.match(html,/public-collaboration\.json/); assert.doesNotMatch(html,/getOptional\("collaboration\.json"/);
   assert.match(html,/Iso:.*esc\(r\.answer\)/s);

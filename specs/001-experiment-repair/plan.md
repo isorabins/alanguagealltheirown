@@ -72,7 +72,8 @@ every public status or claim must match verified canonical state.
 
 **Recommended Architecture**: Repair the existing Python loop and static Vercel
 site in place. Add one Upstash Redis inbox/session store shared through server-side
-REST. The loop materializes bounded events into append-only
+REST through a standalone bounded courier. The courier writes only atomic local
+transport spools; the loop materializes those bounded events into append-only
 `state/collaboration.json` and remains the sole writer of canonical experiment
 history.
 
@@ -113,6 +114,8 @@ canonical dedupe before collaboration UI work.
 | `tweet.py` | State can advance without confirmed X result | Idempotent confirmed receipt, 3-attempt block | Replace optimistic state path | timeout/partial/attempt-4 tests |
 | Old docs/page | Stale roles/claims/expanded archive | Verified current copy and selective disclosure | Update only after behavior verification | visible desktop/mobile review |
 | Direct production scripts | `loop.py`, `tweet.py`, deploy/apply can mutate live state | Explicit path/flags plus exact live gates | No execution during offline phase | command/evidence audit |
+| Collaboration Redis calls in `loop.py` | Network outage or hang can cancel a turn | Bounded courier plus atomic local inbox/outbox spools | Remove Redis client/calls from loop path | exception/timeout/replay/restart tests |
+| Legacy open proposals | Copied production proposals would permanently trip one-open guard | Cleanup terminalizes legacy proposed/reverted status with history receipt | Add migration to cleanup application | production-shaped cleanup/authority test |
 
 **Boundary Result**: PASS for design; live retirement remains planned_stop until
 the corresponding approved production gate.
@@ -125,7 +128,8 @@ the corresponding approved production gate.
 and `crypto`; Upstash Redis REST; OpenRouter Chat Completions/server tools;
 Upload-Post text/status API
 
-**Storage**: Canonical JSON/git history plus one Upstash Redis inbox/session store
+**Storage**: Canonical JSON/git history, local atomic collaboration transport spools,
+plus one Upstash Redis inbox/session store
 
 **Testing**: Python `unittest`, Node `node:test`, fixture state, stub HTTP servers,
 production-shaped local Vercel handlers, human-app-testing on deployed desktop and
@@ -143,7 +147,8 @@ delivery per turn; no change to 15-minute cadence; page remains usable at 375px
 
 **Constraints**: No new general framework, no competing canonical writer, no
 production state in tests, no uncapped public inference, no more than three X
-attempts, no standalone Composition, no rolling-average reset
+attempts, no standalone Composition, no rolling-average reset; Redis failure or
+a hanging courier cannot cancel an ordinary turn
 
 **Scale/Scope**: Low-volume public art project; eight user stories, one human
 operator, one loop worker, one Redis database, one Vercel project, one X profile

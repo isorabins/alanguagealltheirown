@@ -2,8 +2,8 @@ const test = require('node:test'); const assert = require('node:assert/strict');
 const L = require('../../viewer/api/_lib.js'); const { response } = require('./helpers.js');
 
 test('adopted view excludes every other status and hashes meaning', () => {
-  const rb={rules:[{id:'r1',status:'adopted',text_en:'yes'},{id:'r2',status:'proposed',text_en:'no'},{id:'r3',status:'rejected',text_en:'never'}]};
-  assert.match(L.renderRulebook(rb),/yes/); assert.doesNotMatch(L.renderRulebook(rb),/no|never/);
+  const rb={rules:[{id:'r1',status:'adopted',text_en:'yes',pending_repeal:{rationale:'not language'}},{id:'r2',status:'proposed',text_en:'no'},{id:'r3',status:'rejected',text_en:'never'},{id:'r4',status:'repealed',text_en:'gone'},{id:'r5',status:'historical',text_en:'old'}]};
+  assert.match(L.renderRulebook(rb),/yes/); assert.doesNotMatch(L.renderRulebook(rb),/no|never|gone|old|not language/);
   const first=L.languagePayload(rb); rb.rules[1].text_en='changed proposal'; assert.equal(L.languagePayload(rb).hash,first.hash);
   rb.rules[0].text_en='changed adopted'; assert.notEqual(L.languagePayload(rb).hash,first.hash);
 });

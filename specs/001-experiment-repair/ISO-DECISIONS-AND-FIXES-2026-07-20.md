@@ -3,7 +3,12 @@
 **Date:** 2026-07-20, from Iso's review conversation with Claude.
 **Companion:** `SKEPTICAL-REVIEW-FINDINGS-2026-07-20.md` (finding ids F1–F7 referenced below).
 **Scope:** these are decided changes, not suggestions. Implement on this branch before the
-production-equivalence pass. Nothing else in the approved plan changes.
+production-equivalence pass. Update the existing Spec Kit contract and offline evidence for
+these changes; all live gates and the rest of the approved scope remain unchanged.
+
+**Offline status (2026-07-21):** D1–D4 are implemented and verified in the local feature
+worktree. Nothing has been pushed, deployed, connected to production services, or run on the
+production loop; T107 remains the first open gate.
 
 ---
 
@@ -12,18 +17,20 @@ production-equivalence pass. Nothing else in the approved plan changes.
 Iso's call: "take the Redis check off the heartbeat." The loop must take turns with zero
 network dependency on Upstash.
 
-**Required design — the courier pattern (same pattern as probe.py/tweet.py):**
+**Required design — the courier pattern:**
 - `loop.py` makes NO Redis/network calls for collaboration. It reads and writes ONLY the
-  local file (`state/collaboration.json`). Remove the `sync_remote(...)` call from `run()`
-  and any RedisRest use from the turn path.
-- A standalone courier script (e.g. `collab_sync.py`) does all Redis I/O, invoked from
-  `run_turn.sh` with `|| true`:
-  - BEFORE `loop.py`: pull new asks/answers/approved-suggestions from Redis into the local
-    file (this is how the agents still see Iso's answers — see below).
-  - AFTER `loop.py`: push newly created agent requests (RESEARCH/ASK records) and delivery
-    acknowledgements back to Redis for the website.
-- Every network operation inside the courier is exception-safe: any failure logs and exits 0
-  with the local file untouched. A dead courier may NEVER cost a turn.
+  canonical file (`state/collaboration.json`) plus separate local transport spool files.
+  Remove the `sync_remote(...)` call from `run()` and any RedisRest use from the turn path.
+- A standalone `collab_sync.py` does all Redis I/O. It may write only atomic local inbox and
+  recovery spools; it may never write canonical collaboration history. The loop imports the
+  spools, deduplicates stable ids, and remains the sole writer of canonical history.
+- Invoke the courier from `run_turn.sh` through a strict wall-clock timeout and `|| true`:
+  - BEFORE `loop.py`: pull new answers/moderation/suggestions into the local inbox spool.
+  - AFTER `loop.py`: publish the loop-authored private snapshot, new agent requests, and
+    delivery receipts for the website.
+- Every network operation is exception-safe and idempotent. A failure before a spool commit
+  changes no local file; a failure after a durable spool/canonical receipt preserves that
+  receipt for retry. A dead or hung courier may delay collaboration but may NEVER cancel a turn.
 
 **Answer-delivery latency under this design (Iso asked):** unchanged in practice. The courier
 runs at the top of every 15-minute cycle, immediately before the loop — an answer Iso submits
@@ -41,6 +48,8 @@ experiment." The current no-repeal design is rejected.
 - Agent A (inventor) may originate a repeal as its one focused motion, e.g.
   `REPEAL: rule-NNN -> <why it should leave the language>`. This creates a repeal proposal
   (subject to the same one-open-proposal rule as D3).
+- Store the repeal proposal as a distinct pending motion on its adopted target, with its own
+  type, target, rationale, provenance, and history. Repeal text is never language law.
 - Agent B (auditor) ratifies or refuses it with its existing ADOPT/REJECT/REQUEST verbs,
   under the same latest-focused-proposal constraint.
 - On ratified repeal: the rule's status becomes `repealed` — OUT of `render_language()` and
@@ -60,7 +69,10 @@ experiment." The current no-repeal design is rejected.
 
 Reject any PROPOSE (and REPEAL origination) while another proposal is open, with receipt
 reason `proposal_already_open`. The inventor's "one focused idea" stops being prose.
-Update A's prompt so the agent understands the receipt it will see.
+Update A's prompt so the agent understands the receipt it will see. During the approved
+cleanup application, terminalize legacy `proposed` and `reverted` records as historical while
+preserving their original status and full history; otherwise the existing backlog would block
+all future proposals forever.
 
 ## D4 — Small fixes (resolves F4–F7). DECIDED, bundle in one commit.
 
@@ -70,9 +82,8 @@ Update A's prompt so the agent understands the receipt it will see.
    Expose the matched line on the MotionReceipt and pass it to `rationale_for`. Include the
    REQUEST verb family in `rationale_for`'s strip pattern.
 3. **F6:** amend the handoff's operational-truth claim to "no existing state modified; one
-   new empty scaffold added (`state/public-collaboration.json`)" — or stop committing the
-   seed and create it at first runtime write. Either way the claim and the check command
-   must agree.
+   new empty scaffold added (`state/public-collaboration.json`)". Change the check to a
+   baseline comparison that can see committed files; the claim and command must agree.
 4. **F7:** cap `meta["corpus_exams"]` (keep the last 500 entries); delete the dead
    `econ_line()` stub and its call sites.
 

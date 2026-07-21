@@ -216,14 +216,14 @@ As a first-time visitor, I see the most interesting current material without scr
 
 ### Functional Requirements
 
-- **FR-001**: The system MUST maintain one canonical rule ledger with explicit adopted, proposed, rejected, and historical/superseded states.
+- **FR-001**: The system MUST maintain one canonical rule ledger with explicit adopted, proposed, rejected, repealed, and historical/superseded states.
 - **FR-002**: Ordinary encoding, decoding, Try It, and Conversation use MUST receive only the adopted rule set.
 - **FR-003**: A proposed rule MUST enter an exam only through an explicitly labeled proposal-specific trial.
-- **FR-004**: Rejected and superseded material MUST remain available to the legislature and public history without affecting language use.
+- **FR-004**: Rejected, repealed, and superseded material MUST remain available to the legislature and public history without affecting language use.
 - **FR-005**: Corpus exam results MUST be presented as corpus-level evidence and MUST NOT imply individual rule attribution without a proposal-specific trial.
 - **FR-006**: The active dumb-script comparison MUST be removed from runtime measurement, prompts, economics, and current public surfaces while its historical record remains intact.
-- **FR-007**: Agent A MUST use DeepSeek as the inventor and may propose, revise, or measure at most one focused idea per turn, but MUST NOT vote.
-- **FR-008**: Agent B MUST use Kimi as the auditor and may critique, adopt, reject, or request a focused revision/test, but MUST NOT introduce an unrelated rule.
+- **FR-007**: Agent A MUST use DeepSeek as the inventor and may propose, repeal, revise, or measure at most one focused idea per turn, but MUST NOT vote.
+- **FR-008**: Agent B MUST use Kimi as the auditor and may critique, adopt, reject, or request focused work on one add/repeal proposal, but MUST NOT introduce an unrelated rule or originate repeal.
 - **FR-009**: Forbidden role actions and repeated settled motions MUST NOT change state, history, or public revision counts.
 - **FR-010**: Both agents MUST share a concise constitution containing the stranger-decodability requirement, measurement discipline, public-history commitment, 50% target, and affordability/access mission.
 - **FR-011**: The shared constitution MUST NOT contain active dumb-script framing, power-grid/gigawatt claims, or unsupported novelty/traffic-growth claims.
@@ -255,12 +255,20 @@ As a first-time visitor, I see the most interesting current material without scr
 - **FR-037**: The project MUST prepare a small researched X follow list with reasons; only accounts individually approved by Iso may be followed, and ongoing follow automation is forbidden.
 - **FR-038**: The existing last-ten passing-exam average MUST remain unchanged and naturally roll forward; no new measurement subsystem is in scope.
 - **FR-039**: The hypothetical cached economics scenario MAY remain unchanged for now; real caching measurement is deferred until sustained agent conversation exists.
+- **FR-040**: Collaboration Redis I/O MUST run only in a bounded, exception-safe courier; a missing, failed, or hung courier MUST NOT cancel an ordinary loop turn.
+- **FR-041**: The courier MUST use atomic local transport spools and stable-id retries while the loop remains the sole writer of canonical `state/collaboration.json` history.
+- **FR-042**: Agent A MAY originate one repeal motion against an adopted rule; only Agent B may adopt, reject, or request focused work on that repeal, and a ratified repeal MUST leave full history while removing the target from the adopted language.
+- **FR-043**: At most one add or repeal proposal MAY be open at once; cleanup MUST terminalize legacy proposed/reverted records without losing their original status or history before this guard reaches production.
+- **FR-044**: Invalid exams MUST render to agents as `no valid score (<judge reason>)` and MUST never display a null value as a numeric fidelity score.
+- **FR-045**: Legislative history rationale MUST be derived from the paragraph containing the exact matched motion line, including REQUEST and REPEAL families.
+- **FR-046**: Operational preservation evidence MUST distinguish unchanged pre-existing state from the one committed empty public-collaboration scaffold using a baseline-aware check.
+- **FR-047**: The corpus-exam metadata cache MUST retain only its latest 500 entries, and dead active-economics stubs MUST be removed without changing the historical last-ten calculation.
 
 ### Scope and Non-Goals
 
 - No product-code implementation occurs during specification/handoff work.
 - No live-loop turn, paid test, production state repair, deploy, push, X action, follow, pin, credential change, or billing change is authorized by this specification alone.
-- No database-backed rate limiter, snapshot/version database, general authentication framework, Slack bridge, automatic visitor-to-agent injection, second judge, judge retry system, or permanent governance verb expansion is in scope.
+- No database-backed rate limiter, snapshot/version database, general authentication framework, Slack bridge, automatic visitor-to-agent injection, second judge, judge retry system, or governance expansion beyond the approved minimal repeal path is in scope.
 - No new dumb-script or competitor baseline is introduced.
 - No manual human rewriting of language rules is allowed; humans shape the experiment and curate context, while agents author and adopt language law.
 - Directive overuse, shorthand conflicts, and token-aware substitution are language questions for the agent cleanup/evolution process, not separate software features.
@@ -268,6 +276,7 @@ As a first-time visitor, I see the most interesting current material without scr
 ### Key Entities
 
 - **Rule Record**: Stable rule identity, canonical text, status, provenance, history, and applicable corpus/proposal-specific evidence.
+- **Repeal Motion**: A distinct pending motion targeting one adopted rule; it has rationale/provenance/history but never enters language law.
 - **Rulebook Snapshot**: Immutable pre-cleanup artifact or identifiable adopted-language version used for a specific journey.
 - **Exam Event**: Payload, rulebook version, encoded/decoded material, answer key, complete judge verdicts, fidelity validity, and corpus-level savings.
 - **Research Request**: Stable id, requester/turn, original question, lifecycle status, cited result, limitations, sources, cost/error metadata, and delivery turn.
@@ -281,7 +290,7 @@ As a first-time visitor, I see the most interesting current material without scr
 
 ### Measurable Outcomes
 
-- **SC-001**: In a status-fixture battery, 100% of ordinary exam/Conversation/Try It prompts contain every adopted rule and zero proposed, rejected, or reverted rule text.
+- **SC-001**: In a status-fixture battery, 100% of ordinary exam/Conversation/Try It prompts contain every adopted rule and zero proposed, rejected, reverted, repealed, historical, or pending-repeal text.
 - **SC-002**: Searches of current runtime, prompt, economics, and public-page output find zero active dumb-script comparison claims while historical records remain accessible.
 - **SC-003**: Synthetic role tests show zero state changes from A votes, B unrelated proposals, repeated settled motions, or malformed/no-op actions.
 - **SC-004**: Cleanup produces an immutable pre-cleanup artifact, A's replacement, B's audit, and an exact human-readable diff; production remains unchanged until an approval receipt exists.
@@ -297,6 +306,9 @@ As a first-time visitor, I see the most interesting current material without scr
 - **SC-014**: The correction, pinned explainer, and curated follows are not treated as complete until each approved public action is verified on the real X profile.
 - **SC-015**: After implementation, the last-ten passing-exam average continues to roll forward without a reset or parallel measurement subsystem.
 - **SC-016**: A recorded production acceptance run assigns `PASS`, `FAIL`, or `BLOCKED` to every feature and proves each required visible journey with screenshots, one continuous cross-turn video, and independent read-only state receipts; the overall result is `PASS` only when every required row passes and no unexplained test debris or health warning remains.
+- **SC-017**: Offline courier tests prove Redis exceptions, timeouts, replay, and restart cannot mutate canonical state outside the loop, lose a durable inbox record, duplicate delivery, or prevent the loop command from running.
+- **SC-018**: Production-shaped rulebook tests prove legacy proposals are terminalized at cleanup, one-open enforcement works afterward, and a complete repeal lifecycle removes exactly one adopted rule while preserving its complete legislature history.
+- **SC-019**: Focused tests and evidence prove invalid-score wording, exact motion-line rationale, 500-entry metadata retention, dead-stub removal, and baseline-aware state preservation.
 
 ## Assumptions
 
@@ -323,8 +335,8 @@ Create an evidence matrix before the run with one row per feature or failure sta
 The production run MUST prove, one feature at a time:
 
 1. The public page is serving the intended deployed commit and current rulebook version.
-2. DeepSeek A can propose or revise one focused idea but cannot vote; Kimi B audits A's latest idea but cannot introduce an unrelated rule; settled or malformed motions cannot change state.
-3. Ordinary encoder, decoder, Conversation, and Try It prompts contain the complete adopted set and no proposed, rejected, reverted, research, human, or visitor text, confirmed by an independent read-only receipt after the visible journey.
+2. DeepSeek A can propose, revise, or originate repeal of one focused idea but cannot vote; Kimi B audits A's latest add/repeal motion but cannot introduce an unrelated rule or originate repeal; one-open, settled, terminal, and malformed guards prevent unauthorized state change.
+3. Ordinary encoder, decoder, Conversation, and Try It prompts contain the complete adopted set and no proposed, rejected, reverted, repealed, historical, pending-repeal, research, human, or visitor text, confirmed by an independent read-only receipt after the visible journey.
 4. The cleanup workflow preserves the original, produces A's replacement, B's audit, and an exact diff, and stops visibly before application until Iso approves it.
 5. RESEARCH preserves the original question, survives a restart or reload, returns cited evidence or an honest no-evidence state, reaches the correct agent exactly once, and never mutates language state directly.
 6. ASK appears publicly as awaiting Iso, the correct and incorrect password paths behave safely, the authenticated session survives refresh and browser restart as designed, logout and session expiry work, private queues remain inaccessible publicly, and Iso's verbatim answer is correlated with the original question and delivered exactly once after a restart or reload.
@@ -337,7 +349,7 @@ The production run MUST prove, one feature at a time:
 
 The run MUST also exercise hostile and failure inputs without expanding into a broad security program: wrong password, expired session, duplicate submission, rapid repeated requests, HTML/script text, prompt-injection language, provider timeout, missing research evidence, rulebook change during Try It, spending-cap exhaustion, and three failed X attempts. No input may execute, expose private moderation state, bypass approval, silently disappear, deliver twice, or become a rule automatically.
 
-Historical integrity MUST be checked after the run: rejected/proposed history remains available, the last-ten average was not reset, pre-cleanup artifacts remain immutable, and no false posted/delivered status was introduced. Finish by removing disposable test data through the approved visible path and checking that no stuck queue item, duplicate post, unexplained dirty file, or silent health warning remains.
+Historical integrity MUST be checked after the run: rejected/proposed/repealed history remains available, the last-ten average was not reset, pre-cleanup artifacts remain immutable, and no false posted/delivered status was introduced. Finish by removing disposable test data through the approved visible path and checking that no stuck queue item, duplicate post, unexplained dirty file, or silent health warning remains.
 
 Run at most three complete repair-and-retest loops. Stop earlier if the same blocker survives two loops or if access, approval, production identity, or a required visible surface is unavailable. The only permitted final reports are `PASS`, `FAIL`, or `BLOCKED`; a visually correct page cannot override a failed state, delivery, security, persistence, or receipt row.
 

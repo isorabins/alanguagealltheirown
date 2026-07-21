@@ -69,15 +69,15 @@ explicit proposal trials, corpus-only evidence, preserved history, and exact jud
 **Independent Test**: Synthetic allowed/forbidden motions show only one valid
 focused action can mutate state and every no-op has a reason receipt.
 
-- [X] T026 [P] [US2] Write failing A-vote, B-unrelated-proposal, repeated-settled, malformed-id, no-op, and multi-motion tests for FR-007–009 and SC-003 in `tests/python/test_motion_authority.py`
+- [X] T026 [P] [US2] Extend failing authority tests with one-open add/repeal, complete repeal lifecycle, terminal immunity, exact motion-line rationale, and copied legacy-state cases for FR-007–009, FR-042–045, SC-003, and SC-018 in `tests/python/test_motion_authority.py`
 - [X] T027 [P] [US2] Write prompt contract tests for the shared constitution, 50% target, affordability mission, and forbidden framing in `tests/python/test_prompt_contract.py`
 - [X] T028 [US2] Create the concise shared stranger/measurement/history/50%-target/access constitution with no dumb-script, power-grid, novelty, or traffic-growth claims in `prompts/constitution.md` (FR-010–011)
-- [X] T029 [US2] Rewrite the inventor contract to one propose/revise/measure action and no votes in `prompts/agent_a.md`
-- [X] T030 [US2] Rewrite the Kimi auditor contract to audit A's focused idea, vote/request focused work, and never originate unrelated rules in `prompts/agent_b.md`
+- [X] T029 [US2] Add the one-open add/repeal inventor contract, safe repeal syntax, receipt guidance, and no votes to `prompts/agent_a.md`
+- [X] T030 [US2] Add repeal audit/adopt/reject/request authority while forbidding repeal origination to `prompts/agent_b.md`
 - [X] T031 [US2] Set `MODEL_B` to verified `moonshotai/kimi-k2.6` while retaining the separate stateless Kimi decoder in `loop.py`
-- [X] T032 [US2] Implement role/state/one-motion authority validation and reason-coded no-op receipts in `rulebook.py` and integrate it into `loop.py`
-- [X] T033 [US2] Render accepted and rejected legislative action honestly without inflating revision counts in `viewer/index.html`
-- [X] T034 [US2] Run US2 tests, inspect representative transcripts/no-op state diffs, attach `specs/001-experiment-repair/evidence/us2-roles.md`, and commit the scoped checkpoint
+- [X] T032 [US2] Implement one-open add/repeal authority, distinct pending repeal state, terminal repeal, live-only duplicate checks, exact matched-line receipts/rationale, and reason-coded no-ops in `rulebook.py` and `loop.py`
+- [X] T033 [US2] Render pending and completed repeal history honestly without adding repeal text to language or inflating revision counts in `viewer/index.html`
+- [X] T034 [US2] Run expanded US2 tests, inspect representative repeal/no-op/history state diffs, and update `specs/001-experiment-repair/evidence/us2-roles.md`
 
 **Checkpoint**: Role differences are code-enforced rather than prompt theater.
 
@@ -90,15 +90,15 @@ focused action can mutate state and every no-op has a reason receipt.
 **Independent Test**: A copied fixture yields immutable original, replacement,
 audit, manifest, and exact diff; source state remains byte-identical without approval.
 
-- [X] T035 [P] [US3] Write failing snapshot/hash/source-mismatch/no-auto-apply tests for FR-012–014 and SC-004 in `tests/python/test_cleanup_rulebook.py`
+- [X] T035 [P] [US3] Extend cleanup tests with production-shaped legacy proposed/reverted terminalization and history preservation for FR-012–014, FR-043, SC-004, and SC-018 in `tests/python/test_cleanup_rulebook.py`
 - [X] T036 [P] [US3] Create cleanup fixtures containing duplicate, contradictory, incomplete, historical, and disguised-operational rules in `tests/fixtures/cleanup/`
 - [X] T037 [US3] Create the bounded DeepSeek cleanup contract in `prompts/cleanup_a.md`
 - [X] T038 [US3] Create the bounded Kimi audit contract in `prompts/cleanup_b.md`
-- [X] T039 [US3] Implement snapshot-only cleanup bundle generation with explicit source/output paths and no production default in `cleanup_rulebook.py`
+- [X] T039 [US3] Implement snapshot-only cleanup bundle generation plus legacy proposed/reverted terminalization with explicit source/output paths and no production default in `cleanup_rulebook.py`
 - [X] T040 [US3] Implement exact diff/manifest hashes and reject omitted adopted meaning or operational text in `cleanup_rulebook.py`
 - [X] T041 [US3] Implement a separate apply subcommand requiring matching source/replacement hashes and an approval-receipt file in `cleanup_rulebook.py`
-- [X] T042 [US3] Run the cleanup suite only with stubbed model outputs, prove production files unchanged, and attach `specs/001-experiment-repair/evidence/us3-cleanup-offline.md`
-- [X] T043 [US3] Inspect and commit the scoped cleanup checkpoint without running paid calls or pausing the loop
+- [X] T042 [US3] Run the expanded cleanup suite only with stubbed outputs, prove copied legacy history is preserved and production files unchanged, and update `specs/001-experiment-repair/evidence/us3-cleanup-offline.md`
+- [X] T043 [US3] Inspect the scoped cleanup diff without running paid calls or pausing the loop
 
 **Checkpoint**: Cleanup mechanics are safe offline; live generation/application still stop at G4/G8.
 
@@ -131,23 +131,23 @@ one adopted snapshot and a requirement-level verdict without rule/average mutati
 **Independent Test**: Requests survive process/browser restart, reach the correct
 requester once, never enter motion parsing, and private queues reject unauthenticated access.
 
-- [X] T052 [P] [US5] Write failing Redis REST enqueue/claim/lease/ack/idempotency/restart/concurrency tests in `tests/python/test_collaboration_inbox.py`
+- [X] T052 [P] [US5] Extend Redis tests with atomic courier spool, exception/timeout/replay/recovery, loop-only canonical writer, and run-turn continuation cases for FR-040–041 and SC-017 in `tests/python/test_collaboration_inbox.py`
 - [X] T053 [P] [US5] Write failing Vercel inbox/session/private-access/idempotency contract tests in `tests/js/collaboration-api.test.js`
 - [X] T054 [P] [US5] Write failing RESEARCH oldest-one-per-turn, cited/no-evidence, requester-only, restart, and no-rule-mutation tests for FR-016–018 and SC-006 in `tests/python/test_research_lifecycle.py`
 - [X] T055 [P] [US5] Write failing ASK unanswered/duplicate/closed-id/verbatim/exact-once/restart tests for FR-019–021 and SC-006 in `tests/python/test_ask_lifecycle.py`
 - [X] T056 [P] [US5] Write failing wrong-password, cookie, refresh, browser-restart, 30-minute non-sliding expiry, logout, and private-queue tests for FR-020 in `tests/js/human-session.test.js`
-- [X] T057 [US5] Implement namespaced Upstash REST atomic enqueue/claim/lease/ack/session primitives in `collaboration.py`
-- [X] T058 [US5] Implement canonical `state/collaboration.json` schema, processed-id dedupe, safe reconciliation, and public sanitization in `collaboration.py` and `loop.py`
+- [X] T057 [US5] Keep namespaced Upstash REST primitives outside the loop and implement bounded exception-safe Redis transport in `collaboration.py` and `collab_sync.py`
+- [X] T058 [US5] Implement atomic local inbox/outbox spools, processed-id dedupe, recovery, safe loop-owned reconciliation, and public sanitization in `collaboration.py` and `loop.py`
 - [X] T059 [US5] Implement the matching server-only Vercel Redis/session client with no browser token exposure in `viewer/api/_collaboration.js`
 - [X] T060 [US5] Create the bounded untrusted-evidence web-search contract in `prompts/research.md`
-- [X] T061 [US5] Parse, persist, answer at most one oldest RESEARCH request, store citations/limitations/errors, and deliver original question+result to its requester only in `loop.py`
-- [X] T062 [US5] Parse and persist ASK without blocking or auto-answering, reconcile human answers, and deliver original question+verbatim answer exactly once in `loop.py`
+- [X] T061 [US5] Preserve RESEARCH behavior while proving courier absence/failure cannot block its local lifecycle in `loop.py`
+- [X] T062 [US5] Parse and persist ASK locally, import spooled human answers, and deliver original question+verbatim answer exactly once without Redis in `loop.py`
 - [X] T063 [US5] Implement login/session-check/logout with opaque Redis sessions and secure persistent cookies in `viewer/api/human-session.js`
 - [X] T064 [US5] Implement authenticated private ASK/suggestion reads plus read-only pending cleanup bundle/diff reads in `viewer/api/human-inbox.js`
 - [X] T065 [US5] Implement idempotent ASK answer and moderation command validation in `viewer/api/human-action.js`
 - [X] T066 [US5] Build the login, private inbox, read-only cleanup review/diff, answer, refresh, 30-minute expiry, and logout journeys without accounts/OAuth in `viewer/human.html` and route `/human` in `viewer/vercel.json`
 - [X] T067 [US5] Render public ASK awaiting/answered/delivered states and RESEARCH citations/limitations from canonical state in `viewer/index.html`
-- [X] T068 [US5] Run US5 tests and hostile text/private-access checks, attach `specs/001-experiment-repair/evidence/us5-research-ask.md`, inspect, and commit the scoped checkpoint
+- [X] T068 [US5] Run expanded US5 courier/restart/hostile/private checks and update `specs/001-experiment-repair/evidence/us5-research-ask.md`
 
 **Checkpoint**: Human collaboration works in production-shaped fixtures; Redis/session creation remains G5.
 
@@ -204,17 +204,17 @@ provider error, restart, and private-key-rejection fixtures have distinct result
 X simulations prove no false posted state, duplicate, implicit thread, or frozen later note.
 
 - [X] T088 [P] [US8] Write failing dry/non-2xx/timeout-before/timeout-after/async/partial/idempotency/three-failure/later-note/length tests for FR-033–035 and SC-012 in `tests/python/test_tweet_delivery.py`
-- [X] T089 [P] [US8] Write desktop/375px selective-disclosure and collaboration layout tests for FR-030 and SC-011 in `tests/js/public-page.test.js`
+- [X] T089 [P] [US8] Extend desktop/375px page tests for repeal power/history copy plus selective-disclosure and collaboration layout for FR-030, FR-042, and SC-011 in `tests/js/public-page.test.js`
 - [X] T090 [US8] Persist stable Upload-Post request/idempotency ids before attempts and confirm synchronous/asynchronous X receipts before posted state in `tweet.py`
 - [X] T091 [US8] Enforce `x_title`, X-only platform, copy length at most 250, no implicit thread fields, three attempts then blocked, visible blocked count, and later-note continuation in `tweet.py`
 - [X] T092 [US8] Ensure dry runs/failures do not move note watermarks or successful-post budget in `tweet.py`
-- [X] T093 [US8] Keep newest/decision-relevant agent, exam, ASK, suggestion, Conversation, and X status open while collapsing repetitive history/reference sections in `viewer/index.html`
+- [X] T093 [US8] Keep newest/decision-relevant agent, repeal, exam, ASK, suggestion, Conversation, and X status open while collapsing repetitive history/reference sections in `viewer/index.html`
 - [X] T094 [US8] Remove stale active dumb-script, role, experiment-status, and unsupported novelty/power/growth claims while preserving labeled history in `viewer/index.html`
 - [X] T095 [US8] Prepare but do not publish the exact field-note correction draft and original-reference receipt in `specs/001-experiment-repair/evidence/x-correction-draft.md` (FR-032; SC-014)
 - [X] T096 [US8] Prepare but do not publish one <=250-character X explainer and pin target in `specs/001-experiment-repair/evidence/x-explainer-draft.md` (FR-036; SC-014)
 - [X] T097 [US8] Research and record a small candidate follow list with primary-source reasons but perform no follows in `specs/001-experiment-repair/evidence/x-follow-draft.md` (FR-037; SC-014)
 - [X] T098 [US8] Verify the hypothetical cached economics scenario remains labeled and unchanged with no new measurement subsystem in `loop.py` and `viewer/index.html` (FR-039)
-- [X] T099 [US8] After the implemented behavior passes offline verification, update current boundaries/models/exams/collaboration/cost/deploy/interventions in `README.md` and `MECHANICS.md` (FR-031; SC-013)
+- [X] T099 [US8] After the skeptical fixes pass offline verification, update courier/sole-writer, repeal, invalid-score, bounded-metadata, and preservation truth in `README.md`, `MECHANICS.md`, and the skeptical handoff (FR-031, FR-044–047; SC-013, SC-019)
 - [X] T100 [US8] Run US8 tests and stale-claim searches, attach `specs/001-experiment-repair/evidence/us8-public-record.md`, and verify Composition/Slack ASK/`:online` remain absent
 - [X] T101 [US8] Inspect and commit the scoped public-record/X checkpoint without deploy or X actions
 
@@ -224,11 +224,11 @@ X simulations prove no false posted state, duplicate, implicit thread, or frozen
 
 ## Phase 11: Full Offline Review and Durable Feature Checkpoint
 
-- [X] T102 Run every Python/Node/coverage test from `quickstart.md`, verify tests fail against the old baseline where meaningful, and save exact outputs in `specs/001-experiment-repair/evidence/offline-suite.md`
-- [X] T103 Inspect the full diff for secret leakage, production state changes, stale bypasses, out-of-contract files, and user-work overlap; record findings in `specs/001-experiment-repair/evidence/offline-review.md`
+- [X] T102 Run every Python/Node/coverage test from `quickstart.md`, add the skeptical-fix results, and save exact outputs in `specs/001-experiment-repair/evidence/offline-suite.md`
+- [X] T103 Inspect the skeptical-fix diff for Redis calls in the loop, competing canonical writers, legacy-proposal deadlock, repeal contamination, secret leakage, state changes, and user-work overlap; update `specs/001-experiment-repair/evidence/offline-review.md`
 - [X] T104 Re-fetch current official docs/model slugs and record any behavior drift or safe planned stop in `specs/001-experiment-repair/evidence/documentation-context.md`
-- [X] T105 Run Spec Kit convergence for the offline pass and update the Implementation State Ledger in `specs/001-experiment-repair/spec.md` plus remaining production tasks in `specs/001-experiment-repair/tasks.md`
-- [X] T106 Commit the complete offline implementation/evidence checkpoint locally and STOP for review before feature-branch push, PR, production, paid calls, credentials, or live actions
+- [X] T105 Run Spec Kit convergence for the skeptical-fix offline pass and update the Implementation State Ledger in `specs/001-experiment-repair/spec.md` plus remaining production tasks in `specs/001-experiment-repair/tasks.md`
+- [X] T106 Commit the complete corrected offline implementation/evidence checkpoint locally and STOP before feature-branch push, PR, production, paid calls, credentials, or live actions
 
 ---
 
@@ -330,10 +330,14 @@ same blocker survives two loops or any required access/approval/surface is missi
 | FR-027, FR-028, FR-029, FR-030, FR-031 | T079–T087, T089, T093–T100 |
 | FR-032, FR-033, FR-034, FR-035, FR-036, FR-037 | T088, T090–T097, T124–T127 |
 | FR-038, FR-039 | T024, T098 |
+| FR-040, FR-041 | T052, T057–T068, T102–T106 |
+| FR-042, FR-043 | T026, T029–T043, T089, T093 |
+| FR-044, FR-045, FR-046, FR-047 | T026, T032, T099, T102–T106 |
 | SC-001, SC-002, SC-003, SC-004, SC-005 | T014–T043, T120 |
 | SC-006, SC-007, SC-008, SC-009, SC-010 | T044–T087, T112, T121–T122 |
 | SC-011, SC-012, SC-013, SC-014, SC-015 | T024, T088–T100, T122–T127 |
 | SC-016 | T118–T133 |
+| SC-017, SC-018, SC-019 | T026–T043, T052, T057–T068, T089, T093, T099, T102–T106 |
 
 ## Implementation Strategy
 

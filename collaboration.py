@@ -33,16 +33,18 @@ def _processed(state: dict[str, Any]) -> list[str]:
 
 class RedisRest:
     """Server-only Upstash command client. Tokens never enter browser responses."""
-    def __init__(self, url: str | None = None, token: str | None = None, namespace: str = "alato:v1"):
+    def __init__(self, url: str | None = None, token: str | None = None, namespace: str = "alato:v1",
+                 timeout: float = 2.0):
         self.url = (url or os.environ.get("UPSTASH_REDIS_REST_URL", "")).rstrip("/")
         self.token = token or os.environ.get("UPSTASH_REDIS_REST_TOKEN", "")
         self.namespace = namespace
+        self.timeout = timeout
         if not self.url or not self.token:
             raise RuntimeError("missing Upstash REST configuration")
 
     def command(self, *parts: Any) -> Any:
         response = requests.post(self.url, headers={"Authorization": f"Bearer {self.token}"},
-                                 json=list(parts), timeout=15)
+                                 json=list(parts), timeout=self.timeout)
         response.raise_for_status()
         data = response.json()
         if data.get("error"):
@@ -169,40 +171,58 @@ def _apply_moderation(state: dict[str, Any], command: dict[str, Any], turn: int 
             record["moderated_at"] = command.get("created_at")
 
 
-def sync_remote(state: dict[str, Any], owner: str = "loop", limit: int = 20,
-                turn: int | None = None, state_path: Path | None = None) -> dict[str, Any]:
-    """Claim transport records, reconcile once, and publish the private loop-owned view."""
-    try:
-        redis = RedisRest()
-    except RuntimeError:
-        return state
-    if not any(state.get(bucket) for bucket in ("research", "asks", "suggestions", "deliveries")) and not _processed(state):
-        recovered = redis.load_private()
-        if recovered and recovered.get("schema_version") == SCHEMA_VERSION:
-            state = recovered
-            if state_path is not None:
-                atomic_write_json(state_path, state)
+def empty_inbox_spool() -> dict[str, Any]:
+    return {"schema_version": SCHEMA_VERSION, "records": [], "recovery_state": None}
+
+
+def append_inbox_spool(path: Path, records: list[dict[str, Any]],
+                       recovery_state: dict[str, Any] | None = None) -> dict[str, Any]:
+    """Courier-only atomic receipt. This is transport, never canonical history."""
+    spool = load_json(path, empty_inbox_spool())
+    if spool.get("schema_version") != SCHEMA_VERSION:
+        spool = empty_inbox_spool()
+    known = {row.get("id") for row in spool.get("records", []) if isinstance(row, dict)}
+    for record in records:
+        record_id = record.get("id") if isinstance(record, dict) else None
+        if record_id and record_id not in known:
+            spool.setdefault("records", []).append(deepcopy(record))
+            known.add(record_id)
+    if isinstance(recovery_state, dict) and recovery_state.get("schema_version") == SCHEMA_VERSION:
+        spool["recovery_state"] = deepcopy(recovery_state)
+    atomic_write_json(path, spool)
+    return spool
+
+
+def import_inbox_spool(state: dict[str, Any], path: Path,
+                       turn: int | None = None) -> dict[str, Any]:
+    """Loop-only reconciliation from durable local transport into canonical memory."""
+    spool = load_json(path, empty_inbox_spool())
+    has_local = any(state.get(bucket) for bucket in ("research", "asks", "suggestions", "deliveries")) or bool(_processed(state))
+    recovered = spool.get("recovery_state")
+    if not has_local and isinstance(recovered, dict) and recovered.get("schema_version") == SCHEMA_VERSION:
+        state = deepcopy(recovered)
     processed_list = _processed(state)
     processed = set(processed_list)
-    for queue in ("suggestion", "moderation"):
-        for index in range(limit):
-            lease_owner = f"{owner}-{queue}-{index}"
-            record = redis.claim(queue, lease_owner)
-            if not record:
-                break
-            record_id = record.get("id")
-            if record_id and record_id not in processed:
-                if queue == "suggestion":
-                    record.setdefault("status", "pending_review")
-                    state.setdefault("suggestions", []).append(record)
-                else:
-                    _apply_moderation(state, record, turn)
-                processed_list.append(record_id)
-                processed.add(record_id)
-                if state_path is None:
-                    raise RuntimeError("canonical state_path required before inbox acknowledgement")
-                atomic_write_json(state_path, state)
-            redis.publish_private(state)
-            redis.ack(queue, lease_owner, record_id or "malformed")
-    redis.publish_private(state)
+    for record in spool.get("records", []):
+        if not isinstance(record, dict):
+            continue
+        record_id, kind = record.get("id"), record.get("kind")
+        if not record_id or record_id in processed:
+            continue
+        if kind == "SUGGESTION":
+            saved = deepcopy(record)
+            saved.setdefault("status", "pending_review")
+            state.setdefault("suggestions", []).append(saved)
+        elif kind == "MODERATION":
+            _apply_moderation(state, record, turn)
+        else:
+            continue
+        processed_list.append(record_id)
+        processed.add(record_id)
     return state
+
+
+def write_outbox(path: Path, state: dict[str, Any]) -> None:
+    """Loop-authored private snapshot for best-effort courier publication."""
+    atomic_write_json(path, {"schema_version": SCHEMA_VERSION,
+                             "private_state": deepcopy(state)})

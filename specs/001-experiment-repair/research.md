@@ -83,16 +83,19 @@ rate limits: https://vercel.com/security/web-application-firewall
 
 **Decision**: Add `state/collaboration.json` as the append-only canonical record
 for RESEARCH, ASK, approved suggestions, and delivery receipts. Vercel writes only
-to Redis. At each loop turn the VPS reconciles bounded inbox events into canonical
-state, delivers at most one eligible answer/suggestion to the agent whose turn it
-is, and republishes the sanitized view. Pending/dismissed suggestions never enter
-canonical public output or prompts.
+to Redis. A separate bounded courier copies Redis commands into an atomic local
+inbox spool and publishes a loop-authored outbox snapshot after the turn. The loop
+alone reconciles spooled events into canonical state, delivers at most one eligible
+answer/suggestion to the agent whose turn it is, and republishes the sanitized
+view. Pending/dismissed suggestions never enter canonical public output or prompts.
 
 **Rationale**: This preserves the current single-writer git history and prevents
 Vercel/VPS write races.
 
-**Alternative considered**: Letting Vercel edit GitHub or `state/*.json` was
-rejected because it creates competing writers and lost-update races.
+**Alternative considered**: Letting Vercel or the courier edit canonical
+`state/*.json` was rejected because it creates competing writers and lost-update
+races. Direct Redis calls in the turn path were also rejected because a transport
+outage could cancel an otherwise healthy experiment turn.
 
 ## Decision 5: Adopted-only rulebook views
 

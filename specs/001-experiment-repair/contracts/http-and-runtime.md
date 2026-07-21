@@ -147,10 +147,11 @@ language view.
 
 ## Loop collaboration contract
 
-At the start of a turn, the loop:
+Before the turn, a bounded courier may copy Redis commands into an atomic local
+inbox spool. Courier failure or timeout is non-fatal. At the start of a turn, the loop:
 
-1. reconciles its own unsynced ASK records to the inbox;
-2. claims at most one eligible human answer or approved suggestion for the
+1. imports stable-id records from the local inbox spool into canonical state;
+2. selects at most one eligible human answer or approved suggestion for the
    current agent;
 3. checks the id against canonical `processed_inbox_ids`;
 4. includes the original question plus verbatim answer, or one clearly delimited
@@ -158,10 +159,12 @@ At the start of a turn, the loop:
 5. calls the agent;
 6. parses motions only from the agent's response, never the supplied evidence;
 7. atomically writes canonical state and the delivery receipt;
-8. acknowledges the inbox item.
+8. writes a local outbox snapshot for later courier publication.
 
+The courier acknowledges Redis only after its local inbox receipt is durable.
 If a call or write fails, no partial delivery receipt is published. Expired
-leases retry; canonical id dedupe prevents a second recorded delivery.
+leases retry; spool and canonical id dedupe prevent a second recorded delivery.
+Only the loop writes `state/collaboration.json`; neither the courier nor Vercel does.
 
 ## Agent output grammar
 
@@ -169,6 +172,7 @@ Agent A accepted motions:
 
 ```text
 PROPOSE: <one complete focused rule>
+REPEAL: rule-NNN -> <why this adopted rule should leave the language>
 REVISE: rule-NNN -> <complete replacement>
 MEASURE: <one line>
 RESEARCH: <one concise question>
@@ -189,6 +193,10 @@ ASK: <one concise question for Iso>
 Only one focused legislative motion is accepted per turn. RESEARCH and ASK are
 requests, not legislation. Forbidden, duplicate, malformed, unrelated, settled,
 or overflow motions produce a no-op receipt with no version/history change.
+Only one add or repeal proposal may remain open at a time. For a pending repeal,
+Agent B's ADOPT ratifies the repeal and marks its target `repealed`; REJECT leaves
+the target adopted; REQUEST asks for focused work; repeal text never enters the
+language view.
 
 ## Research result contract
 

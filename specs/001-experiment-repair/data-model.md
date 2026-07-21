@@ -13,10 +13,11 @@ enqueue visitor/human commands but cannot write canonical experiment history.
 |---|---|---|
 | `id` | string | Stable `rule-NNN`; never reused |
 | `text_en` | string | Canonical rule text |
-| `status` | enum | `adopted`, `proposed`, `rejected`, `reverted`, `superseded` |
+| `status` | enum | `adopted`, `proposed`, `rejected`, `reverted` (legacy), `repealed`, `historical`, `superseded` |
 | `proposed_turn` | integer | Original provenance |
 | `history` | array | Append-only motion/no-op/status receipts |
 | `proposal_evidence` | array | Only explicit proposal-trial evidence |
+| `pending_repeal` | object/null | Distinct open motion with kind, target, rationale, provenance; never language text |
 
 Corpus evidence is not stored on individual rule records. Existing historical
 `scores` fields are preserved but labeled legacy and never used for new
@@ -27,6 +28,11 @@ per-rule claims.
 - `legislature`: all statuses plus provenance/history.
 - `language`: all and only adopted rule text.
 - `proposal_trial`: adopted set plus exactly one labeled proposed rule.
+
+At most one add proposal or pending repeal exists after cleanup. Cleanup records
+the prior status of every legacy proposed/reverted rule before moving it to
+`historical`. A ratified repeal moves its adopted target to `repealed`; that id
+is terminal, but the same text may be proposed under a fresh id.
 
 The language view has a deterministic `version` and `sha256` derived from ordered
 adopted ids and text.
@@ -95,6 +101,14 @@ Stored in `state/collaboration.json`:
 
 `processed_inbox_ids` may be compacted only into an equivalent immutable receipt
 index; it cannot be dropped while the corresponding Redis item can retry.
+
+## Collaboration Transport Spools
+
+The courier atomically writes a local inbox spool containing stable-id Redis
+commands and an optional private recovery snapshot. The loop alone imports that
+spool into canonical collaboration history. After canonical writes, the loop
+atomically writes an outbox snapshot for the courier to publish. Spools are
+transport receipts, not canonical experiment history, and are gitignored.
 
 ## Research Request
 

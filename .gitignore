@@ -11,3 +11,5 @@ PRD-*.md
 READING-LIST.md
 AUDIT-FINDINGS-*.md
 state/collaboration.json
+state/collaboration-inbox.json
+state/collaboration-outbox.json

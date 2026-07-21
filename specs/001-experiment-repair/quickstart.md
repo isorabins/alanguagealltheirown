@@ -35,6 +35,8 @@ Run against copied fixtures only:
 python3 -m unittest discover -s tests/python -p 'test_*.py'
 node --test tests/js/*.test.js
 python3 tests/acceptance/check_contract_coverage.py
+! rg -n "RedisRest|sync_remote" loop.py
+rg -n "collab_sync.py (pull|push)|timeout" run_turn.sh
 ```
 
 Required results:
@@ -46,6 +48,9 @@ Required results:
   nothing;
 - judge scores only exact one-to-one answer-key coverage;
 - inbox enqueue/claim/ack and restart fixtures deliver each id once;
+- courier exceptions/replays cannot write canonical collaboration outside the loop or cancel a turn;
+- legacy proposed/reverted rules are terminalized by cleanup before one-open enforcement;
+- repeal motions never enter the adopted language view and preserve full history;
 - pending/dismissed suggestions reach neither public snapshots nor prompts;
 - Try It normal, version mismatch, cap, and provider failure are distinct;
 - X dry/failure/timeout/async/partial/retry fixtures cannot falsely post or
@@ -146,6 +151,7 @@ After visible testing, verify:
 
 - rejected/proposed history remains readable;
 - pre-cleanup snapshot hashes are unchanged;
+- baseline state diff shows only the documented empty public-collaboration scaffold;
 - last-ten passing-exam average was not reset or forked;
 - no invalid exam has a published fidelity score;
 - no dry/failed X action is marked posted;

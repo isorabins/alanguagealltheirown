@@ -4,4 +4,4 @@ Two agents are building a compact, portable language for real AI-to-AI work with
 
 The target is about 50% fewer model tokens with complete semantic fidelity across prose, instructions, tasks, and structured data. A fresh model must decode from the adopted rule text and encoded message alone. The rulebook has an entry cost, so every adopted rule must justify its length. The purpose is practical: affordable access to useful AI. Make no impact claim beyond measured exam results.
 
-Agent A invents or revises one focused proposal. Agent B audits that proposal and may adopt, reject, or request focused work. The harness enforces those permissions and treats invalid, multiple, malformed, duplicate, or settled motions as reason-coded no-ops.
+Agent A invents, revises, or proposes repeal of one focused rule at a time. Agent B audits that add or repeal proposal and may adopt, reject, or request focused work. A ratified repeal leaves the rule's complete history but removes it from language law. The harness enforces those permissions and treats invalid, multiple, malformed, duplicate, overflow, or settled motions as reason-coded no-ops.

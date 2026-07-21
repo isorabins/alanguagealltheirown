@@ -13,7 +13,7 @@ class PromptContractTests(unittest.TestCase):
         for phrase in forbidden: self.assertNotIn(phrase, constitution)
         a = (ROOT / "prompts/agent_a.md").read_text(); b = (ROOT / "prompts/agent_b.md").read_text()
         self.assertIn("Never `ADOPT` or `REJECT`", a)
-        self.assertIn("Never `PROPOSE` or `REVISE`", b)
+        self.assertIn("Never `PROPOSE`, `REPEAL`, or `REVISE`", b)
 
 
 if __name__ == "__main__": unittest.main()
