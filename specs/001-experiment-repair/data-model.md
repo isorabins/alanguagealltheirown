@@ -37,6 +37,19 @@ is terminal, but the same text may be proposed under a fresh id.
 The language view has a deterministic `version` and `sha256` derived from ordered
 adopted ids and text.
 
+## Cleanup Draft
+
+| Field | Type | Rules |
+|---|---|---|
+| `assignments` | object keyed by every adopted source id | Exact source-id key set; each value names one cleanup group |
+| `groups` | array | Each item has one unique group id and non-empty A-authored `text_en` |
+
+The source-specific JSON Schema requires every assignment key and forbids extra
+keys. The deterministic compiler requires referenced group ids to equal the
+defined group-id set, rejects operational text, and derives each compiled
+candidate rule's ordered `source_ids`. The model never supplies authoritative
+coverage metadata.
+
 ## Motion Receipt
 
 | Field | Type | Rules |

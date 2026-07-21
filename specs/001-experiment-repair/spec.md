@@ -20,6 +20,7 @@
 | `loop.py`, prompts, state files, Try It endpoints, viewer, and `tweet.py` | Current implementation | Establishes actual runtime boundaries and failure modes | Preserve the loop cadence and stranger invariant while repairing status, roles, state, and delivery truth | Aligned with specified repairs |
 | `.specify/memory/constitution.md` | Governance | Controls contract, approval, worktree, evidence, and live-change gates | Plan/tasks and approval precede implementation; user-visible paths require human-app-testing evidence | Aligned |
 | [OpenRouter web-search server tool](https://openrouter.ai/docs/guides/features/server-tools/web-search) | Official documentation | Current RESEARCH capability | Use current server-tool behavior; deprecated `:online` design is forbidden | Conflict resolved |
+| [OpenRouter structured outputs](https://openrouter.ai/docs/guides/features/structured-outputs) | Official documentation | Coverage-complete cleanup response | Use strict JSON Schema plus parameter-compatible routing; prompt-only source coverage is forbidden after two observed omissions | Conflict resolved by FR-013 |
 | [OpenRouter key limits](https://openrouter.ai/docs/api/api-reference/api-keys/create-keys) | Official documentation | Public Try It spend boundary | A dedicated key can enforce a monthly USD limit | Aligned |
 | [Upload-Post text API](https://docs.upload-post.com/api/upload-text/) | Official documentation | X confirmation, idempotency, and threading | Use confirmed results and stable idempotency; do not rely on automatic threading | Aligned |
 | [NVIDIA NIM FAQ](https://docs.api.nvidia.com/nim/docs/product) | Official documentation | Considered free public inference alternative | Free developer endpoints are for prototyping/testing, not public end-user production | Rejected for public Try It |
@@ -82,6 +83,7 @@ As Iso, I can review one agent-authored cleanup of the active language before it
 1. **Given** the pre-cleanup rulebook, **when** cleanup begins, **then** the original is preserved immutably.
 2. **Given** A's cleaned rulebook and B's audit, **when** the pass completes, **then** Iso receives an exact diff before any application.
 3. **Given** no approval, **when** the cleanup pass ends, **then** the normal loop remains paused and production state is unchanged.
+4. **Given** every adopted source id, **when** A authors the cleanup draft, **then** each id occupies one schema-required assignment slot and the candidate's `source_ids` are derived deterministically rather than trusted from model output.
 
 ---
 
@@ -191,6 +193,7 @@ As Iso, I can keep using my visible Mac while the full human browser journey run
 - A status changes while an exam or Try It request is in progress.
 - An agent issues multiple motions, a forbidden role motion, a no-op motion, or a malformed reference.
 - The cleanup output omits an adopted rule, silently changes meaning, or contains operational instructions disguised as language law.
+- The cleanup draft assigns a source to an unknown group, leaves a group unreferenced, duplicates a group id, or arrives from a provider that did not enforce the required schema.
 - The judge returns duplicate, missing, nonnumeric, or out-of-range item identifiers.
 - Research returns no sources, unsupported claims, raw prompt-injection text, or a proposed rule.
 - Multiple RESEARCH, ASK, human answers, or visitor suggestions arrive before the next turn.
@@ -256,7 +259,7 @@ As Iso, I can keep using my visible Mac while the full human browser journey run
 - **FR-010**: Both agents MUST share a concise constitution containing the stranger-decodability requirement, measurement discipline, public-history commitment, 50% target, and affordability/access mission.
 - **FR-011**: The shared constitution MUST NOT contain active dumb-script framing, power-grid/gigawatt claims, or unsupported novelty/traffic-growth claims.
 - **FR-012**: The normal loop MUST be paused and the current rulebook preserved before the one-time cleanup pass.
-- **FR-013**: DeepSeek A MUST author one cleaned active rulebook and Kimi B MUST audit it; Iso MUST receive an exact diff before any application.
+- **FR-013**: DeepSeek A MUST author one cleaned active rulebook through a strict coverage-complete draft: every adopted source id is a required assignment key, A authors the group mapping and cleaned group text, and deterministic code derives each candidate rule's `source_ids`; missing/extra assignments, unknown/orphan/duplicate groups, schema-incompatible routing, or candidate validation failure MUST stop before Kimi. Kimi B MUST audit the compiled candidate, and Iso MUST receive an exact diff before any application.
 - **FR-014**: Cleanup MUST NOT require a new permanent bureaucracy of supersede/archive operations beyond the minimal normal governance contract.
 - **FR-015**: Fidelity MUST be calculated only when the judge returns every answer-key item exactly once with no duplicates or out-of-range identifiers; otherwise the exam is invalid.
 - **FR-016**: RESEARCH MUST create a durable, append-only, correlated request/answer record containing stable id, requester, turns, question, status, evidence, limitations, citations, and errors where applicable.
@@ -331,7 +334,7 @@ As Iso, I can keep using my visible Mac while the full human browser journey run
 - **SC-001**: In a status-fixture battery, 100% of ordinary exam/Conversation/Try It prompts contain every adopted rule and zero proposed, rejected, reverted, repealed, historical, or pending-repeal text.
 - **SC-002**: Searches of current runtime, prompt, economics, and public-page output find zero active dumb-script comparison claims while historical records remain accessible.
 - **SC-003**: Synthetic role tests show zero state changes from A votes, B unrelated proposals, repeated settled motions, or malformed/no-op actions.
-- **SC-004**: Cleanup produces an immutable pre-cleanup artifact, A's replacement, B's audit, and an exact human-readable diff; production remains unchanged until an approval receipt exists.
+- **SC-004**: Cleanup proves schema-required assignment coverage for every adopted source id, then produces an immutable pre-cleanup artifact, A-authored compiled replacement, B's audit, and an exact human-readable diff; production remains unchanged until an approval receipt exists.
 - **SC-005**: Judge tests covering complete, missing, duplicate, and out-of-range item sets publish a score only for the complete one-to-one case.
 - **SC-006**: Every completed RESEARCH and ASK record retains its original question and correlated answer; requests survive process restarts and never block ordinary turns.
 - **SC-007**: An unapproved visitor submission appears in zero public or agent surfaces; one approved submission appears at most once on the next eligible turn.
@@ -418,3 +421,4 @@ The implementation plan MUST include planned stops before:
 | 2026-07-21 | Crabbox acceptance-infrastructure addendum drafted from official v0.40.0 source review; `$2` maximum new-infrastructure spend approved | No binary installed, account/credential created, coordinator deployed, lease provisioned, branch pushed, or production surface changed | Approve updated spec/plan/tasks; then T107–T117 before any production gate |
 | 2026-07-21 | Crabbox v0.40.0 pilot PASS: reusable skill validated; remote fixture 26/26; one continuous 300-second outer MP4 visibly spans a browser-process restart; proof, cap, secret-audit, and teardown checks PASS | Draft branch/PR only; free workers.dev coordinator remains idle; zero leases/servers/SSH keys; product deployment, loop/state, credentials, X, and production acceptance unchanged | T118+ retain their exact immutable production/live gates; no full production acceptance result exists yet |
 | 2026-07-21 | G4 snapshot PASS at production turn 650; timer paused and copied rulebook hash verified. First bounded DeepSeek cleanup output FAIL: exact adopted-source coverage validation rejected it; no Kimi call occurred | Production `main`, rulebook, deployment, credentials, and X remain unchanged; `language-loop.timer` is intentionally paused at the safe stop | T120 remains open; a new exact paid-call approval is required before any replacement attempt |
+| 2026-07-21 | Second bounded DeepSeek cleanup output also FAIL: the minimal id/text-only request still omitted three required source ids; raw output and exact cost were preserved; no Kimi call occurred | Production remains clean, byte-identical, and paused at turn 650; cumulative G4 spend is `$0.012418691` | Prompt-only retries are retired. T144–T148 implement strict schema-required assignments and deterministic candidate compilation offline; T120 remains open and any later call requires a new exact phrase |

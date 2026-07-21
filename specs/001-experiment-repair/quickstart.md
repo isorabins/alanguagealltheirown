@@ -63,8 +63,13 @@ If any invariant test fails, stop. A UI pass cannot compensate.
 
 After the paid scratch-call gate, run the cleanup tool only with an explicit
 copied state directory and output directory. Confirm the source hash before and
-after. The output must contain original, A replacement, B audit, exact diff, and
-manifest; production must remain byte-identical.
+after. Before a paid request, generate the source-specific strict response schema
+and verify that its required assignment keys exactly equal the adopted source-id
+set. Route only to a provider endpoint that accepts the schema parameter. Compile
+the returned assignments/groups locally; missing/extra assignments or
+unknown/orphan/duplicate groups must stop before B. The output must contain
+schema/request metadata, original, compiled A replacement, B audit, exact diff,
+and manifest; production must remain byte-identical.
 
 Stop for Iso's separate exact approval before any apply command.
 

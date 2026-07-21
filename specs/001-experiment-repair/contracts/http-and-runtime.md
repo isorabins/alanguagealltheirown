@@ -111,6 +111,24 @@ actions, and missing ids return `409` without mutation. Identical retries return
 the original accepted receipt. Success `202` means queued for the loop, not yet
 delivered or public.
 
+## Cleanup generation contract
+
+The A request uses `response_format.type=json_schema`, `strict=true`, and
+provider routing with `require_parameters=true`. Its source-specific schema is:
+
+```json
+{
+  "assignments": {"rule-NNN": "group-NNN"},
+  "groups": [{"id": "group-NNN", "text_en": "Cleaned language law"}]
+}
+```
+
+`assignments` must contain every and only adopted source id as required object
+properties. Every assignment must reference one defined unique group, and every
+defined group must be referenced. Code derives ordered `source_ids`; A cannot
+supply them. Any schema, routing, assignment, group, text, or compiled-candidate
+failure stops before B and produces no cleanup bundle.
+
 ## Try It
 
 ### `POST /api/encode`
