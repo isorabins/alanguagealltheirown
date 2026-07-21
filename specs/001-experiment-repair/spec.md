@@ -4,7 +4,7 @@
 
 **Created**: 2026-07-20 WITA
 
-**Status**: Offline product implementation and Crabbox acceptance-infrastructure pilot complete; production product gates remain blocked at T118+
+**Status**: Offline product implementation and Crabbox infrastructure pilot complete; current-deployment acceptance run FAIL because the reviewed product is not deployed
 
 **Input**: Repair the experimental contract of “A Language All Their Own,” preserve its history, add bounded public collaboration, and make every public claim match verified state. This specification consolidates Iso's line-by-line decisions from the skeptical audit completed on 2026-07-20.
 
@@ -411,7 +411,7 @@ The implementation plan MUST include planned stops before:
 
 ## Implementation State Ledger
 
-**Closeout Status**: Offline implementation PASS; production acceptance BLOCKED at the first live gate
+**Closeout Status**: Offline implementation PASS; current-deployment production acceptance FAIL (24 FAIL, 2 BLOCKED)
 
 | Date | Current Implementation Pass | Official / Production Path State | Remaining Contract Gaps |
 |------|-----------------------------|----------------------------------|-------------------------|
@@ -423,3 +423,4 @@ The implementation plan MUST include planned stops before:
 | 2026-07-21 | G4 snapshot PASS at production turn 650; timer paused and copied rulebook hash verified. First bounded DeepSeek cleanup output FAIL: exact adopted-source coverage validation rejected it; no Kimi call occurred | Production `main`, rulebook, deployment, credentials, and X remain unchanged; `language-loop.timer` is intentionally paused at the safe stop | T120 remains open; a new exact paid-call approval is required before any replacement attempt |
 | 2026-07-21 | Second bounded DeepSeek cleanup output also FAIL: the minimal id/text-only request still omitted three required source ids; raw output and exact cost were preserved; no Kimi call occurred | Production remains clean, byte-identical, and paused at turn 650; cumulative G4 spend is `$0.012418691` | Prompt-only retries are retired. T144–T148 implement strict schema-required assignments and deterministic candidate compilation offline; T120 remains open and any later call requires a new exact phrase |
 | 2026-07-21 | Third cleanup A PASS on strict exact coverage: all 23 source ids compiled exactly once. Kimi B then returned `REJECT` with one omission and five meaning-change findings; final validation stopped before bundle creation | Production remains clean, byte-identical, and paused at turn 650; actual cumulative G4 spend is `$0.019697541` (`$0.023336451` conservative) | T120 remains open. No retry, bundle, application, merge, deploy, loop resume, credential, DNS, or X action is authorized |
+| 2026-07-21 | Approved Crabbox run against the current deployed site completed with 27 screenshots, a 120-second outer MP4, one browser restart, proof, spend, and teardown receipts | Overall FAIL: the old homepage returns 200 but `/human` returns 404; canonical matrix is 24 FAIL and 2 X-action BLOCKED. One CPX32 lease cost about `$0.01` and teardown verified zero active leases, servers, and matching SSH keys | Deploy and verify the reviewed feature through T121-T127 before a new full T128-T143 acceptance run; no production, loop, canonical state, or X action changed |

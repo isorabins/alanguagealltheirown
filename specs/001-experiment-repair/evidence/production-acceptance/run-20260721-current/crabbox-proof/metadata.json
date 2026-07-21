@@ -1,0 +1,9 @@
+{
+  "createdAt": "2026-07-21T09:19:57Z",
+  "crabboxVersion": "0.40.0",
+  "leaseId": "cbx_c2769e5ab363",
+  "slug": "swift-hermit",
+  "provider": "hetzner",
+  "network": "auto",
+  "targetOS": "linux"
+}

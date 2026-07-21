@@ -1,0 +1,56 @@
+{
+  "schemaVersion": 1,
+  "auditedAt": "2026-07-21",
+  "result": "FAIL",
+  "matrixPass": false,
+  "canonicalRows": {
+    "pass": 0,
+    "fail": 24,
+    "blocked": 2
+  },
+  "runnerLimitedProbes": {
+    "pass": 9,
+    "fail": 17,
+    "rows": 26,
+    "browserRestarts": 1
+  },
+  "screenshots": {
+    "required": 27,
+    "present": 27,
+    "missing": [],
+    "visuallyInspected": true
+  },
+  "video": {
+    "present": true,
+    "durationSeconds": 120,
+    "codec": "h264",
+    "width": 1920,
+    "height": 1080,
+    "framesPerSecond": 15,
+    "sha256": "6bbb068cd7e7be00c6c8ed5fcc44a288aeb87516c67a4e39c25eaf2731667a61",
+    "quality": "acceptable_with_runner_receipt",
+    "warning": "Most sampled frames show the remote desktop terminal; the recording alone is not strong proof of the missing semantic journeys."
+  },
+  "proofBundlePresent": true,
+  "proofWarnings": [
+    "WebVNC daemon was not running at proof capture."
+  ],
+  "secretAudit": {
+    "textSecretShapeMatches": 0,
+    "screenshotContactOcrSecretShapeMatches": 0,
+    "proofAndVideoContactOcrSecretShapeMatches": 0,
+    "manualMediaInspection": "No visible secrets observed."
+  },
+  "cleanup": {
+    "coordinatorActiveLeases": 0,
+    "providerMatchingServers": 0,
+    "providerMatchingSshKeys": 0,
+    "disposableProductionSubmissionsCreated": 0
+  },
+  "spend": {
+    "actualNewInfrastructureUsd": 0.01,
+    "approvedMaximumUsd": 2.0,
+    "withinLimit": true
+  },
+  "failureReason": "The current deployment lacks the required production acceptance surfaces; /human visibly returns 404."
+}

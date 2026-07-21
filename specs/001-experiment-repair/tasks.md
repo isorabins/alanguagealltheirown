@@ -318,6 +318,16 @@ same blocker survives two loops or any required access/approval/surface is missi
 - [ ] T142 Run final tests, inspect final diff, commit scoped closeout/evidence updates, and verify clean feature/VPS worktrees in `specs/001-experiment-repair/evidence/closeout.md`
 - [ ] T143 Report branch, commit, push/PR/main state, remaining dirty files, deployed commit, live URL, loop state, X state, and exact PASS/FAIL/BLOCKED result in `specs/001-experiment-repair/evidence/closeout.md`
 
+**2026-07-21 current-deployment attempt:** The approved as-is Crabbox run is
+complete and recorded under
+`specs/001-experiment-repair/evidence/production-acceptance/run-20260721-current/`.
+It produced all 27 named screenshots, a continuous 120-second outer MP4, one
+browser restart receipt, proof, spend, and verified zero-resource teardown.
+The canonical result is **FAIL**: 24 FAIL and 2 X-action BLOCKED because the old
+deployed homepage returns 200 while `/human` returns 404. T128-T143 remain open
+for the full semantic run after the reviewed feature is deployed; the limited
+smoke assertions do not satisfy those tasks.
+
 ---
 
 ## Phase 17: User Story 3 Cleanup Coverage Repair (Offline Approved)

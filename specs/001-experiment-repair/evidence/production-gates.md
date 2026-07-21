@@ -77,3 +77,30 @@ approved checkpoint as the remote head.
   passed the secret-pattern scan. Production remained paused, clean, and
   byte-identical at the approved commit and rulebook hash. T120 remains open;
   no retry, deploy, apply, loop resume, credential, DNS, or X action occurred.
+
+## G10 as-is current-deployment Crabbox run
+
+- Date: 2026-07-21 (WITA)
+- Exact approval authorized one Hetzner CPX32 Germany lease for up to eight
+  hours and `$2` maximum new-infrastructure spend, an as-is acceptance run,
+  evidence capture, and teardown. It prohibited merge, deploy, production
+  configuration/canonical-state changes, loop resume, and X actions.
+- Exactly one lease was created: `cbx_c2769e5ab363`, Hetzner server
+  `153477287`, CPX32 in `fsn1`, eight-hour TTL, 30-minute idle timeout.
+- The old production homepage returned HTTP 200, while `/human` returned a
+  visible Vercel 404. The canonical acceptance result is **FAIL**: 24 FAIL and
+  2 X-action BLOCKED.
+- Evidence includes 27 named screenshots, a continuous 120-second H.264 outer
+  recording, one browser-process restart receipt, Crabbox proof, HTTP receipt,
+  and spend/teardown receipts under
+  `evidence/production-acceptance/run-20260721-current/`.
+- Actual new-infrastructure spend was approximately `$0.01`. Teardown was
+  verified independently as zero coordinator leases, zero matching Hetzner
+  servers, and zero matching Hetzner SSH keys.
+- Post-run readback verified `main` and production at
+  `75cd45704f3fd74906c3ee4edb53e81187b6ff2a`, clean production worktree,
+  inactive timer/service, and unchanged rulebook SHA-256
+  `5938df47b587aabfb9fe7231c07d12b315a3ac3f7bdcbfee73b076fe219e4933`.
+- No production submission could be created because the required visible
+  surfaces are absent. No production, deployment, loop, canonical-state, or X
+  action occurred.
