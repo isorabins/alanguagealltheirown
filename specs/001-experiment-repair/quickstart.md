@@ -107,10 +107,17 @@ Try It, cap exhaustion, and three X failures.
 
 ## 6. Human-app-testing production run
 
-Get an exclusive recording window before starting. Use the real deployed site,
-real `/human`, and real X profile only within approved gates. Start video before
-the first visible cross-turn action; pause or obscure recording for password and
-secret entry.
+Before the live gate, run the reusable Crabbox skill against a fresh
+off-production fixture. Require a verified v0.40.0 binary, exact provider and
+coordinator identity, one CPX32 Germany lease, eight-hour TTL, projected total
+within the `$2` ceiling, protected env-profile allowlist, named evidence paths,
+and coordinator-owned cleanup. Fail closed on any mismatch.
+
+Use the exclusive remote X11 desktop for the real deployed site, real `/human`,
+and real X profile only within approved gates; Iso's visible Mac is not the
+recording surface. Start the outer desktop video before the first visible action,
+visibly close and relaunch the browser while recording continues, and pause or
+obscure recording for password and secret entry.
 
 Minimum screenshot sequence:
 
@@ -137,6 +144,11 @@ Minimum screenshot sequence:
 
 Backend/log/API checks are supporting receipts only after the visible action.
 They cannot replace the screenshot/video row.
+
+After the run, verify the MP4 is continuous and playable, every numbered image
+maps to the matrix, secret scanning/manual evidence review passes, actual spend
+is at or below `$2`, the coordinator reports no active lease, and the provider
+independently reports no remaining pilot server.
 
 ## 7. Bounded repair loop
 

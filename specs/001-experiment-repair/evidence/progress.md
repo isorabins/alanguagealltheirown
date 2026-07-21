@@ -7,8 +7,12 @@
 - Core runtime checkpoint: `57148debb9bbc1c081662610ff3bf84fe0950e05`.
 - Guarded UI/API checkpoint: `8874cf94d76859a71d9fa8f08dc89d03b816b1f7`.
 - Final offline suite: 47 Python tests PASS; 26 Node tests PASS; contract coverage PASS (55 requirements, 133 sequential tasks); API/HTML parse and `git diff --check` PASS.
-- Spec Kit convergence: no unrepresented offline build gap; production work remains T107–T133.
+- Spec Kit convergence: no unrepresented offline build gap; production work remains T107–T143.
 - Production acceptance matrix: overall BLOCKED with all 26 visible/live rows unrun.
 - 2026-07-21 skeptical-fix pass: D1–D4 safe corrections implemented without live actions; 58 Python tests, 27 Node tests, and 66-requirement coverage PASS.
 - Local visible inspection: repeal/history copy renders at desktop and 375px; production UI acceptance remains BLOCKED.
-- Read-only remote refresh: `origin/main` advanced through generated snapshots to `73a71cf` (turn 630); the approved paused rebase remains T113.
+- Read-only remote refresh: `origin/main` advanced through generated snapshots to `73a71cf` (turn 630); the approved paused rebase remains T123.
+- 2026-07-21 Crabbox planning addendum: v0.40.0 source/checksum/security/provider research pinned; `$2` maximum new-infrastructure ceiling approved; spec/plan/tasks now define T108–T117 for the reusable skill, repo runner, remote browser-restart recording proof, and teardown before production acceptance.
+- Crabbox addendum consistency: 55 FRs and 23 SCs have task traceability; T001–T143 are sequential; `git diff --check` passes. The pre-addendum coverage script correctly remains red on its hard-coded T001–T133 set until approved implementation task T112 updates it.
+- Product regression check after planning-only edits: 58 Python tests and 27 Node tests PASS; no product source file changed.
+- No Crabbox binary, provider credential, account change, coordinator, lease, branch push, PR, production action, or spend occurred during planning.

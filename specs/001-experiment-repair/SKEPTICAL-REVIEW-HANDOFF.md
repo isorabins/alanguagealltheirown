@@ -7,7 +7,7 @@ This is an adversarial inspection brief, not a claim that the feature is done.
 - Worktree: `/Users/isorabins/alex-workspace-worktrees/experiment-repair`
 - Branch: `codex/experiment-repair`
 - Implementation baseline: `96e681f`; read-only remote observation at closeout: `73a71cf` (turn 630)
-- Current state: offline implementation only; not pushed, deployed, connected to production Redis/OpenRouter, run on the VPS, or exercised on X.
+- Current state: offline implementation only; not pushed, deployed, connected to production Redis/OpenRouter, run on the VPS, or exercised on X. A Crabbox acceptance-infrastructure addendum is drafted with a `$2` ceiling; no binary, coordinator, provider credential, lease, or remote proof exists yet.
 - Binding contract: `spec.md`, `plan.md`, `tasks.md`; DoD truth table: `evidence/production-acceptance/matrix.md`.
 
 Do not infer production success from green tests or this document. Independently recompute the diff, test results, state hashes, task coverage, and matrix statuses.
@@ -28,7 +28,8 @@ Do not infer production success from green tests or this document. Independently
 ## Known limitations and deliberate blockers
 
 - All live rows in the production matrix are BLOCKED. There are no screenshots or continuous video yet, by design.
-- The production loop advanced 88 generated-state commits after the implementation baseline. Do not treat that drift as a feature state mutation; independently compare the feature side of `origin/main...HEAD`, then require the paused rebase at T113.
+- The future remote evidence path is specified but unverified. It must pass T108–T117, including browser-restart continuity, cap/TTL enforcement, secret audit, and provider-confirmed teardown, before production acceptance.
+- The production loop advanced 88 generated-state commits after the implementation baseline. Do not treat that drift as a feature state mutation; independently compare the feature side of `origin/main...HEAD`, then require the paused rebase at T123.
 - Tests use mocks, copied fixtures, and one loopback HTTP server; they do not establish vendor response compatibility or live persistence.
 - The implementation was delivered in coherent foundation/core/UI/final commits rather than one commit per user story. Review commit boundaries and the final diff; do not treat task checkmarks as proof.
 - Official docs were checked on 2026-07-20, but beta OpenRouter search and Upload-Post receipt behavior must be revalidated in the approved production-equivalence pass.

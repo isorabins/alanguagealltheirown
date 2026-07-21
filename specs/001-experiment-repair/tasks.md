@@ -232,53 +232,77 @@ X simulations prove no false posted state, duplicate, implicit thread, or frozen
 
 ---
 
-## Phase 12: Approval-Gated Production Preparation and Cutover
+## Phase 12: Reviewed Branch Publication Gate
 
 Every STOP below requires the exact immutable targets and one-time approval phrase
 defined in `plan.md`. No earlier approval carries forward.
 
-- [ ] T107 STOP and obtain approval to push `codex/experiment-repair` and open/update its review PR; then push only the reviewed feature commit and record branch/PR state in `specs/001-experiment-repair/evidence/production-gates.md`
-- [ ] T108 Recheck live VPS/main/turn/timer/deploy state read-only and refresh rollback values in `specs/001-experiment-repair/evidence/runway-preflight.md`
-- [ ] T109 STOP for G4 phrase, then pause `language-loop.timer`, verify it is inactive, fetch the final state commit, and create immutable state/commit/service receipts in `specs/001-experiment-repair/evidence/cleanup-live/manifest.md`
-- [ ] T110 With the approved paid scratch-call cap, run one DeepSeek A cleanup and one Kimi B audit against only the copied snapshot; save original/replacement/audit/diff/hashes under `specs/001-experiment-repair/evidence/cleanup-live/` and verify production state is unchanged
-- [ ] T111 STOP for G5 phrase; then create/link the single Upstash database, human session/password secrets, separate `$20` monthly-reset OpenRouter public key, and approved Vercel WAF rules without printing values; record names/metadata/connectivity in `specs/001-experiment-repair/evidence/credentials.md`
-- [ ] T112 Verify the public and private OpenRouter key identities differ, the public limit/reset metadata is exact (SC-010), and all required environments/services/rollback assets pass the production-equivalence table in `specs/001-experiment-repair/evidence/production-equivalence.md`
-- [ ] T113 Rebase the reviewed feature commit and pending cleanup bundle onto the now-paused current `origin/main` without applying the replacement, rerun the full offline suite, inspect the final state/code diff, and update `specs/001-experiment-repair/evidence/offline-suite.md`
-- [ ] T114 STOP for G6 phrase naming the final SHA/bundle; then push/merge that reviewed commit to `main` while the loop stays paused and the old rulebook remains active; verify remote `main` exactly in `specs/001-experiment-repair/evidence/production-gates.md`
-- [ ] T115 STOP for G7 phrase naming the final SHA and rollback deployment; then deploy `viewer/`, open the production URL, verify the deployed commit/version and every static/function route, and record `specs/001-experiment-repair/evidence/deployment.md`
-- [ ] T116 Open deployed `/human`, visibly verify the original/A replacement/B audit/exact diff and `pending Iso` stop while the active rulebook hash is unchanged, then STOP for G8 phrase naming the exact bundle/hashes; apply only that reviewed replacement, verify preserved history/exact diff, push only the approved state receipt, and record `specs/001-experiment-repair/evidence/cleanup-live/application.md`
-- [ ] T117 STOP for G9 phrase naming the SHA/snapshot; then resume the timer, observe one bounded production turn, and pause immediately on any invariant, duplicate, queue, provider, or health warning; record `specs/001-experiment-repair/evidence/loop-health.md`
+- [ ] T107 STOP and obtain approval to push `codex/experiment-repair` at the reviewed offline checkpoint, open/update its draft review PR, and update that same PR with scoped Crabbox contract/runner commits through T117; no merge/deploy; record branch/PR state in `specs/001-experiment-repair/evidence/production-gates.md`
+
+---
+
+## Phase 13: User Story 9 - Crabbox Remote Acceptance Infrastructure (Priority: P1)
+
+- [ ] T108 [US9] Recheck Crabbox v0.40.0 release provenance, checksums, advisories, issue 1176, install behavior, and Semaphore exclusion; record the YELLOW dependency decision in `specs/001-experiment-repair/evidence/crabbox/dependency-safety.md`
+- [ ] T109 [US9] Install only the verified macOS arm64 Crabbox v0.40.0 binary, confirm its checksum/version without exposing secrets, and record the receipt in `specs/001-experiment-repair/evidence/crabbox/install.md`
+- [ ] T110 [US9] Initialize `/Users/isorabins/.codex/skills/run-crabbox-human-tests/` with skill-creator, then add concise `SKILL.md`, `agents/openai.yaml`, only necessary scripts/references, and the pinned v0.40.0 source-snapshot pointer
+- [ ] T111 [US9] Add an isolated exact-pinned Playwright acceptance package and lockfile under `tests/acceptance/production/` with lifecycle scripts disabled until reviewed; record dependency evidence in `specs/001-experiment-repair/evidence/crabbox/dependency-safety.md`
+- [ ] T112 [US9] Implement the repository-owned 26-row visible acceptance runner, evidence naming, independent receipt hooks, failure controls, and cleanup contract in `tests/acceptance/production/`; update `tests/acceptance/check_contract_coverage.py` for FR-048–FR-055, SC-020–SC-023, and T001–T143; embed no credentials or production mutations
+- [ ] T113 [US9] Add fail-closed provider/identity/cost/TTL checks, protected env-profile allowlisting, outer desktop recording, browser restart continuity, proof-bundle collection, and teardown verification to `/Users/isorabins/.codex/skills/run-crabbox-human-tests/scripts/`
+- [ ] T114 [US9] Run `quick_validate.py`, the project fixture, and a second generic off-production visible-browser forward test from `tests/acceptance/production/fixtures/`; save skill, browser, screenshot, video, restart, and cleanup receipts in `specs/001-experiment-repair/evidence/crabbox/forward-test/`
+- [ ] T115 [US9] STOP for the exact live-change phrase naming the isolated Cloudflare coordinator, scoped provider credentials, one Hetzner CPX32 Germany lease, eight-hour TTL, and `$2` maximum new-infrastructure spend; no production application action is included
+- [ ] T116 [US9] Provision the approved minimal coordinator/lease, prove access, full-desktop screenshot/video/proof capture across a browser-process restart, coordinator-enforced TTL/cap behavior, and teardown using `specs/001-experiment-repair/evidence/crabbox/pilot/`
+- [ ] T117 [US9] Verify zero active lease, coordinator/provider cleanup, actual spend at or below `$2`, no captured secret values, and a passing reusable skill forward test; commit scoped repo changes, update the T107-approved draft PR, verify a clean worktree, and record `specs/001-experiment-repair/evidence/crabbox/closeout.md`
+
+**Checkpoint**: Crabbox and the reusable skill are ready for the later approved
+production run only if T108-T117 pass. No product deployment, production state,
+loop, credential, or X action is authorized by this phase.
+
+---
+
+## Phase 14: Approval-Gated Production Preparation and Cutover
+
+- [ ] T118 Recheck live VPS/main/turn/timer/deploy state read-only and refresh rollback values in `specs/001-experiment-repair/evidence/runway-preflight.md`
+- [ ] T119 STOP for G4 phrase, then pause `language-loop.timer`, verify it is inactive, fetch the final state commit, and create immutable state/commit/service receipts in `specs/001-experiment-repair/evidence/cleanup-live/manifest.md`
+- [ ] T120 With the approved paid scratch-call cap, run one DeepSeek A cleanup and one Kimi B audit against only the copied snapshot; save original/replacement/audit/diff/hashes under `specs/001-experiment-repair/evidence/cleanup-live/` and verify production state is unchanged
+- [ ] T121 STOP for G5 phrase; then create/link the single Upstash database, human session/password secrets, separate `$20` monthly-reset OpenRouter public key, and approved Vercel WAF rules without printing values; record names/metadata/connectivity in `specs/001-experiment-repair/evidence/credentials.md`
+- [ ] T122 Verify the public and private OpenRouter key identities differ, the public limit/reset metadata is exact (SC-010), and all required environments/services/rollback assets pass the production-equivalence table in `specs/001-experiment-repair/evidence/production-equivalence.md`
+- [ ] T123 Rebase the reviewed feature commit and pending cleanup bundle onto the now-paused current `origin/main` without applying the replacement, rerun the full offline suite, inspect the final state/code diff, and update `specs/001-experiment-repair/evidence/offline-suite.md`
+- [ ] T124 STOP for G6 phrase naming the final SHA/bundle; then push/merge that reviewed commit to `main` while the loop stays paused and the old rulebook remains active; verify remote `main` exactly in `specs/001-experiment-repair/evidence/production-gates.md`
+- [ ] T125 STOP for G7 phrase naming the final SHA and rollback deployment; then deploy `viewer/`, open the production URL, verify the deployed commit/version and every static/function route, and record `specs/001-experiment-repair/evidence/deployment.md`
+- [ ] T126 Open deployed `/human`, visibly verify the original/A replacement/B audit/exact diff and `pending Iso` stop while the active rulebook hash is unchanged, then STOP for G8 phrase naming the exact bundle/hashes; apply only that reviewed replacement, verify preserved history/exact diff, push only the approved state receipt, and record `specs/001-experiment-repair/evidence/cleanup-live/application.md`
+- [ ] T127 STOP for G9 phrase naming the SHA/snapshot; then resume the timer, observe one bounded production turn, and pause immediately on any invariant, duplicate, queue, provider, or health warning; record `specs/001-experiment-repair/evidence/loop-health.md`
 
 **Checkpoint**: Core code/state/site are live only if every preceding gate passed.
 
 ---
 
-## Phase 13: Required Production Acceptance and Public Actions
+## Phase 15: Required Production Acceptance and Public Actions
 
-- [ ] T118 Complete the deployed-commit/access/session/test-data/failure-control/rollback/cleanup preflight, create one PASS/FAIL/BLOCKED row per feature/failure in `specs/001-experiment-repair/evidence/production-acceptance/matrix.md`, then STOP for G10 exact approval naming the bounded paid test budget, natural scheduled turns, temporary production failure-mode configuration/key swaps, test ids, and cleanup
-- [ ] T119 Obtain an exclusive visible-desktop recording window, create the numbered screenshot plan, and start `specs/001-experiment-repair/evidence/production-acceptance/00-cross-turn-workflow.mp4` before the first visible action
-- [ ] T120 Drive the deployed commit/version, A/B allowed and forbidden role behavior, adopted-only encoder/decoder/Conversation/Try It boundary, exact judge validation, and historical cleanup original/A/B/diff/application record visibly; pair each action with independent read-only prompt/state receipts in `specs/001-experiment-repair/evidence/production-acceptance/`
-- [ ] T121 Drive the deployed `/human` login/wrong-password/refresh/browser-restart/30-minute-expiry/logout/private-access journey plus RESEARCH cited/no-evidence/restart/requester-only, ASK awaiting/verbatim/exact-once, suggestion pending-private/approve/dismiss/restart/optional-once, and six-message judged Conversation visibly across real turns, with screenshots/video/receipts in `specs/001-experiment-repair/evidence/production-acceptance/`
-- [ ] T122 Drive Try It normal/version-mismatch/cap/provider-failure, page selective-collapse, public ASK/suggestion/Conversation states, and verified README/MECHANICS/page labels on desktop and 375px mobile through the deployed site, with screenshots/receipts in `specs/001-experiment-repair/evidence/production-acceptance/`
-- [ ] T123 Exercise wrong/expired/duplicate/rapid/HTML/script/prompt-injection/timeout/no-evidence/rule-change/cap/three-X-failure cases through approved visible surfaces, verify no execution/leak/bypass/silent loss/duplicate/rule mutation, and update `specs/001-experiment-repair/evidence/production-acceptance/matrix.md`
-- [ ] T124 STOP for the exact correction phrase; publish only the approved correction, verify it on the real X profile, and save screenshot/profile/provider receipts in `specs/001-experiment-repair/evidence/production-acceptance/x-correction.md`
-- [ ] T125 STOP for the exact explainer phrase; publish only the approved <=250-character single post, verify it on the real X profile, and save receipts in `specs/001-experiment-repair/evidence/production-acceptance/x-explainer.md`
-- [ ] T126 STOP for the separate pin phrase naming the verified explainer post id; pin it, verify the live profile, and save receipts in `specs/001-experiment-repair/evidence/production-acceptance/x-pin.md`
-- [ ] T127 For each candidate account, STOP for an individual exact follow phrase; follow only approved accounts, verify each live profile state, and save one receipt per account in `specs/001-experiment-repair/evidence/production-acceptance/x-follows.md`
-- [ ] T128 Audit every screenshot for location/target/state, inspect the continuous video, retake weak evidence while state exists, and finalize the evidence guide in `specs/001-experiment-repair/evidence/production-acceptance/README.md`
-- [ ] T129 Remove disposable test data through the approved visible path, verify historical integrity/rolling average/pre-cleanup hashes, empty leases/queues, no duplicate posts/deliveries, no dirty production files, and no silent timer/site warnings; record `specs/001-experiment-repair/evidence/production-acceptance/cleanup.md`
+- [ ] T128 Complete the deployed-commit/access/session/test-data/failure-control/rollback/cleanup preflight, create one PASS/FAIL/BLOCKED row per feature/failure in `specs/001-experiment-repair/evidence/production-acceptance/matrix.md`, then STOP for G10 exact approval naming the bounded paid test budget, natural scheduled turns, temporary production failure-mode configuration/key swaps, test ids, and cleanup
+- [ ] T129 Confirm the exclusive Crabbox remote X11 desktop, create the numbered screenshot plan, and start `specs/001-experiment-repair/evidence/production-acceptance/00-cross-turn-workflow.mp4` before the first visible action without taking over Iso's Mac
+- [ ] T130 Drive the deployed commit/version, A/B allowed and forbidden role behavior, adopted-only encoder/decoder/Conversation/Try It boundary, exact judge validation, and historical cleanup original/A/B/diff/application record visibly; pair each action with independent read-only prompt/state receipts in `specs/001-experiment-repair/evidence/production-acceptance/`
+- [ ] T131 Drive the deployed `/human` login/wrong-password/refresh/browser-restart/30-minute-expiry/logout/private-access journey plus RESEARCH cited/no-evidence/restart/requester-only, ASK awaiting/verbatim/exact-once, suggestion pending-private/approve/dismiss/restart/optional-once, and six-message judged Conversation visibly across real turns, with screenshots/video/receipts in `specs/001-experiment-repair/evidence/production-acceptance/`
+- [ ] T132 Drive Try It normal/version-mismatch/cap/provider-failure, page selective-collapse, public ASK/suggestion/Conversation states, and verified README/MECHANICS/page labels on desktop and 375px mobile through the deployed site, with screenshots/receipts in `specs/001-experiment-repair/evidence/production-acceptance/`
+- [ ] T133 Exercise wrong/expired/duplicate/rapid/HTML/script/prompt-injection/timeout/no-evidence/rule-change/cap/three-X-failure cases through approved visible surfaces, verify no execution/leak/bypass/silent loss/duplicate/rule mutation, and update `specs/001-experiment-repair/evidence/production-acceptance/matrix.md`
+- [ ] T134 STOP for the exact correction phrase; publish only the approved correction, verify it on the real X profile, and save screenshot/profile/provider receipts in `specs/001-experiment-repair/evidence/production-acceptance/x-correction.md`
+- [ ] T135 STOP for the exact explainer phrase; publish only the approved <=250-character single post, verify it on the real X profile, and save receipts in `specs/001-experiment-repair/evidence/production-acceptance/x-explainer.md`
+- [ ] T136 STOP for the separate pin phrase naming the verified explainer post id; pin it, verify the live profile, and save receipts in `specs/001-experiment-repair/evidence/production-acceptance/x-pin.md`
+- [ ] T137 For each candidate account, STOP for an individual exact follow phrase; follow only approved accounts, verify each live profile state, and save one receipt per account in `specs/001-experiment-repair/evidence/production-acceptance/x-follows.md`
+- [ ] T138 Audit every screenshot for location/target/state, inspect the continuous video, retake weak evidence while state exists, and finalize the evidence guide in `specs/001-experiment-repair/evidence/production-acceptance/README.md`
+- [ ] T139 Remove disposable test data through the approved visible path, verify historical integrity/rolling average/pre-cleanup hashes, empty leases/queues, no duplicate posts/deliveries, no dirty production files, and no silent timer/site warnings; record `specs/001-experiment-repair/evidence/production-acceptance/cleanup.md`
 
 **Bounded loop**: Run at most three complete repair/retest loops; stop when the
 same blocker survives two loops or any required access/approval/surface is missing.
 
 ---
 
-## Phase 14: Convergence and Closeout
+## Phase 16: Convergence and Closeout
 
-- [ ] T130 Assign final PASS/FAIL/BLOCKED to every matrix row and prohibit overall PASS if any row, evidence item, cleanup item, queue, duplicate, warning, or approved X result is incomplete in `specs/001-experiment-repair/evidence/production-acceptance/matrix.md` (SC-016)
-- [ ] T131 Run Spec Kit convergence and update `specs/001-experiment-repair/spec.md` Implementation State Ledger plus `specs/001-experiment-repair/tasks.md` with actual production pass, planned stops, and remaining gaps
-- [ ] T132 Run final tests, inspect final diff, commit scoped closeout/evidence updates, and verify clean feature/VPS worktrees in `specs/001-experiment-repair/evidence/closeout.md`
-- [ ] T133 Report branch, commit, push/PR/main state, remaining dirty files, deployed commit, live URL, loop state, X state, and exact PASS/FAIL/BLOCKED result in `specs/001-experiment-repair/evidence/closeout.md`
+- [ ] T140 Assign final PASS/FAIL/BLOCKED to every matrix row and prohibit overall PASS if any row, evidence item, cleanup item, queue, duplicate, warning, or approved X result is incomplete in `specs/001-experiment-repair/evidence/production-acceptance/matrix.md` (SC-016)
+- [ ] T141 Run Spec Kit convergence and update `specs/001-experiment-repair/spec.md` Implementation State Ledger plus `specs/001-experiment-repair/tasks.md` with actual production pass, planned stops, and remaining gaps
+- [ ] T142 Run final tests, inspect final diff, commit scoped closeout/evidence updates, and verify clean feature/VPS worktrees in `specs/001-experiment-repair/evidence/closeout.md`
+- [ ] T143 Report branch, commit, push/PR/main state, remaining dirty files, deployed commit, live URL, loop state, X state, and exact PASS/FAIL/BLOCKED result in `specs/001-experiment-repair/evidence/closeout.md`
 
 ---
 
@@ -293,6 +317,8 @@ same blocker survives two loops or any required access/approval/surface is missi
 - US7 (T079–T087) depends on US1 adopted-only views but not US5/US6.
 - US8 (T088–T101) depends on truthful state from US1–US7.
 - Offline review (T102–T106) blocks every external/live task.
+- Reviewed branch publication (T107) blocks the Crabbox runner changes and all later production work.
+- Crabbox setup and disposable proof (T108–T117) block the production acceptance run but do not authorize product deployment or production mutation.
 - Production tasks are strictly sequential at each STOP. No public acceptance row can start before the deployed commit, loop, credentials, and cleanup states are verified.
 - X correction, explainer, pin, and follows remain per-item gates and cannot be batched into a blanket approval.
 
@@ -302,8 +328,8 @@ same blocker survives two loops or any required access/approval/surface is missi
   edit distinct files and do not inspect/modify production state.
 - No live gate is parallelizable. Pause, snapshot, cleanup, apply, credential,
   main, deploy, resume, and X actions are deliberately serialized.
-- Human desktop/video acceptance uses one exclusive visible session and is
-  deliberately serialized to preserve continuous evidence.
+- Crabbox supplies the exclusive remote X11 desktop/video session; Iso's visible
+  Mac desktop is not part of the recording surface.
 
 ## Independent Story Acceptance
 
@@ -317,6 +343,7 @@ same blocker survives two loops or any required access/approval/surface is missi
 | US6 | Pending-private, moderated, optional-once suggestion lifecycle |
 | US7 | Four distinct Try It outcomes + separate-key boundary |
 | US8 | Desktop/mobile disclosure + X delivery failure/receipt state machine |
+| Acceptance infrastructure | Fresh remote-browser fixture run with continuous outer video across browser restart, hard spend/TTL enforcement, proof bundle, and verified teardown |
 
 ## Requirement Traceability
 
@@ -328,16 +355,18 @@ same blocker survives two loops or any required access/approval/surface is missi
 | FR-016, FR-017, FR-018, FR-019, FR-020, FR-021 | T052–T068 |
 | FR-022, FR-023, FR-024, FR-025, FR-026 | T044–T051, T069–T078 |
 | FR-027, FR-028, FR-029, FR-030, FR-031 | T079–T087, T089, T093–T100 |
-| FR-032, FR-033, FR-034, FR-035, FR-036, FR-037 | T088, T090–T097, T124–T127 |
+| FR-032, FR-033, FR-034, FR-035, FR-036, FR-037 | T088, T090–T097, T134–T137 |
 | FR-038, FR-039 | T024, T098 |
 | FR-040, FR-041 | T052, T057–T068, T102–T106 |
 | FR-042, FR-043 | T026, T029–T043, T089, T093 |
 | FR-044, FR-045, FR-046, FR-047 | T026, T032, T099, T102–T106 |
-| SC-001, SC-002, SC-003, SC-004, SC-005 | T014–T043, T120 |
-| SC-006, SC-007, SC-008, SC-009, SC-010 | T044–T087, T112, T121–T122 |
-| SC-011, SC-012, SC-013, SC-014, SC-015 | T024, T088–T100, T122–T127 |
-| SC-016 | T118–T133 |
+| FR-048, FR-049, FR-050, FR-051, FR-052, FR-053, FR-054, FR-055 | T108–T117, T128–T143 |
+| SC-001, SC-002, SC-003, SC-004, SC-005 | T014–T043, T130 |
+| SC-006, SC-007, SC-008, SC-009, SC-010 | T044–T087, T122, T131–T132 |
+| SC-011, SC-012, SC-013, SC-014, SC-015 | T024, T088–T100, T132–T137 |
+| SC-016 | T128–T143 |
 | SC-017, SC-018, SC-019 | T026–T043, T052, T057–T068, T089, T093, T099, T102–T106 |
+| SC-020, SC-021, SC-022, SC-023 | T108–T117, T128–T143 |
 
 ## Implementation Strategy
 
@@ -349,5 +378,5 @@ the serialized live gates.
 
 ## Format Validation
 
-All 133 tasks use the required checkbox, sequential task id, optional `[P]`,
+All 143 tasks use the required checkbox, sequential task id, optional `[P]`,
 story label only in story phases, and an explicit file or evidence path.

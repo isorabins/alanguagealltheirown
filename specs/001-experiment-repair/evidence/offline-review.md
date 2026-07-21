@@ -2,7 +2,7 @@
 
 Reviewed on 2026-07-21 against implementation baseline `96e681f`. A read-only fetch
 observed moving remote `main` at `73a71cf`; those 88 later commits changed only generated
-state/viewer snapshots and are intentionally left for the approved paused rebase at T113.
+state/viewer snapshots and are intentionally left for the approved paused rebase at T123.
 
 | Check | Evidence | Result |
 |---|---|---|

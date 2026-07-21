@@ -25,7 +25,7 @@ every production, credential, deploy, public, X, loop, and `main` gate.
 
 | Source | Constraint / Decision | Plan Impact | Status |
 |---|---|---|---|
-| `vendor-developer-handoff-2026-07-20/BUILD-SPEC.md` and `spec.md` | 39 requirements, 16 outcomes, production acceptance test | Binding scope, order, DoD, and stops | aligned; files match byte-for-byte |
+| `vendor-developer-handoff-2026-07-20/BUILD-SPEC.md`, `spec.md`, and `research-crabbox.md` | Original product contract plus 55 current requirements, 23 outcomes, and remote acceptance infrastructure | Binding scope, order, DoD, Crabbox oracle, and stops | original handoff preserved; Spec Kit addendum governs T108+ |
 | `REQUIREMENTS-CHECKLIST.md` | Product ambiguity resolved | No clarify interview; technical research only | aligned |
 | `CURRENT-STATE.md`, `SYSTEM-MAP.md` | Competing Vercel/VPS writers are forbidden | One Redis inbox; loop remains canonical writer | aligned |
 | `PROGRESS-ISSUES.md` | Core truth before collaboration/polish | Gate order follows dependency sequence | aligned |
@@ -50,12 +50,16 @@ implementation contracts.
 | DeepSeek V3.2 | https://openrouter.ai/deepseek/deepseek-v3.2 | 2026-07-20 | Slug `deepseek/deepseek-v3.2` | A/encoder/judge |
 | Kimi K2.6 | https://openrouter.ai/moonshotai/kimi-k2.6 | 2026-07-20 | Slug `moonshotai/kimi-k2.6` | B/stranger/Conversation |
 | Upload-Post text | https://docs.upload-post.com/api/upload-text/ | 2026-07-20 | Stable idempotency/request id, poll async, inspect `results.x`, use `x_title`; long text auto-threads | Confirmed bounded X state machine |
+| Crabbox release/source | https://github.com/openclaw/crabbox/releases/tag/v0.40.0 plus `/Users/isorabins/.codex/vendor-snapshots/openclaw-crabbox/v0.40.0` | 2026-07-21 | Pin verified tag commit and macOS arm64 checksum; review source; never execute repository installers | Verified binary install plus reusable remote-test plumbing |
+| Crabbox desktop/security/lifecycle | https://crabbox.sh/commands/desktop.html and pinned `docs/features/` source | 2026-07-21 | Linux X11 outer recording survives browser relaunch; env forwarding is allowlist-only; direct Hetzner TTL is not durable cleanup | Coordinator-owned lease, protected profile, proof audit, teardown receipt |
+| Cloudflare Workers/Durable Objects | https://developers.cloudflare.com/workers/platform/pricing/ | 2026-07-21 | Small coordinator can remain in free allowance; isolate worker/config from upstream defaults | One shared-token worker, one active lease, no portal/custom domain |
+| Hetzner pricing | https://docs.hetzner.com/general/infrastructure-and-availability/price-adjustment/ | 2026-07-21 | CPX32 Germany hourly cost supports an eight-hour run below `$1` before minor extras | `$2` hard new-infrastructure ceiling, one lease, teardown after proof |
 
 ### Documentation Conflict Check
 
 | Conflict | Sources | Decision | Owner / Stop Condition |
 |---|---|---|---|
-| Handoff recorded turn 537; remote advanced | handoff vs synchronized git state | Local/remote baseline is now `72badf9`, turn 540; only generated state changed | Recheck again at worktree creation and pause gate |
+| Handoff recorded turn 537; remote advanced | handoff vs synchronized git state | Read-only preflight observed remote `main` `6c515362ef4059844a7d2aead3b96af4627a1f81`, turn 636; feature rebase still waits for the approved paused gate | Recheck again at T118 and pause gate |
 | Vercel KV historical naming | older ecosystem vs current Vercel docs | Use Upstash Redis Marketplace/REST, never obsolete Vercel KV API | Recheck docs before credentials gate |
 | Spec excludes database rate-limiter but requires reasonable brute-force protection | scope/non-goal vs `/human` assumption | Use Vercel WAF; do not build Redis limiter framework | BLOCKED if current plan cannot enforce approved rule |
 | Existing Vercel key is shared/unverified | live env vs FR-028 | Add separate public key only after credential/cap approval | planned stop |
@@ -94,6 +98,23 @@ volume requires relational querying. None is true today.
 private moderation text appearing publicly, false delivery claims, or a stalled
 loop. Any such result fails the invariant gate and blocks deploy.
 
+**Acceptance Infrastructure Decision**: Use Crabbox v0.40.0 with the smallest
+durable coordinator path: one isolated Cloudflare Durable Object and at most one
+Hetzner CPX32 Germany X11 desktop lease. Keep the product journey and acceptance
+oracle in the repository; keep generic lease, recording, proof, env allowlist,
+and teardown mechanics in the local reusable skill.
+
+**Simpler Alternative Rejected**: Local Playwright plus Xvfb/FFmpeg can record a
+browser restart without taking over the visible desktop, but it does not meet
+the requested remote failure boundary: the same Mac still owns execution and
+cleanup. Direct Hetzner is also rejected because its TTL label is not a durable
+termination owner when the local process dies.
+
+**Acceptance Infrastructure Invariant**: No remote run starts unless provider,
+account, coordinator, machine, region, projected cost, TTL, env-name allowlist,
+evidence paths, and cleanup owner exactly match the approved manifest. Any
+uncertainty fails closed before provisioning or browser action.
+
 **Skeptical Architecture Review**: Required and completed 2026-07-20 by this
 planning pass. Finding: PASS with conditions. Do not expose a VPS service, do not
 let Vercel write canonical JSON, do not use destructive queue pops, and do not
@@ -126,17 +147,21 @@ the corresponding approved production gate.
 
 **Primary Dependencies**: Existing Python `requests` 2.31; Node built-in `fetch`
 and `crypto`; Upstash Redis REST; OpenRouter Chat Completions/server tools;
-Upload-Post text/status API
+Upload-Post text/status API; pinned Crabbox v0.40.0 binary; isolated exact-pinned
+Playwright acceptance package
 
 **Storage**: Canonical JSON/git history, local atomic collaboration transport spools,
 plus one Upstash Redis inbox/session store
 
 **Testing**: Python `unittest`, Node `node:test`, fixture state, stub HTTP servers,
-production-shaped local Vercel handlers, human-app-testing on deployed desktop and
-375px mobile
+production-shaped local Vercel handlers, repository-owned Playwright visible
+journeys on a Crabbox X11 desktop, continuous outer recording, and desktop/375px
+human-app-testing evidence
 
-**Target Platform**: Hetzner Ubuntu VPS/systemd timer; Vercel Node 24 functions and
-static site; current X profile through Upload-Post
+**Target Platform**: Existing Hetzner Ubuntu VPS/systemd timer; Vercel Node 24
+functions/static site; current X profile through Upload-Post; separate disposable
+Hetzner CPX32 Germany acceptance desktop governed by an isolated Cloudflare
+coordinator
 
 **Project Type**: Single repository with a scheduled Python agent engine and
 static/serverless web surface
@@ -150,8 +175,9 @@ production state in tests, no uncapped public inference, no more than three X
 attempts, no standalone Composition, no rolling-average reset; Redis failure or
 a hanging courier cannot cancel an ordinary turn
 
-**Scale/Scope**: Low-volume public art project; eight user stories, one human
-operator, one loop worker, one Redis database, one Vercel project, one X profile
+**Scale/Scope**: Low-volume public art project; nine user stories, one human
+operator, one loop worker, one Redis database, one Vercel project, one X profile,
+and at most one disposable acceptance lease
 
 ## Constitution Check
 
@@ -159,8 +185,8 @@ operator, one loop worker, one Redis database, one Vercel project, one X profile
 
 | Principle | Result | Evidence |
 |---|---|---|
-| Contract before implementation | PASS | Approved spec; plan/tasks approval still required |
-| Explicit scope and approvals | PASS | Non-goals and ten planned stops below |
+| Contract before implementation | PLANNED_STOP | Existing offline contract was approved; Crabbox addendum requires spec/plan/tasks approval before T107+ |
+| Explicit scope and approvals | PASS | Non-goals and eleven planned stops below |
 | Documentation context | PASS | Handoff order, source alignment, current official docs |
 | Runtime boundary | PASS | Single invariant, bypass inventory, negative proofs, skeptical review |
 | Clean worktree | PLANNED_STOP | Created only after plan approval from fresh `origin/main` |
@@ -181,6 +207,8 @@ dependencies are planned stops, not assumed access.
 | G1 Preservation | Create worktree from fresh `origin/main`; copy approved artifacts only | User dirty work preserved; branch clean | git receipts + manifest | source drift/conflict | remove only new empty worktree if approved |
 | G2 Invariant | Run offline adopted-only, role, judge, bypass tests | Forbidden old paths impossible in fixtures | test logs/search receipts | any failure | revert scoped branch commit |
 | G3 Offline features | Run collaboration, Conversation, Try It, X state-machine tests | All P1-P3 behavior passes with stubs/fixtures | test/evidence report | invariant regression | revert gate commit |
+| G3A Local acceptance tooling | Install verified Crabbox binary; build/validate skill and repo runner against a fixture | Skill and runner pass without production access or paid lease | dependency, validation, fixture evidence | checksum/advisory/test failure | remove only created local artifacts after review |
+| G3B Disposable remote proof | Exact approval provisions isolated coordinator and one capped lease | Outer recording spans browser restart; proof/TTL/cap/teardown pass | Crabbox pilot bundle + provider readbacks | identity/cost/TTL/secret uncertainty | coordinator teardown; verify provider zero leases |
 | G4 Cleanup preview | After live gate, pause loop, snapshot exact state, run paid cleanup on copy | Original/A/B/diff exist; production unchanged | hashes, artifacts, diff | source mismatch/call failure | keep snapshot; resume only after approval |
 | G5 Credentials | Exact approval creates Redis/session/public OpenRouter/WAF config | Required names exist; key metadata proves separate $20 monthly cap | metadata receipts without values | access/cap mismatch | remove/disable newly created config by approved rollback |
 | G6 Main integration | Exact approval pushes/merges reviewed code plus pending cleanup bundle to `main` while loop paused | Remote main equals reviewed commit; old rulebook remains active | GitHub/commit receipt | branch drift/tests fail | do not merge; revert commit if approved |
@@ -198,16 +226,17 @@ Implementation approval does not grant any live gate. At each gate the operator
 must present the exact target, current commit/state, rollback, and one-time phrase.
 Recommended phrase forms are:
 
-1. `APPROVE LIVE CHANGE: pause language-loop.timer for experiment-repair snapshot <turn>/<commit> and authorize one DeepSeek cleanup plus one Kimi audit on the copied snapshot with total cap <$amount>`
-2. `APPROVE LIVE CHANGE: create or change the named Upstash, human-session, WAF, and $20 monthly public OpenRouter production configuration in the reviewed preflight`
-3. `APPROVE LIVE CHANGE: push and merge reviewed commit <sha> with pending cleanup bundle <bundle-id> to main while the loop is paused and the old rulebook remains active`
-4. `APPROVE LIVE CHANGE: deploy reviewed commit <sha> to alanguagealltheirown.com with rollback deployment <id>`
-5. `APPROVE LIVE CHANGE: apply visibly reviewed cleanup bundle <bundle-id>/<hash> to rulebook snapshot <hash> and push only that approved state receipt`
-6. `APPROVE LIVE CHANGE: resume language-loop.timer on main <sha> from snapshot <turn> with the reviewed per-turn, research, and Conversation spend bounds`
-7. `APPROVE LIVE CHANGE: run production acceptance <run-id> on commit <sha> within <$amount>, using natural scheduled turns and the named temporary failure-mode configuration/key swaps, test ids, rollback, and cleanup in the approved matrix`
-8. One exact phrase for the final correction copy and target X profile.
-9. One exact phrase for the final explainer copy, then a separate exact phrase to pin the verified post id.
-10. One exact phrase per researched X account to follow.
+1. `APPROVE LIVE CHANGE: create the isolated crabbox-iso-pilot Cloudflare Durable Object coordinator and scoped provider credentials, then provision at most one Hetzner CPX32 Germany lease with an eight-hour TTL and $2 maximum new-infrastructure spend; no production application action; teardown after proof`
+2. `APPROVE LIVE CHANGE: pause language-loop.timer for experiment-repair snapshot <turn>/<commit> and authorize one DeepSeek cleanup plus one Kimi audit on the copied snapshot with total cap <$amount>`
+3. `APPROVE LIVE CHANGE: create or change the named Upstash, human-session, WAF, and $20 monthly public OpenRouter production configuration in the reviewed preflight`
+4. `APPROVE LIVE CHANGE: push and merge reviewed commit <sha> with pending cleanup bundle <bundle-id> to main while the loop is paused and the old rulebook remains active`
+5. `APPROVE LIVE CHANGE: deploy reviewed commit <sha> to alanguagealltheirown.com with rollback deployment <id>`
+6. `APPROVE LIVE CHANGE: apply visibly reviewed cleanup bundle <bundle-id>/<hash> to rulebook snapshot <hash> and push only that approved state receipt`
+7. `APPROVE LIVE CHANGE: resume language-loop.timer on main <sha> from snapshot <turn> with the reviewed per-turn, research, and Conversation spend bounds`
+8. `APPROVE LIVE CHANGE: run production acceptance <run-id> on commit <sha> within <$amount>, using natural scheduled turns and the named temporary failure-mode configuration/key swaps, test ids, rollback, and cleanup in the approved matrix`
+9. One exact phrase for the final correction copy and target X profile.
+10. One exact phrase for the final explainer copy, then a separate exact phrase to pin the verified post id.
+11. One exact phrase per researched X account to follow.
 
 Phrase placeholders must be replaced with verified immutable values. Paraphrases,
 blanket approvals, and approval from another agent do not pass a gate.
@@ -234,14 +263,22 @@ blanket approvals, and approval from another agent do not pass a gate.
 
 ## Definition-of-Done Runway Preflight
 
-**Run Target**: Planned stop after offline implementation. Production completion
-requires each later exact live/public approval.
+**Run Target**: Planned stop after the reusable Crabbox skill, off-production
+forward test, capped remote lifecycle/recording proof, and verified teardown.
+Production completion requires each later exact live/public approval.
 
 | Dependency | Needed For | Status | Owner / Approval | Evidence Or Check |
 |---|---|---|---|---|
 | Current remote main | Worktree/rebase | available; `72badf9` at synchronized planning baseline, recheck required | implementer | `ls-remote`/fetch receipt |
 | Dirty local `main` user work | Preservation | available, must not be stashed/overwritten | implementer | status + manifest |
 | Clean worktree path/branch | Implementation | planned_stop G0 | Iso approves plan | worktree list/status |
+| Reviewed feature push/PR | Repository runner checkpoint | blocked at T107 | Iso approves feature push/draft PR | remote branch/PR receipt |
+| Crabbox v0.40.0 binary | Local acceptance plumbing | pre-approved after contract approval; not installed | Iso approved Crabbox with `$2` ceiling | release checksum/version receipt |
+| Local pinned Crabbox snapshot | Review/skill reference | available | implementer | clean exact-tag checkout + snapshot receipt |
+| Cloudflare account/API access | Durable coordinator | blocked; cached OAuth expired and no Bitwarden token found | Iso/account login or scoped token | account id/token-name metadata only |
+| Hetzner account/project/token | Disposable X11 desktop | blocked; no CLI/token metadata found | Iso/account login, billing readiness, exact G3B phrase | project/token-name metadata only |
+| Crabbox coordinator/lease | Remote proof | planned_stop G3B | exact live-change phrase | coordinator lease/cap/TTL readbacks |
+| `$2` new-infrastructure ceiling | Remote proof | pre-approved | Iso, 2026-07-21 WITA | current conversation + cost receipt |
 | VPS SSH and repo | Snapshot/timer/state | available read-only; writes planned_stop | Iso live phrase | service/git receipts |
 | Vercel project/domain | Deploy/human/Try It | available read-only; deploy/env planned_stop | Iso live phrase | project/deploy receipt |
 | Upstash database/tokens | Collaboration | planned_stop; not created | Iso account/live phrase | env-name/connectivity receipt |
@@ -249,13 +286,15 @@ requires each later exact live/public approval.
 | Separate public OpenRouter key | Try It | planned_stop; absent | Iso/live phrase | key hash/limit/reset metadata |
 | Private experiment key | Loop/research/Conversation | available historically; no value inspected | existing production | name/provider health receipt |
 | Upload-Post/X profile | X delivery | available historically; every action planned_stop | Iso per item | profile/provider receipts |
-| Browser desktop/mobile surfaces | Visible acceptance | available in principle; exclusive recording window planned_stop | Iso | preflight screenshot |
-| Continuous recorder | Cross-turn evidence | planned_stop until exclusive window confirmed | Iso | recorded file inspection |
+| Browser desktop/mobile surfaces | Visible acceptance | Crabbox remote X11 path designed; unverified until G3B | implementer | preflight screenshot |
+| Continuous recorder | Cross-turn evidence | Crabbox X11 source path verified; executable proof planned_stop G3B | implementer | MP4 inspection across browser restart |
 | Natural test data and cleanup | Acceptance | design available; live use planned_stop | implementer/Iso for public effects | matrix ids/cleanup plan |
 | Rollback state/deployment/commit | Every live gate | must be captured immediately before gate | implementer | hashes/deployment id |
 
-**Preflight Result**: PLANNED_STOP. Offline implementation can be autonomous after
-G0; production DoD cannot be claimed without G4-G12 approvals and evidence.
+**Preflight Result**: NOT_READY to the remote-pilot target because T107,
+Cloudflare/Hetzner access, and G3B exact approval remain unresolved. Local
+planning is complete; production DoD cannot be claimed without G4-G12 approvals
+and evidence.
 
 ## Project Structure
 
@@ -266,6 +305,7 @@ specs/001-experiment-repair/
 ├── spec.md
 ├── plan.md
 ├── research.md
+├── research-crabbox.md
 ├── data-model.md
 ├── quickstart.md
 ├── contracts/http-and-runtime.md
@@ -313,6 +353,7 @@ tests/
 ├── python/
 ├── js/
 └── acceptance/
+    └── production/               # repo-owned visible journey and evidence oracle
 ```
 
 **Structure Decision**: Preserve the existing small mixed Python/static/Vercel

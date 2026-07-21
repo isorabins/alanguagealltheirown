@@ -72,4 +72,4 @@ ad8f8a23865eacf2c3b05a58384f14913aaa18e5b1d8fd454a5e9b9699cdbe96  state/meta.jso
 
 Result: **PASS for the corrected offline implementation only**. Deployment, live
 credentials, paid calls, production turns, X, and visible production acceptance remain
-**BLOCKED** behind T107–T133.
+**BLOCKED** behind T107–T143.

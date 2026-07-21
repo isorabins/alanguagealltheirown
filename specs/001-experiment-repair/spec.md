@@ -4,7 +4,7 @@
 
 **Created**: 2026-07-20 WITA
 
-**Status**: Draft — ready for planning; implementation requires Iso's approval of spec, plan, and tasks
+**Status**: Offline product implementation complete; Crabbox acceptance-infrastructure addendum awaiting approval before T107+
 
 **Input**: Repair the experimental contract of “A Language All Their Own,” preserve its history, add bounded public collaboration, and make every public claim match verified state. This specification consolidates Iso's line-by-line decisions from the skeptical audit completed on 2026-07-20.
 
@@ -23,10 +23,15 @@
 | [OpenRouter key limits](https://openrouter.ai/docs/api/api-reference/api-keys/create-keys) | Official documentation | Public Try It spend boundary | A dedicated key can enforce a monthly USD limit | Aligned |
 | [Upload-Post text API](https://docs.upload-post.com/api/upload-text/) | Official documentation | X confirmation, idempotency, and threading | Use confirmed results and stable idempotency; do not rely on automatic threading | Aligned |
 | [NVIDIA NIM FAQ](https://docs.api.nvidia.com/nim/docs/product) | Official documentation | Considered free public inference alternative | Free developer endpoints are for prototyping/testing, not public end-user production | Rejected for public Try It |
+| [Crabbox v0.40.0](https://github.com/openclaw/crabbox/releases/tag/v0.40.0) and pinned local snapshot | Official release/source | Remote disposable desktop, outer recording, proof, TTL, and cleanup | Pin verified commit/checksum; use X11 desktop; exclude Semaphore; do not execute repository installers | Aligned with FR-048–FR-055 |
+| [Cloudflare Workers pricing](https://developers.cloudflare.com/workers/platform/pricing/) and [Hetzner pricing](https://docs.hetzner.com/general/infrastructure-and-availability/price-adjustment/) | Official provider documentation | Durable coordinator and bounded hourly desktop cost | Free-tier coordinator where eligible; one CPX32 Germany lease; `$2` hard new-infrastructure ceiling | Aligned with approved pilot envelope |
 
 **Ignored / Outdated Sources**: `PRD-remove-caps.md` is historical and unrelated to this repair. The old dumb-script benchmark, Slack ASK bridge, `:online` research suffix, standalone Composition exam, power-grid framing, and broad novelty/growth claims are superseded. Historical records containing them remain untouched.
 
-**Open Documentation Conflicts**: None. The local audited checkout is `820ae90`; remote `main` was verified at `5551f6f` (turn 537) and is 13 state-only commits ahead. Implementation must begin from a clean worktree based on current remote `main`, then recheck state before editing.
+**Open Documentation Conflicts**: None. The original audit observed `5551f6f`
+(turn 537); the 2026-07-21 read-only preflight observed remote `main`
+`6c515362ef4059844a7d2aead3b96af4627a1f81` at turn 636. The feature worktree
+remains intentionally isolated until the approved paused rebase gate.
 
 ## User Scenarios & Testing
 
@@ -163,6 +168,24 @@ As a first-time visitor, I see the most interesting current material without scr
 4. **Given** three failed attempts, **when** the next delivery run occurs, **then** the note becomes visibly blocked and later notes may continue.
 5. **Given** generated X copy, **when** it is submitted, **then** it is a single post of no more than 250 characters unless Iso separately approves a thread.
 
+---
+
+### User Story 9 - Run Evidence-Grade Acceptance Without Taking Over Iso's Mac (Priority: P1)
+
+As Iso, I can keep using my visible Mac while the full human browser journey runs on a disposable remote desktop and returns auditable screenshots, one continuous outer video, proof receipts, and verified cleanup.
+
+**Why this priority**: The required production run is long, crosses browser-process restarts, and cannot depend on Iso surrendering his screen or remembering to terminate paid infrastructure.
+
+**Independent Test**: Run a fresh off-production fixture on one disposable remote X11 desktop; visibly close and relaunch the browser while one outer MP4 continues, collect the proof bundle, verify the lease/cost/TTL controls, destroy the lease, and repeat the workflow from the reusable skill without project-specific secrets.
+
+**Acceptance Scenarios**:
+
+1. **Given** a disposable remote desktop, **when** the browser process is closed and relaunched, **then** one uninterrupted outer video still covers the entire visible sequence.
+2. **Given** the test runner, **when** screenshots and receipts are produced, **then** every file maps to an acceptance row and secrets are absent from arguments, logs, screenshots, video, and bundles.
+3. **Given** a stalled runner or lost local connection, **when** the lease reaches its TTL or cost boundary, **then** coordinator-owned cleanup prevents an indefinite paid machine.
+4. **Given** the pilot ends or fails, **when** closeout runs, **then** zero active leases remain and actual new-infrastructure spend is no more than `$2`.
+5. **Given** a different repository with a visible browser journey, **when** Codex invokes the reusable skill, **then** it can repeat the preflight, remote desktop, evidence, and teardown pattern without this project's credentials or assumptions.
+
 ### Edge Cases
 
 - A status changes while an exam or Try It request is in progress.
@@ -178,6 +201,11 @@ As a first-time visitor, I see the most interesting current material without scr
 - X accepts a post but the response times out, returns an asynchronous receipt, or confirms only some requested platforms.
 - A blocked X note sits ahead of newer notes; dry runs and failures must not consume the two-per-day public budget.
 - The evolving remote state advances between planning, implementation, cleanup approval, and deployment.
+- The local recording stream disconnects while the remote desktop or browser remains alive.
+- The browser crashes or is restarted while the outer desktop recording must continue.
+- Provider identity, region, machine size, projected cost, or coordinator authority differs from the approved envelope.
+- A TTL label exists but no durable cleanup owner is active.
+- A secret-entry screen, protected profile, or diagnostic bundle risks exposing a credential.
 
 ## Boundary & Invariants
 
@@ -263,6 +291,14 @@ As a first-time visitor, I see the most interesting current material without scr
 - **FR-045**: Legislative history rationale MUST be derived from the paragraph containing the exact matched motion line, including REQUEST and REPEAL families.
 - **FR-046**: Operational preservation evidence MUST distinguish unchanged pre-existing state from the one committed empty public-collaboration scaffold using a baseline-aware check.
 - **FR-047**: The corpus-exam metadata cache MUST retain only its latest 500 entries, and dead active-economics stubs MUST be removed without changing the historical last-ten calculation.
+- **FR-048**: The production acceptance browser MUST run on a disposable remote Linux X11 desktop that does not take control of Iso's visible Mac.
+- **FR-049**: The remote desktop MUST produce one continuous outer MP4 across ordinary browser-process close and relaunch, plus numbered screenshots and a proof bundle that map to the acceptance matrix.
+- **FR-050**: The repository MUST own visible actions, assertions, row mapping, pass/fail rules, receipts, and cleanup; Crabbox MUST own only lease, remote desktop, and evidence transport plumbing.
+- **FR-051**: The pilot MUST pin Crabbox v0.40.0 by verified release checksum/commit, exclude the Semaphore provider, and repeat dependency/advisory review immediately before installation.
+- **FR-052**: The remote path MUST use one coordinator-owned lease with one active-lease limit, eight-hour TTL, `$2` maximum new-infrastructure spend, and fail-closed provider, target, identity, and cost checks.
+- **FR-053**: Credentials MUST enter only through an external protected environment profile with an explicit name allowlist; secret values MUST NOT appear in chat, repository files, skill files, command arguments, screenshots, video, logs, or proof bundles.
+- **FR-054**: The pilot MUST verify teardown through coordinator and provider readbacks and MUST NOT pass with an active lease, stuck cleanup, unknown spend, or unverified secret hygiene.
+- **FR-055**: A reusable local Codex skill MUST reproduce the remote human-testing pattern for another repository, include only necessary scripts/references and `agents/openai.yaml`, pass `quick_validate.py`, and pass a fresh realistic off-production forward test.
 
 ### Scope and Non-Goals
 
@@ -270,6 +306,7 @@ As a first-time visitor, I see the most interesting current material without scr
 - No live-loop turn, paid test, production state repair, deploy, push, X action, follow, pin, credential change, or billing change is authorized by this specification alone.
 - No database-backed rate limiter, snapshot/version database, general authentication framework, Slack bridge, automatic visitor-to-agent injection, second judge, judge retry system, or governance expansion beyond the approved minimal repeal path is in scope.
 - No new dumb-script or competitor baseline is introduced.
+- No coordinator portal, custom domain, artifact publication service, multi-provider platform, or Semaphore integration is in scope.
 - No manual human rewriting of language rules is allowed; humans shape the experiment and curate context, while agents author and adopt language law.
 - Directive overuse, shorthand conflicts, and token-aware substitution are language questions for the agent cleanup/evolution process, not separate software features.
 
@@ -285,6 +322,7 @@ As a first-time visitor, I see the most interesting current material without scr
 - **Conversation Artifact**: Scenario, adopted rulebook version, alternating messages, models, total usage, and outcome judgment.
 - **Try It Journey**: Encode/decode correlation, rulebook version, allowance/provider state, and visible result.
 - **Public Delivery Record**: Field note identity, platform, attempt count, idempotency identity, confirmation id, posted/blocked state, and error receipt.
+- **Remote Acceptance Lease**: Approved provider/account, coordinator identity, machine/region, start/expiry, projected/actual cost, recording/proof paths, teardown state, and non-secret receipt metadata.
 
 ## Success Criteria
 
@@ -309,6 +347,10 @@ As a first-time visitor, I see the most interesting current material without scr
 - **SC-017**: Offline courier tests prove Redis exceptions, timeouts, replay, and restart cannot mutate canonical state outside the loop, lose a durable inbox record, duplicate delivery, or prevent the loop command from running.
 - **SC-018**: Production-shaped rulebook tests prove legacy proposals are terminalized at cleanup, one-open enforcement works afterward, and a complete repeal lifecycle removes exactly one adopted rule while preserving its complete legislature history.
 - **SC-019**: Focused tests and evidence prove invalid-score wording, exact motion-line rationale, 500-entry metadata retention, dead-stub removal, and baseline-aware state preservation.
+- **SC-020**: A fresh remote fixture run produces one inspectable outer MP4 that begins before the first visible action, remains continuous across browser-process restart, and ends after final cleanup state.
+- **SC-021**: The Crabbox pilot produces an auditable screenshot/proof bundle, verifies zero active leases after teardown, and reports actual new-infrastructure spend at or below `$2`.
+- **SC-022**: Secret scanning and manual evidence inspection find zero credential values in repository changes, skill files, command history, logs, screenshots, video, or proof bundles.
+- **SC-023**: The reusable skill passes structural validation and a fresh forward test for a second off-production visible browser fixture without project-specific credential names or acceptance assumptions.
 
 ## Assumptions
 
@@ -320,6 +362,8 @@ As a first-time visitor, I see the most interesting current material without scr
 - Public suggestion volume is initially low; moderation, not autonomous content filtering, is the authority boundary.
 - Old exam, dumb-script, field-note, and rulebook artifacts remain append-only history even when their current presentation is retired or corrected.
 - The $20 public inference allowance is a hard monthly boundary, not a spending target.
+- Crabbox itself and the Cloudflare coordinator are expected to add no usage charge within free allowance; the single hourly Hetzner lease is created only for remote proof and is governed by the approved `$2` ceiling.
+- Cloudflare and Hetzner account login/MFA/payment readiness remain external dependencies until verified; no account or credential creation is implied by the spend approval.
 - The pinned X explainer, correction, follows, credential/cap changes, deployment, loop pause/resume, and cleaned-rulebook application are separate live/public/account actions requiring the workspace's exact approvals at their implementation gates.
 
 ## Definition of Done and Planned Stops
@@ -330,7 +374,7 @@ The feature is complete only when all P1–P3 journeys and success criteria pass
 
 The final test MUST be performed through the real deployed user-visible surfaces. Backend tests, logs, API receipts, or source inspection may independently confirm the result after a visible action, but cannot substitute for the human journey. Before testing, record the deployed commit, environment, public URL, current rulebook version, available sessions/permissions, test data, cleanup path, and every approval boundary.
 
-Create an evidence matrix before the run with one row per feature or failure state. Every row MUST name the visible action, expected visible result, required screenshot, supporting read-only receipt, cleanup requirement, and final `PASS`, `FAIL`, or `BLOCKED` state. Capture a numbered screenshot for every meaningful step and one continuous video covering the cross-turn human workflow; pause or obscure recording during password or secret entry.
+Create an evidence matrix before the run with one row per feature or failure state. Every row MUST name the visible action, expected visible result, required screenshot, supporting read-only receipt, cleanup requirement, and final `PASS`, `FAIL`, or `BLOCKED` state. Capture a numbered screenshot for every meaningful step and one continuous Crabbox outer-desktop video covering the cross-turn human workflow and browser-process restart; pause or obscure recording during password or secret entry.
 
 The production run MUST prove, one feature at a time:
 
@@ -370,4 +414,5 @@ The implementation plan MUST include planned stops before:
 |------|-----------------------------|----------------------------------|-------------------------|
 | 2026-07-20 | Specification and audit handoff only | Production unchanged; remote state observed at turn 537 | Clarify/plan/tasks, approvals, clean worktree, implementation, evidence, deploy/public gates |
 | 2026-07-20 | Clean-worktree offline implementation passes 47 Python tests, 26 Node tests, 55-requirement coverage, API/HTML parse checks, state-hash preservation, diff/secret/bypass/privacy review, and Spec Kit convergence | Branch is local and unpushed; production state/site/loop/credentials/X are unchanged; every live DoD row is BLOCKED | Skeptical-review D1–D4 repairs approved for a second offline pass before T107; production gates remain unchanged |
-| 2026-07-21 | D1–D4 corrected offline pass: 58 Python tests, 27 Node tests, 66-requirement coverage, desktop/375px local copy inspection, baseline-aware state preservation, and zero-gap Spec Kit convergence | Branch remains local and unpushed; read-only fetch observed remote generated state at turn 630; no production service, credential, loop, deployment, paid call, or X action changed | T107–T133; all 26 production acceptance rows remain BLOCKED |
+| 2026-07-21 | D1–D4 corrected offline pass: 58 Python tests, 27 Node tests, 66-requirement coverage, desktop/375px local copy inspection, baseline-aware state preservation, and zero-gap Spec Kit convergence | Branch remains local and unpushed; read-only fetch observed remote generated state at turn 630; no production service, credential, loop, deployment, paid call, or X action changed | T107–T143; all 26 production acceptance rows remain BLOCKED |
+| 2026-07-21 | Crabbox acceptance-infrastructure addendum drafted from official v0.40.0 source review; `$2` maximum new-infrastructure spend approved | No binary installed, account/credential created, coordinator deployed, lease provisioned, branch pushed, or production surface changed | Approve updated spec/plan/tasks; then T107–T117 before any production gate |
