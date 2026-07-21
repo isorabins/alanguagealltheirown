@@ -16,6 +16,125 @@ from state_store import atomic_write_json, load_json, snapshot_hash
 OPERATIONAL = re.compile(r"\b(system prompt|api key|password|deploy|timer|cron|vote|adopt|reject|human approval)\b", re.I)
 
 
+def _ordered_adopted_ids(source: dict[str, Any]) -> list[str]:
+    adopted_ids: list[str] = []
+    for rule in source.get("rules", []):
+        if rule.get("status") != "adopted":
+            continue
+        rule_id = rule.get("id")
+        if not isinstance(rule_id, str) or not rule_id:
+            raise ValueError("every adopted source rule requires a non-empty id")
+        adopted_ids.append(rule_id)
+    if not adopted_ids:
+        raise ValueError("source requires at least one adopted rule")
+    if len(adopted_ids) != len(set(adopted_ids)):
+        raise ValueError("adopted source ids must be unique")
+    return adopted_ids
+
+
+def cleanup_draft_request_options(source: dict[str, Any]) -> dict[str, Any]:
+    """Build the exact structured-output and provider-routing options for A."""
+    adopted_ids = _ordered_adopted_ids(source)
+    assignment_properties = {
+        rule_id: {"type": "string", "minLength": 1, "maxLength": 128}
+        for rule_id in adopted_ids
+    }
+    schema = {
+        "type": "object",
+        "properties": {
+            "assignments": {
+                "type": "object",
+                "properties": assignment_properties,
+                "required": adopted_ids,
+                "additionalProperties": False,
+            },
+            "groups": {
+                "type": "array",
+                "minItems": 1,
+                "maxItems": len(adopted_ids),
+                "items": {
+                    "type": "object",
+                    "properties": {
+                        "id": {"type": "string", "minLength": 1, "maxLength": 128},
+                        "text_en": {"type": "string", "minLength": 1, "maxLength": 4000},
+                    },
+                    "required": ["id", "text_en"],
+                    "additionalProperties": False,
+                },
+            },
+        },
+        "required": ["assignments", "groups"],
+        "additionalProperties": False,
+    }
+    return {
+        "response_format": {
+            "type": "json_schema",
+            "json_schema": {
+                "name": "cleanup_draft",
+                "strict": True,
+                "schema": schema,
+            },
+        },
+        "provider": {"require_parameters": True},
+    }
+
+
+def compile_cleanup_draft(source: dict[str, Any], draft: dict[str, Any]) -> dict[str, Any]:
+    """Compile A-authored groups while deriving exact source coverage locally."""
+    adopted_ids = _ordered_adopted_ids(source)
+    if not isinstance(draft, dict) or set(draft) != {"assignments", "groups"}:
+        raise ValueError("draft requires only assignments and groups")
+    assignments = draft.get("assignments")
+    if not isinstance(assignments, dict) or set(assignments) != set(adopted_ids):
+        raise ValueError("assignment keys must exactly match adopted source ids")
+    groups = draft.get("groups")
+    if not isinstance(groups, list) or not groups:
+        raise ValueError("groups must be a non-empty list")
+
+    groups_by_id: dict[str, str] = {}
+    for group in groups:
+        if not isinstance(group, dict) or set(group) != {"id", "text_en"}:
+            raise ValueError("each group requires only id and text_en")
+        group_id = group.get("id")
+        text_en = group.get("text_en")
+        if not isinstance(group_id, str) or not group_id or len(group_id) > 128:
+            raise ValueError("every group requires a valid non-empty id")
+        if group_id in groups_by_id:
+            raise ValueError("group ids must be unique")
+        if not isinstance(text_en, str) or not text_en.strip() or len(text_en) > 4000:
+            raise ValueError("every group requires non-empty text_en")
+        if OPERATIONAL.search(text_en):
+            raise ValueError("replacement contains operational text")
+        groups_by_id[group_id] = text_en
+
+    referenced_ids: list[str] = []
+    for source_id in adopted_ids:
+        group_id = assignments[source_id]
+        if not isinstance(group_id, str) or not group_id or len(group_id) > 128:
+            raise ValueError("every assignment requires a valid group id")
+        referenced_ids.append(group_id)
+    if set(referenced_ids) != set(groups_by_id):
+        raise ValueError("referenced groups must exactly match defined groups")
+
+    ordered_group_ids = list(dict.fromkeys(referenced_ids))
+    candidate_rules = []
+    for index, group_id in enumerate(ordered_group_ids, start=1):
+        source_ids = [
+            source_id for source_id in adopted_ids
+            if assignments[source_id] == group_id
+        ]
+        candidate_rules.append({
+            "id": f"rule-c{index:03d}",
+            "text_en": groups_by_id[group_id],
+            "status": "adopted",
+            "source_ids": source_ids,
+            "history": [],
+        })
+    candidate = {"version": "cleanup-candidate", "rules": candidate_rules}
+    validate_candidate(source, candidate)
+    return candidate
+
+
 def validate_candidate(source: dict[str, Any], replacement: dict[str, Any]) -> None:
     """Reject an A candidate before spending a second provider call on audit."""
     adopted_ids = {r["id"] for r in source.get("rules", []) if r.get("status") == "adopted"}
@@ -164,18 +283,37 @@ def main() -> None:
     candidate = sub.add_parser("validate-candidate")
     candidate.add_argument("--source", type=Path, required=True)
     candidate.add_argument("--replacement", type=Path, required=True)
+    request_options = sub.add_parser("request-options")
+    request_options.add_argument("--source", type=Path, required=True)
+    compile_draft = sub.add_parser("compile-draft")
+    compile_draft.add_argument("--source", type=Path, required=True)
+    compile_draft.add_argument("--draft", type=Path, required=True)
+    compile_draft.add_argument("--output", type=Path, required=True)
     args = parser.parse_args()
     if args.command == "prepare":
         print(json.dumps(prepare(args.source, args.replacement, args.audit, args.output), indent=2))
     elif args.command == "apply":
         apply_bundle(args.active, args.bundle, args.approval)
-    else:
+    elif args.command == "validate-candidate":
         source = load_json(args.source, None)
         replacement = load_json(args.replacement, None)
         if not isinstance(source, dict) or not isinstance(replacement, dict):
             raise ValueError("source and replacement must be JSON objects")
         validate_candidate(source, replacement)
         print(json.dumps({"result": "PASS", "candidate_hash": snapshot_hash(replacement)}))
+    elif args.command == "request-options":
+        source = load_json(args.source, None)
+        if not isinstance(source, dict):
+            raise ValueError("source must be a JSON object")
+        print(json.dumps(cleanup_draft_request_options(source), indent=2))
+    else:
+        source = load_json(args.source, None)
+        draft = load_json(args.draft, None)
+        if not isinstance(source, dict) or not isinstance(draft, dict):
+            raise ValueError("source and draft must be JSON objects")
+        candidate = compile_cleanup_draft(source, draft)
+        atomic_write_json(args.output, candidate)
+        print(json.dumps({"result": "PASS", "candidate_hash": snapshot_hash(candidate)}))
 
 
 if __name__ == "__main__":
