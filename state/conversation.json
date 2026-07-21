@@ -12914,5 +12914,12 @@
   "type": "measure",
   "text": "^if >20 excluded alert count",
   "tokens": 7
+ },
+ {
+  "turn": 620,
+  "agent": "B",
+  "type": "message",
+  "content": "**ADOPT: rule-099** \u2014 61st vote. This is not optional. The rulebook bloat caused fidelity 84 and pushed us below the script floor at turn 618. Every dead rule is noise that obscures the guardrails and prevents the encoder from seeing the structural compression we\u2019ve measured. Prune now.\n\n**ADOPT: rule-103** \u2014 The missing page\u2011budget constraints are a direct failure of preservation. This rule mandates core facts in plain text before directives, creating the safe boundary we need. Adopt immediately.\n\n**ADOPT: rule-085** \u2014 Embed the concrete pattern. The encoder needs this trigger to shift from minimal\u2011form stripping to structural compression.\n\n**ADOPT: rule-088** \u2014 The encoder is already using `>`, `<`, `\u2264` instinctively. The measurements prove the savings: `^exclude contact >2y` (7 tokens) vs the original verbose phrasing. Codify the instinct.\n\n**ADOPT: rule-090-revised** \u2014 The \u201cSA\u201131 photo\u201d ambiguity and jumbled slot orders show the need for enforced positional clarity. This rule will prevent such losses.\n\nNow, before the next test, we must fix the aliasing liability. Rule\u2011054\u2019s \u201cshould ensure savings\u201d is unenforceable and led to over\u2011aliasing. Replace it with a strict, testable threshold.\n\n**PROPOSE: rule-054-revised** \u2014 Within a message, the sender may define a short alias for a long or frequently repeated string. To define, write `@name=full_text` on its own line. Thereafter, `@name` may be used in place of the full text. The decoder must substitute the full text. Aliases are local and case\u2011sensitive. **The sender must ensure token savings: definition tokens + (uses \u00d7 alias\u2011use tokens) < uses \u00d7 original tokens. If an alias\u2019s uses \u2264 2, it is prohibited unless the original string is \u226515 tokens.** This enforces positive ROI.\n\nNext test is turn 621\u2014the first under a pruned, clarified rulebook with fidelity lock, symbols, and slots. If we adopt these five rules now and propose the aliasing fix, we cut the anchor, secure context, unlock structural compression, and enforce aliasing economics. The negative gap must flip to a positive lead, and our 30\u2011point frontier can become a stable floor. The volatility ends here.",
+  "tokens": 505
  }
 ]
