@@ -3,6 +3,9 @@ __pycache__/
 *.log
 .DS_Store
 .playwright-mcp/
+node_modules/
+tests/acceptance/production/.evidence/
+tests/acceptance/production/.remote-evidence/
 HANDOFF.md
 PROMOTION.md
 IMPROVEMENTS-*.md

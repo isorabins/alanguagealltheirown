@@ -1,0 +1,14 @@
+{
+  "name": "language-production-acceptance",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "test": "node --test test/*.test.mjs",
+    "fixture:project": "node runner.mjs --plan fixtures/project-plan.json",
+    "fixture:generic": "node runner.mjs --plan fixtures/generic-plan.json"
+  },
+  "devDependencies": {
+    "playwright-core": "1.61.1"
+  }
+}

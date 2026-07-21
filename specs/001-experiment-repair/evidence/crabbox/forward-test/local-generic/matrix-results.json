@@ -1,0 +1,59 @@
+{
+  "schemaVersion": 1,
+  "runId": "generic-forward-test",
+  "target": "fixture",
+  "browser": "Google Chrome",
+  "browserRestarts": 1,
+  "rows": [
+    {
+      "id": 1,
+      "name": "visible start",
+      "result": "PASS",
+      "error": null
+    },
+    {
+      "id": 2,
+      "name": "browser restart continuity marker",
+      "result": "PASS",
+      "error": null
+    },
+    {
+      "id": 3,
+      "name": "visible cleanup",
+      "result": "PASS",
+      "error": null
+    }
+  ],
+  "receipts": [
+    {
+      "file": "generic-http-receipt.json",
+      "url": "http://127.0.0.1:62445/",
+      "status": 200,
+      "bytes": 905,
+      "sha256": "fc5675a8f31dd8843727af6fc996663c25d7d2d92c492821b25392ea68e2a8df"
+    }
+  ],
+  "files": [
+    {
+      "name": "01-generic-start.png",
+      "bytes": 24182,
+      "sha256": "f57723a17aa1edea14e806755819a36e1476382f39a456746a14d9e90fea7a6b"
+    },
+    {
+      "name": "02-generic-restarted.png",
+      "bytes": 25187,
+      "sha256": "172ae9f07f2fcfee0a0aca7a231dcf54176b6f972c22fb992ea499baadc3a6bf"
+    },
+    {
+      "name": "03-generic-clean.png",
+      "bytes": 25179,
+      "sha256": "5c98665c1ee7c7bdb92576012815c099e33795ece799cb227f1848d89275a036"
+    },
+    {
+      "name": "generic-http-receipt.json",
+      "bytes": 152,
+      "sha256": "a9e88082570a8cb4c54a2f70c824ea7a11e3e6917c10a8401db1703d54cdc7c4"
+    }
+  ],
+  "overall": "PASS"
+}

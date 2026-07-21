@@ -1,0 +1,764 @@
+{
+  "schemaVersion": 1,
+  "runId": "language-project-forward-test",
+  "target": "fixture",
+  "fixtureRoot": "project",
+  "rows": [
+    {
+      "id": 1,
+      "name": "Deployed identity",
+      "screenshots": [
+        "01-deploy-version.png"
+      ],
+      "actions": [
+        {
+          "type": "goto",
+          "path": "/?row=1"
+        },
+        {
+          "type": "click",
+          "selector": "#prove"
+        },
+        {
+          "type": "screenshot",
+          "file": "01-deploy-version.png"
+        }
+      ],
+      "assertions": [
+        {
+          "type": "textContains",
+          "selector": "#state",
+          "value": "PASS fixture · visible state for row 1"
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "name": "A authority",
+      "screenshots": [
+        "02-a-authority.png"
+      ],
+      "actions": [
+        {
+          "type": "goto",
+          "path": "/?row=2"
+        },
+        {
+          "type": "click",
+          "selector": "#prove"
+        },
+        {
+          "type": "screenshot",
+          "file": "02-a-authority.png"
+        }
+      ],
+      "assertions": [
+        {
+          "type": "textContains",
+          "selector": "#state",
+          "value": "PASS fixture · visible state for row 2"
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "name": "B authority/no-ops",
+      "screenshots": [
+        "03-b-authority.png"
+      ],
+      "actions": [
+        {
+          "type": "goto",
+          "path": "/?row=3"
+        },
+        {
+          "type": "click",
+          "selector": "#prove"
+        },
+        {
+          "type": "screenshot",
+          "file": "03-b-authority.png"
+        }
+      ],
+      "assertions": [
+        {
+          "type": "textContains",
+          "selector": "#state",
+          "value": "PASS fixture · visible state for row 3"
+        }
+      ]
+    },
+    {
+      "id": 4,
+      "name": "Adopted-only boundary",
+      "screenshots": [
+        "04-adopted-boundary.png"
+      ],
+      "actions": [
+        {
+          "type": "goto",
+          "path": "/?row=4"
+        },
+        {
+          "type": "click",
+          "selector": "#prove"
+        },
+        {
+          "type": "screenshot",
+          "file": "04-adopted-boundary.png"
+        }
+      ],
+      "assertions": [
+        {
+          "type": "textContains",
+          "selector": "#state",
+          "value": "PASS fixture · visible state for row 4"
+        }
+      ]
+    },
+    {
+      "id": 5,
+      "name": "Cleanup preview/apply history",
+      "screenshots": [
+        "05-cleanup.png"
+      ],
+      "actions": [
+        {
+          "type": "goto",
+          "path": "/?row=5"
+        },
+        {
+          "type": "click",
+          "selector": "#prove"
+        },
+        {
+          "type": "screenshot",
+          "file": "05-cleanup.png"
+        }
+      ],
+      "assertions": [
+        {
+          "type": "textContains",
+          "selector": "#state",
+          "value": "PASS fixture · visible state for row 5"
+        }
+      ]
+    },
+    {
+      "id": 6,
+      "name": "RESEARCH lifecycle",
+      "screenshots": [
+        "06-research.png"
+      ],
+      "actions": [
+        {
+          "type": "goto",
+          "path": "/?row=6"
+        },
+        {
+          "type": "click",
+          "selector": "#prove"
+        },
+        {
+          "type": "screenshot",
+          "file": "06-research.png"
+        }
+      ],
+      "assertions": [
+        {
+          "type": "textContains",
+          "selector": "#state",
+          "value": "PASS fixture · visible state for row 6"
+        }
+      ]
+    },
+    {
+      "id": 7,
+      "name": "ASK + /human lifecycle",
+      "screenshots": [
+        "07-human-ask.png"
+      ],
+      "actions": [
+        {
+          "type": "goto",
+          "path": "/?row=7"
+        },
+        {
+          "type": "click",
+          "selector": "#prove"
+        },
+        {
+          "type": "restartBrowser"
+        },
+        {
+          "type": "click",
+          "selector": "#prove"
+        },
+        {
+          "type": "screenshot",
+          "file": "07-human-ask.png"
+        }
+      ],
+      "assertions": [
+        {
+          "type": "textContains",
+          "selector": "#state",
+          "value": "PASS fixture · visible state for row 7"
+        }
+      ]
+    },
+    {
+      "id": 8,
+      "name": "Suggestions",
+      "screenshots": [
+        "08-suggestion.png"
+      ],
+      "actions": [
+        {
+          "type": "goto",
+          "path": "/?row=8"
+        },
+        {
+          "type": "click",
+          "selector": "#prove"
+        },
+        {
+          "type": "screenshot",
+          "file": "08-suggestion.png"
+        }
+      ],
+      "assertions": [
+        {
+          "type": "textContains",
+          "selector": "#state",
+          "value": "PASS fixture · visible state for row 8"
+        }
+      ]
+    },
+    {
+      "id": 9,
+      "name": "Conversation",
+      "screenshots": [
+        "09-conversation.png"
+      ],
+      "actions": [
+        {
+          "type": "goto",
+          "path": "/?row=9"
+        },
+        {
+          "type": "click",
+          "selector": "#prove"
+        },
+        {
+          "type": "screenshot",
+          "file": "09-conversation.png"
+        }
+      ],
+      "assertions": [
+        {
+          "type": "textContains",
+          "selector": "#state",
+          "value": "PASS fixture · visible state for row 9"
+        }
+      ]
+    },
+    {
+      "id": 10,
+      "name": "Try It four outcomes",
+      "screenshots": [
+        "10-try-it.png"
+      ],
+      "actions": [
+        {
+          "type": "goto",
+          "path": "/?row=10"
+        },
+        {
+          "type": "click",
+          "selector": "#prove"
+        },
+        {
+          "type": "screenshot",
+          "file": "10-try-it.png"
+        }
+      ],
+      "assertions": [
+        {
+          "type": "textContains",
+          "selector": "#state",
+          "value": "PASS fixture · visible state for row 10"
+        }
+      ]
+    },
+    {
+      "id": 11,
+      "name": "Desktop/mobile disclosure",
+      "screenshots": [
+        "11-desktop.png",
+        "12-mobile-375.png"
+      ],
+      "actions": [
+        {
+          "type": "goto",
+          "path": "/?row=11"
+        },
+        {
+          "type": "click",
+          "selector": "#prove"
+        },
+        {
+          "type": "viewport",
+          "width": 1440,
+          "height": 1000
+        },
+        {
+          "type": "screenshot",
+          "file": "11-desktop.png"
+        },
+        {
+          "type": "viewport",
+          "width": 375,
+          "height": 812
+        },
+        {
+          "type": "screenshot",
+          "file": "12-mobile-375.png"
+        }
+      ],
+      "assertions": [
+        {
+          "type": "textContains",
+          "selector": "#state",
+          "value": "PASS fixture · visible state for row 11"
+        }
+      ]
+    },
+    {
+      "id": 12,
+      "name": "Docs/current labels",
+      "screenshots": [
+        "13-docs-labels.png"
+      ],
+      "actions": [
+        {
+          "type": "goto",
+          "path": "/?row=12"
+        },
+        {
+          "type": "click",
+          "selector": "#prove"
+        },
+        {
+          "type": "screenshot",
+          "file": "13-docs-labels.png"
+        }
+      ],
+      "assertions": [
+        {
+          "type": "textContains",
+          "selector": "#state",
+          "value": "PASS fixture · visible state for row 12"
+        }
+      ]
+    },
+    {
+      "id": 13,
+      "name": "X approved results boundary",
+      "screenshots": [
+        "14-x-profile.png"
+      ],
+      "actions": [
+        {
+          "type": "goto",
+          "path": "/?row=13"
+        },
+        {
+          "type": "click",
+          "selector": "#prove"
+        },
+        {
+          "type": "screenshot",
+          "file": "14-x-profile.png"
+        }
+      ],
+      "assertions": [
+        {
+          "type": "textContains",
+          "selector": "#state",
+          "value": "PASS fixture · visible state for row 13"
+        }
+      ]
+    },
+    {
+      "id": 14,
+      "name": "Wrong password",
+      "screenshots": [
+        "15-wrong-password.png"
+      ],
+      "actions": [
+        {
+          "type": "goto",
+          "path": "/?row=14"
+        },
+        {
+          "type": "click",
+          "selector": "#prove"
+        },
+        {
+          "type": "screenshot",
+          "file": "15-wrong-password.png"
+        }
+      ],
+      "assertions": [
+        {
+          "type": "textContains",
+          "selector": "#state",
+          "value": "PASS fixture · visible state for row 14"
+        }
+      ]
+    },
+    {
+      "id": 15,
+      "name": "Expired session",
+      "screenshots": [
+        "16-expired-session.png"
+      ],
+      "actions": [
+        {
+          "type": "goto",
+          "path": "/?row=15"
+        },
+        {
+          "type": "click",
+          "selector": "#prove"
+        },
+        {
+          "type": "screenshot",
+          "file": "16-expired-session.png"
+        }
+      ],
+      "assertions": [
+        {
+          "type": "textContains",
+          "selector": "#state",
+          "value": "PASS fixture · visible state for row 15"
+        }
+      ]
+    },
+    {
+      "id": 16,
+      "name": "Duplicate submission",
+      "screenshots": [
+        "17-duplicate.png"
+      ],
+      "actions": [
+        {
+          "type": "goto",
+          "path": "/?row=16"
+        },
+        {
+          "type": "click",
+          "selector": "#prove"
+        },
+        {
+          "type": "screenshot",
+          "file": "17-duplicate.png"
+        }
+      ],
+      "assertions": [
+        {
+          "type": "textContains",
+          "selector": "#state",
+          "value": "PASS fixture · visible state for row 16"
+        }
+      ]
+    },
+    {
+      "id": 17,
+      "name": "Rapid requests",
+      "screenshots": [
+        "18-rate-limit.png"
+      ],
+      "actions": [
+        {
+          "type": "goto",
+          "path": "/?row=17"
+        },
+        {
+          "type": "click",
+          "selector": "#prove"
+        },
+        {
+          "type": "screenshot",
+          "file": "18-rate-limit.png"
+        }
+      ],
+      "assertions": [
+        {
+          "type": "textContains",
+          "selector": "#state",
+          "value": "PASS fixture · visible state for row 17"
+        }
+      ]
+    },
+    {
+      "id": 18,
+      "name": "HTML/script text",
+      "screenshots": [
+        "19-html-inert.png"
+      ],
+      "actions": [
+        {
+          "type": "goto",
+          "path": "/?row=18"
+        },
+        {
+          "type": "click",
+          "selector": "#prove"
+        },
+        {
+          "type": "screenshot",
+          "file": "19-html-inert.png"
+        }
+      ],
+      "assertions": [
+        {
+          "type": "textContains",
+          "selector": "#state",
+          "value": "PASS fixture · visible state for row 18"
+        }
+      ]
+    },
+    {
+      "id": 19,
+      "name": "Prompt injection text",
+      "screenshots": [
+        "20-injection-inert.png"
+      ],
+      "actions": [
+        {
+          "type": "goto",
+          "path": "/?row=19"
+        },
+        {
+          "type": "click",
+          "selector": "#prove"
+        },
+        {
+          "type": "screenshot",
+          "file": "20-injection-inert.png"
+        }
+      ],
+      "assertions": [
+        {
+          "type": "textContains",
+          "selector": "#state",
+          "value": "PASS fixture · visible state for row 19"
+        }
+      ]
+    },
+    {
+      "id": 20,
+      "name": "Provider timeout",
+      "screenshots": [
+        "21-timeout.png"
+      ],
+      "actions": [
+        {
+          "type": "goto",
+          "path": "/?row=20"
+        },
+        {
+          "type": "click",
+          "selector": "#prove"
+        },
+        {
+          "type": "screenshot",
+          "file": "21-timeout.png"
+        }
+      ],
+      "assertions": [
+        {
+          "type": "textContains",
+          "selector": "#state",
+          "value": "PASS fixture · visible state for row 20"
+        }
+      ]
+    },
+    {
+      "id": 21,
+      "name": "Missing research evidence",
+      "screenshots": [
+        "22-no-evidence.png"
+      ],
+      "actions": [
+        {
+          "type": "goto",
+          "path": "/?row=21"
+        },
+        {
+          "type": "click",
+          "selector": "#prove"
+        },
+        {
+          "type": "screenshot",
+          "file": "22-no-evidence.png"
+        }
+      ],
+      "assertions": [
+        {
+          "type": "textContains",
+          "selector": "#state",
+          "value": "PASS fixture · visible state for row 21"
+        }
+      ]
+    },
+    {
+      "id": 22,
+      "name": "Rule change during Try It",
+      "screenshots": [
+        "23-version-race.png"
+      ],
+      "actions": [
+        {
+          "type": "goto",
+          "path": "/?row=22"
+        },
+        {
+          "type": "click",
+          "selector": "#prove"
+        },
+        {
+          "type": "screenshot",
+          "file": "23-version-race.png"
+        }
+      ],
+      "assertions": [
+        {
+          "type": "textContains",
+          "selector": "#state",
+          "value": "PASS fixture · visible state for row 22"
+        }
+      ]
+    },
+    {
+      "id": 23,
+      "name": "Spending cap",
+      "screenshots": [
+        "24-cap.png"
+      ],
+      "actions": [
+        {
+          "type": "goto",
+          "path": "/?row=23"
+        },
+        {
+          "type": "click",
+          "selector": "#prove"
+        },
+        {
+          "type": "screenshot",
+          "file": "24-cap.png"
+        }
+      ],
+      "assertions": [
+        {
+          "type": "textContains",
+          "selector": "#state",
+          "value": "PASS fixture · visible state for row 23"
+        }
+      ]
+    },
+    {
+      "id": 24,
+      "name": "Three X failures",
+      "screenshots": [
+        "25-x-blocked.png"
+      ],
+      "actions": [
+        {
+          "type": "goto",
+          "path": "/?row=24"
+        },
+        {
+          "type": "click",
+          "selector": "#prove"
+        },
+        {
+          "type": "screenshot",
+          "file": "25-x-blocked.png"
+        }
+      ],
+      "assertions": [
+        {
+          "type": "textContains",
+          "selector": "#state",
+          "value": "PASS fixture · visible state for row 24"
+        }
+      ]
+    },
+    {
+      "id": 25,
+      "name": "Historical integrity",
+      "screenshots": [
+        "26-history.png"
+      ],
+      "actions": [
+        {
+          "type": "goto",
+          "path": "/?row=25"
+        },
+        {
+          "type": "click",
+          "selector": "#prove"
+        },
+        {
+          "type": "screenshot",
+          "file": "26-history.png"
+        }
+      ],
+      "assertions": [
+        {
+          "type": "textContains",
+          "selector": "#state",
+          "value": "PASS fixture · visible state for row 25"
+        }
+      ]
+    },
+    {
+      "id": 26,
+      "name": "Final cleanup/health",
+      "screenshots": [
+        "27-clean-final.png"
+      ],
+      "actions": [
+        {
+          "type": "goto",
+          "path": "/?row=26"
+        },
+        {
+          "type": "click",
+          "selector": "#prove"
+        },
+        {
+          "type": "receiptHttp",
+          "path": "/?row=26",
+          "file": "final-fixture-http-receipt.json"
+        },
+        {
+          "type": "screenshot",
+          "file": "27-clean-final.png"
+        }
+      ],
+      "assertions": [
+        {
+          "type": "textContains",
+          "selector": "#state",
+          "value": "PASS fixture · visible state for row 26"
+        }
+      ]
+    }
+  ]
+}
+

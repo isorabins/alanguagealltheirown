@@ -44,4 +44,25 @@ isolated, capped, fail-closed pilot.
 
 ## T111 — Playwright
 
-Pending exact-version registry and package-content review.
+Risk: **GREEN** for the selected minimal package.
+
+- Selected: `playwright-core@1.61.1`, exact-pinned in the isolated acceptance
+  package and lockfile.
+- Published: 2026-06-23T19:49:00.061Z (more than 27 days old at review).
+- Registry repository: `https://github.com/microsoft/playwright.git`.
+- License: Apache-2.0; established Microsoft maintainers unchanged.
+- Tarball integrity:
+  `sha512-h7Qlt6m4REp25qvIdvbDtVmD4LqVXfpRxhORv9L0jzETM05p4fuPJ3dKyuSXQxDSbXnmS79HAgi9589lGSpLkg==`.
+- Registry signature and SLSA provenance attestation are present and passed
+  `npm audit signatures`.
+- The exact version has no package lifecycle scripts or dependencies.
+- GitHub's repository advisory API and OSV exact-version query returned no
+  advisory; `npm audit` found zero vulnerabilities.
+- Install command used `--ignore-scripts --save-exact`; `.npmrc` keeps lifecycle
+  scripts disabled.
+
+The broader `@playwright/test` package was deliberately not retained. Its
+optional `fsevents@2.3.2` dependency has a native install hook; although the
+hook was suppressed, removing that unnecessary dependency is safer. The runner
+uses Node's built-in test framework plus `playwright-core` and the browser that
+Crabbox provisions.

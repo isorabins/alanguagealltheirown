@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "runId": "generic-forward-test",
+  "target": "fixture",
+  "fixtureRoot": "generic",
+  "rows": [
+    {"id": 1, "name": "visible start", "screenshots": ["01-generic-start.png"], "actions": [{"type": "goto", "path": "/"}, {"type": "screenshot", "file": "01-generic-start.png"}], "assertions": [{"type": "textEquals", "selector": "#status", "value": "Starting state"}]},
+    {"id": 2, "name": "browser restart continuity marker", "screenshots": ["02-generic-restarted.png"], "actions": [{"type": "click", "selector": "#advance"}, {"type": "restartBrowser"}, {"type": "click", "selector": "#advance"}, {"type": "screenshot", "file": "02-generic-restarted.png"}], "assertions": [{"type": "textContains", "selector": "#status", "value": "Action complete"}]},
+    {"id": 3, "name": "visible cleanup", "screenshots": ["03-generic-clean.png"], "actions": [{"type": "click", "selector": "#clean"}, {"type": "receiptHttp", "path": "/", "file": "generic-http-receipt.json"}, {"type": "screenshot", "file": "03-generic-clean.png"}], "assertions": [{"type": "textContains", "selector": "#status", "value": "Cleanup complete"}]}
+  ]
+}
