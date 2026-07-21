@@ -38,3 +38,24 @@ approved checkpoint as the remote head.
   `$0.012418691`, below the `$0.12` ceiling.
 - Production remained paused, clean, and byte-identical at the approved commit
   and rulebook hash. T120 remains open at the repeated-blocker stop.
+
+## T144–T148 — offline structural coverage repair
+
+- Date: 2026-07-21 (WITA)
+- Spec Kit contract checkpoint: `e78bc6a543cdf3def174ac28bb0e2473b00a46a1`.
+- Tested implementation checkpoint: `81066d8793a69442b9a5e8bf1cb1ca915d99fba1`.
+- The production-shaped strict schema requires exactly all 23 adopted source
+  ids and forbids extras. Local compilation derives exact ordered coverage and
+  rejects missing/extra assignments plus unknown/orphan/duplicate groups before
+  Kimi. Python 65/65, JavaScript 27/27, and contract coverage 148/148 pass.
+- Protected execution preflight made zero provider calls and passed with a
+  conservative `$0.032840330` two-call projection, below the proposed `$0.10`
+  additional and `$0.12` cumulative ceilings.
+- Read-only closeout verified the production timer and service inactive, clean
+  VPS `main` still at `75cd45704f3fd74906c3ee4edb53e81187b6ff2a`, and
+  rulebook SHA-256 still
+  `5938df47b587aabfb9fe7231c07d12b315a3ac3f7bdcbfee73b076fe219e4933`.
+- No feature push, provider call, production change, deployment, credential
+  action, or X action occurred. T120 remains open. The next lawful action is one
+  combined exact phrase authorizing the final local commit's push to the same
+  draft PR and one schema-bound A call plus conditional B audit.

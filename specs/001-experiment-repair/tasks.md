@@ -330,7 +330,7 @@ unknown/orphan/duplicate groups fail before audit.
 - [X] T145 [US3] Implement source-specific strict response-schema generation and deterministic assignments/groups-to-candidate compilation in `cleanup_rulebook.py`
 - [X] T146 [US3] Replace the free-form cleanup response contract with assignments/groups and parameter-compatible structured-output guidance in `prompts/cleanup_a.md`
 - [X] T147 [US3] Update `tests/acceptance/check_contract_coverage.py` for T001–T148, run the focused and full offline suites, prove the turn-650 copied source yields exactly 23 required schema keys without a provider call, and record `specs/001-experiment-repair/evidence/cleanup-live/coverage-repair.md`
-- [ ] T148 [US3] Inspect and commit only the offline coverage repair locally; verify production remains paused and unchanged, then STOP for one combined exact feature-push and paid-call phrase in `specs/001-experiment-repair/evidence/production-gates.md`
+- [X] T148 [US3] Inspect and commit only the offline coverage repair locally; verify production remains paused and unchanged, then STOP for one combined exact feature-push and paid-call phrase in `specs/001-experiment-repair/evidence/production-gates.md`
 
 ---
 
