@@ -42,3 +42,10 @@ sources, but B returned `REJECT` with semantic findings. Final validation
 stopped before a bundle existed. Actual cumulative G4 spend is `$0.019697541`
 and conservative cumulative accounting is `$0.023336451`; production remains
 unchanged and paused. No retry is authorized.
+
+Attempt 4 used the feedback-bound revision contract against the same immutable
+source, exact attempt-3 candidate, and rejected Kimi audit. The schema-shaped A
+draft failed local operational-text validation, so the conditional Kimi call
+did not occur and no candidate or bundle exists. Actual cumulative G4 spend is
+`$0.021357557` and conservative cumulative accounting is `$0.029000851`;
+production remains unchanged, clean, and paused. No retry is authorized.

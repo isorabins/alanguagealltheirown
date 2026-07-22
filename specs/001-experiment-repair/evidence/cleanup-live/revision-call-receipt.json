@@ -1,0 +1,27 @@
+{
+  "status": "failed_A_validation",
+  "source_hash": "57fbf58ea571eb6de76059e46da5ceb3eb918f6f8c047e7b23a8d01e46c85606",
+  "prior_candidate_hash": "251277000330b11f508db518dc40bd024209da6d75c5adfe12da3f63201bed10",
+  "prior_audit_hash": "17746877ddb24125cb2afe3939ae202a7aee0cbdc3a3c337a5ef5355a77f6713",
+  "calls": [
+    {
+      "role": "A_cleanup_revision",
+      "requested_model": "deepseek/deepseek-v3.2-20251201",
+      "prompt_tokens": 5363,
+      "completion_tokens": 1584,
+      "actual_metadata_cost_usd": 0.001660016,
+      "enforced_conservative_cost_usd": 0.005664400,
+      "raw_response_sha256": "0908fdcc0b6e974dadc2b9c6417cc3abddfb303838c7f768e49d46a75a1ae31e"
+    }
+  ],
+  "additional_actual_metadata_cost_usd": 0.001660016,
+  "additional_enforced_conservative_cost_usd": 0.005664400,
+  "cumulative_actual_metadata_cost_usd": 0.021357557,
+  "cumulative_conservative_cost_usd": 0.029000851,
+  "additional_cap_usd": 0.10,
+  "cumulative_cap_usd": 0.12,
+  "conditional_kimi_call_made": false,
+  "bundle_created": false,
+  "production_applied": false,
+  "raw_response_external_protected": true
+}
