@@ -32,8 +32,14 @@
     "warning": "Most sampled frames show the remote desktop terminal; the recording alone is not strong proof of the missing semantic journeys."
   },
   "proofBundlePresent": true,
-  "proofWarnings": [
-    "WebVNC daemon was not running at proof capture."
+  "proofDiagnostics": [
+    {
+      "name": "WebVNC daemon",
+      "state": "not running at proof capture",
+      "required": false,
+      "affectsResult": false,
+      "correctedAt": "2026-07-22"
+    }
   ],
   "secretAudit": {
     "textSecretShapeMatches": 0,

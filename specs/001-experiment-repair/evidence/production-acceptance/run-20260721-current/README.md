@@ -78,6 +78,7 @@ matching SSH keys.
 No bounded submissions could be created because the required visible surfaces
 do not exist on the deployed site. Production configuration, canonical state,
 deployment, loop state, and X were not changed. Crabbox proof reported that the
-optional WebVNC daemon was not running; Playwright and outer desktop recording
-still completed, but the warning prevents a clean overall pass independently
-of the product failures.
+optional WebVNC daemon was not running. That diagnostic does not affect the
+result because Playwright, outer X11 recording, proof capture, and teardown all
+completed; the original manual classification of it as a separate pass blocker
+was corrected on 2026-07-22.

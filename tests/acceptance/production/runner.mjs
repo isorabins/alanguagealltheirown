@@ -41,9 +41,15 @@ export function validatePlan(plan) {
   if (plan.target === 'production') {
     if (!plan.approvalReceipt || !path.isAbsolute(plan.approvalReceipt)) fail('production plan requires an absolute approvalReceipt path');
     if (!fs.existsSync(plan.approvalReceipt)) fail('production approvalReceipt is missing');
+    if (plan.fixtureRoot) fail('production plan cannot use fixtureRoot');
+    let productionUrl;
+    try { productionUrl = new URL(plan.baseUrl); } catch { fail('production plan requires an absolute HTTPS baseUrl'); }
+    if (productionUrl.protocol !== 'https:' || ['127.0.0.1', 'localhost'].includes(productionUrl.hostname)) fail('production plan requires a non-loopback HTTPS baseUrl');
+    if (!Number.isInteger(plan.visibleDwellMs) || plan.visibleDwellMs < 500 || plan.visibleDwellMs > 5000) fail('production visibleDwellMs must be 500-5000');
     const ids = plan.rows.map(row => row.id);
     if (JSON.stringify(ids) !== JSON.stringify(PROJECT_MATRIX.rows.map(row => row.id))) fail('production plan must cover rows 1-26 in order');
   }
+  if (plan.finalDwellMs !== undefined && (!Number.isInteger(plan.finalDwellMs) || plan.finalDwellMs < 0 || plan.finalDwellMs > 10_000)) fail('finalDwellMs must be 0-10000');
   const filenames = new Set();
   for (const row of plan.rows) {
     if (!Number.isInteger(row.id) || row.id < 1) fail('every row needs a positive integer id');
@@ -95,6 +101,7 @@ async function getReceipt(url, baseUrl, outputFile) {
 
 async function perform(page, action, context) {
   const timeout = Math.min(action.timeoutMs || 5000, MAX_WAIT_MS);
+  await page.bringToFront();
   switch (action.type) {
     case 'goto': await page.goto(new URL(action.path || '/', context.baseUrl).href, {waitUntil: 'domcontentloaded', timeout}); break;
     case 'click': await page.locator(action.selector).click({timeout}); break;
@@ -111,7 +118,12 @@ async function perform(page, action, context) {
     case 'screenshot': {
       const file = path.join(context.output, safeName(action.file));
       await page.screenshot({path: file, fullPage: action.fullPage !== false});
-      context.screenshots.add(action.file); break;
+      context.screenshots.add(action.file);
+      if (context.visibleDwellMs) {
+        await page.waitForTimeout(context.visibleDwellMs);
+        context.browserVisibleMs += context.visibleDwellMs;
+      }
+      break;
     }
     case 'receiptHttp': {
       const file = path.join(context.output, safeName(action.file));
@@ -137,6 +149,7 @@ async function assertState(page, assertion) {
 }
 
 async function main() {
+  const startedAt = new Date();
   const args = parseArgs(process.argv.slice(2));
   const planFile = path.resolve(args.plan);
   const plan = readJson(planFile);
@@ -159,14 +172,18 @@ async function main() {
   const executablePath = args.browser || plan.browserExecutable || process.env.BROWSER || process.env.CHROME_BIN;
   if (!executablePath || !path.isAbsolute(executablePath) || !fs.existsSync(executablePath)) fail('an existing absolute browser executable is required');
   const results = [];
-  const state = {output, baseUrl, screenshots: new Set(), receipts: [], restartRequested: false};
+  const state = {output, baseUrl, screenshots: new Set(), receipts: [], restartRequested: false, visibleDwellMs: plan.visibleDwellMs || 0, browserVisibleMs: 0};
   let browser;
   let page;
   let restarts = 0;
   const launch = async () => {
-    browser = await chromium.launch({headless: args.headless || plan.headless === true, executablePath, args: ['--no-first-run', '--no-default-browser-check']});
+    const headless = args.headless || plan.headless === true;
+    const browserArgs = ['--no-first-run', '--no-default-browser-check'];
+    if (!headless) browserArgs.push('--start-maximized', '--window-position=0,0');
+    browser = await chromium.launch({headless, executablePath, args: browserArgs});
     const context = await browser.newContext({viewport: plan.viewport || {width: 1440, height: 1000}});
     page = await context.newPage();
+    await page.bringToFront();
   };
   await launch();
   try {
@@ -193,6 +210,11 @@ async function main() {
       results.push(result);
       if (result.result !== 'PASS' && plan.failFast !== false) break;
     }
+    if (plan.finalDwellMs) {
+      await page.bringToFront();
+      await page.waitForTimeout(plan.finalDwellMs);
+      state.browserVisibleMs += plan.finalDwellMs;
+    }
   } finally {
     await browser?.close();
     await new Promise(resolve => fixture?.server.close(resolve) || resolve());
@@ -204,6 +226,10 @@ async function main() {
     target: plan.target,
     browser: path.basename(executablePath),
     browserRestarts: restarts,
+    startedAt: startedAt.toISOString(),
+    finishedAt: new Date().toISOString(),
+    durationMs: Date.now() - startedAt.getTime(),
+    browserVisibleMs: state.browserVisibleMs,
     rows: results,
     receipts: state.receipts,
     files: files.map(name => ({name, bytes: fs.statSync(path.join(output, name)).size, sha256: sha256(path.join(output, name))})),

@@ -5,6 +5,8 @@
   "baseUrl": "https://alanguagealltheirown.com",
   "approvalReceipt": "/tmp/crabbox-production-acceptance-approved",
   "failFast": false,
+  "visibleDwellMs": 3500,
+  "finalDwellMs": 5000,
   "rows": [
     {"id":1,"name":"Deployed identity","screenshots":["01-deploy-version.png"],"actions":[{"type":"goto","path":"/"},{"type":"screenshot","file":"01-deploy-version.png"}],"assertions":[{"type":"textContains","selector":"body","value":"A Language All Their Own"}]},
     {"id":2,"name":"A authority","screenshots":["02-a-authority.png"],"actions":[{"type":"goto","path":"/"},{"type":"screenshot","file":"02-a-authority.png"}],"assertions":[{"type":"textContains","selector":"body","value":"REPEAL:"}]},

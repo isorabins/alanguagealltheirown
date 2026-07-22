@@ -349,6 +349,20 @@ unknown/orphan/duplicate groups fail before audit.
 
 ---
 
+## Phase 18: Acceptance Failure Harness Repair (Offline Approved)
+
+**Goal**: Prevent the next approved production run from manufacturing its own
+approval receipt, returning success for a failed matrix, or recording mostly an
+idle terminal. Correct the non-required WebVNC diagnostic without changing the
+canonical 2026-07-21 product result.
+
+- [X] T149 [US9] Add acceptance-harness tests proving a production run requires an externally created approval receipt, enforces visible pacing, propagates the matrix exit status, and leaves a missing WebVNC bridge informational in `tests/acceptance/production/test/runner.test.mjs`
+- [X] T150 [US9] Harden `tests/acceptance/production/runner.mjs`, `run-production-current.mjs`, and `production-current-plan.json` to foreground the browser, dwell on visible checkpoints, record timing, reject self-created/mismatched approval receipts, and return failure when the matrix fails
+- [X] T151 [US9] Update `/Users/isorabins/.codex/skills/run-crabbox-human-tests/` and the 2026-07-21 evidence audit to classify WebVNC as an optional review bridge while keeping Playwright, outer X11 video, proof, spend, row results, and teardown mandatory
+- [X] T152 [US9] Run the focused acceptance package, full offline suite, contract coverage, and evidence/secret/diff review; record `specs/001-experiment-repair/evidence/production-acceptance/harness-repair-20260722.md`, commit locally, and STOP before feature push, paid calls, credentials, merge, deploy, loop change, another Crabbox lease, or X action
+
+---
+
 ## Dependencies and Execution Order
 
 - Setup and preservation (T001–T007) require plan approval and block everything.
@@ -403,13 +417,13 @@ unknown/orphan/duplicate groups fail before audit.
 | FR-040, FR-041 | T052, T057–T068, T102–T106 |
 | FR-042, FR-043 | T026, T029–T043, T089, T093 |
 | FR-044, FR-045, FR-046, FR-047 | T026, T032, T099, T102–T106 |
-| FR-048, FR-049, FR-050, FR-051, FR-052, FR-053, FR-054, FR-055 | T108–T117, T128–T143 |
+| FR-048, FR-049, FR-050, FR-051, FR-052, FR-053, FR-054, FR-055 | T108–T117, T128–T143, T149–T152 |
 | SC-001, SC-002, SC-003, SC-004, SC-005 | T014–T043, T130 |
 | SC-006, SC-007, SC-008, SC-009, SC-010 | T044–T087, T122, T131–T132 |
 | SC-011, SC-012, SC-013, SC-014, SC-015 | T024, T088–T100, T132–T137 |
 | SC-016 | T128–T143 |
 | SC-017, SC-018, SC-019 | T026–T043, T052, T057–T068, T089, T093, T099, T102–T106 |
-| SC-020, SC-021, SC-022, SC-023 | T108–T117, T128–T143 |
+| SC-020, SC-021, SC-022, SC-023 | T108–T117, T128–T143, T149–T152 |
 
 ## Implementation Strategy
 
@@ -421,5 +435,5 @@ the serialized live gates.
 
 ## Format Validation
 
-All 143 tasks use the required checkbox, sequential task id, optional `[P]`,
+All 152 tasks use the required checkbox, sequential task id, optional `[P]`,
 story label only in story phases, and an explicit file or evidence path.
