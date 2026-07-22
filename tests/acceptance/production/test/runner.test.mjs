@@ -65,3 +65,25 @@ test('runs generic fixture through a real browser including restart and cleanup'
   assert.ok(result.browserVisibleMs >= 0);
   assert.ok(fs.existsSync(path.join(output,'03-generic-clean.png')));
 });
+
+test('runs Preview disclosure and truthful-label assertions against the actual viewer markup',()=>{
+  const browser='/Applications/Google Chrome.app/Contents/MacOS/Google Chrome';
+  if(!fs.existsSync(browser)) return;
+  const temp=fs.mkdtempSync(path.join(os.tmpdir(),'preview-static-'));
+  const plan=JSON.parse(fs.readFileSync(path.join(ROOT,'preview-current-plan.json'),'utf8'));
+  plan.target='fixture';
+  plan.fixtureRoot=path.join(ROOT,'../../../viewer');
+  delete plan.baseUrl;
+  delete plan.approvalReceiptSha256;
+  delete plan.headersFromEnv;
+  delete plan.visibleDwellMs;
+  plan.rows=plan.rows.filter(row=>[8,9].includes(row.id));
+  const planFile=path.join(temp,'plan.json');
+  fs.writeFileSync(planFile,JSON.stringify(plan),{mode:0o600});
+  const output=path.join(temp,'evidence');
+  const run=spawnSync(process.execPath,[path.join(ROOT,'runner.mjs'),'--plan',planFile,'--output',output,'--browser',browser,'--headless'],{encoding:'utf8'});
+  assert.equal(run.status,0,run.stderr||run.stdout);
+  const result=JSON.parse(fs.readFileSync(path.join(output,'matrix-results.json'),'utf8'));
+  assert.equal(result.overall,'PASS');
+  assert.deepEqual(result.rows.map(row=>row.id),[8,9]);
+});
