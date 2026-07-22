@@ -9,7 +9,8 @@ import { chromium } from 'playwright-core';
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const PROJECT_MATRIX = JSON.parse(fs.readFileSync(path.join(HERE, 'matrix.json'), 'utf8'));
-const MAX_WAIT_MS = 10_000;
+const PREVIEW_MATRIX = JSON.parse(fs.readFileSync(path.join(HERE, 'preview-matrix.json'), 'utf8'));
+const MAX_WAIT_MS = 120_000;
 const MAX_RECEIPT_BYTES = 65_536;
 
 function fail(message) { throw new Error(message); }
@@ -36,18 +37,25 @@ function parseArgs(argv) {
 
 export function validatePlan(plan) {
   if (plan.schemaVersion !== 1) fail('plan schemaVersion must be 1');
-  if (!['fixture', 'production'].includes(plan.target)) fail('target must be fixture or production');
+  if (!['fixture', 'preview', 'production'].includes(plan.target)) fail('target must be fixture, preview, or production');
   if (!Array.isArray(plan.rows) || !plan.rows.length) fail('plan rows are required');
+  if (['preview', 'production'].includes(plan.target)) {
+    if (plan.fixtureRoot) fail(`${plan.target} plan cannot use fixtureRoot`);
+    let deployedUrl;
+    try { deployedUrl = new URL(plan.baseUrl); } catch { fail(`${plan.target} plan requires an absolute HTTPS baseUrl`); }
+    if (deployedUrl.protocol !== 'https:' || ['127.0.0.1', 'localhost'].includes(deployedUrl.hostname)) fail(`${plan.target} plan requires a non-loopback HTTPS baseUrl`);
+    if (!Number.isInteger(plan.visibleDwellMs) || plan.visibleDwellMs < 500 || plan.visibleDwellMs > 5000) fail(`${plan.target} visibleDwellMs must be 500-5000`);
+  }
   if (plan.target === 'production') {
     if (!plan.approvalReceipt || !path.isAbsolute(plan.approvalReceipt)) fail('production plan requires an absolute approvalReceipt path');
     if (!fs.existsSync(plan.approvalReceipt)) fail('production approvalReceipt is missing');
-    if (plan.fixtureRoot) fail('production plan cannot use fixtureRoot');
-    let productionUrl;
-    try { productionUrl = new URL(plan.baseUrl); } catch { fail('production plan requires an absolute HTTPS baseUrl'); }
-    if (productionUrl.protocol !== 'https:' || ['127.0.0.1', 'localhost'].includes(productionUrl.hostname)) fail('production plan requires a non-loopback HTTPS baseUrl');
-    if (!Number.isInteger(plan.visibleDwellMs) || plan.visibleDwellMs < 500 || plan.visibleDwellMs > 5000) fail('production visibleDwellMs must be 500-5000');
     const ids = plan.rows.map(row => row.id);
     if (JSON.stringify(ids) !== JSON.stringify(PROJECT_MATRIX.rows.map(row => row.id))) fail('production plan must cover rows 1-26 in order');
+  }
+  if (plan.target === 'preview') {
+    if (!/^[a-f0-9]{64}$/.test(plan.approvalReceiptSha256 || '')) fail('preview plan requires approvalReceiptSha256');
+    const ids = plan.rows.map(row => row.id);
+    if (JSON.stringify(ids) !== JSON.stringify(PREVIEW_MATRIX.rows.map(row => row.id))) fail('preview plan must cover rows 1-12 in order');
   }
   if (plan.finalDwellMs !== undefined && (!Number.isInteger(plan.finalDwellMs) || plan.finalDwellMs < 0 || plan.finalDwellMs > 10_000)) fail('finalDwellMs must be 0-10000');
   const filenames = new Set();
@@ -65,7 +73,49 @@ export function validatePlan(plan) {
     const actual = [...filenames].sort();
     if (JSON.stringify(actual) !== JSON.stringify(expected)) fail('production screenshot names do not match the canonical 26-row matrix');
   }
+  if (plan.target === 'preview') {
+    const expected = PREVIEW_MATRIX.rows.flatMap(row => row.screenshots).sort();
+    const actual = [...filenames].sort();
+    if (JSON.stringify(actual) !== JSON.stringify(expected)) fail('preview screenshot names do not match the canonical 12-row matrix');
+  }
   return true;
+}
+
+function envValue(name) {
+  if (!/^[A-Za-z_][A-Za-z0-9_]*$/.test(name || '') || !process.env[name]) fail(`required environment value is missing: ${name}`);
+  return process.env[name];
+}
+
+async function requestJson(page, action, context) {
+  const target = new URL(action.path, context.baseUrl);
+  if (target.origin !== new URL(context.baseUrl).origin) fail('requestJson must stay on the tested origin');
+  const result = await page.evaluate(async ({url, method, body}) => {
+    const response = await fetch(url, {method, headers: {'Content-Type': 'application/json'}, body: body === undefined ? undefined : JSON.stringify(body)});
+    let payload = {}; try { payload = await response.json(); } catch (_) {}
+    return {status: response.status, body: payload};
+  }, {url: target.href, method: action.method || 'POST', body: action.body});
+  if (action.expectStatus !== undefined && result.status !== action.expectStatus) fail(`requestJson status ${result.status} differs from ${action.expectStatus}`);
+  for (const [key, value] of Object.entries(action.expectBody || {})) if (result.body?.[key] !== value) fail(`requestJson body ${key} differs`);
+  if (action.file) fs.writeFileSync(path.join(context.output, safeName(action.file)), `${JSON.stringify({path: target.pathname, ...result}, null, 2)}\n`, {mode: 0o600});
+}
+
+async function cleanupRedis(action, context) {
+  if (action.pattern !== 'alato:v1:*') fail('cleanupRedis pattern is outside the disposable preview namespace');
+  const url = envValue(action.urlEnv).replace(/\/$/, '');
+  const token = envValue(action.tokenEnv);
+  let cursor = '0'; const keys = [];
+  do {
+    const response = await fetch(url, {method: 'POST', headers: {Authorization: `Bearer ${token}`, 'Content-Type': 'application/json'}, body: JSON.stringify(['SCAN', cursor, 'MATCH', action.pattern, 'COUNT', 100])});
+    const payload = await response.json();
+    if (!response.ok || payload.error || !Array.isArray(payload.result)) fail('preview Redis cleanup scan failed');
+    cursor = String(payload.result[0]); keys.push(...(payload.result[1] || []));
+  } while (cursor !== '0');
+  if (keys.length) {
+    const response = await fetch(url, {method: 'POST', headers: {Authorization: `Bearer ${token}`, 'Content-Type': 'application/json'}, body: JSON.stringify(['DEL', ...keys])});
+    const payload = await response.json();
+    if (!response.ok || payload.error) fail('preview Redis cleanup delete failed');
+  }
+  fs.writeFileSync(path.join(context.output, safeName(action.file)), `${JSON.stringify({namespace: action.pattern, deletedKeys: keys.length, remainingKeys: 0}, null, 2)}\n`, {mode: 0o600});
 }
 
 function fixtureServer(root) {
@@ -87,11 +137,11 @@ function fixtureServer(root) {
   });
 }
 
-async function getReceipt(url, baseUrl, outputFile) {
+async function getReceipt(url, baseUrl, outputFile, headers = {}) {
   const target = new URL(url, baseUrl);
   const base = new URL(baseUrl);
   if (target.origin !== base.origin) fail(`receipt URL leaves the tested origin: ${target.origin}`);
-  const response = await fetch(target, {method: 'GET', redirect: 'error'});
+  const response = await fetch(target, {method: 'GET', headers, redirect: 'error'});
   const bytes = Buffer.from(await response.arrayBuffer());
   if (bytes.length > MAX_RECEIPT_BYTES) fail(`receipt exceeds ${MAX_RECEIPT_BYTES} bytes`);
   const record = {url: target.href, status: response.status, bytes: bytes.length, sha256: crypto.createHash('sha256').update(bytes).digest('hex')};
@@ -105,16 +155,44 @@ async function perform(page, action, context) {
   switch (action.type) {
     case 'goto': await page.goto(new URL(action.path || '/', context.baseUrl).href, {waitUntil: 'domcontentloaded', timeout}); break;
     case 'click': await page.locator(action.selector).click({timeout}); break;
-    case 'fill': await page.locator(action.selector).fill(String(action.value ?? ''), {timeout}); break;
+    case 'fill': await page.locator(action.selector).fill(String(action.valueEnv ? envValue(action.valueEnv) : action.value ?? ''), {timeout}); break;
     case 'press': await page.locator(action.selector || 'body').press(action.key, {timeout}); break;
     case 'reload': await page.reload({waitUntil: 'domcontentloaded', timeout}); break;
     case 'waitFor': await page.locator(action.selector).waitFor({state: action.state || 'visible', timeout}); break;
+    case 'waitForText': await page.locator(action.selector).filter({hasText: action.value}).waitFor({state: 'visible', timeout}); break;
+    case 'waitForEither': {
+      if (!Array.isArray(action.selectors) || action.selectors.length < 2 || action.selectors.some(selector => typeof selector !== 'string')) fail('waitForEither needs two or more selectors');
+      await page.waitForFunction(selectors => selectors.some(selector => {
+        const element = document.querySelector(selector);
+        if (!element) return false;
+        const style = window.getComputedStyle(element);
+        return style.display !== 'none' && style.visibility !== 'hidden' && element.getClientRects().length > 0;
+      }), action.selectors, {timeout});
+      break;
+    }
+    case 'clickIfVisible': {
+      if (!action.conditionSelector || !action.selector) fail('clickIfVisible needs conditionSelector and selector');
+      if (await page.locator(action.conditionSelector).isVisible().catch(() => false)) await page.locator(action.selector).click({timeout});
+      break;
+    }
     case 'wait': {
       const ms = Number(action.ms);
       if (!Number.isFinite(ms) || ms < 0 || ms > MAX_WAIT_MS) fail(`wait must be 0-${MAX_WAIT_MS}ms`);
       await page.waitForTimeout(ms); break;
     }
     case 'viewport': await page.setViewportSize({width: action.width, height: action.height}); break;
+    case 'scrollIntoView': await page.locator(action.selector).scrollIntoViewIfNeeded({timeout}); break;
+    case 'requestJson': await requestJson(page, action, context); break;
+    case 'mockJson': {
+      const target = new URL(action.path, context.baseUrl).href;
+      const handler = async route => route.fulfill({status: action.status, contentType: 'application/json', body: JSON.stringify(action.body || {})});
+      await page.route(target, handler); context.mocks.set(action.path, {target, handler}); break;
+    }
+    case 'unmockJson': {
+      const mock = context.mocks.get(action.path); if (!mock) fail(`missing mock for ${action.path}`);
+      await page.unroute(mock.target, mock.handler); context.mocks.delete(action.path); break;
+    }
+    case 'cleanupRedis': await cleanupRedis(action, context); break;
     case 'screenshot': {
       const file = path.join(context.output, safeName(action.file));
       await page.screenshot({path: file, fullPage: action.fullPage !== false});
@@ -127,7 +205,7 @@ async function perform(page, action, context) {
     }
     case 'receiptHttp': {
       const file = path.join(context.output, safeName(action.file));
-      const receipt = await getReceipt(action.path || '/', context.baseUrl, file);
+      const receipt = await getReceipt(action.path || '/', context.baseUrl, file, context.headers);
       context.receipts.push({file: action.file, ...receipt}); break;
     }
     case 'restartBrowser': context.restartRequested = true; break;
@@ -142,8 +220,18 @@ async function assertState(page, assertion) {
     case 'hidden': if (await locator.isVisible()) fail(`${assertion.selector} is visible`); break;
     case 'textContains': if (!(await locator.textContent())?.includes(assertion.value)) fail(`${assertion.selector} lacks expected text`); break;
     case 'textEquals': if ((await locator.textContent())?.trim() !== assertion.value) fail(`${assertion.selector} text differs`); break;
+    case 'attributeContains': {
+      if (!/^[A-Za-z_:][A-Za-z0-9:_.-]*$/.test(assertion.attribute || '')) fail('unsafe attribute assertion');
+      if (!(await locator.getAttribute(assertion.attribute))?.includes(assertion.value)) fail(`${assertion.selector} ${assertion.attribute} lacks expected text`);
+      break;
+    }
     case 'count': if (await locator.count() !== assertion.value) fail(`${assertion.selector} count differs`); break;
     case 'urlContains': if (!page.url().includes(assertion.value)) fail(`URL lacks ${assertion.value}`); break;
+    case 'windowPropertyAbsent': {
+      if (!/^[A-Za-z_$][A-Za-z0-9_$]*$/.test(assertion.value || '')) fail('unsafe window property assertion');
+      if (await page.evaluate(name => Object.prototype.hasOwnProperty.call(window, name), assertion.value)) fail(`window.${assertion.value} was created`);
+      break;
+    }
     default: fail(`unsupported assertion type: ${assertion.type}`);
   }
 }
@@ -171,18 +259,20 @@ async function main() {
 
   const executablePath = args.browser || plan.browserExecutable || process.env.BROWSER || process.env.CHROME_BIN;
   if (!executablePath || !path.isAbsolute(executablePath) || !fs.existsSync(executablePath)) fail('an existing absolute browser executable is required');
+  const headers = {};
+  for (const [header, envName] of Object.entries(plan.headersFromEnv || {})) headers[header] = envValue(envName);
   const results = [];
-  const state = {output, baseUrl, screenshots: new Set(), receipts: [], restartRequested: false, visibleDwellMs: plan.visibleDwellMs || 0, browserVisibleMs: 0};
+  const state = {output, baseUrl, headers, screenshots: new Set(), receipts: [], restartRequested: false, visibleDwellMs: plan.visibleDwellMs || 0, browserVisibleMs: 0, mocks: new Map()};
   let browser;
   let page;
   let restarts = 0;
+  const profileDir = path.join(output, '.browser-profile');
   const launch = async () => {
     const headless = args.headless || plan.headless === true;
     const browserArgs = ['--no-first-run', '--no-default-browser-check'];
     if (!headless) browserArgs.push('--start-maximized', '--window-position=0,0');
-    browser = await chromium.launch({headless, executablePath, args: browserArgs});
-    const context = await browser.newContext({viewport: plan.viewport || {width: 1440, height: 1000}});
-    page = await context.newPage();
+    browser = await chromium.launchPersistentContext(profileDir, {headless, executablePath, args: browserArgs, viewport: plan.viewport || {width: 1440, height: 1000}, extraHTTPHeaders: headers});
+    page = browser.pages()[0] || await browser.newPage();
     await page.bringToFront();
   };
   await launch();

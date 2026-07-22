@@ -1,0 +1,17 @@
+{
+  "schemaVersion": 1,
+  "rows": [
+    {"id": 1, "name": "Exact Preview identity", "screenshots": ["01-preview-identity.png"]},
+    {"id": 2, "name": "Public adopted-language story", "screenshots": ["02-public-story.png"]},
+    {"id": 3, "name": "Human authentication lifecycle", "screenshots": ["03-wrong-password.png", "04-correct-login.png", "05-refresh-session.png", "06-browser-restart-session.png", "07-logout-denied.png"]},
+    {"id": 4, "name": "Suggestion moderation", "screenshots": ["08-suggestion-submit.png", "09-suggestion-pending.png", "10-suggestion-approved.png", "11-suggestion-dismissed.png"]},
+    {"id": 5, "name": "Try It normal journey", "screenshots": ["12-try-it-normal.png"]},
+    {"id": 6, "name": "Try It failure distinctions", "screenshots": ["13-version-mismatch.png", "14-allowance-exhaustion.png", "15-provider-failure.png"]},
+    {"id": 7, "name": "Hostile and duplicate inputs", "screenshots": ["16-duplicate.png", "17-rapid.png", "18-html-inert.png", "19-injection-inert.png"]},
+    {"id": 8, "name": "Desktop and mobile disclosure", "screenshots": ["20-desktop.png", "21-mobile-375.png"]},
+    {"id": 9, "name": "Truthful labels", "screenshots": ["22-docs-labels.png"]},
+    {"id": 10, "name": "Evidence continuity", "screenshots": []},
+    {"id": 11, "name": "Preview data cleanup", "screenshots": ["23-clean-final.png"]},
+    {"id": 12, "name": "Draft PR delivery boundary", "screenshots": []}
+  ]
+}

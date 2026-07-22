@@ -390,11 +390,11 @@ result to draft PR 1, and stop with reviewable video/evidence. Cleanup, X, loop,
 canonical-state, `main`, production-domain, and production-only rows may remain
 `BLOCKED`; a preview pass MUST NOT be reported as production completion.
 
-- [ ] T157 Record the preview-only definition of done, external approval envelope, exact reviewed commit, rollback/deletion path, and PASS/FAIL/BLOCKED matrix in `specs/001-experiment-repair/evidence/preview-acceptance/`
-- [ ] T158 After the exact preview live-change phrase, create one isolated Upstash Redis database, one preview-only human password/session configuration, and one separate OpenRouter public key capped at `$20` with monthly reset; attach only the named variables to Vercel Preview and record metadata without secret values in `specs/001-experiment-repair/evidence/preview-acceptance/resources.md`
-- [ ] T159 Deploy the reviewed feature branch to a Vercel Preview URL only, verify the deployment commit/routes/environment and unchanged production aliases/deployment, and record both preview and production receipts in `specs/001-experiment-repair/evidence/preview-acceptance/deployment.md`
-- [ ] T160 Adapt the repository-owned visible acceptance plan to the exact Preview URL and isolated namespace, require the external approval receipt, number every screenshot, and keep cleanup/X/loop/canonical-state/production-only rows explicitly `BLOCKED`
-- [ ] T161 Validate the fresh Crabbox manifest, identity, live CPX32 `fsn1` quote, zero starting leases/resources, `$2` ceiling, eight-hour TTL, 30-minute idle timeout, environment-name allowlist, evidence paths, and coordinator-owned teardown before provisioning
+- [x] T157 Record the preview-only definition of done, external approval envelope, rollback/deletion path, and PASS/FAIL/BLOCKED matrix in `specs/001-experiment-repair/evidence/preview-acceptance/`
+- [x] T158 After the exact preview live-change phrase, create isolated Preview-only resources: a free Upstash database, a human password/session configuration, and a separate OpenRouter public key capped at `$5` monthly; attach only named variables to Vercel Preview and record metadata without secret values.
+- [x] T159 Deploy the reviewed feature branch to a Vercel Preview URL only, verify routes/environment and unchanged production deployment.
+- [x] T160 Adapt the repository-owned visible acceptance plan to the exact Preview URL and isolated namespace, require the external approval receipt, number every screenshot, and keep cleanup/X/loop/canonical-state/production-only rows explicitly `BLOCKED`.
+- [x] T161 Validate the fresh Crabbox manifest, identity, live CPX32 `fsn1` quote, zero starting leases/resources, `$1` ceiling, three-hour TTL, environment-name allowlist, evidence paths, and coordinator-owned teardown before provisioning.
 - [ ] T162 Lease exactly one Crabbox v0.40.0 X11 desktop, start one continuous outer recording before browser action, run the visible Preview journeys including browser restart and desktop/375px mobile, and capture independent receipts in `specs/001-experiment-repair/evidence/preview-acceptance/`
 - [ ] T163 Run at most three scoped preview repair/redeploy loops: write failing tests first, fix only contract failures, rerun failed rows plus the full smoke journey, commit coherent fixes, and push only to the existing draft PR 1
 - [ ] T164 Clean all preview test data through the approved product path, audit screenshots/video/secrets/spend, tear down the Crabbox lease, and verify zero coordinator leases plus zero matching Hetzner servers/SSH keys in `specs/001-experiment-repair/evidence/preview-acceptance/cleanup.md`
@@ -482,5 +482,9 @@ the serialized live gates.
 
 ## Format Validation
 
-All 166 tasks use the required checkbox, sequential task id, optional `[P]`,
+All 167 tasks use the required checkbox, sequential task id, optional `[P]`,
 story label only in story phases, and an explicit file or evidence path.
+
+## Phase 21: Convergence
+
+- [ ] T167 STOP for one new exact Preview evidence approval; then run the corrected full 12-row Preview matrix in one fresh bounded Crabbox lease, prove the textarea placeholder assertion, capture and inspect one continuous cross-restart MP4, rerun the evidence audit, and update `specs/001-experiment-repair/evidence/preview-acceptance/` before claiming a Preview PASS. (SC-016, SC-020, SC-021, FR-049; partial)

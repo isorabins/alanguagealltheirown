@@ -10,7 +10,7 @@ import {childExitStatus} from '../run-production-current.mjs';
 
 const HERE=path.dirname(fileURLToPath(import.meta.url));
 const ROOT=path.dirname(HERE);
-test('rejects a production plan without immutable approval receipt',()=>assert.throws(()=>validatePlan({schemaVersion:1,target:'production',rows:[{id:1,actions:[],assertions:[]}]}),/approvalReceipt/));
+test('rejects a production plan without immutable approval receipt',()=>assert.throws(()=>validatePlan({schemaVersion:1,target:'production',baseUrl:'https://production.example.test',visibleDwellMs:500,rows:[{id:1,actions:[],assertions:[]}]}),/approvalReceipt/));
 test('requires a visible dwell for production evidence',()=>{
   const approval=path.join(fs.mkdtempSync(path.join(os.tmpdir(),'approval-')),'receipt.txt');
   fs.writeFileSync(approval,'approved outside the runner\n',{mode:0o600});
@@ -26,6 +26,16 @@ test('rejects a production plan redirected to a fixture',()=>{
   plan.approvalReceipt=approval;
   plan.fixtureRoot='fixtures/generic-site';
   assert.throws(()=>validatePlan(plan),/fixtureRoot/);
+});
+test('rejects a preview plan without the immutable approval receipt digest',()=>{
+  const plan={
+    schemaVersion:1,
+    target:'preview',
+    baseUrl:'https://preview.example.test',
+    visibleDwellMs:500,
+    rows:JSON.parse(fs.readFileSync(path.join(ROOT,'preview-matrix.json'),'utf8')).rows.map(row=>({...row,actions:[],assertions:[]})),
+  };
+  assert.throws(()=>validatePlan(plan),/approvalReceiptSha256/);
 });
 test('production wrapper propagates a failed matrix exit status',()=>{
   assert.equal(childExitStatus(1),1);

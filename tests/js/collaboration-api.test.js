@@ -77,3 +77,26 @@ test('human moderation validates open id and reserves one non-contradictory acti
     assert.equal(res.statusCode,200); assert.equal(res.body.status,'duplicate');
   }finally{Object.assign(C,original)}
 });
+
+test('preview cleanup is unavailable outside Preview and deletes only the collaboration namespace',async()=>{
+  const priorEnv=process.env.VERCEL_ENV;
+  const original={requireSession:C.requireSession,command:C.command};
+  try{
+    delete process.env.VERCEL_ENV;
+    delete require.cache[require.resolve('../../viewer/api/preview-cleanup.js')];
+    let handler=require('../../viewer/api/preview-cleanup.js'), res=response();
+    await handler({method:'POST',body:{},headers:{'content-type':'application/json'}},res);
+    assert.equal(res.statusCode,404);
+
+    process.env.VERCEL_ENV='preview'; C.requireSession=async()=>({expires_at:123}); const calls=[];
+    C.command=async(...parts)=>{calls.push(parts);return parts[0]==='SCAN'?['0',['alato:v1:session:a','alato:v1:queue:suggestion']]:2};
+    delete require.cache[require.resolve('../../viewer/api/preview-cleanup.js')]; handler=require('../../viewer/api/preview-cleanup.js'); res=response();
+    await handler({method:'POST',body:{},headers:{'content-type':'application/json'}},res);
+    assert.equal(res.statusCode,200); assert.equal(res.body.remainingKeys,0);
+    assert.deepEqual(calls[0],['SCAN','0','MATCH','alato:v1:*','COUNT',100]);
+    assert.deepEqual(calls[1],['DEL','alato:v1:session:a','alato:v1:queue:suggestion']);
+  }finally{
+    Object.assign(C,original);
+    if(priorEnv===undefined)delete process.env.VERCEL_ENV;else process.env.VERCEL_ENV=priorEnv;
+  }
+});

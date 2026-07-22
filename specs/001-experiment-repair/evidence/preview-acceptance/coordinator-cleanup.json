@@ -1,0 +1,4 @@
+{
+  "activeLeases": 0,
+  "source": "crabbox list --provider hetzner --all --json"
+}

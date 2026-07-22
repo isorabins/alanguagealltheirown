@@ -126,6 +126,13 @@ async function privateRecords() {
   const pending = (pendingRows || []).map((row) => JSON.parse(row));
   const suggestions = [...(canonical.suggestions || [])];
   for (const row of pending) if (!suggestions.some((item) => item.id === row.id)) suggestions.push(row);
+  const moderationRows = await command("LRANGE", `${NAMESPACE}:queue:moderation`, 0, -1);
+  for (const rawRow of moderationRows || []) {
+    const row = JSON.parse(rawRow);
+    if (row.action !== "moderate_suggestion") continue;
+    const suggestion = suggestions.find((item) => item.id === row.target_id);
+    if (suggestion) suggestion.status = `${row.decision}_queued`;
+  }
   return { asks: canonical.asks || [], suggestions };
 }
 
