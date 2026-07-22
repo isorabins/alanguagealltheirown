@@ -5,7 +5,7 @@
   "baseUrl": "https://alanguagealltheirown-h1oh9h9q2-isorabins-projects.vercel.app",
   "approvalReceiptSha256": "e964018822526a40f6ba585cd9ed85982d1c59b27c3809ac3e62832825be396b",
   "headersFromEnv": {"x-vercel-protection-bypass": "VERCEL_AUTOMATION_BYPASS_SECRET"},
-  "failFast": true,
+  "failFast": false,
   "visibleDwellMs": 900,
   "finalDwellMs": 1500,
   "viewport": {"width": 1440, "height": 1000},

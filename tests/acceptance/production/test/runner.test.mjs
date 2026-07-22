@@ -37,6 +37,10 @@ test('rejects a preview plan without the immutable approval receipt digest',()=>
   };
   assert.throws(()=>validatePlan(plan),/approvalReceiptSha256/);
 });
+test('Preview plan collects all independent rows after an assertion failure',()=>{
+  const plan=JSON.parse(fs.readFileSync(path.join(ROOT,'preview-current-plan.json'),'utf8'));
+  assert.equal(plan.failFast,false);
+});
 test('production wrapper propagates a failed matrix exit status',()=>{
   assert.equal(childExitStatus(1),1);
   assert.equal(childExitStatus(0),0);
