@@ -382,6 +382,31 @@ must be removed rather than falsely retained as language law.
 
 ---
 
+## Phase 20: Preview Acceptance Checkpoint (User-Approved Stop Before Production)
+
+**Goal**: Prove the reviewed application on an isolated Vercel Preview through
+the real visible browser journeys, repair only preview failures, push the tested
+result to draft PR 1, and stop with reviewable video/evidence. Cleanup, X, loop,
+canonical-state, `main`, production-domain, and production-only rows may remain
+`BLOCKED`; a preview pass MUST NOT be reported as production completion.
+
+- [ ] T157 Record the preview-only definition of done, external approval envelope, exact reviewed commit, rollback/deletion path, and PASS/FAIL/BLOCKED matrix in `specs/001-experiment-repair/evidence/preview-acceptance/`
+- [ ] T158 After the exact preview live-change phrase, create one isolated Upstash Redis database, one preview-only human password/session configuration, and one separate OpenRouter public key capped at `$20` with monthly reset; attach only the named variables to Vercel Preview and record metadata without secret values in `specs/001-experiment-repair/evidence/preview-acceptance/resources.md`
+- [ ] T159 Deploy the reviewed feature branch to a Vercel Preview URL only, verify the deployment commit/routes/environment and unchanged production aliases/deployment, and record both preview and production receipts in `specs/001-experiment-repair/evidence/preview-acceptance/deployment.md`
+- [ ] T160 Adapt the repository-owned visible acceptance plan to the exact Preview URL and isolated namespace, require the external approval receipt, number every screenshot, and keep cleanup/X/loop/canonical-state/production-only rows explicitly `BLOCKED`
+- [ ] T161 Validate the fresh Crabbox manifest, identity, live CPX32 `fsn1` quote, zero starting leases/resources, `$2` ceiling, eight-hour TTL, 30-minute idle timeout, environment-name allowlist, evidence paths, and coordinator-owned teardown before provisioning
+- [ ] T162 Lease exactly one Crabbox v0.40.0 X11 desktop, start one continuous outer recording before browser action, run the visible Preview journeys including browser restart and desktop/375px mobile, and capture independent receipts in `specs/001-experiment-repair/evidence/preview-acceptance/`
+- [ ] T163 Run at most three scoped preview repair/redeploy loops: write failing tests first, fix only contract failures, rerun failed rows plus the full smoke journey, commit coherent fixes, and push only to the existing draft PR 1
+- [ ] T164 Clean all preview test data through the approved product path, audit screenshots/video/secrets/spend, tear down the Crabbox lease, and verify zero coordinator leases plus zero matching Hetzner servers/SSH keys in `specs/001-experiment-repair/evidence/preview-acceptance/cleanup.md`
+- [ ] T165 Assign final PASS/FAIL/BLOCKED to every preview matrix row, write the numbered screenshot/video evidence guide with key timestamps, and push the tested commit plus scoped evidence only to draft PR 1
+- [ ] T166 Run Spec Kit convergence, update the Implementation State Ledger with the exact preview result and remaining production gaps, verify the feature worktree/PR state, and STOP before merge, `main`, production deploy/alias, loop/state, DNS, production credentials, or X action
+
+**Checkpoint**: Iso receives one tested draft-PR commit, Preview evidence matrix,
+numbered screenshots, and one continuous Crabbox video. Nothing is merged or
+made live.
+
+---
+
 ## Dependencies and Execution Order
 
 - Setup and preservation (T001–T007) require plan approval and block everything.
@@ -397,6 +422,9 @@ must be removed rather than falsely retained as language law.
 - Crabbox setup and disposable proof (T108–T117) block the production acceptance run but do not authorize product deployment or production mutation.
 - Production tasks are strictly sequential at each STOP. No public acceptance row can start before the deployed commit, loop, credentials, and cleanup states are verified.
 - X correction, explainer, pin, and follows remain per-item gates and cannot be batched into a blanket approval.
+- Preview tasks T157-T166 may run while T120 remains blocked only because they
+  use isolated Preview resources, mark cleanup/X/loop/canonical-state and other
+  production-only rows `BLOCKED`, and stop before every production boundary.
 
 ## Parallel Opportunities
 
@@ -454,5 +482,5 @@ the serialized live gates.
 
 ## Format Validation
 
-All 156 tasks use the required checkbox, sequential task id, optional `[P]`,
+All 166 tasks use the required checkbox, sequential task id, optional `[P]`,
 story label only in story phases, and an explicit file or evidence path.
