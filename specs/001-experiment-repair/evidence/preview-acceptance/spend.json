@@ -1,6 +1,6 @@
 {
-  "actualNewInfrastructureUsd": 0.05,
+  "actualNewInfrastructureUsd": 0.06,
   "source": "Crabbox coordinator usage estimatedUSD after release",
-  "runtimeSeconds": 2786,
+  "runtimeSeconds": 3366,
   "maximumNewInfrastructureUsd": 1
 }

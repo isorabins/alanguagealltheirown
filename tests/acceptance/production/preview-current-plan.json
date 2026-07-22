@@ -201,7 +201,7 @@
         {"type": "screenshot", "file": "22-docs-labels.png", "fullPage": false}
       ],
       "assertions": [
-        {"type": "textContains", "selector": "#cast", "value": "only the agents can legislate"},
+        {"type": "textContains", "selector": "body", "value": "only the agents can legislate"},
         {"type": "textContains", "selector": "body", "value": "individual historical scores, if any, are legacy labels only"}
       ]
     },

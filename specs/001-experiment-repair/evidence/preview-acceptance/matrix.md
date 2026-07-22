@@ -2,7 +2,7 @@
 
 Date: 2026-07-22 WITA
 
-Run state: **PARTIAL FAIL after the approved three attempts; no further remote run is authorized.**
+Run state: **PARTIAL FAIL after the three-attempt envelope plus one separately approved follow-up attempt; no further remote run is authorized.**
 
 Overall preview result is `PASS` only when every `REQUIRED` row below passes and
 the evidence/cleanup audit passes. `BLOCKED-BY-DESIGN` rows remain production
@@ -18,9 +18,9 @@ Preview checkpoint.
 | 5 | Try It normal journey | Encode and decode visibly complete with one rulebook version and the separate Preview key | `12-try-it-normal.png`; Vercel/key metadata receipt | REQUIRED | PASS |
 | 6 | Try It failure distinctions | Version mismatch, allowance exhaustion, and unrelated provider failure have distinct visible outcomes without private-key fallback | `13-version-mismatch.png` through `15-provider-failure.png`; no-call/key receipts | REQUIRED | PASS |
 | 7 | Hostile and duplicate inputs | Duplicate, rapid, HTML/script, and prompt-injection text remain inert, private, bounded, and non-duplicated | `16-duplicate.png` through `19-injection-inert.png`; queue/idempotency receipts | REQUIRED | PASS |
-| 8 | Desktop/mobile disclosure | Required public and `/human` journeys work at desktop and 375px; current material open, history collapsed | `20-desktop.png`, `21-mobile-375.png` | REQUIRED | FAIL — invalid body-text assertion; local repair not rerun remotely |
-| 9 | Documentation and truthful labels | README/MECHANICS/page copy match the Preview behavior; historical dumb-script material remains only as history | `22-docs-labels.png`; search/deploy receipts | REQUIRED | NOT RUN — fail-fast |
-| 10 | Evidence quality and continuity | One outer X11 MP4 starts before browser action, visibly spans one browser-process restart, and ends on final clean state | `00-preview-workflow.mp4`, contact sheet, restart receipt, evidence guide | REQUIRED | FAIL — recording did not flush an MP4 |
+| 8 | Desktop/mobile disclosure | Required public and `/human` journeys work at desktop and 375px; current material open, history collapsed | `20-desktop.png`, `21-mobile-375.png` | REQUIRED | PASS on follow-up attempt |
+| 9 | Documentation and truthful labels | README/MECHANICS/page copy match the Preview behavior; historical dumb-script material remains only as history | `22-docs-labels.png`; search/deploy receipts | REQUIRED | FAIL — assertion searched `#cast` instead of the containing page; corrected locally but not rerun |
+| 10 | Evidence quality and continuity | One outer X11 MP4 starts before browser action, visibly spans one browser-process restart, and ends on final clean state | `00-preview-workflow.mp4`, contact sheet, restart receipt, evidence guide | REQUIRED | PARTIAL — valid 180-second MP4 spans restart, but the fail-fast run stopped before the final visual cleanup row |
 | 11 | Cleanup and infrastructure | Disposable test data removed visibly; secret audit passes; spend <= `$1`; zero leases/servers/SSH keys | `23-clean-final.png`, cleanup/spend/provider receipts | REQUIRED | PARTIAL — data and infrastructure cleaned; final visual cleanup row not run |
 | 12 | Draft PR delivery | Final tested commit and scoped evidence are pushed only to existing draft PR 1; no merge/Production change | git/PR/Production receipts | REQUIRED | PENDING PUSH |
 | 13 | A/B live legislative authority | Requires natural canonical loop turns and production state receipts | none | BLOCKED-BY-DESIGN | BLOCKED |

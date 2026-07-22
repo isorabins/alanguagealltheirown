@@ -68,14 +68,13 @@ requires their approved teardown; they are never attached to Production.
 
 ## Result and planned stop
 
-Three permitted remote attempts ran. The final attempt passed Preview matrix
-rows 1–7, including browser restart and the real Try It flow, then failed row 8
-because the harness looked for a textarea placeholder in `body.textContent`.
-The visible mobile screenshot shows the copy. The assertion is now corrected
-and covered by the local fixture suite, but it has not been re-run remotely.
+The first three permitted remote attempts passed rows 1–7, including browser
+restart and the real Try It flow, then exposed an invalid row-8 placeholder
+assertion. The follow-up approved attempt passed rows 1–8 and produced a valid
+continuous 180-second MP4. It then failed row 9 because the harness looked for
+a section-intro sentence inside `#cast` rather than the containing page. The
+assertion is corrected locally but has not been re-run remotely.
 
-The outer-video process was interrupted before it flushed an MP4. This means
-the evidence checkpoint is `FAIL`, not a product failure claim. Rows 9–12 did
-not run because the plan is fail-fast. Preview data was deleted and the lease
-was released. A further remote pass requires a new exact approval because the
-three-run envelope is exhausted.
+The evidence checkpoint remains `FAIL`, not a product failure claim. Rows
+10–12 did not run because the plan is fail-fast. Preview data was deleted and
+both leases were released. A further remote pass requires a new exact approval.
