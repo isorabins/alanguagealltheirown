@@ -7,6 +7,7 @@ from cleanup_rulebook import (
     apply_bundle,
     build_applied_rulebook,
     cleanup_draft_request_options,
+    cleanup_revision_context,
     compile_cleanup_draft,
     prepare,
     validate_candidate,
@@ -29,6 +30,10 @@ class CleanupTests(unittest.TestCase):
         self.assertEqual(assignments["required"], ["rule-001", "rule-002"])
         self.assertEqual(list(assignments["properties"]), ["rule-001", "rule-002"])
         self.assertFalse(assignments["additionalProperties"])
+        exclusions = schema["properties"]["exclusions"]
+        self.assertEqual(exclusions["items"]["properties"]["source_id"]["enum"], ["rule-001", "rule-002"])
+        self.assertEqual(exclusions["items"]["required"], ["source_id", "reason"])
+        self.assertFalse(exclusions["items"]["additionalProperties"])
         self.assertFalse(schema["additionalProperties"])
         self.assertEqual(options["provider"], {"require_parameters": True})
 
@@ -37,6 +42,7 @@ class CleanupTests(unittest.TestCase):
         draft = {
             "assignments": {"rule-001": "deadlines", "rule-002": "deadlines"},
             "groups": [{"id": "deadlines", "text_en": "Mark each deadline once."}],
+            "exclusions": [],
         }
         candidate = compile_cleanup_draft(source, draft)
         self.assertEqual(candidate, {
@@ -48,6 +54,7 @@ class CleanupTests(unittest.TestCase):
                 "source_ids": ["rule-001", "rule-002"],
                 "history": [],
             }],
+            "excluded_sources": [],
         })
         validate_candidate(source, candidate)
 
@@ -59,7 +66,7 @@ class CleanupTests(unittest.TestCase):
             {"rule-001": "one", "rule-002": "one", "rule-999": "one"},
         ):
             with self.assertRaisesRegex(ValueError, "assignment keys"):
-                compile_cleanup_draft(source, {"assignments": assignments, "groups": groups})
+                compile_cleanup_draft(source, {"assignments": assignments, "groups": groups, "exclusions": []})
 
     def test_cleanup_draft_rejects_unknown_or_orphan_group(self):
         source = json.loads((FIX / "source.json").read_text())
@@ -67,6 +74,7 @@ class CleanupTests(unittest.TestCase):
             {
                 "assignments": {"rule-001": "one", "rule-002": "missing"},
                 "groups": [{"id": "one", "text_en": "Preserve each deadline."}],
+                "exclusions": [],
             },
             {
                 "assignments": {"rule-001": "one", "rule-002": "one"},
@@ -74,6 +82,7 @@ class CleanupTests(unittest.TestCase):
                     {"id": "one", "text_en": "Preserve each deadline."},
                     {"id": "unused", "text_en": "Unused text."},
                 ],
+                "exclusions": [],
             },
         )
         for draft in cases:
@@ -89,15 +98,115 @@ class CleanupTests(unittest.TestCase):
                 {"id": "one", "text_en": "Preserve each deadline."},
                 {"id": "one", "text_en": "Preserve each due time."},
             ],
+            "exclusions": [],
         }
         with self.assertRaisesRegex(ValueError, "unique"):
             compile_cleanup_draft(source, duplicate)
         operational = {
             "assignments": assignments,
             "groups": [{"id": "one", "text_en": "Deploy the timer."}],
+            "exclusions": [],
         }
         with self.assertRaisesRegex(ValueError, "operational text"):
             compile_cleanup_draft(source, operational)
+
+    def test_explicit_exclusion_accounts_for_non_language_source(self):
+        source = json.loads((FIX / "source.json").read_text())
+        draft = {
+            "assignments": {"rule-001": "deadlines", "rule-002": "__exclude__"},
+            "groups": [{"id": "deadlines", "text_en": "Mark each deadline once."}],
+            "exclusions": [{"source_id": "rule-002", "reason": "operational"}],
+        }
+        candidate = compile_cleanup_draft(source, draft)
+        self.assertEqual(candidate["rules"][0]["source_ids"], ["rule-001"])
+        self.assertEqual(candidate["excluded_sources"], [
+            {"source_id": "rule-002", "reason": "operational"},
+        ])
+        validate_candidate(source, candidate)
+
+    def test_exclusion_must_match_assignments_and_allowed_reasons(self):
+        source = json.loads((FIX / "source.json").read_text())
+        base = {
+            "assignments": {"rule-001": "deadlines", "rule-002": "__exclude__"},
+            "groups": [{"id": "deadlines", "text_en": "Mark each deadline once."}],
+        }
+        for exclusions in (
+            [],
+            [{"source_id": "rule-001", "reason": "fragment"}],
+            [{"source_id": "rule-002", "reason": "preference"}],
+        ):
+            with self.assertRaisesRegex(ValueError, "exclusion"):
+                compile_cleanup_draft(source, {**base, "exclusions": exclusions})
+
+    def test_candidate_rejects_silent_duplicate_or_unknown_exclusion(self):
+        source = json.loads((FIX / "source.json").read_text())
+        candidate = json.loads((FIX / "replacement.json").read_text())
+        for excluded_sources in (
+            [{"source_id": "rule-002", "reason": "operational"}],
+            [{"source_id": "rule-999", "reason": "fragment"}],
+            [{"source_id": "rule-002", "reason": "unknown"}],
+        ):
+            candidate["excluded_sources"] = excluded_sources
+            with self.assertRaises(ValueError):
+                validate_candidate(source, candidate)
+
+    def test_turn_650_non_language_sources_can_be_excluded_without_active_law(self):
+        evidence = ROOT / "specs/001-experiment-repair/evidence/cleanup-live"
+        source = json.loads((evidence / "source-rulebook-turn-650.json").read_text())
+        draft = json.loads((evidence / "a-structured-draft.json").read_text())
+        reasons = {
+            "rule-075": "operational",
+            "rule-077": "fragment",
+            "rule-085": "fragment",
+            "rule-099": "operational",
+        }
+        for source_id in reasons:
+            draft["assignments"][source_id] = "__exclude__"
+        draft["groups"] = [
+            group for group in draft["groups"]
+            if group["id"] != "rulebook-maintenance"
+        ]
+        draft["exclusions"] = [
+            {"source_id": source_id, "reason": reasons[source_id]}
+            for source_id in reasons
+        ]
+        candidate = compile_cleanup_draft(source, draft)
+        self.assertEqual(
+            {item["source_id"] for item in candidate["excluded_sources"]},
+            set(reasons),
+        )
+        retained = {
+            source_id
+            for rule in candidate["rules"]
+            for source_id in rule["source_ids"]
+        }
+        self.assertTrue(set(reasons).isdisjoint(retained))
+        validate_candidate(source, candidate)
+
+    def test_revision_context_binds_rejected_audit_as_data(self):
+        source = json.loads((FIX / "source.json").read_text())
+        replacement = json.loads((FIX / "replacement.json").read_text())
+        audit = json.loads((FIX / "audit.json").read_text())
+        audit.update({
+            "verdict": "REJECT",
+            "omissions": ["rule-002"],
+            "meaning_changes": [{"location": "rule-c001", "issue": "Threshold lost."}],
+        })
+        context = cleanup_revision_context(source, replacement, audit)
+        self.assertEqual(context["boundary"], "UNTRUSTED_AUDIT_FEEDBACK_DATA")
+        self.assertEqual(context["audit_feedback"]["omissions"], ["rule-002"])
+        self.assertEqual(context["prior_candidate_hash"], snapshot_hash(replacement))
+
+    def test_revision_context_rejects_unbound_or_passing_audit(self):
+        source = json.loads((FIX / "source.json").read_text())
+        replacement = json.loads((FIX / "replacement.json").read_text())
+        audit = json.loads((FIX / "audit.json").read_text())
+        with self.assertRaisesRegex(ValueError, "rejected audit"):
+            cleanup_revision_context(source, replacement, audit)
+        audit["verdict"] = "REJECT"
+        audit["reviewed_candidate_hash"] = "wrong"
+        with self.assertRaisesRegex(ValueError, "bound"):
+            cleanup_revision_context(source, replacement, audit)
 
     def test_prepare_is_snapshot_only_and_apply_needs_exact_receipt(self):
         with tempfile.TemporaryDirectory() as directory:

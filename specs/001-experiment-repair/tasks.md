@@ -363,6 +363,19 @@ canonical 2026-07-21 product result.
 
 ---
 
+## Phase 19: Cleanup Audit Rejection Repair (Offline Approved)
+
+**Goal**: Resolve the contradiction exposed by Kimi attempt 3: every adopted
+source must be accounted for, but operational/test instructions and fragments
+must be removed rather than falsely retained as language law.
+
+- [X] T153 [US3] Add failing tests for explicit `__exclude__` assignments, exact exclusion reasons, full retained-plus-excluded coverage, and rejection of silent/mismatched exclusions in `tests/python/test_cleanup_rulebook.py`
+- [X] T154 [US3] Implement strict exclusion schema/compilation/validation in `cleanup_rulebook.py` and clarify `prompts/cleanup_a.md` plus `prompts/cleanup_b.md` so intentional non-language exclusions are documented without being misreported as omissions
+- [X] T155 [US3] Prove the immutable turn-650 source can classify rule-075/rule-099 operational text and rule-077/rule-085 fragments without retaining them as active law or making a provider call; record `specs/001-experiment-repair/evidence/cleanup-live/audit-rejection-repair.md`
+- [X] T156 [US3] Run focused/full offline tests, contract coverage, diff/secret review, commit the repair locally, and STOP before feature push or any new paid A/B call
+
+---
+
 ## Dependencies and Execution Order
 
 - Setup and preservation (T001–T007) require plan approval and block everything.
@@ -408,7 +421,7 @@ canonical 2026-07-21 product result.
 |---|---|
 | FR-001, FR-002, FR-003, FR-004, FR-005, FR-006 | T014–T024 |
 | FR-007, FR-008, FR-009, FR-010, FR-011 | T026–T034 |
-| FR-012, FR-013, FR-014, FR-015 | T016–T019, T035–T043, T144–T148 |
+| FR-012, FR-013, FR-014, FR-015 | T016–T019, T035–T043, T144–T148, T153–T156 |
 | FR-016, FR-017, FR-018, FR-019, FR-020, FR-021 | T052–T068 |
 | FR-022, FR-023, FR-024, FR-025, FR-026 | T044–T051, T069–T078 |
 | FR-027, FR-028, FR-029, FR-030, FR-031 | T079–T087, T089, T093–T100 |
@@ -435,5 +448,5 @@ the serialized live gates.
 
 ## Format Validation
 
-All 152 tasks use the required checkbox, sequential task id, optional `[P]`,
+All 156 tasks use the required checkbox, sequential task id, optional `[P]`,
 story label only in story phases, and an explicit file or evidence path.

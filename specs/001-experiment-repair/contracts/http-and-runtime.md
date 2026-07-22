@@ -118,15 +118,18 @@ provider routing with `require_parameters=true`. Its source-specific schema is:
 
 ```json
 {
-  "assignments": {"rule-NNN": "group-NNN"},
-  "groups": [{"id": "group-NNN", "text_en": "Cleaned language law"}]
+  "assignments": {"rule-NNN": "group-NNN", "rule-MMM": "__exclude__"},
+  "groups": [{"id": "group-NNN", "text_en": "Cleaned language law"}],
+  "exclusions": [{"source_id": "rule-MMM", "reason": "operational"}]
 }
 ```
 
 `assignments` must contain every and only adopted source id as required object
-properties. Every assignment must reference one defined unique group, and every
-defined group must be referenced. Code derives ordered `source_ids`; A cannot
-supply them. Any schema, routing, assignment, group, text, or compiled-candidate
+properties. Every retained assignment must reference one defined unique group,
+every defined group must be referenced, and every `__exclude__` assignment must
+have exactly one allowed `operational`, `fragment`, or `contradiction` receipt.
+Code derives ordered `source_ids` and `excluded_sources`; A cannot supply them.
+Any schema, routing, assignment, exclusion, group, text, or compiled-candidate
 failure stops before B and produces no cleanup bundle.
 
 ## Try It

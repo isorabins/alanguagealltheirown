@@ -133,10 +133,13 @@ on OpenRouter on 2026-07-20. The Kimi stranger remains a separate stateless call
 
 **Decision**: A dedicated cleanup command operates only on an explicit snapshot
 path. A receives strict structured output whose `assignments` object has every
-adopted source id as a required property, plus A-authored cleaned `groups`.
+adopted source id as a required property, plus A-authored cleaned `groups` and
+explicit reason-coded exclusions for operational instructions, fragments, or
+contradictions that cannot remain language law.
 Parameter-compatible routing is mandatory. Local deterministic code rejects
-missing/extra assignments and unknown/orphan/duplicate groups, derives
-`source_ids`, and only then creates the candidate eligible for B audit. The
+missing/extra assignments, unjustified/silent exclusions, and
+unknown/orphan/duplicate groups, derives `source_ids` plus `excluded_sources`,
+and only then creates the candidate eligible for B audit. The
 pipeline writes four immutable artifacts: original snapshot, A replacement, B
 audit, and exact diff. It has no default production path and cannot apply output.
 The authenticated `/human` surface shows the pending bundle and exact diff
@@ -146,9 +149,13 @@ before writing canonical state.
 
 **Rationale**: Separating generation from application makes the human diff stop
 structural, not procedural. Two prompt-only A attempts omitted adopted ids; a
-third prompt variation would repeat a known probabilistic failure. OpenRouter's
-official strict JSON Schema path makes coverage a transport constraint, while
-the compiler keeps model output from authoritatively declaring its own coverage.
+third prompt variation would repeat a known probabilistic failure. A later
+coverage-complete candidate exposed a second contradiction: exact bookkeeping
+cannot force operational text and incomplete fragments to survive as active
+law. Reason-coded exclusions preserve full source accountability without false
+retention. OpenRouter's official strict JSON Schema path makes coverage a
+transport constraint, while the compiler keeps model output from authoritatively
+declaring its own coverage.
 
 **Alternative rejected**: Append omitted rules after a free-form response. That
 would pass bookkeeping while falsely describing mechanically substituted text

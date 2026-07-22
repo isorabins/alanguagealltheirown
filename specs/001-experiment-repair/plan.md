@@ -138,7 +138,7 @@ canonical dedupe before collaboration UI work.
 | Direct production scripts | `loop.py`, `tweet.py`, deploy/apply can mutate live state | Explicit path/flags plus exact live gates | No execution during offline phase | command/evidence audit |
 | Collaboration Redis calls in `loop.py` | Network outage or hang can cancel a turn | Bounded courier plus atomic local inbox/outbox spools | Remove Redis client/calls from loop path | exception/timeout/replay/restart tests |
 | Legacy open proposals | Copied production proposals would permanently trip one-open guard | Cleanup terminalizes legacy proposed/reverted status with history receipt | Add migration to cleanup application | production-shaped cleanup/authority test |
-| Prompt-only cleanup coverage | Two DeepSeek outputs omitted adopted source ids despite explicit lists | A returns schema-required per-source assignments plus cleaned groups; code derives `source_ids` | Retire free-form `rules[].source_ids` generation | missing/extra assignment, unknown/orphan/duplicate group tests |
+| Prompt-only cleanup coverage | Two DeepSeek outputs omitted adopted source ids despite explicit lists; a later complete draft falsely had to retain operational/fractured sources to claim coverage | A returns schema-required per-source assignments plus cleaned groups or explicit reason-coded exclusions; code derives retained `source_ids` and `excluded_sources` | Retire free-form `rules[].source_ids` generation and silent omission | missing/extra assignment, exclusion mismatch, unknown/orphan/duplicate group tests |
 
 **Boundary Result**: PASS for design; live retirement remains planned_stop until
 the corresponding approved production gate.

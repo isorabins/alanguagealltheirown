@@ -41,14 +41,16 @@ adopted ids and text.
 
 | Field | Type | Rules |
 |---|---|---|
-| `assignments` | object keyed by every adopted source id | Exact source-id key set; each value names one cleanup group |
+| `assignments` | object keyed by every adopted source id | Exact source-id key set; each value names one cleanup group or the reserved `__exclude__` disposition |
 | `groups` | array | Each item has one unique group id and non-empty A-authored `text_en` |
+| `exclusions` | array of `{source_id, reason}` objects | Exact match for `__exclude__` assignments; reason is `operational`, `fragment`, or `contradiction` |
 
 The source-specific JSON Schema requires every assignment key and forbids extra
 keys. The deterministic compiler requires referenced group ids to equal the
-defined group-id set, rejects operational text, and derives each compiled
-candidate rule's ordered `source_ids`. The model never supplies authoritative
-coverage metadata.
+defined group-id set, requires every exclusion to be explicit and justified,
+rejects operational text in retained law, and derives each compiled candidate
+rule's ordered `source_ids` plus ordered `excluded_sources`. The model never
+supplies authoritative coverage metadata.
 
 ## Motion Receipt
 
