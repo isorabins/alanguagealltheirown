@@ -1,4 +1,5 @@
 {
   "activeLeases": 0,
-  "source": "crabbox list --provider hetzner --all --json"
+  "finalLease": "cbx_de7cea9d8ff0",
+  "source": "crabbox list --provider hetzner --all --json after final release"
 }

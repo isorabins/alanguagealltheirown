@@ -1,5 +1,7 @@
 {
   "matchingServers": 0,
   "matchingSshKeys": 0,
-  "source": "fresh isolated Hetzner project servers and ssh_keys readback"
+  "releasedServerId": "154399309",
+  "releasedServerHttpStatus": 404,
+  "source": "fresh isolated Hetzner project server and ssh_keys readback after final release"
 }

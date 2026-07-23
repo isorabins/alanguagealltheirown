@@ -18,3 +18,12 @@ This one additional attempt ran on 2026-07-22 WITA. It passed rows 1–8 and
 recorded a continuous 180-second MP4, then failed row 9 because its assertion
 looked for a section-intro sentence inside `#cast`. The corrected assertion is
 now in the local harness but has not been re-run remotely.
+
+## Final approval
+
+> APPROVE LIVE CHANGE: run one final Crabbox Preview acceptance attempt for draft PR #1 using one Hetzner CPX32 in fsn1 with a three-hour TTL and $1 infrastructure ceiling; verify all 12 Preview rows using the local Preview preflight, capture and inspect one continuous video, clean test data and lease, push only fixes to existing draft PR #1; do not merge, deploy production, change production credentials or routing, resume the live loop, or publish.
+
+This one final attempt ran on 2026-07-23 WITA. The local Preview preflight and
+the remote twelve-row matrix both passed. It used the existing isolated Vercel
+Preview only; it did not merge, deploy Production, alter Production credentials
+or routing, resume the live loop, or publish.

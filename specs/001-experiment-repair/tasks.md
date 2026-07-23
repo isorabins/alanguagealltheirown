@@ -395,11 +395,11 @@ canonical-state, `main`, production-domain, and production-only rows may remain
 - [x] T159 Deploy the reviewed feature branch to a Vercel Preview URL only, verify routes/environment and unchanged production deployment.
 - [x] T160 Adapt the repository-owned visible acceptance plan to the exact Preview URL and isolated namespace, require the external approval receipt, number every screenshot, and keep cleanup/X/loop/canonical-state/production-only rows explicitly `BLOCKED`.
 - [x] T161 Validate the fresh Crabbox manifest, identity, live CPX32 `fsn1` quote, zero starting leases/resources, `$1` ceiling, three-hour TTL, environment-name allowlist, evidence paths, and coordinator-owned teardown before provisioning.
-- [ ] T162 Lease exactly one Crabbox v0.40.0 X11 desktop, start one continuous outer recording before browser action, run the visible Preview journeys including browser restart and desktop/375px mobile, and capture independent receipts in `specs/001-experiment-repair/evidence/preview-acceptance/`
-- [ ] T163 Run at most three scoped preview repair/redeploy loops: write failing tests first, fix only contract failures, rerun failed rows plus the full smoke journey, commit coherent fixes, and push only to the existing draft PR 1
-- [ ] T164 Clean all preview test data through the approved product path, audit screenshots/video/secrets/spend, tear down the Crabbox lease, and verify zero coordinator leases plus zero matching Hetzner servers/SSH keys in `specs/001-experiment-repair/evidence/preview-acceptance/cleanup.md`
-- [ ] T165 Assign final PASS/FAIL/BLOCKED to every preview matrix row, write the numbered screenshot/video evidence guide with key timestamps, and push the tested commit plus scoped evidence only to draft PR 1
-- [ ] T166 Run Spec Kit convergence, update the Implementation State Ledger with the exact preview result and remaining production gaps, verify the feature worktree/PR state, and STOP before merge, `main`, production deploy/alias, loop/state, DNS, production credentials, or X action
+- [X] T162 Lease exactly one Crabbox v0.40.0 X11 desktop, start one continuous outer recording before browser action, run the visible Preview journeys including browser restart and desktop/375px mobile, and capture independent receipts in `specs/001-experiment-repair/evidence/preview-acceptance/`
+- [X] T163 Run at most three scoped preview repair/redeploy loops: write failing tests first, fix only contract failures, rerun failed rows plus the full smoke journey, commit coherent fixes, and push only to the existing draft PR 1
+- [X] T164 Clean all preview test data through the approved product path, audit screenshots/video/secrets/spend, tear down the Crabbox lease, and verify zero coordinator leases plus zero matching Hetzner servers/SSH keys in `specs/001-experiment-repair/evidence/preview-acceptance/cleanup.md`
+- [X] T165 Assign final PASS/FAIL/BLOCKED to every preview matrix row, write the numbered screenshot/video evidence guide with key timestamps, and push the tested commit plus scoped evidence only to draft PR 1
+- [X] T166 Run Spec Kit convergence, update the Implementation State Ledger with the exact preview result and remaining production gaps, verify the feature worktree/PR state, and STOP before merge, `main`, production deploy/alias, loop/state, DNS, production credentials, or X action
 
 **Checkpoint**: Iso receives one tested draft-PR commit, Preview evidence matrix,
 numbered screenshots, and one continuous Crabbox video. Nothing is merged or
@@ -487,4 +487,4 @@ story label only in story phases, and an explicit file or evidence path.
 
 ## Phase 21: Convergence
 
-- [ ] T167 STOP for one new exact Preview evidence approval; then run the corrected full 12-row Preview matrix in one fresh bounded Crabbox lease, prove the textarea placeholder assertion, capture and inspect one continuous cross-restart MP4, rerun the evidence audit, and update `specs/001-experiment-repair/evidence/preview-acceptance/` before claiming a Preview PASS. (SC-016, SC-020, SC-021, FR-049; partial)
+- [X] T167 STOP for one new exact Preview evidence approval; then run the corrected full 12-row Preview matrix in one fresh bounded Crabbox lease, prove the textarea placeholder assertion, capture and inspect one continuous cross-restart MP4, rerun the evidence audit, and update `specs/001-experiment-repair/evidence/preview-acceptance/` before claiming a Preview PASS. (SC-016, SC-020, SC-021, FR-049; partial)

@@ -1,8 +1,8 @@
 # Preview Acceptance Preflight
 
-Date: 2026-07-22 WITA
+Date: 2026-07-23 WITA
 
-Status: **CLOSED PARTIAL — approval consumed; Preview is ready, cleaned, and not production.**
+Status: **PASS — isolated Preview acceptance complete; Production remains an explicit planned stop.**
 
 ## User-visible definition of done
 
@@ -20,17 +20,19 @@ domain remain `BLOCKED` by design. A preview pass is not production completion.
 
 ## Executed state
 
-- Exact approval is preserved in `approval-receipt.md` (SHA-256
-  `e964018822526a40f6ba585cd9ed85982d1c59b27c3809ac3e62832825be396b`).
+- The exact final approval is preserved in `approval-receipt.md`; it bounds one
+  CPX32 in `fsn1`, a three-hour TTL, and `$1` infrastructure ceiling.
 - Isolated Preview is `dpl_F4hbURLyYz6n6AfXV8CG7F9Xd2jA`, Ready at
   `https://alanguagealltheirown-h1oh9h9q2-isorabins-projects.vercel.app`.
 - Production remains `dpl_6rrcd4YdGMTYkcUdEUsCQan7qQCS`, Ready and unchanged.
-- Local revalidation after the final harness repair: 7 acceptance-harness, 28
-  JavaScript, and 71 Python tests pass; coverage reports 78 requirements and
-  166 sequential tasks.
-- Crabbox v0.40.0 used one CPX32 in `fsn1` with a 10,800-second (three-hour)
-  TTL and a `$1` ceiling. Coordinator usage after release reports zero active
-  leases and `$0.05` estimated actual infrastructure spend.
+- Local revalidation before the lease: 9 acceptance-harness, 28 JavaScript,
+  and 71 Python tests pass; coverage reports 78 requirements and 167 sequential
+  tasks. The local Preview selector preflight passed against the actual viewer
+  markup before the remote run.
+- Crabbox v0.40.0 used lease `cbx_de7cea9d8ff0` on one CPX32 in `fsn1` with a
+  10,800-second (three-hour) TTL and a `$1` ceiling. Coordinator usage after
+  release reports zero active leases and `$0.07` cumulative estimated
+  infrastructure spend.
 
 ## Preview resources and boundaries
 
@@ -68,13 +70,13 @@ requires their approved teardown; they are never attached to Production.
 
 ## Result and planned stop
 
-The first three permitted remote attempts passed rows 1–7, including browser
-restart and the real Try It flow, then exposed an invalid row-8 placeholder
-assertion. The follow-up approved attempt passed rows 1–8 and produced a valid
-continuous 180-second MP4. It then failed row 9 because the harness looked for
-a section-intro sentence inside `#cast` rather than the containing page. The
-assertion is corrected locally but has not been re-run remotely.
+The final approved remote attempt used the corrected, non-fail-fast plan and
+passed all twelve required Preview rows. It produced 23 numbered screenshots,
+independent JSON receipts, a 180.000-second continuous outer-desktop MP4, and
+a proof bundle. Preview cleanup deleted 12 namespaced test keys with zero
+remaining; the lease was released and coordinator/Hetzner readbacks are empty.
 
-The evidence checkpoint remains `FAIL`, not a product failure claim. Rows
-10–12 did not run because the plan is fail-fast. Preview data was deleted and
-both leases were released. A further remote pass requires a new exact approval.
+This is a Preview acceptance `PASS`, not a Production result. Merge, `main`,
+Production deployment/routing/credentials, canonical-state application, loop
+resume, and publication remain blocked by design and require their own exact
+approvals.
