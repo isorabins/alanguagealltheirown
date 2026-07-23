@@ -1,0 +1,322 @@
+{
+  "schemaVersion": 1,
+  "runId": "production-current-20260721",
+  "target": "production",
+  "browser": "crabbox-browser",
+  "browserRestarts": 1,
+  "rows": [
+    {
+      "id": 1,
+      "name": "Deployed identity",
+      "result": "PASS",
+      "error": null
+    },
+    {
+      "id": 2,
+      "name": "A authority",
+      "result": "FAIL",
+      "error": "body lacks expected text"
+    },
+    {
+      "id": 3,
+      "name": "B authority/no-ops",
+      "result": "PASS",
+      "error": null
+    },
+    {
+      "id": 4,
+      "name": "Adopted-only boundary",
+      "result": "PASS",
+      "error": null
+    },
+    {
+      "id": 5,
+      "name": "Cleanup preview/apply history",
+      "result": "FAIL",
+      "error": "body lacks expected text"
+    },
+    {
+      "id": 6,
+      "name": "RESEARCH lifecycle",
+      "result": "FAIL",
+      "error": "body lacks expected text"
+    },
+    {
+      "id": 7,
+      "name": "ASK + /human lifecycle",
+      "result": "FAIL",
+      "error": "body lacks expected text"
+    },
+    {
+      "id": 8,
+      "name": "Suggestions",
+      "result": "FAIL",
+      "error": "body lacks expected text"
+    },
+    {
+      "id": 9,
+      "name": "Conversation",
+      "result": "FAIL",
+      "error": "body lacks expected text"
+    },
+    {
+      "id": 10,
+      "name": "Try It four outcomes",
+      "result": "PASS",
+      "error": null
+    },
+    {
+      "id": 11,
+      "name": "Desktop/mobile disclosure",
+      "result": "PASS",
+      "error": null
+    },
+    {
+      "id": 12,
+      "name": "Docs/current labels",
+      "result": "FAIL",
+      "error": "body lacks expected text"
+    },
+    {
+      "id": 13,
+      "name": "X approved results",
+      "result": "FAIL",
+      "error": "body lacks expected text"
+    },
+    {
+      "id": 14,
+      "name": "Wrong password",
+      "result": "FAIL",
+      "error": "body lacks expected text"
+    },
+    {
+      "id": 15,
+      "name": "Expired session",
+      "result": "FAIL",
+      "error": "body lacks expected text"
+    },
+    {
+      "id": 16,
+      "name": "Duplicate submission",
+      "result": "FAIL",
+      "error": "body lacks expected text"
+    },
+    {
+      "id": 17,
+      "name": "Rapid requests",
+      "result": "FAIL",
+      "error": "body lacks expected text"
+    },
+    {
+      "id": 18,
+      "name": "HTML/script text",
+      "result": "FAIL",
+      "error": "body lacks expected text"
+    },
+    {
+      "id": 19,
+      "name": "Prompt injection text",
+      "result": "FAIL",
+      "error": "body lacks expected text"
+    },
+    {
+      "id": 20,
+      "name": "Provider timeout",
+      "result": "FAIL",
+      "error": "body lacks expected text"
+    },
+    {
+      "id": 21,
+      "name": "Missing research evidence",
+      "result": "FAIL",
+      "error": "body lacks expected text"
+    },
+    {
+      "id": 22,
+      "name": "Rule change during Try It",
+      "result": "PASS",
+      "error": null
+    },
+    {
+      "id": 23,
+      "name": "Spending cap",
+      "result": "PASS",
+      "error": null
+    },
+    {
+      "id": 24,
+      "name": "Three X failures",
+      "result": "FAIL",
+      "error": "body lacks expected text"
+    },
+    {
+      "id": 25,
+      "name": "Historical integrity",
+      "result": "PASS",
+      "error": null
+    },
+    {
+      "id": 26,
+      "name": "Final cleanup/health",
+      "result": "PASS",
+      "error": null
+    }
+  ],
+  "receipts": [
+    {
+      "file": "production-home-http.json",
+      "url": "https://alanguagealltheirown.com/",
+      "status": 200,
+      "bytes": 45180,
+      "sha256": "60924a03b27b414939c7e17653b29458e9c728cac8d225b55a7f4291e21144ef"
+    }
+  ],
+  "files": [
+    {
+      "name": "01-deploy-version.png",
+      "bytes": 384697,
+      "sha256": "039b5e9623958326f4098e2af4d45869abdd8256eecf8aed52a75c966b80f29c"
+    },
+    {
+      "name": "02-a-authority.png",
+      "bytes": 1378520,
+      "sha256": "ea8742c1a40caa3b8866cde0955786e9eb0638ed10014608341efd3c9191647b"
+    },
+    {
+      "name": "03-b-authority.png",
+      "bytes": 3019822,
+      "sha256": "0491f71dc2e4b3628ea5a7ca0bda5c4debac0b54a7b1a37166939466d9a0c278"
+    },
+    {
+      "name": "04-adopted-boundary.png",
+      "bytes": 1378520,
+      "sha256": "ea8742c1a40caa3b8866cde0955786e9eb0638ed10014608341efd3c9191647b"
+    },
+    {
+      "name": "05-cleanup.png",
+      "bytes": 20626,
+      "sha256": "737d538f60dd0a16dcdd4846facef2c563cf6d45560b887b0102bbe2246fa0ed"
+    },
+    {
+      "name": "06-research.png",
+      "bytes": 20325,
+      "sha256": "c4039062e067e888f722ed8e83d73758db34ff3a36204b0ef6dac3777b6c29e8"
+    },
+    {
+      "name": "07-human-ask.png",
+      "bytes": 20333,
+      "sha256": "631ff055e9e96c554de97490eb121165bacfff37827014340c8c62306466ae0b"
+    },
+    {
+      "name": "08-suggestion.png",
+      "bytes": 379075,
+      "sha256": "40f463a332355a575f13e5b52689d10b6535173392b887e199d039824406395b"
+    },
+    {
+      "name": "09-conversation.png",
+      "bytes": 1378520,
+      "sha256": "ea8742c1a40caa3b8866cde0955786e9eb0638ed10014608341efd3c9191647b"
+    },
+    {
+      "name": "10-try-it.png",
+      "bytes": 1378520,
+      "sha256": "ea8742c1a40caa3b8866cde0955786e9eb0638ed10014608341efd3c9191647b"
+    },
+    {
+      "name": "11-desktop.png",
+      "bytes": 1432221,
+      "sha256": "8384d253d7ddf759ab7ab7e7a07e84387c92d29a32074bfd9e9e2d17fa9b1ab2"
+    },
+    {
+      "name": "12-mobile-375.png",
+      "bytes": 2994491,
+      "sha256": "a11cfcc9049d79b92a69b76a6f965c816e571f9d65d23e75f2e877a6ea3b1a40"
+    },
+    {
+      "name": "13-docs-labels.png",
+      "bytes": 1340257,
+      "sha256": "da025a70077678ff20fbf8d985427235b77461f3f573de9c98465dacfdabc878"
+    },
+    {
+      "name": "14-x-profile.png",
+      "bytes": 1340257,
+      "sha256": "da025a70077678ff20fbf8d985427235b77461f3f573de9c98465dacfdabc878"
+    },
+    {
+      "name": "15-wrong-password.png",
+      "bytes": 10561,
+      "sha256": "9c30ef7054e60fab534f02488035855349737a5e3d1aec4d8a685069a7f2d766"
+    },
+    {
+      "name": "16-expired-session.png",
+      "bytes": 10093,
+      "sha256": "ed00df3d23adf72a13436eff1cdb348006f37a241700a64bb654c4d7264d6f52"
+    },
+    {
+      "name": "17-duplicate.png",
+      "bytes": 10738,
+      "sha256": "6afee3d8e78dd74c78c59284f63cc95d7c182906e7eaa33a7a0115acca6a018a"
+    },
+    {
+      "name": "18-rate-limit.png",
+      "bytes": 10581,
+      "sha256": "4a270678cf83fc5954e81649d42414b3584820b619ac09c8b2602ac15d50e7b9"
+    },
+    {
+      "name": "19-html-inert.png",
+      "bytes": 10991,
+      "sha256": "f6d81b0265ca98747a999a2accd1413287f7c659cf58f2150ead3daf54ff16dc"
+    },
+    {
+      "name": "20-injection-inert.png",
+      "bytes": 10847,
+      "sha256": "273347aa5108bdcd84ef1941545ed4bb6b728844fb6297833da5c12aada39db9"
+    },
+    {
+      "name": "21-timeout.png",
+      "bytes": 1340257,
+      "sha256": "da025a70077678ff20fbf8d985427235b77461f3f573de9c98465dacfdabc878"
+    },
+    {
+      "name": "22-no-evidence.png",
+      "bytes": 10455,
+      "sha256": "f2330328f8e9f420666abbe61a06c7cf95ed3419b806f5b6dcec48c509980ec4"
+    },
+    {
+      "name": "23-version-race.png",
+      "bytes": 1405270,
+      "sha256": "dfd7e9df638f6a5f1825551ec5d5122f058906fdddf212be7b1772903fda8eaa"
+    },
+    {
+      "name": "24-cap.png",
+      "bytes": 1340257,
+      "sha256": "da025a70077678ff20fbf8d985427235b77461f3f573de9c98465dacfdabc878"
+    },
+    {
+      "name": "25-x-blocked.png",
+      "bytes": 1340257,
+      "sha256": "da025a70077678ff20fbf8d985427235b77461f3f573de9c98465dacfdabc878"
+    },
+    {
+      "name": "26-history.png",
+      "bytes": 1340257,
+      "sha256": "da025a70077678ff20fbf8d985427235b77461f3f573de9c98465dacfdabc878"
+    },
+    {
+      "name": "27-clean-final.png",
+      "bytes": 2982275,
+      "sha256": "feafd6cdc9037dddfe4ee1fb34156a8a60b29875f4bea2e76c928165b3ce4c19"
+    },
+    {
+      "name": "matrix-results.json",
+      "bytes": 8141,
+      "sha256": "8ba25d82bf60d890567f418b427e9aa1b255185bf111b9ce4c2f39aeb29427ff"
+    },
+    {
+      "name": "production-home-http.json",
+      "bytes": 164,
+      "sha256": "3873264054a17436c747cd86ed3bff4c4f4db31c209c8c252ceb751167030005"
+    }
+  ],
+  "overall": "FAIL"
+}

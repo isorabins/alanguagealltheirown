@@ -1,0 +1,9 @@
+{
+  "actualNewInfrastructureUsd": 0.01,
+  "coordinatorCumulativeEstimatedUsd": 0.02,
+  "coordinatorCumulativeReservedUsd": 1.12,
+  "currentLeaseReservedUsd": 0.56,
+  "approvedMaximumUsd": 2.0,
+  "runtimeSeconds": 601,
+  "basis": "Crabbox coordinator metering immediately after teardown"
+}

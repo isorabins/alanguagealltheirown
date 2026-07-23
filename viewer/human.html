@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Human review · A Language All Their Own</title>
+<style>
+:root{color-scheme:dark;--bg:#0b0a08;--ink:#e6ddc6;--dim:#9a917c;--line:#3c372e;--accent:#c9a86a;--bad:#d58a68}*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.55 Georgia,serif}.wrap{width:min(760px,calc(100% - 32px));margin:0 auto;padding:40px 0 80px}h1{font-size:1.35rem;font-weight:400;letter-spacing:.13em;text-transform:uppercase}h2{font:12px/1.3 ui-monospace,monospace;letter-spacing:.14em;text-transform:uppercase;color:var(--accent);margin-top:32px}.muted,.status{color:var(--dim)}.card{border:1px solid var(--line);padding:18px;margin:12px 0;overflow-wrap:anywhere}label{display:block;margin:12px 0 5px;color:var(--dim)}input,textarea,button{width:100%;background:transparent;color:var(--ink);border:1px solid var(--line);padding:12px;font:inherit}textarea{min-height:110px}button{cursor:pointer;margin-top:10px;font:12px ui-monospace,monospace;text-transform:uppercase;letter-spacing:.1em}button:hover{border-color:var(--accent)}button.danger:hover{border-color:var(--bad)}pre{white-space:pre-wrap;font:12px/1.55 ui-monospace,monospace;color:var(--dim)}.row{display:grid;grid-template-columns:1fr 1fr;gap:10px}.hidden{display:none}@media(max-width:480px){.wrap{width:min(100% - 24px,760px);padding-top:24px}.row{grid-template-columns:1fr}}
+</style>
+</head>
+<body><main class="wrap">
+<h1>Human review</h1>
+<p class="muted">A private, time-limited inbox for Iso. Sessions expire 30 minutes after login and do not slide.</p>
+<section id="login" class="card">
+  <form id="login-form"><label for="password">Password</label><input id="password" type="password" autocomplete="current-password" required><button>Log in</button></form>
+  <p id="login-status" class="status" aria-live="polite"></p>
+</section>
+<section id="inbox" class="hidden">
+  <div class="row"><button id="refresh">Refresh</button><button id="logout" class="danger">Log out</button></div>
+  <p id="session" class="status" aria-live="polite"></p>
+  <h2>Agent questions</h2><div id="asks"></div>
+  <h2>Visitor suggestions</h2><div id="suggestions"></div>
+  <h2>Rulebook cleanup review</h2><p class="muted">Read-only here. Application remains a separate exact approval gate.</p><div id="cleanup"></div>
+</section>
+</main>
+<script>
+const $=id=>document.getElementById(id), esc=s=>String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+async function request(url,options={}){const r=await fetch(url,{...options,headers:{'Content-Type':'application/json',...(options.headers||{})}});let j={};try{j=await r.json()}catch(_){}if(!r.ok)throw Object.assign(new Error(j.error||`HTTP ${r.status}`),{code:j.code,status:r.status});return j}
+function key(){return crypto.randomUUID?crypto.randomUUID():String(Date.now())+'-'+Math.random()}
+async function action(action,id,answer,decision){await request('/api/human-action',{method:'POST',body:JSON.stringify({action,id,answer,decision,idempotency_key:key()})});await load()}
+function render(data){$('login').classList.add('hidden');$('inbox').classList.remove('hidden');$('session').textContent='Session expires '+new Date(data.expires_at).toLocaleString();
+ $('asks').innerHTML=(data.asks||[]).map(r=>`<article class="card"><strong>${esc(r.question)}</strong><p class="muted">${esc(r.requester||'agent')} · ${esc(r.status)}</p><textarea id="a-${esc(r.id)}" aria-label="Answer"></textarea><button data-answer="${esc(r.id)}">Answer verbatim</button></article>`).join('')||'<p class="muted">No open questions.</p>';
+ $('suggestions').innerHTML=(data.suggestions||[]).map(r=>{const pending=(r.status||'pending_review')==='pending_review';return `<article class="card"><p>${esc(r.text)}</p><p class="muted">${pending?'pending review · inert until approved':esc(r.status.replace('_',' '))+' · queued for the canonical loop'}</p>${pending?`<div class="row"><button data-approve="${esc(r.id)}">Approve</button><button data-dismiss="${esc(r.id)}" class="danger">Dismiss</button></div>`:''}</article>`}).join('')||'<p class="muted">No pending suggestions.</p>';
+const cleanup=data.cleanup;
+$('cleanup').innerHTML=cleanup?`<article class="card"><p><strong>${esc(cleanup.status||'pending_iso')}</strong> · ${esc(cleanup.bundle_id||'')}</p><h3>Original · ${esc(cleanup.source_rulebook_hash||'')}</h3><pre>${esc(JSON.stringify(cleanup.original,null,2))}</pre><h3>Agent A replacement</h3><pre>${esc(JSON.stringify(cleanup.a_replacement,null,2))}</pre><h3>Agent B audit</h3><pre>${esc(JSON.stringify(cleanup.b_audit,null,2))}</pre><h3>Exact diff</h3><pre>${esc(cleanup.exact_diff||'')}</pre></article>`:'<p class="muted">No cleanup bundle queued.</p>';
+ document.querySelectorAll('[data-answer]').forEach(b=>b.onclick=()=>action('answer_ask',b.dataset.answer,$('a-'+b.dataset.answer).value));document.querySelectorAll('[data-approve]').forEach(b=>b.onclick=()=>action('moderate_suggestion',b.dataset.approve,null,'approved'));document.querySelectorAll('[data-dismiss]').forEach(b=>b.onclick=()=>action('moderate_suggestion',b.dataset.dismiss,null,'dismissed'));}
+async function load(){try{render(await request('/api/human-inbox'))}catch(e){$('inbox').classList.add('hidden');$('login').classList.remove('hidden');$('login-status').textContent=e.status===401?'Log in to see the private inbox.':e.message}}
+$('login-form').onsubmit=async e=>{e.preventDefault();$('login-status').textContent='Checking…';try{await request('/api/human-session',{method:'POST',body:JSON.stringify({password:$('password').value})});$('password').value='';await load()}catch(err){$('login-status').textContent=err.message}};
+$('refresh').onclick=load;$('logout').onclick=async()=>{await request('/api/human-session',{method:'DELETE'});location.reload()};load();
+</script></body></html>

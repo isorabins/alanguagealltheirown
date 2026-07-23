@@ -1,0 +1,12 @@
+{
+  "version": "0.4",
+  "changes": 4,
+  "next_id": 5,
+  "kernel_tokens": 99,
+  "rules": [
+    {"id":"rule-001","text_en":"Adopted alpha meaning.","status":"adopted","scores":{"fidelity_pct":90},"history":[]},
+    {"id":"rule-002","text_en":"Proposed beta meaning.","status":"proposed","scores":null,"history":[]},
+    {"id":"rule-003","text_en":"Rejected gamma meaning.","status":"rejected","scores":{"fidelity_pct":20},"history":[]},
+    {"id":"rule-004","text_en":"Reverted delta meaning.","status":"reverted","scores":{"fidelity_pct":50},"history":[]}
+  ]
+}

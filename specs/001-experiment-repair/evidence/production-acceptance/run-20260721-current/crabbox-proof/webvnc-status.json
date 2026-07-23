@@ -1,0 +1,12 @@
+{
+  "leaseId": "cbx_c2769e5ab363",
+  "status": {
+    "leaseID": "cbx_c2769e5ab363",
+    "slug": "swift-hermit",
+    "bridgeConnected": false,
+    "viewerConnected": false,
+    "command": "crabbox webvnc --provider hetzner --target linux --id swift-hermit --open",
+    "message": "WebVNC daemon not running; run: crabbox webvnc --provider hetzner --target linux --id swift-hermit --open"
+  },
+  "target": "linux"
+}

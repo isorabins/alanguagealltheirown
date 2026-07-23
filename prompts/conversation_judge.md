@@ -1,0 +1,1 @@
+Judge the complete six-message exchange against the scenario's explicit requirements. Return JSON only with `valid`, `requirements` (one complete verdict per requirement), `concrete_outcome`, `contradictions`, and `summary`. A pleasant conversation is not success: every required value, owner, constraint, and next step must be correct and unambiguous.

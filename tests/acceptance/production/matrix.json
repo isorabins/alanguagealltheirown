@@ -1,0 +1,32 @@
+{
+  "schemaVersion": 1,
+  "continuousVideo": "00-cross-turn-workflow.mp4",
+  "rows": [
+    {"id": 1, "name": "Deployed identity", "screenshots": ["01-deploy-version.png"]},
+    {"id": 2, "name": "A authority", "screenshots": ["02-a-authority.png"]},
+    {"id": 3, "name": "B authority/no-ops", "screenshots": ["03-b-authority.png"]},
+    {"id": 4, "name": "Adopted-only boundary", "screenshots": ["04-adopted-boundary.png"]},
+    {"id": 5, "name": "Cleanup preview/apply history", "screenshots": ["05-cleanup.png"]},
+    {"id": 6, "name": "RESEARCH lifecycle", "screenshots": ["06-research.png"]},
+    {"id": 7, "name": "ASK + /human lifecycle", "screenshots": ["07-human-ask.png"]},
+    {"id": 8, "name": "Suggestions", "screenshots": ["08-suggestion.png"]},
+    {"id": 9, "name": "Conversation", "screenshots": ["09-conversation.png"]},
+    {"id": 10, "name": "Try It four outcomes", "screenshots": ["10-try-it.png"]},
+    {"id": 11, "name": "Desktop/mobile disclosure", "screenshots": ["11-desktop.png", "12-mobile-375.png"]},
+    {"id": 12, "name": "Docs/current labels", "screenshots": ["13-docs-labels.png"]},
+    {"id": 13, "name": "X approved results", "screenshots": ["14-x-profile.png"]},
+    {"id": 14, "name": "Wrong password", "screenshots": ["15-wrong-password.png"]},
+    {"id": 15, "name": "Expired session", "screenshots": ["16-expired-session.png"]},
+    {"id": 16, "name": "Duplicate submission", "screenshots": ["17-duplicate.png"]},
+    {"id": 17, "name": "Rapid requests", "screenshots": ["18-rate-limit.png"]},
+    {"id": 18, "name": "HTML/script text", "screenshots": ["19-html-inert.png"]},
+    {"id": 19, "name": "Prompt injection text", "screenshots": ["20-injection-inert.png"]},
+    {"id": 20, "name": "Provider timeout", "screenshots": ["21-timeout.png"]},
+    {"id": 21, "name": "Missing research evidence", "screenshots": ["22-no-evidence.png"]},
+    {"id": 22, "name": "Rule change during Try It", "screenshots": ["23-version-race.png"]},
+    {"id": 23, "name": "Spending cap", "screenshots": ["24-cap.png"]},
+    {"id": 24, "name": "Three X failures", "screenshots": ["25-x-blocked.png"]},
+    {"id": 25, "name": "Historical integrity", "screenshots": ["26-history.png"]},
+    {"id": 26, "name": "Final cleanup/health", "screenshots": ["27-clean-final.png"]}
+  ]
+}

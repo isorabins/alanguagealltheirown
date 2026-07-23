@@ -1,0 +1,13 @@
+{
+  "worker": "crabbox-iso-pilot",
+  "origin": "https://crabbox-iso-pilot.iso-d9f.workers.dev",
+  "versionId": "9b2f1368-5391-4c0e-aad6-ab24dfad2645",
+  "workersDev": true,
+  "paidCloudflarePlanAdded": false,
+  "dnsChanged": false,
+  "durableObjectClass": "FleetDurableObject",
+  "provider": "hetzner",
+  "prewarmCount": 0,
+  "maxActiveLeases": 1,
+  "maxMonthlyUsd": 2
+}

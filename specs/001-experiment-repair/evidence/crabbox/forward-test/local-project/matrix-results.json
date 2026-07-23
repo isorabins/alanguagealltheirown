@@ -1,0 +1,317 @@
+{
+  "schemaVersion": 1,
+  "runId": "language-project-forward-test",
+  "target": "fixture",
+  "browser": "Google Chrome",
+  "browserRestarts": 1,
+  "rows": [
+    {
+      "id": 1,
+      "name": "Deployed identity",
+      "result": "PASS",
+      "error": null
+    },
+    {
+      "id": 2,
+      "name": "A authority",
+      "result": "PASS",
+      "error": null
+    },
+    {
+      "id": 3,
+      "name": "B authority/no-ops",
+      "result": "PASS",
+      "error": null
+    },
+    {
+      "id": 4,
+      "name": "Adopted-only boundary",
+      "result": "PASS",
+      "error": null
+    },
+    {
+      "id": 5,
+      "name": "Cleanup preview/apply history",
+      "result": "PASS",
+      "error": null
+    },
+    {
+      "id": 6,
+      "name": "RESEARCH lifecycle",
+      "result": "PASS",
+      "error": null
+    },
+    {
+      "id": 7,
+      "name": "ASK + /human lifecycle",
+      "result": "PASS",
+      "error": null
+    },
+    {
+      "id": 8,
+      "name": "Suggestions",
+      "result": "PASS",
+      "error": null
+    },
+    {
+      "id": 9,
+      "name": "Conversation",
+      "result": "PASS",
+      "error": null
+    },
+    {
+      "id": 10,
+      "name": "Try It four outcomes",
+      "result": "PASS",
+      "error": null
+    },
+    {
+      "id": 11,
+      "name": "Desktop/mobile disclosure",
+      "result": "PASS",
+      "error": null
+    },
+    {
+      "id": 12,
+      "name": "Docs/current labels",
+      "result": "PASS",
+      "error": null
+    },
+    {
+      "id": 13,
+      "name": "X approved results boundary",
+      "result": "PASS",
+      "error": null
+    },
+    {
+      "id": 14,
+      "name": "Wrong password",
+      "result": "PASS",
+      "error": null
+    },
+    {
+      "id": 15,
+      "name": "Expired session",
+      "result": "PASS",
+      "error": null
+    },
+    {
+      "id": 16,
+      "name": "Duplicate submission",
+      "result": "PASS",
+      "error": null
+    },
+    {
+      "id": 17,
+      "name": "Rapid requests",
+      "result": "PASS",
+      "error": null
+    },
+    {
+      "id": 18,
+      "name": "HTML/script text",
+      "result": "PASS",
+      "error": null
+    },
+    {
+      "id": 19,
+      "name": "Prompt injection text",
+      "result": "PASS",
+      "error": null
+    },
+    {
+      "id": 20,
+      "name": "Provider timeout",
+      "result": "PASS",
+      "error": null
+    },
+    {
+      "id": 21,
+      "name": "Missing research evidence",
+      "result": "PASS",
+      "error": null
+    },
+    {
+      "id": 22,
+      "name": "Rule change during Try It",
+      "result": "PASS",
+      "error": null
+    },
+    {
+      "id": 23,
+      "name": "Spending cap",
+      "result": "PASS",
+      "error": null
+    },
+    {
+      "id": 24,
+      "name": "Three X failures",
+      "result": "PASS",
+      "error": null
+    },
+    {
+      "id": 25,
+      "name": "Historical integrity",
+      "result": "PASS",
+      "error": null
+    },
+    {
+      "id": 26,
+      "name": "Final cleanup/health",
+      "result": "PASS",
+      "error": null
+    }
+  ],
+  "receipts": [
+    {
+      "file": "final-fixture-http-receipt.json",
+      "url": "http://127.0.0.1:62118/?row=26",
+      "status": 200,
+      "bytes": 1964,
+      "sha256": "b94530e64c69f148f801d4ee9e7cdf2d42d512f864f3b0f2e6d34582b70cc5f8"
+    }
+  ],
+  "files": [
+    {
+      "name": "01-deploy-version.png",
+      "bytes": 45914,
+      "sha256": "0938341b9b3b708e45745926db2145b8c0ac411bba1e7aef6049acbf6d12cf19"
+    },
+    {
+      "name": "02-a-authority.png",
+      "bytes": 44266,
+      "sha256": "81cc0721bd678c17453220fc337241ea3bc639f8ee9c901dc5a17aa821663842"
+    },
+    {
+      "name": "03-b-authority.png",
+      "bytes": 46705,
+      "sha256": "abe8dadf48cdc640e2cdde3f3b0ee2fdea707eabba01a1ceb49e90e5de4dfba4"
+    },
+    {
+      "name": "04-adopted-boundary.png",
+      "bytes": 46726,
+      "sha256": "1028652c84d9e938a03d8df7b5a4eabd1d61ed095d90b5f91b059b9634474640"
+    },
+    {
+      "name": "05-cleanup.png",
+      "bytes": 48105,
+      "sha256": "4791367bbfb3e2dbb0d151aaff69cd167f199e685b62d80d49ac1a2f8f0dbd84"
+    },
+    {
+      "name": "06-research.png",
+      "bytes": 46724,
+      "sha256": "630d6430661bb57a3375fd58ea8c2be675f10cc2e66eb3e71056d07f2d5f223a"
+    },
+    {
+      "name": "07-human-ask.png",
+      "bytes": 47381,
+      "sha256": "4cc23ce8e20acff8d01913af64f286d5b555cede7366054afe30d47940470597"
+    },
+    {
+      "name": "08-suggestion.png",
+      "bytes": 46750,
+      "sha256": "d0ff7fdbd31cf74be62aa99dbe3d6f3c7976465e02aba363db1ec190ac2f4c3a"
+    },
+    {
+      "name": "09-conversation.png",
+      "bytes": 48962,
+      "sha256": "16efbe96c873d33fdf5213207ee0833d7f1443a9bdfa40e49bf4c4259d0ba604"
+    },
+    {
+      "name": "10-try-it.png",
+      "bytes": 44846,
+      "sha256": "f16d4e015f934bb39fd07fdfe12e110972de87ca089a1a9911ec229fa3e86d03"
+    },
+    {
+      "name": "11-desktop.png",
+      "bytes": 47989,
+      "sha256": "5fddab23cec90a252408e305b6ea1449139c414f181011ce5b40cf0294ef5b0c"
+    },
+    {
+      "name": "12-mobile-375.png",
+      "bytes": 45560,
+      "sha256": "66f0aaf16d83dc0a7cfd7057358fdbc7189b46a75d5237fd42bb7f8a741521e7"
+    },
+    {
+      "name": "13-docs-labels.png",
+      "bytes": 43777,
+      "sha256": "febfcb159632cdfb499c6efeff4a82ca810fb777d0ff3c0f86a5a237b354dc8f"
+    },
+    {
+      "name": "14-x-profile.png",
+      "bytes": 45318,
+      "sha256": "d53d6b1b6dde1835b7b10a3222b8f7bc669574c1cf5f046f535ecd835873da9b"
+    },
+    {
+      "name": "15-wrong-password.png",
+      "bytes": 42659,
+      "sha256": "8ab93a26686c906bacda4e9d1b120e5e2c7bcb0e01161f18c25e285e6be9b0f9"
+    },
+    {
+      "name": "16-expired-session.png",
+      "bytes": 42053,
+      "sha256": "ab7d4979a5c8ecd37d7d9e042f59e8c01cb796877972ca9bbdefc0c2cd194e37"
+    },
+    {
+      "name": "17-duplicate.png",
+      "bytes": 44211,
+      "sha256": "d0b8094a07ba7f454ebe6569db31289c607f1bf49f1e7b0dad600be32417c67c"
+    },
+    {
+      "name": "18-rate-limit.png",
+      "bytes": 43045,
+      "sha256": "693d6067c80198cd9f82af4547855541f405966ccc53414c117c171d7ac30909"
+    },
+    {
+      "name": "19-html-inert.png",
+      "bytes": 42253,
+      "sha256": "5e21f91f661797b52f0f4eb607eb045ee5d97e22439ddb7efcafc9b976a8940f"
+    },
+    {
+      "name": "20-injection-inert.png",
+      "bytes": 45570,
+      "sha256": "6d4ced9b7648f28e5acc4d27d18f85be0f5bacf9aefc74c186c65588bb45c8f6"
+    },
+    {
+      "name": "21-timeout.png",
+      "bytes": 42241,
+      "sha256": "387b19e178393c50335cd8e680bd4736699c3f5310127d9c76a898e24af59271"
+    },
+    {
+      "name": "22-no-evidence.png",
+      "bytes": 44703,
+      "sha256": "683b9ca5a3c4596c5cd89082b5b1a2e204ef8811e006ad2bae8b25c9a95d5f82"
+    },
+    {
+      "name": "23-version-race.png",
+      "bytes": 41958,
+      "sha256": "0c6a84e61aa967c371054feef4c92715b5c2d9e900793419dcb4a84c71b505d1"
+    },
+    {
+      "name": "24-cap.png",
+      "bytes": 43865,
+      "sha256": "e1a6677652e9dc7d07d2bd2643561bc902371a3211a64f668597abead96266fb"
+    },
+    {
+      "name": "25-x-blocked.png",
+      "bytes": 42184,
+      "sha256": "728ae147d77feda0dea0417475a64f8c36db6a988d1df9446bb89bd7adad6957"
+    },
+    {
+      "name": "26-history.png",
+      "bytes": 43369,
+      "sha256": "3b1c9aa1fadcb09cbc547cbcbdc696fc7b1c98c3452644eef11cb8350283ebb6"
+    },
+    {
+      "name": "27-clean-final.png",
+      "bytes": 43703,
+      "sha256": "90b8c62628897b2c5e7eec437ec6f1cb113187733ac7d73ce6892094c82b946a"
+    },
+    {
+      "name": "final-fixture-http-receipt.json",
+      "bytes": 160,
+      "sha256": "4ed7686a567fc30d53eac3590393475606424578582137dd61303222a493b7e2"
+    }
+  ],
+  "overall": "PASS"
+}

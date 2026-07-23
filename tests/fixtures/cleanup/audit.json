@@ -1,0 +1,1 @@
+{"verdict":"pass","reviewed_source_hash":"26a50318c7f655869a37e0196426cb3838c736ae0e4cfbbb52221656ec9910cf","reviewed_candidate_hash":"17494b1f7660c4058dad06e26445420d9ae9d0bf146e97ee9f3fc0fdea24d828","covered_source_ids":["rule-001","rule-002"],"omissions":[],"meaning_changes":[],"operational_text":[],"notes":"fixture audit only"}

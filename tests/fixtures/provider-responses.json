@@ -1,0 +1,8 @@
+{
+  "openrouter_allowance": {"status": 429, "body": {"error": {"message": "monthly limit reached", "metadata": {"limit_reset": "monthly"}}}},
+  "openrouter_failure": {"status": 503, "body": {"error": {"message": "provider unavailable"}}},
+  "x_sync_success": {"success": true, "results": {"x": {"success": true, "url": "https://x.com/example/status/1"}}},
+  "x_partial_failure": {"success": true, "results": {"x": {"success": false, "error": "denied"}, "linkedin": {"success": true, "id": "wrong-platform"}}},
+  "x_async_pending": {"status": "processing"},
+  "x_async_missing": {"status": "not_found"}
+}

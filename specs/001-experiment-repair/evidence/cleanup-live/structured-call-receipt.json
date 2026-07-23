@@ -1,0 +1,47 @@
+{
+  "status": "failed_B_validation",
+  "source_hash": "57fbf58ea571eb6de76059e46da5ceb3eb918f6f8c047e7b23a8d01e46c85606",
+  "required_source_count": 23,
+  "candidate_rule_count": 10,
+  "candidate_covered_source_count": 23,
+  "candidate_unique_source_count": 23,
+  "candidate_hash": "251277000330b11f508db518dc40bd024209da6d75c5adfe12da3f63201bed10",
+  "audit_hash": "17746877ddb24125cb2afe3939ae202a7aee0cbdc3a3c337a5ef5355a77f6713",
+  "audit_verdict": "REJECT",
+  "calls": [
+    {
+      "role": "A_cleanup",
+      "requested_model": "deepseek/deepseek-v3.2-20251201",
+      "provider": "DeepInfra",
+      "generation_id": "gen-1784623526-ghZHGW698YMiTfLL7G92",
+      "prompt_tokens": 1989,
+      "completion_tokens": 1084,
+      "actual_metadata_cost_usd": 0.00092074,
+      "enforced_conservative_cost_usd": 0.00293496,
+      "raw_response_sha256": "9e1f43af9f12173a006dbfbdc18784cad4a1401e1cfa7016c019c3d807b754d7"
+    },
+    {
+      "role": "B_audit",
+      "requested_model": "moonshotai/kimi-k2.6",
+      "resolved_model": "moonshotai/kimi-k2.6-20260420",
+      "provider": "Decart",
+      "generation_id": "gen-1784623816-BCmp0kOvGQTC09WREtWt",
+      "prompt_tokens": 2984,
+      "completion_tokens": 1287,
+      "actual_metadata_cost_usd": 0.00635811,
+      "enforced_conservative_cost_usd": 0.0079828,
+      "raw_response_sha256": "ccf3e2ef18e8c3a1f8f2f7702080c74364ee9d20a3c39c77ff0d082ea9c2615c"
+    }
+  ],
+  "prior_g4_cost_usd": 0.012418691,
+  "additional_actual_metadata_cost_usd": 0.00727885,
+  "additional_enforced_conservative_cost_usd": 0.01091776,
+  "cumulative_actual_metadata_cost_usd": 0.019697541,
+  "cumulative_conservative_cost_usd": 0.023336451,
+  "additional_cap_usd": 0.1,
+  "cumulative_cap_usd": 0.12,
+  "bundle_created": false,
+  "production_applied": false,
+  "raw_responses_external_protected": true,
+  "secret_pattern_matches": 0
+}

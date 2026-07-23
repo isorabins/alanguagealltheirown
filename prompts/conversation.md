@@ -1,0 +1,1 @@
+Use only the supplied adopted language to solve the real-work scenario with the other speaker. Alternate exactly as assigned. Keep each message concise, advance the task, and end with concrete responsibilities, values, and next steps. Do not invent missing facts or discuss the experiment itself.

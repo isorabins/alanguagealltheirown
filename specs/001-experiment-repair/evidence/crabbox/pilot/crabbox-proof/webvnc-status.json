@@ -1,0 +1,13 @@
+{
+  "leaseId": "cbx_d2e0ea884dc5",
+  "status": {
+    "leaseID": "cbx_d2e0ea884dc5",
+    "slug": "pearl-crayfish",
+    "bridgeConnected": true,
+    "viewerConnected": false,
+    "availableViewerSlots": 4,
+    "command": "crabbox webvnc --provider hetzner --target linux --id pearl-crayfish --open",
+    "message": "bridge connected"
+  },
+  "target": "linux"
+}

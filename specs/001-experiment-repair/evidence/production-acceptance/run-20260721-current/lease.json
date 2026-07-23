@@ -1,0 +1,13 @@
+{
+  "leaseId": "cbx_c2769e5ab363",
+  "slug": "swift-hermit",
+  "provider": "hetzner",
+  "serverId": "153477287",
+  "serverType": "cpx32",
+  "region": "fsn1",
+  "ttlSeconds": 28800,
+  "idleTimeoutSeconds": 1800,
+  "expiresAt": "2026-07-21T09:40:07Z",
+  "warmupMs": 138544,
+  "coordinatorOwnedCleanup": true
+}
