@@ -2,28 +2,27 @@
 
 Date: 2026-07-24 WITA
 
-Status: **PAUSED FOR REPAIR**
+Status: **PASS**
 
-- Canonical public turn at verification: 652.
+- Canonical public turn at verification: 654.
 - VPS commit/upstream:
-  `4c27a689766e90ff62e49662ca549e0720a0e7a6`.
+  `1ffb3ade314b61d79fa5bb50386c7516d8b75055`.
 - VPS worktree: clean.
-- `language-loop.timer`: enabled but deliberately inactive after the final
-  collaboration-log audit.
+- `language-loop.timer`: active, enabled, waiting.
 - `language-loop.service`: inactive after exit status 0.
-- Next scheduled event after activation: 2026-07-24 09:45:00 WITA.
+- Next scheduled event after final verification: 2026-07-24 10:00:00 WITA.
 - `TWEET_ENABLE=0`.
-- Raw GitHub `main` state returned turn 652.
+- Raw GitHub `main` state returned turn 654.
 - Public `/` and `/human` returned HTTP 200.
 - Production deployment
   `dpl_CzgAomaSfG5j7V1ikcjve5W6gDz6` returned Ready and retained the public
   alias.
 - Live Try It and human-session lifecycle passed.
-- The core service and provider path remained healthy, but the collaboration
-  courier logged `not configured` because it read only process environment
-  while the service's credentials live in repo-local `.env`.
+- The repaired turn 653 and timer-driven turn 654 both exited 0.
+- The collaboration log line count stayed at its four pre-repair warnings
+  through both repaired turns; no new courier warning appeared.
+- OpenRouter readback found the distinct enabled public key with `$20` monthly
+  limit and `$0.001439199` usage after the live Try It test.
 
-The launch correctly failed closed before turn 653. The scoped repair teaches
-`collab_sync.py` to read only the two approved Redis names from process
-environment or repo-local `.env`; recurrence remains paused until that commit
-is merged, synced, and a clean retry completes.
+Core activation is live and healthy. Cleanup generation/application and X
+publication remain deliberately deferred.
