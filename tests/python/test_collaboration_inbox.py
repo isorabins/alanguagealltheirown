@@ -1,5 +1,6 @@
 import copy
 import json
+import os
 import tempfile
 import threading
 import unittest
@@ -38,6 +39,27 @@ class FakeRedis(RedisRest):
 
 
 class CollaborationTests(unittest.TestCase):
+    def test_courier_reads_exact_redis_names_from_repo_dotenv(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root=Path(directory)
+            (root/".env").write_text(
+                "UNRELATED=value\n"
+                "UPSTASH_REDIS_REST_URL=https://redis.example.test\n"
+                "UPSTASH_REDIS_REST_TOKEN='fixture-token'\n"
+            )
+            with mock.patch.dict(os.environ, {
+                "UPSTASH_REDIS_REST_URL": "",
+                "UPSTASH_REDIS_REST_TOKEN": "",
+            }):
+                self.assertEqual(
+                    collab_sync.config_value("UPSTASH_REDIS_REST_URL", root),
+                    "https://redis.example.test",
+                )
+                self.assertEqual(
+                    collab_sync.config_value("UPSTASH_REDIS_REST_TOKEN", root),
+                    "fixture-token",
+                )
+
     def test_real_rest_client_uses_json_command_envelope(self):
         httpd=server({"/":(200,{"result":1})}); thread=threading.Thread(target=httpd.serve_forever,daemon=True); thread.start()
         try:

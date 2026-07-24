@@ -104,3 +104,20 @@ approved checkpoint as the remote head.
 - No production submission could be created because the required visible
   surfaces are absent. No production, deployment, loop, canonical-state, or X
   action occurred.
+
+## 2026-07-23 — approved Production release and non-mutating smoke
+
+- Draft PR #1 merged into `main` at
+  `0cc16b5f21ad9c3a0d872755ac63675925ac1fa4`; the live viewer deployment is
+  `dpl_5AEUyzhuuHaZ6rxJzgFaGN8S6XVM`, Ready.
+- `https://alanguagealltheirown.com/` and `/human` both returned HTTP 200 after
+  the correct `viewer/` Production deployment and standard alias assignment.
+- One approved CPX32 `fsn1` Crabbox smoke lease recorded a 180-second outer
+  video and one browser restart. The non-mutating 26-row inspection was 18/26
+  PASS; the eight failing rows are existing inactive loop/RESEARCH/ASK/X and
+  failure-state gates, not route failures. Full detail is in
+  `evidence/production-acceptance/live-20260723-smoke.md`.
+- No application credential, canonical-state, live-loop, test submission, or X
+  action occurred. Lease teardown is verified: zero active leases, released
+  server HTTP 404, zero matching SSH keys, and `$0.08` cumulative coordinator
+  estimated infrastructure spend.

@@ -465,12 +465,14 @@ made live.
 | FR-042, FR-043 | T026, T029–T043, T089, T093 |
 | FR-044, FR-045, FR-046, FR-047 | T026, T032, T099, T102–T106 |
 | FR-048, FR-049, FR-050, FR-051, FR-052, FR-053, FR-054, FR-055 | T108–T117, T128–T143, T149–T152 |
+| FR-056 | T168–T174 |
 | SC-001, SC-002, SC-003, SC-004, SC-005 | T014–T043, T130 |
 | SC-006, SC-007, SC-008, SC-009, SC-010 | T044–T087, T122, T131–T132 |
 | SC-011, SC-012, SC-013, SC-014, SC-015 | T024, T088–T100, T132–T137 |
 | SC-016 | T128–T143 |
 | SC-017, SC-018, SC-019 | T026–T043, T052, T057–T068, T089, T093, T099, T102–T106 |
 | SC-020, SC-021, SC-022, SC-023 | T108–T117, T128–T143, T149–T152 |
+| SC-024 | T168, T171–T176 |
 
 ## Implementation Strategy
 
@@ -482,9 +484,31 @@ the serialized live gates.
 
 ## Format Validation
 
-All 167 tasks use the required checkbox, sequential task id, optional `[P]`,
+All 176 tasks use the required checkbox, sequential task id, optional `[P]`,
 story label only in story phases, and an explicit file or evidence path.
 
 ## Phase 21: Convergence
 
 - [X] T167 STOP for one new exact Preview evidence approval; then run the corrected full 12-row Preview matrix in one fresh bounded Crabbox lease, prove the textarea placeholder assertion, capture and inspect one continuous cross-restart MP4, rerun the evidence audit, and update `specs/001-experiment-repair/evidence/preview-acceptance/` before claiming a Preview PASS. (SC-016, SC-020, SC-021, FR-049; partial)
+
+---
+
+## Phase 22: Approved Launch-First Core Activation
+
+**Goal**: Make the repaired core experiment live now with the existing turn-650
+rulebook preserved. Cleanup and X are explicitly deferred and do not block this
+core-live checkpoint.
+
+- [X] T168 Record the exact launch-first approval, verified public/VPS hashes, unchanged-rulebook invariant, rollback deployment, and excluded cleanup/X actions in `specs/001-experiment-repair/evidence/launch-first/preflight.md` (FR-012, FR-056)
+- [X] T169 Create or promote the Production collaboration, human-password/session, and separate public-inference configuration; verify the public key is distinct, limited to `$20` with monthly reset, and no secret value is printed in `specs/001-experiment-repair/evidence/launch-first/credentials.md` (FR-020, FR-028, FR-040, SC-010)
+- [X] T170 Add one supported Vercel fixed-window login-abuse rule within the current plan limit and record its active metadata without secret values in `specs/001-experiment-repair/evidence/launch-first/firewall.md`
+- [X] T171 Sync the paused clean VPS from `75cd457` to reviewed `origin/main`, install only the approved collaboration environment names, set `TWEET_ENABLE=0`, and prove the canonical state hashes are unchanged in `specs/001-experiment-repair/evidence/launch-first/runtime-sync.md` (FR-012, FR-033, FR-040, FR-056)
+- [X] T172 Deploy only `viewer/` to Vercel Production with reviewed commit metadata and rollback deployment `dpl_5AEUyzhuuHaZ6rxJzgFaGN8S6XVM`; verify `/`, `/human`, session, suggestion, and Try It routes in `specs/001-experiment-repair/evidence/launch-first/deployment.md` (FR-020, FR-022, FR-027–029, FR-056)
+- [ ] T173 Resume `language-loop.timer`, trigger or await exactly one normal production turn, and immediately re-pause on any service, provider, queue, duplicate, state, or invariant warning in `specs/001-experiment-repair/evidence/launch-first/first-turn.md` (FR-056, SC-024)
+- [ ] T174 Verify the loop advanced beyond turn 650, X remained disabled, the repaired commit is current, public state updated, and the timer/service are healthy in `specs/001-experiment-repair/evidence/launch-first/health.md` (SC-024)
+- [ ] T175 Run the full offline suite and contract coverage, inspect the production/state diff, and commit/push only scoped launch-first contract/evidence changes on `codex/experiment-repair` in `specs/001-experiment-repair/evidence/launch-first/verification.md`
+- [ ] T176 Run Spec Kit convergence and report branch, commits, push/main/deploy state, dirty files, live URL, timer/turn/X state, and exact core-live PASS/FAIL/BLOCKED result in `specs/001-experiment-repair/evidence/launch-first/closeout.md`
+
+**Checkpoint**: Core-live is `PASS` only when one repaired production turn has
+completed with the existing rulebook launch invariant, X disabled, public
+surfaces healthy, and no unexplained warning or dirty state.
