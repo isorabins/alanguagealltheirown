@@ -173,6 +173,13 @@ def render_window(conv):
         if e["type"] == "notice":
             out.append(f"[turn {e['turn']} — HARNESS CORRECTION]\n{e['content']}")
             continue
+        if e["type"] == "legislature":
+            receipt = e.get("motion_receipt") or {}
+            out.append(
+                f"[turn {e['turn']} — LEGISLATURE] "
+                f"{receipt.get('verb') or 'no motion'}: "
+                f"{receipt.get('reason') or 'no receipt'}")
+            continue
         if e["type"] == "test":
             audit = ""
             if e.get("total"):

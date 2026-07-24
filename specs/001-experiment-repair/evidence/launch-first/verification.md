@@ -34,3 +34,25 @@ process, external X post, or dirty VPS state occurred.
 
 The hotfix must still merge to `main`, sync to the paused VPS, and complete one
 warning-free production turn before core-live can be PASS.
+
+## Repaired-turn preflight finding
+
+PR #2 merged the courier repair as
+`ceb4747c2b0a2105f5ffc08f655653ec6546b9c5`. The paused VPS fast-forwarded to
+that commit with semantic rulebook/conversation hashes unchanged, and direct
+courier pull/push probes returned silently with a clean worktree.
+
+The subsequent service retry failed before producing turn 653 because
+`render_window()` treated a turn-652 `legislature` receipt as an agent message
+and accessed its intentionally absent `content` field. Systemd exited 1, the
+canonical state stayed at turn 652, the repository stayed clean, and the timer
+remained inactive.
+
+The second scoped repair renders legislature receipts explicitly and adds a
+regression fixture with no `content` field. Verification after that repair:
+
+- Focused evidence/collaboration suite: 18 tests, PASS.
+- Full Python suite: 73 tests, PASS.
+- Full Node/acceptance suite: 37 tests, PASS.
+- Contract coverage: 80 requirements / 176 tasks, PASS.
+- `git diff --check`: PASS.
