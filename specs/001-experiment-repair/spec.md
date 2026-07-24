@@ -4,7 +4,7 @@
 
 **Created**: 2026-07-20 WITA
 
-**Status**: Offline product implementation and Crabbox infrastructure pilot complete; current-deployment acceptance run FAIL because the reviewed product is not deployed
+**Status**: Public application deployed; launch-first core-runtime activation approved with the existing rulebook preserved and cleanup deferred
 
 **Input**: Repair the experimental contract of “A Language All Their Own,” preserve its history, add bounded public collaboration, and make every public claim match verified state. This specification consolidates Iso's line-by-line decisions from the skeptical audit completed on 2026-07-20.
 
@@ -258,7 +258,7 @@ As Iso, I can keep using my visible Mac while the full human browser journey run
 - **FR-009**: Forbidden role actions and repeated settled motions MUST NOT change state, history, or public revision counts.
 - **FR-010**: Both agents MUST share a concise constitution containing the stranger-decodability requirement, measurement discipline, public-history commitment, 50% target, and affordability/access mission.
 - **FR-011**: The shared constitution MUST NOT contain active dumb-script framing, power-grid/gigawatt claims, or unsupported novelty/traffic-growth claims.
-- **FR-012**: The normal loop MUST be paused and the current rulebook preserved before the one-time cleanup pass.
+- **FR-012**: The current rulebook MUST remain byte-identical through the launch-first core-runtime activation. The optional one-time cleanup remains paused and separately approval-gated; it is no longer a prerequisite for resuming the repaired loop.
 - **FR-013**: DeepSeek A MUST author one cleaned active rulebook through a strict coverage-complete draft: every adopted source id is a required assignment key, A either maps it to A-authored cleaned group text or explicitly excludes it as operational, fragmentary, or contradictory, and deterministic code derives each candidate rule's `source_ids` plus the complete exclusion receipt; missing/extra assignments, unjustified exclusions, unknown/orphan/duplicate groups, schema-incompatible routing, or candidate validation failure MUST stop before Kimi. Kimi B MUST audit the compiled candidate, treat only documented non-language exclusions as intentional rather than silent omissions, and Iso MUST receive an exact diff before any application.
 - **FR-014**: Cleanup MUST NOT require a new permanent bureaucracy of supersede/archive operations beyond the minimal normal governance contract.
 - **FR-015**: Fidelity MUST be calculated only when the judge returns every answer-key item exactly once with no duplicates or out-of-range identifiers; otherwise the exam is invalid.
@@ -302,6 +302,7 @@ As Iso, I can keep using my visible Mac while the full human browser journey run
 - **FR-053**: Credentials MUST enter only through an external protected environment profile with an explicit name allowlist; secret values MUST NOT appear in chat, repository files, skill files, command arguments, screenshots, video, logs, or proof bundles.
 - **FR-054**: The pilot MUST verify teardown through coordinator and provider readbacks and MUST NOT pass with an active lease, stuck cleanup, unknown spend, or unverified secret hygiene.
 - **FR-055**: A reusable local Codex skill MUST reproduce the remote human-testing pattern for another repository, include only necessary scripts/references and `agents/openai.yaml`, pass `quick_validate.py`, and pass a fresh realistic off-production forward test.
+- **FR-056**: The launch-first activation MUST sync the repaired runtime to the current reviewed `main`, configure the existing collaboration, human-review, and separately capped public-inference dependencies, keep X delivery disabled, resume the loop with the existing rulebook, and stop or re-pause immediately if the first observed turn changes state outside the normal loop path or emits a health/invariant warning.
 
 ### Scope and Non-Goals
 
@@ -354,6 +355,7 @@ As Iso, I can keep using my visible Mac while the full human browser journey run
 - **SC-021**: The Crabbox pilot produces an auditable screenshot/proof bundle, verifies zero active leases after teardown, and reports actual new-infrastructure spend at or below `$2`.
 - **SC-022**: Secret scanning and manual evidence inspection find zero credential values in repository changes, skill files, command history, logs, screenshots, video, or proof bundles.
 - **SC-023**: The reusable skill passes structural validation and a fresh forward test for a second off-production visible browser fixture without project-specific credential names or acceptance assumptions.
+- **SC-024**: One production turn completes on the repaired runtime after activation, advances beyond turn 650, leaves the pre-resume rulebook history intact except for a normal agent-authored turn outcome, keeps X delivery disabled, and leaves the timer active with no service, queue, provider, or invariant warning.
 
 ## Assumptions
 
@@ -432,3 +434,4 @@ The implementation plan MUST include planned stops before:
 | 2026-07-22 | Separately approved Preview follow-up: rows 1–8 passed through the visible browser; the outer recording is a valid 180-second MP4; the local suite remains 7 harness, 28 JavaScript, 71 Python, and 78-requirement coverage | Production `dpl_6rrcd4YdGMTYkcUdEUsCQan7qQCS` remains unchanged. Follow-up Preview data deleted 13 keys; post-release coordinator/provider reads show zero live resources and `$0.06` cumulative estimated infrastructure spend | Preview checkpoint remains FAIL: row 9 used an invalid `#cast` assertion scope (corrected locally but not rerun); rows 10–12 are unrun. The follow-up one-run approval is consumed. Production gaps remain unchanged. |
 | 2026-07-23 | Final separately approved Preview acceptance PASS: local actual-viewer preflight passed; the non-fail-fast remote matrix passed all 12 required rows; 23 numbered screenshots, proof bundle, and inspected 180.000-second cross-restart outer MP4 were captured | Isolated Preview `dpl_F4hbURLyYz6n6AfXV8CG7F9Xd2jA` remains Ready; Preview cleanup deleted 12 keys with zero remaining; released CPX32 server returns 404; coordinator has zero active leases and reports `$0.07` cumulative estimated infrastructure spend | Preview is review-ready on draft PR #1 only. No merge, `main`, Production deploy/alias/routing/credential change, canonical-state application, loop resume, or publication occurred; all Production gates remain planned stops. |
 | 2026-07-23 | Explicitly approved Production release: draft PR #1 merged at `0cc16b5`; the corrected `viewer/` deployment is public at `alanguagealltheirown.com`; Crabbox recorded a 180-second, one-restart non-mutating Production inspection | Public `/` and `/human` are HTTP 200. The 26-row inspection is 18/26 PASS: public routes/surfaces render, while loop-dependent cleanup/RESEARCH/ASK, failure-state, and X rows remain inactive. Lease cleanup verified zero resources and `$0.08` cumulative coordinator estimate | Production is publicly reachable, but this is not full Production acceptance. T120 and the active-loop/canonical-state/X gates remain open; no application credential, canonical-state, loop, or X action occurred. |
+| 2026-07-24 | Iso explicitly changed the launch sequence: activate the repaired core runtime with the existing rulebook unchanged, configure the missing Production dependencies, keep X disabled, and verify one real turn | Exact approval `launch-alato-core-with-existing-rulebook-20260724-l4v8` authorizes the bounded launch-first activation; cleanup generation/application and X remain deferred | Complete T168–T176. Full cleanup and X acceptance remain separate optional/public gates and do not block the core-live result. |

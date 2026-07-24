@@ -9,9 +9,9 @@ tasks = (ROOT / "specs/001-experiment-repair/tasks.md").read_text()
 requirements = sorted(set(re.findall(r"\b(?:FR|SC)-\d{3}\b", spec)))
 missing = [key for key in requirements if key not in tasks]
 task_ids = re.findall(r"^- \[[ Xx]\] (T\d{3})\b", tasks, re.M)
-expected = [f"T{i:03d}" for i in range(1, 168)]
+expected = [f"T{i:03d}" for i in range(1, 177)]
 if missing:
     raise SystemExit("requirements missing from task traceability: " + ", ".join(missing))
 if task_ids != expected:
-    raise SystemExit("task ids are not the exact sequential T001-T167 set")
+    raise SystemExit("task ids are not the exact sequential T001-T176 set")
 print(f"PASS: {len(requirements)} requirements traced; {len(task_ids)} sequential tasks present")
