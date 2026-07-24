@@ -1,6 +1,1 @@
-{
- "spend_usd": 2.225396,
- "last_agent": "B",
- "tests_run": 210,
- "started": "2026-07-14T23:38:31Z"
-}
+{"corpus_exams":[{"fidelity":96,"language_hash":"cbd9f1aee46e67ba16e02d4613b12671bb111426ff9e08e391415898cbdf8272","language_version":"adopted-cbd9f1aee46e","token_delta_pct":-34,"turn":651,"valid":true}],"last_agent":"B","spend_usd":2.227392,"started":"2026-07-14T23:38:31Z","tests_run":211}
