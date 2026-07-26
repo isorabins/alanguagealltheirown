@@ -24,7 +24,7 @@
     --ground: #0b0a08;
     --ink: #e6ddc6;
     --ink-dim: #9a917c;
-    --ink-faint: #6e6654;
+    --ink-faint: #8c836f;
     --hairline: rgba(230, 221, 198, 0.16);
     --accent: #c9a86a;
     --bad: #b0704f;
@@ -32,11 +32,14 @@
     --mono: ui-monospace, "SF Mono", Menlo, "Cascadia Mono", monospace;
   }
   * { margin: 0; padding: 0; box-sizing: border-box; }
+  html { background: var(--ground); }
   body {
     background: var(--ground); color: var(--ink);
     font-family: var(--serif); line-height: 1.55;
-    max-width: 1100px; margin: 0 auto; padding: 3.4rem 2rem 6rem;
+    width: min(1100px, 100%); margin: 0 auto; padding: 3.4rem 2rem 6rem;
   }
+  a { color: var(--accent); text-decoration-color: rgba(201, 168, 106, 0.55); text-underline-offset: 3px; }
+  :focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
   header { text-align: center; margin-bottom: 2.4rem; }
   h1 { font-weight: 400; font-size: 1.7rem; letter-spacing: 0.22em; text-transform: uppercase; }
   .statement { max-width: 40rem; margin: 0.9rem auto 0; color: var(--ink-dim); font-size: 0.98rem; }
@@ -87,7 +90,7 @@
   }
   .pane-body { overflow-y: auto; padding: 1rem; flex: 1; scrollbar-width: thin; scrollbar-color: var(--ink-faint) transparent; }
   .m { font-family: var(--mono); font-size: 0.73rem; line-height: 1.62; white-space: pre-wrap;
-       word-wrap: break-word; color: var(--ink); margin-bottom: 1.15rem; }
+       overflow-wrap: anywhere; color: var(--ink); margin-bottom: 1.15rem; }
   .m .t { color: var(--ink-faint); font-size: 0.62rem; letter-spacing: 0.14em; display: block; margin-bottom: 0.25rem; }
   .m .verb { color: var(--accent); }
   .tick {
@@ -167,11 +170,79 @@
   .ti-verdict { font-family: var(--mono); font-size: 0.72rem; color: var(--ink); border-top: 1px dashed var(--hairline);
     margin-top: 0.9rem; padding-top: 0.7rem; }
   .ti-verdict .ok { color: var(--accent); } .ti-verdict .low { color: var(--bad); }
-  .collab-form { border: 1px solid var(--hairline); padding: 1rem 1.2rem; margin: 1.2rem 0; }
+  pre { max-width: 100%; white-space: pre-wrap; overflow-wrap: anywhere; }
+  .collab-form { border-top: 1px solid var(--hairline); border-bottom: 1px solid var(--hairline);
+    padding: 1rem 0; margin: 1.2rem 0; }
+  .collab-form label { display: block; color: var(--ink-dim); font-size: 0.9rem; margin-bottom: 0.45rem; }
   .collab-form textarea { width: 100%; min-height: 5rem; background: transparent; color: var(--ink); border: 1px solid var(--hairline); padding: 0.8rem; font: inherit; }
-  .collab-form button { background: transparent; color: var(--ink); border: 1px solid var(--hairline); padding: 0.65rem 1rem; margin-top: 0.6rem; cursor: pointer; }
-  .collab-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; }
-  .collab-card { border: 1px solid var(--hairline); padding: 0.9rem; overflow-wrap: anywhere; }
+  .collab-form button { background: transparent; color: var(--ink); border: 1px solid var(--hairline);
+    padding: 0.65rem 1rem; margin-top: 0.6rem; cursor: pointer; font-family: var(--mono);
+    font-size: 0.66rem; letter-spacing: 0.16em; text-transform: uppercase; }
+  .collab-form button:hover { border-color: var(--accent); color: var(--accent); }
+
+  .status-band { border-top: 1px solid var(--hairline); border-bottom: 1px solid var(--hairline);
+    padding: 1.2rem 0; }
+  .status-main { display: grid; grid-template-columns: minmax(0, 1.6fr) minmax(16rem, 0.8fr);
+    gap: 2rem; align-items: start; }
+  .status-kicker { display: block; font-family: var(--mono); font-size: 0.62rem;
+    letter-spacing: 0.18em; text-transform: uppercase; color: var(--accent); margin-bottom: 0.4rem; }
+  .status-question { font-size: 1rem; line-height: 1.55; }
+  .status-question-meta { color: var(--ink-dim); font-size: 0.82rem; margin-top: 0.45rem; }
+  .status-question-detail { margin-top: 0.8rem; border-top: 1px dashed var(--hairline); }
+  .status-question-detail summary { text-align: left; padding: 0.65rem 0 0.25rem;
+    letter-spacing: 0.12em; }
+  .status-question-detail p { color: var(--ink-dim); font-size: 0.86rem; padding: 0.35rem 0;
+    overflow-wrap: anywhere; }
+  .status-counts { display: grid; grid-template-columns: 1fr 1fr; gap: 0.8rem 1.2rem; }
+  .status-count { border-left: 1px solid var(--hairline); padding-left: 0.8rem;
+    font-family: var(--mono); font-size: 0.61rem; color: var(--ink-faint);
+    letter-spacing: 0.1em; text-transform: uppercase; }
+  .status-count b { display: block; color: var(--ink); font-size: 0.92rem; font-weight: 400;
+    letter-spacing: 0.02em; margin-top: 0.2rem; text-transform: none; }
+  .status-line { font-family: var(--mono); color: var(--ink-faint); font-size: 0.62rem;
+    letter-spacing: 0.06em; margin-top: 1rem; }
+
+  .conversation-outcome { border-top: 1px dashed var(--hairline); margin-top: 1rem; padding-top: 1rem; }
+  .conversation-outcome .outcome { color: var(--ink); font-size: 0.96rem; max-width: 48rem; }
+  .judgment-state { display: inline-block; font-family: var(--mono); font-size: 0.6rem;
+    letter-spacing: 0.12em; text-transform: uppercase; color: var(--accent); margin-bottom: 0.55rem; }
+  .judgment-state.held { color: var(--bad); }
+  .requirements { list-style: none; margin-top: 0.9rem; }
+  .requirements li { border-top: 1px solid var(--hairline); padding: 0.65rem 0;
+    font-family: var(--mono); font-size: 0.68rem; line-height: 1.55; }
+  .requirements b { color: var(--ink); font-weight: 400; display: block; }
+  .requirements span { color: var(--ink-dim); }
+  .exchange { margin-top: 1rem; }
+  .exchange .m { padding: 0 0.2rem; }
+  .raw-evidence { margin-top: 0.8rem; border-top: 1px dashed var(--hairline); }
+  .raw-evidence pre { font-family: var(--mono); font-size: 0.66rem; line-height: 1.55;
+    color: var(--ink-dim); padding: 0.7rem 0.2rem 0.2rem; }
+
+  .current-proposal { border-left: 2px solid var(--accent); padding: 0.9rem 1.1rem;
+    margin: 1rem 0; background: rgba(230, 221, 198, 0.025); overflow-wrap: anywhere; }
+  .current-proposal .id { display: block; font-family: var(--mono); font-size: 0.62rem;
+    letter-spacing: 0.14em; text-transform: uppercase; color: var(--accent); margin-bottom: 0.4rem; }
+  .current-proposal .meta { font-family: var(--mono); font-size: 0.62rem;
+    color: var(--ink-faint); margin-top: 0.45rem; }
+  .proposal-archive { margin-top: 0.6rem; }
+
+  .lab-book { margin-top: 3rem; border-top: 1px solid var(--hairline);
+    border-bottom: 1px solid var(--hairline); }
+  .lab-book > summary { color: var(--ink-dim); padding: 1.1rem; }
+  .lab-body { padding: 0 0.4rem 1.8rem; }
+  .archive-group { margin-top: 1.4rem; }
+  .archive-group > h3 { font-family: var(--mono); font-size: 0.66rem; letter-spacing: 0.16em;
+    text-transform: uppercase; color: var(--ink-dim); font-weight: 400; margin-bottom: 0.5rem; }
+  .archive-list details { margin-top: 0; border-top: 1px solid var(--hairline); }
+  .archive-list details:last-child { border-bottom: 1px solid var(--hairline); }
+  .archive-list summary { text-align: left; text-transform: none; letter-spacing: 0.03em;
+    font-family: var(--serif); font-size: 0.88rem; color: var(--ink-dim); padding: 0.75rem 0.35rem; }
+  .archive-entry { padding: 0.1rem 0.35rem 1rem; color: var(--ink-dim); font-size: 0.84rem;
+    overflow-wrap: anywhere; }
+  .archive-entry .status { display: block; font-family: var(--mono); font-size: 0.6rem;
+    letter-spacing: 0.1em; text-transform: uppercase; color: var(--accent); margin-bottom: 0.5rem; }
+  .archive-entry .findings { white-space: pre-wrap; }
+  .archive-entry .citations { margin-top: 0.65rem; font-family: var(--mono); font-size: 0.62rem; }
 
   .exrows { border-bottom: 1px solid var(--hairline); }
   details.exrow { margin-top: 0; border-top: 1px solid var(--hairline); }
@@ -210,16 +281,30 @@
 
   .note { padding: 0.85rem 0; border-top: 1px solid var(--hairline); }
   .note:first-child { border-top: none; }
-  .note .nd { font-family: var(--mono); font-size: 0.72rem; color: #6e6654; display: block; margin-bottom: 0.25rem; }
+  .note .nd { font-family: var(--mono); font-size: 0.72rem; color: var(--ink-faint); display: block; margin-bottom: 0.25rem; }
   footer { margin-top: 3.4rem; padding-top: 1.1rem; border-top: 1px solid var(--hairline);
     font-family: var(--mono); font-size: 0.62rem; letter-spacing: 0.12em; color: var(--ink-faint);
     text-transform: uppercase; text-align: center; }
   footer a { color: inherit; text-decoration: underline; text-underline-offset: 3px; }
   footer a:hover { color: #c9a86a; }
   @media (max-width: 760px) {
-    .panes, .decisions, .tx-cols, .collab-grid { grid-template-columns: 1fr; }
+    body { padding: 2.4rem 1rem 4rem; }
+    h1 { font-size: 1.42rem; letter-spacing: 0.16em; }
+    .panes, .decisions, .tx-cols, .status-main { grid-template-columns: 1fr; }
     .pane { height: 340px; }
     .timers { gap: 2rem; }
+    .metrics { gap: 1.2rem 1.8rem; }
+    .status-counts { grid-template-columns: 1fr 1fr; }
+    .ti-row { align-items: flex-start; gap: 0.8rem; }
+    .grave .kill { display: block; margin: 0.25rem 0 0; white-space: normal; }
+  }
+  @media (max-width: 420px) {
+    h1 { font-size: 1.24rem; letter-spacing: 0.13em; }
+    .statement { font-size: 0.92rem; }
+    .timers { gap: 1.3rem; }
+    .timers .tval { font-size: 2.2rem; }
+    .status-counts { grid-template-columns: 1fr; }
+    .ti-row { flex-direction: column; }
   }
 </style>
 </head>
@@ -256,12 +341,30 @@
 </form>
 <div class="decisions" id="decisions"></div>
 
-<h2>Collaboration</h2>
-<p class="how">Agent research and questions persist without blocking the loop. Only approved suggestion lifecycle states appear publicly.</p>
-<div class="collab-grid"><div class="collab-card"><strong>Research</strong><div id="research"></div></div><div class="collab-card"><strong>Questions for Iso</strong><div id="asks"></div></div><div class="collab-card"><strong>Approved suggestions</strong><div id="suggestions"></div></div></div>
-
-<h2>X Delivery</h2>
-<p class="how" id="x-status">Confirmed single-post delivery only. Dry runs and failed attempts do not count as posted.</p>
+<section aria-labelledby="experiment-status">
+<h2 id="experiment-status">Experiment Status</h2>
+<p class="how">The one thing that needs attention now, with the operational record kept out of the main story.</p>
+<div class="status-band">
+  <div class="status-main">
+    <div>
+      <span class="status-kicker">operator review</span>
+      <p class="status-question" id="ask-summary">No open operator question.</p>
+      <p class="status-question-meta" id="ask-meta"></p>
+      <details class="status-question-detail" id="ask-detail" hidden>
+        <summary>read the latest technical question</summary>
+        <div id="asks"></div>
+      </details>
+    </div>
+    <div class="status-counts" aria-label="Collaboration status">
+      <div class="status-count">research notes<b id="research-count">0</b></div>
+      <div class="status-count">operator issue<b id="ask-count">0</b></div>
+      <div class="status-count">approved suggestions<b id="suggestion-count">0</b></div>
+      <div class="status-count">language state<b id="language-state">current</b></div>
+    </div>
+  </div>
+  <p class="status-line" id="x-status">X delivery status unavailable.</p>
+</div>
+</section>
 
 <h2>Latest Conversation</h2>
 <p class="how">Once per 32 ordinary exams, two fresh speakers use the captured adopted language for six alternating messages, then a separate judge checks the concrete outcome.</p>
@@ -314,9 +417,29 @@ canned — you are watching the live pipeline run on your words.</p>
   <div id="adopted"></div>
 </details>
 
-<h2>Proposed, Not Yet Tested</h2>
-<p class="how">Add and repeal motions currently under debate. They remain outside ordinary encoding, decoding, Try It, and Conversation until Kimi decides them.</p>
-<ul class="table-note" id="proposed"></ul>
+<h2>Current Legislature</h2>
+<p class="how">The latest unresolved motion in stored state is shown here. Earlier unsettled records stay in history until operator review resolves the deadlock.</p>
+<div id="current-proposal"></div>
+<details class="proposal-archive">
+  <summary id="proposal-archive-summary">earlier unresolved proposal records</summary>
+  <ul class="table-note" id="proposed"></ul>
+</details>
+
+<details class="lab-book">
+<summary>Lab notebook · research, methods &amp; archive</summary>
+<div class="lab-body">
+<div class="archive-group">
+  <h3>Research log</h3>
+  <div class="archive-list" id="research"></div>
+</div>
+<div class="archive-group">
+  <h3>Operator-question history</h3>
+  <div class="archive-list" id="ask-archive"></div>
+</div>
+<div class="archive-group">
+  <h3>Approved suggestions</h3>
+  <div class="archive-list" id="suggestions"></div>
+</div>
 
 <h2>How This Works</h2>
 <p class="how">Distinct roles with one enforced boundary: only the agents can legislate, and only adopted rules are language law.</p>
@@ -347,6 +470,8 @@ canned — you are watching the live pipeline run on your words.</p>
 <h2>Field Notes</h2>
 <p class="how">Notes from the human running the experiment: what happened, what broke, and any changes made to the test machinery. The two agents never see these notes — they only ever see each other and the rulebook.</p>
 <div id="notes"></div>
+</div>
+</details>
 
 <footer id="foot"></footer>
 
@@ -359,7 +484,12 @@ function render(S) {
       return {"&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;"}[c];
     });
   };
-  var ruleText = function (r) { return esc(r.text_en.replace(/^rule[-‑]\d+\s*[—–-]\s*/, "")); };
+  var ruleText = function (r) {
+    return esc(String(r.text_en || "")
+      .replace(/^rule[-‑]\d+\**\s*[—–-]\s*/i, "")
+      .replace(/^\**revised\**\s*[—–-]\s*/i, "")
+      .replace(/\*\*/g, ""));
+  };
   var pct = function (n) { return (n > 0 ? "+" : "") + n + "%"; };
   var savings = function (d) { return pct(-(d || 0)); };
   var fidTxt = function (f) { return f == null || f < 0 ? "unparseable" : f + "/100"; };
@@ -540,37 +670,121 @@ function render(S) {
       (rej && rej.why ? '<span class="why">“' + esc(rej.why) + '”</span>' : "") + "</li>";
   }).join("") || '<li class="empty">No historical rules yet.</li>';
 
-  document.getElementById("proposed").innerHTML = proposed.map(function (r) {
-    return '<li><span class="id">' + r.id + " · outside the tested language</span>" + ruleText(r) + "</li>";
+  function proposalTurn(r) {
+    var turn = 0;
+    (r.history || []).forEach(function (h) {
+      if (h && typeof h === "object" && h.verb === "proposed") turn = Math.max(turn, Number(h.turn || 0));
+    });
+    if (r.pending_repeal) turn = Math.max(turn, Number(r.pending_repeal.turn || 0));
+    return turn;
+  }
+  var unresolved = proposed.map(function (r) {
+    return {kind: "proposal", rule: r, turn: proposalTurn(r)};
   }).concat(pendingRepeals.map(function (r) {
-    return '<li><span class="id">repeal ' + r.id + " · outside the tested language</span>" +
-      esc(r.pending_repeal.rationale || "pending repeal") + "</li>";
-  })).join("") || '<li class="empty">Nothing on the table.</li>';
+    return {kind: "repeal", rule: r, turn: proposalTurn(r)};
+  })).sort(function (a, b) { return a.turn - b.turn; });
+  var currentMotion = unresolved[unresolved.length - 1];
+  document.getElementById("current-proposal").innerHTML = currentMotion ?
+    '<div class="current-proposal"><span class="id">latest unresolved ' +
+      (currentMotion.kind === "repeal" ? "repeal" : "proposal") + " · turn " + currentMotion.turn + "</span>" +
+      (currentMotion.kind === "repeal"
+        ? esc(currentMotion.rule.pending_repeal.rationale || "pending repeal")
+        : ruleText(currentMotion.rule)) +
+      '<div class="meta">stored outside the tested language · operator review pending</div></div>' :
+    '<p class="empty">No unresolved motion in stored state.</p>';
+  var proposalArchive = unresolved.slice(0, -1).reverse();
+  document.getElementById("proposal-archive-summary").textContent =
+    proposalArchive.length + " earlier unresolved record" + (proposalArchive.length === 1 ? "" : "s") + " · collapsed";
+  document.getElementById("proposed").innerHTML = proposalArchive.map(function (item) {
+    var r = item.rule;
+    return '<li><span class="id">' + (item.kind === "repeal" ? "repeal " : "") + r.id +
+      " · turn " + item.turn + "</span>" +
+      (item.kind === "repeal" ? esc(r.pending_repeal.rationale || "pending repeal") : ruleText(r)) + "</li>";
+  }).join("") || '<li class="empty">No earlier unresolved records.</li>';
 
   document.getElementById("hist").innerHTML = conv.map(function (e) {
     return e.type !== "message" ? tickHtml(e) : msgHtml(e, e.agent);
   }).join("");
 
   var collaboration = S.collaboration || {research: [], asks: [], suggestions: []};
-  document.getElementById("research").innerHTML = (collaboration.research || []).slice(-4).reverse().map(function (r) {
-    var links = (r.citations || []).map(function (c) { return '<a href="' + esc(c.url) + '" rel="noreferrer">' + esc(c.title || c.url) + '</a>'; }).join(' · ');
-    return '<p><strong>' + esc(r.question) + '</strong><br><span class="status">' + esc(r.status) +
-      (r.findings ? ' · ' + esc(r.findings) : '') + (r.limitations ? ' · limitation: ' + esc(r.limitations) : '') +
-      (links ? '<br>' + links : '') + '</span></p>';
-  }).join('') || '<p class="status">No research requests yet.</p>';
-  document.getElementById("asks").innerHTML = (collaboration.asks || []).slice(-4).reverse().map(function (r) {
-    return '<p><strong>' + esc(r.question) + '</strong><br><span class="status">' + esc(r.status) +
-      (r.answer ? ' · Iso: “' + esc(r.answer) + '”' : '') + '</span></p>';
-  }).join('') || '<p class="status">No questions awaiting Iso.</p>';
-  document.getElementById("suggestions").innerHTML = (collaboration.suggestions || []).slice(-4).reverse().map(function (r) {
-    return '<p><strong>' + esc(r.id) + '</strong><br><span class="status">' + esc(r.status) +
-      (r.outcome ? ' · ' + esc(r.outcome) : '') + '</span></p>';
-  }).join('') || '<p class="status">No approved suggestions yet.</p>';
+  var research = collaboration.research || [];
+  var asks = collaboration.asks || [];
+  var suggestions = collaboration.suggestions || [];
+  var openAsks = asks.filter(function (r) { return r.status === "awaiting_iso"; });
+  var latestAsk = openAsks[openAsks.length - 1];
+  document.getElementById("research-count").textContent = research.length;
+  document.getElementById("ask-count").textContent = openAsks.length ? "1 current" : "0";
+  document.getElementById("suggestion-count").textContent = suggestions.length;
+  document.getElementById("language-state").textContent =
+    unresolved.length > 1 && openAsks.length ? "review needed" : "current";
+  if (latestAsk) {
+    document.getElementById("ask-summary").textContent =
+      "The agents are reporting a stale proposal-state deadlock. Operator review is pending.";
+    document.getElementById("ask-meta").textContent = "latest request · turn " +
+      (latestAsk.request_turn || "?") + " · " + openAsks.length +
+      " related report" + (openAsks.length === 1 ? "" : "s") + " retained in the Lab Notebook";
+    document.getElementById("ask-detail").hidden = false;
+    document.getElementById("asks").innerHTML = '<p>' + esc(latestAsk.question) + '</p>' +
+      (latestAsk.answer ? '<p>Iso: “' + esc(latestAsk.answer) + '”</p>' : "");
+  } else {
+    document.getElementById("ask-summary").textContent = "No operator question is waiting.";
+    document.getElementById("ask-meta").textContent = "The experiment can continue without human input.";
+    document.getElementById("ask-detail").hidden = true;
+    document.getElementById("asks").innerHTML = "";
+  }
+  document.getElementById("research").innerHTML = research.slice().reverse().map(function (r) {
+    var links = (r.citations || []).map(function (c) {
+      return '<a href="' + esc(c.url) + '" rel="noreferrer">' + esc(c.title || c.url) + "</a>";
+    }).join(" · ");
+    var limits = Array.isArray(r.limitations) ? r.limitations.join(" · ") : (r.limitations || "");
+    return '<details><summary>' + esc(r.question) + '</summary><div class="archive-entry">' +
+      '<span class="status">' + esc(r.status || "unknown") + " · request turn " + esc(r.request_turn || "?") + "</span>" +
+      (r.findings ? '<div class="findings">' + esc(r.findings) + "</div>" : '<p>No findings recorded.</p>') +
+      (limits ? '<p>Limitations: ' + esc(limits) + "</p>" : "") +
+      (links ? '<div class="citations">' + links + "</div>" : "") + "</div></details>";
+  }).join("") || '<p class="empty">No research requests yet.</p>';
+  document.getElementById("ask-archive").innerHTML = asks.slice().reverse().map(function (r) {
+    return '<details><summary>' + esc(r.question) + '</summary><div class="archive-entry">' +
+      '<span class="status">' + esc(r.status || "unknown") + " · request turn " + esc(r.request_turn || "?") + "</span>" +
+      (r.answer ? '<p>Iso: “' + esc(r.answer) + '”</p>' : '<p>No answer recorded.</p>') +
+      "</div></details>";
+  }).join("") || '<p class="empty">No operator-question history.</p>';
+  document.getElementById("suggestions").innerHTML = suggestions.slice().reverse().map(function (r) {
+    return '<details><summary>' + esc(r.id || "suggestion") + '</summary><div class="archive-entry">' +
+      '<span class="status">' + esc(r.status || "unknown") + "</span>" +
+      (r.outcome ? "<p>" + esc(r.outcome) + "</p>" : "<p>No public outcome recorded.</p>") +
+      "</div></details>";
+  }).join("") || '<p class="empty">No approved suggestions yet.</p>';
+
+  function conversationJudgmentHtml(judgment) {
+    judgment = judgment || {};
+    var raw = judgment.raw || judgment;
+    var held = judgment.valid === false;
+    var state = held ? "judgment held · " + String(judgment.reason || "validation failed").replace(/_/g, " ")
+      : "judgment accepted";
+    var outcome = raw.concrete_outcome || raw.summary || "No concrete outcome was returned.";
+    var requirements = raw.requirements || [];
+    var contradictions = raw.contradictions || [];
+    return '<div class="conversation-outcome"><span class="judgment-state' + (held ? " held" : "") + '">' +
+      esc(state) + '</span><p class="outcome">' + esc(outcome) + "</p>" +
+      (requirements.length ? '<ul class="requirements">' + requirements.map(function (r) {
+        return "<li><b>" + esc(r.requirement || "requirement") + "</b><span>" +
+          esc(r.verdict || "No verdict recorded.") + "</span></li>";
+      }).join("") + "</ul>" : "") +
+      (contradictions.length ? '<div class="k-inv">contradictions: ' + contradictions.map(esc).join(" · ") + "</div>" : "") +
+      '<details class="raw-evidence"><summary>raw judgment evidence</summary><pre>' +
+      esc(JSON.stringify(judgment, null, 2)) + "</pre></details></div>";
+  }
   var conversation = (S.conversations || []).slice(-1)[0];
   document.getElementById("conversation-exam").innerHTML = conversation ?
     '<div class="tx-head">captured ' + esc(conversation.language_version) + ' · turn ' + esc(conversation.turn) + '</div>' +
-    (conversation.messages || []).map(function (m) { return '<div class="m"><span class="t">speaker ' + esc(m.speaker) + '</span>' + esc(m.content) + '</div>'; }).join('') +
-    '<div class="judg"><div class="jhead">concrete-outcome judgment</div><pre>' + esc(JSON.stringify(conversation.judgment, null, 2)) + '</pre></div>' :
+    (conversation.scenario && conversation.scenario.prompt
+      ? '<p class="prompt-intro">' + esc(conversation.scenario.prompt) + "</p>" : "") +
+    conversationJudgmentHtml(conversation.judgment) +
+    '<details class="exchange"><summary>read the six-message exchange</summary>' +
+    (conversation.messages || []).map(function (m) {
+      return '<div class="m"><span class="t">speaker ' + esc(m.speaker) + "</span>" + esc(m.content) + "</div>";
+    }).join("") + "</details>" :
     '<p class="empty">No scheduled Conversation artifact yet.</p>';
   var x = S.x || {};
   document.getElementById("x-status").textContent = "Confirmed single-post delivery only · " +
