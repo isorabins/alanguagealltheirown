@@ -1,0 +1,36 @@
+{
+  "desktop": {
+    "inner_width": 1600,
+    "client_width": 1581,
+    "document_scroll_width": 1581,
+    "document_height_collapsed": 5535,
+    "horizontal_overflow": false
+  },
+  "mobile": {
+    "inner_width": 375,
+    "client_width": 356,
+    "document_scroll_width": 356,
+    "document_height_collapsed": 8604,
+    "horizontal_overflow": false
+  },
+  "expanded_lab_notebook": {
+    "client_width": 1581,
+    "document_scroll_width": 1581,
+    "horizontal_overflow": false
+  },
+  "expanded_raw_judgment": {
+    "client_width": 1581,
+    "document_scroll_width": 1581,
+    "horizontal_overflow": false
+  },
+  "focus": {
+    "active_element_id": "suggestion-text",
+    "visible_focus_ring": true
+  },
+  "console": {
+    "warnings": 0,
+    "errors": 0
+  },
+  "external_writes": 0,
+  "production_touched": false
+}
