@@ -80,13 +80,12 @@ new contract.
 - `surface=live VPS canonical loop plus public read-only turn/state smoke`
 - `review window=Iso's next morning in WITA`
 
-## Known stop
+## Approval receipt
 
-Exact G16 live-change approval is required before product-code implementation
-is launched unattended or any branch push/PR merge/VPS/timer/paid validation
-action occurs:
+Iso supplied the exact G16 live-change approval in the managing Codex task on
+2026-07-29 WITA:
 
 `APPROVE LIVE CHANGE: alato-structured-protocol-cost-and-receipts-20260729-turn1165-g16`
 
-The approval envelope and prohibitions are defined in `plan.md`. Without the
-exact phrase, readiness remains `NOT_READY` for the requested live outcome.
+The approval envelope and prohibitions are defined in `plan.md`. Readiness is
+`UNATTENDED_READY`; there is no known stop before the bounded live outcome.

@@ -546,7 +546,7 @@ bounded live approval; production remains unchanged.
 contract, re-ground each fresh model call in exact machine state, and make the
 private experiment's application spend counter reflect provider-charged cost.
 
-- [ ] T186 Record the verified turn-1165 state, preserved hashes, official OpenRouter/Pydantic sources, clean-worktree boundary, complete G16 runway, rollback, exclusions, and exact approval in `specs/001-experiment-repair/evidence/structured-protocol/preflight.md` (FR-062–068; SC-029–034)
+- [x] T186 Record the verified turn-1165 state, preserved hashes, official OpenRouter/Pydantic sources, clean-worktree boundary, complete G16 runway, rollback, exclusions, and exact approval in `specs/001-experiment-repair/evidence/structured-protocol/preflight.md` (FR-062–068; SC-029–034)
 - [ ] T187 [P] Add failing role/state schema, wrong-target, malformed/retry, same-actor, exact-receipt, cutover-rendering, legacy-preservation, historical-failure-replay, and provider-cost tests in `tests/python/test_legislative_protocol.py`, `tests/python/test_motion_authority.py`, and `tests/python/test_loop_helpers.py` (FR-062–067; SC-029–034)
 - [ ] T188 Implement strict Pydantic action, request, result, and post-state receipt models plus state-specific OpenRouter JSON Schema generation in `legislative_protocol.py` without a framework or database (FR-062–065; SC-029–032)
 - [ ] T189 Integrate bounded structured generation, local validation, same-actor structural failure, typed measurements/questions, and exact provider cost accumulation into `loop.py`; remove regex/prose extraction from the new legislative path only (FR-062–064, FR-067; SC-029–031, SC-034)
