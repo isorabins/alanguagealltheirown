@@ -56,8 +56,16 @@ def run_conversation(rulebook: dict[str, Any], scenario: dict[str, Any],
             model = (models or {}).get(speaker)
             usage = {}
         transcript.append({"speaker": speaker, "content": content, "model": model, "usage": usage})
-    raw_judgment = judge_call({"scenario": deepcopy(scenario), "messages": deepcopy(transcript),
-                               "language_version": captured["version"], "language_hash": captured["hash"]})
+    raw_judgment = judge_call({
+        "scenario": deepcopy(scenario),
+        "numbered_requirements": [
+            {"id": index, "text": requirement}
+            for index, requirement in enumerate(scenario.get("requirements", []), start=1)
+        ],
+        "messages": deepcopy(transcript),
+        "language_version": captured["version"],
+        "language_hash": captured["hash"],
+    })
     judge_receipt = raw_judgment.pop("_receipt", {}) if isinstance(raw_judgment, dict) else {}
     judgment = validate_judgment(scenario.get("requirements", []), raw_judgment)
     artifact = {

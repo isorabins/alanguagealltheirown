@@ -19,7 +19,7 @@ On a normal turn `loop.py`:
 
 1. atomically loads canonical state;
 2. reconciles only the atomic local inbox spool into `state/collaboration.json`;
-3. resolves at most the oldest queued research request;
+3. resolves at most the oldest queued lookup/research request;
 4. runs either one legislative agent turn or the existing every-third-turn ordinary exam;
 5. after every 32 completed ordinary exams, runs one six-message Conversation without changing ordinary cadence or averages;
 6. atomically persists canonical JSON, writes the private courier outbox, and generates the sanitized public snapshot.
@@ -28,7 +28,7 @@ All JSON replacement uses a temporary file, file sync, atomic rename, and direct
 
 ## Legislature
 
-DeepSeek A may issue one `PROPOSE`, `REPEAL`, or `REVISE` motion. Kimi B may issue one `ADOPT`, `REJECT`, or focused `REQUEST`. Only one add or repeal motion may remain open. A ratified repeal moves its adopted target out of the language while preserving its complete history; the repeal rationale never becomes language law. `MEASURE`, `RESEARCH`, and `ASK` are non-legislative requests. Multiple motions, wrong-role actions, malformed ids, duplicate live proposals, overflow proposals, and settled votes are reason-coded no-ops.
+DeepSeek A may issue one `PROPOSE`, `REPEAL`, or `REVISE` motion. Kimi B may issue one `ADOPT`, `REJECT`, or focused `REQUEST`. Only one add or repeal motion may remain open. A ratified repeal moves its adopted target out of the language while preserving its complete history; the repeal rationale never becomes language law. `MEASURE`, `LOOKUP`, `RESEARCH`, and `ASK` are non-legislative requests. Multiple motions, wrong-role actions, malformed ids, duplicate live proposals, overflow proposals, and settled votes are reason-coded no-ops.
 
 ## Ordinary exam and judge
 
@@ -44,11 +44,14 @@ If fresh payload generation fails, the fixed fallback payload receives an answer
 
 `cleanup_rulebook.py apply` requires an external approval receipt naming the exact source and full applied-ledger hashes and refuses changed source, changed replacement, or missing approval. A successful apply records the approval hash in the bundle manifest. Live snapshot/model calls/application remain separate approval gates.
 
+`legacy_motion_repair.py` is a separate metadata-only migration for the live deadlock. `prepare` terminalizes proposed and reverted records on a copied source, records each prior status, refuses any pending repeal, proves every adopted record plus the adopted-language version/hash is exact, and emits original/replacement/diff/manifest hashes. `apply` requires a matching external approval receipt, rejects source or artifact drift, and treats a retry after the replacement write as idempotent. It does not run semantic cleanup, change adopted text, increment the language version, or default to production paths.
+
 ## Collaboration inbox
 
 Upstash Redis REST is transport, private backup, and session storage, not the authority that writes experiment history. Queue creation is idempotent and atomic. The courier claims the oldest item under a lease, fsyncs its stable id into a gitignored local inbox spool, and only then acknowledges Redis. The loop alone imports deduplicated spool ids into canonical `state/collaboration.json`, then writes a private outbox snapshot for later courier publication. A replay is harmless, a stale owner cannot ack a new lease, and no Redis exception enters the loop path. Each turn separately writes sanitized `state/public-collaboration.json`; `/human` reads the private loop-owned Redis snapshot.
 
-- Research records retain requester, original question, status, findings, limitations, citations, error, and answer turn. The OpenRouter `openrouter:web_search` server tool is bounded to five total results. Retrieved content is evidence only.
+- `LOOKUP` and deterministically detected internal questions read bounded evidence from canonical project state and core documentation. They make no provider or web call. Evidence is delivered for the requesting agent to interpret; a miss creates one correlated `ASK Iso`.
+- Outward `RESEARCH` records retain requester, original question, route, status, findings, limitations, citations, error, and answer turn. The OpenRouter `openrouter:web_search` server tool is bounded to five total results. Malformed or uncited output is no evidence, and retrieved content is evidence only.
 - ASK records remain open indefinitely. Moderation accepts only an answer for an existing open id; delivery contains the original question and verbatim answer and changes the record to delivered.
 - Pending and dismissed suggestions are omitted from public state. An approved record may be delivered once as an `optional_suggestion` object outside the motion parser.
 

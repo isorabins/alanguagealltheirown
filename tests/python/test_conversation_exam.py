@@ -2,7 +2,9 @@ import copy
 import json
 import unittest
 from pathlib import Path
+from unittest import mock
 
+import loop
 from conversation_exam import run_conversation
 
 ROOT = Path(__file__).parents[2]
@@ -39,6 +41,44 @@ class ConversationTests(unittest.TestCase):
             artifact = run_conversation(rb, scenario, speaker, lambda payload, j=judgment: j, 96)
             self.assertFalse(artifact["judgment"]["valid"])
             self.assertEqual(artifact["judgment"]["reason"], reason)
+
+    def test_production_conversation_prompt_matches_validator_contract(self):
+        rb = json.loads((ROOT / "tests/fixtures/mixed-rulebook.json").read_text())
+        conversations = []
+        meta = {"tests_run": 32, "spend_usd": 0}
+        judge_prompts = []
+
+        def fake_call(model, system, user, **kwargs):
+            if "numbered_requirements" in system:
+                judge_prompts.append(system)
+                payload = json.loads(user)
+                rows = [
+                    {"id": row["id"], "pass": True, "evidence": row["text"]}
+                    for row in payload["numbered_requirements"]
+                ]
+                return json.dumps({
+                    "requirements": rows,
+                    "concrete_outcome": "The handoff is complete.",
+                    "contradictions": [],
+                    "summary": "All requirements were satisfied.",
+                }), {"prompt_tokens": 10, "completion_tokens": 10}
+            return "A concrete handoff message.", {
+                "prompt_tokens": 10,
+                "completion_tokens": 10,
+            }
+
+        with mock.patch("loop.call", side_effect=fake_call):
+            loop.maybe_run_conversation(rb, meta, 1200, conversations)
+
+        self.assertEqual(len(judge_prompts), 1)
+        self.assertIn('integer field `id`', judge_prompts[0])
+        self.assertIn('boolean field `pass`', judge_prompts[0])
+        self.assertTrue(conversations[0]["judgment"]["valid"])
+        self.assertEqual(conversations[0]["judgment"]["reason"], "valid")
+        self.assertEqual(
+            [row["id"] for row in conversations[0]["judgment"]["requirements"]],
+            [1, 2, 3, 4],
+        )
 
 
 if __name__ == "__main__": unittest.main()

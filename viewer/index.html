@@ -356,7 +356,7 @@
       </details>
     </div>
     <div class="status-counts" aria-label="Collaboration status">
-      <div class="status-count">research notes<b id="research-count">0</b></div>
+      <div class="status-count">evidence notes<b id="research-count">0</b></div>
       <div class="status-count">operator issue<b id="ask-count">0</b></div>
       <div class="status-count">approved suggestions<b id="suggestion-count">0</b></div>
       <div class="status-count">language state<b id="language-state">current</b></div>
@@ -737,8 +737,11 @@ function render(S) {
       return '<a href="' + esc(c.url) + '" rel="noreferrer">' + esc(c.title || c.url) + "</a>";
     }).join(" · ");
     var limits = Array.isArray(r.limitations) ? r.limitations.join(" · ") : (r.limitations || "");
+    var route = r.route === "project" ? "project lookup" :
+      (r.route === "web" ? "outward web research" : "legacy research");
     return '<details><summary>' + esc(r.question) + '</summary><div class="archive-entry">' +
-      '<span class="status">' + esc(r.status || "unknown") + " · request turn " + esc(r.request_turn || "?") + "</span>" +
+      '<span class="status">' + esc(route) + " · " + esc(r.status || "unknown") +
+      " · request turn " + esc(r.request_turn || "?") + "</span>" +
       (r.findings ? '<div class="findings">' + esc(r.findings) + "</div>" : '<p>No findings recorded.</p>') +
       (limits ? '<p>Limitations: ' + esc(limits) + "</p>" : "") +
       (links ? '<div class="citations">' + links + "</div>" : "") + "</div></details>";

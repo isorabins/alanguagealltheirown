@@ -93,16 +93,21 @@ def stable_record(kind: str, requester: str, text: str, record_id: str | None = 
     clean = text.replace("\r\n", "\n").replace("\r", "\n").strip()
     if not clean or len(clean) > 1200:
         raise ValueError("text must contain 1-1200 characters")
-    return {"id": record_id or f"{kind.lower()}-{secrets.token_hex(12)}", "kind": kind,
-            "requester": requester, "question" if kind in {"ASK", "RESEARCH"} else "text": clean,
-            "status": "awaiting_iso" if kind == "ASK" else "queued", "created_at": int(time.time())}
+    question_kinds = {"ASK", "RESEARCH", "LOOKUP"}
+    record = {"id": record_id or f"{kind.lower()}-{secrets.token_hex(12)}", "kind": kind,
+              "requester": requester, "question" if kind in question_kinds else "text": clean,
+              "status": "awaiting_iso" if kind == "ASK" else "queued", "created_at": int(time.time())}
+    if kind == "LOOKUP":
+        record["route"] = "project"
+    return record
 
 
 def reconcile(state_path: Path, records: list[dict[str, Any]]) -> dict[str, Any]:
     state = load_json(state_path, empty_state())
     processed_list = _processed(state)
     processed = set(processed_list)
-    buckets = {"RESEARCH": "research", "ASK": "asks", "SUGGESTION": "suggestions"}
+    buckets = {"RESEARCH": "research", "LOOKUP": "research",
+               "ASK": "asks", "SUGGESTION": "suggestions"}
     for record in records:
         record_id, kind = record.get("id"), record.get("kind")
         if not record_id or record_id in processed or kind not in buckets:
@@ -132,7 +137,8 @@ def deliver_one(state: dict[str, Any], kind: str, agent: str, turn: int | None =
             payload = {"id": record["id"], "question": record["question"], "answer": record["answer"]}
         elif kind == "RESEARCH":
             payload = {"id": record["id"], "question": record["question"], "findings": record.get("findings", ""),
-                       "limitations": record.get("limitations", ""), "citations": record.get("citations", [])}
+                       "limitations": record.get("limitations", ""), "citations": record.get("citations", []),
+                       "route": record.get("route")}
         else:
             payload = {"id": record["id"], "optional_suggestion": record["text"]}
         state.setdefault("deliveries", []).append({"kind": kind, **payload})
@@ -147,13 +153,32 @@ def public_state(state: dict[str, Any]) -> dict[str, Any]:
                    for r in state.get("suggestions", []) if r.get("status") in {"approved", "delivered", "acted", "no_action"}]
     research = []
     for row in state.get("research", []):
-        public = {k: row.get(k) for k in ("id", "requester", "question", "status", "findings", "limitations", "no_evidence", "request_turn", "answer_turn", "delivery_turn", "error", "cost_usd")
+        public = {k: row.get(k) for k in ("id", "requester", "question", "status", "route", "findings", "limitations", "no_evidence", "evidence_count", "ask_id", "request_turn", "answer_turn", "delivery_turn", "error", "cost_usd")
                   if row.get(k) is not None}
         public["citations"] = [c for c in (row.get("citations") or []) if isinstance(c, dict)
                                and isinstance(c.get("url"), str)
                                and c["url"].lower().startswith(("https://", "http://"))]
         research.append(public)
     return {"asks": asks, "suggestions": suggestions, "research": research}
+
+
+def escalate_lookup_to_ask(state: dict[str, Any], record: dict[str, Any],
+                           turn: int) -> dict[str, Any]:
+    """Correlate one evidence miss to the human lane without duplicating retries."""
+    ask_id = f"ask-from-{record['id']}"
+    ask = next((row for row in state.get("asks", []) if row.get("id") == ask_id), None)
+    if ask is None:
+        ask = stable_record("ASK", record["requester"], record["question"], ask_id)
+        ask.update({"request_turn": turn, "source_lookup_id": record["id"]})
+        state.setdefault("asks", []).append(ask)
+    record.update({
+        "status": "escalated_to_iso",
+        "route": "project",
+        "ask_id": ask_id,
+        "answer_turn": turn,
+        "no_evidence": True,
+    })
+    return ask
 
 
 def _apply_moderation(state: dict[str, Any], command: dict[str, Any], turn: int | None = None) -> None:

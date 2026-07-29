@@ -58,6 +58,27 @@ test('authenticated human inbox returns contract-shaped asks suggestions and cle
   }finally{Object.assign(C,original)}
 });
 
+test('private inbox persists a queued answer as answer_pending before loop uptake',async()=>{
+  const priorUrl=process.env.UPSTASH_REDIS_REST_URL, priorToken=process.env.UPSTASH_REDIS_REST_TOKEN, oldFetch=global.fetch;
+  process.env.UPSTASH_REDIS_REST_URL='https://redis.example.test'; process.env.UPSTASH_REDIS_REST_TOKEN='fixture-token';
+  const results=[
+    JSON.stringify({asks:[{id:'ask-1',status:'awaiting_iso',question:'Which boundary?'}],suggestions:[]}),
+    [],
+    [JSON.stringify({action:'answer_ask',target_id:'ask-1',answer:'Use the project corpus.',created_at:123})],
+  ];
+  global.fetch=async()=>({ok:true,json:async()=>({result:results.shift()})});
+  try{
+    const records=await C.privateRecords();
+    assert.equal(records.asks[0].status,'answer_pending');
+    assert.equal(records.asks[0].answer,'Use the project corpus.');
+    assert.equal(records.asks[0].answer_submitted_at,123);
+  }finally{
+    global.fetch=oldFetch;
+    if(priorUrl===undefined)delete process.env.UPSTASH_REDIS_REST_URL;else process.env.UPSTASH_REDIS_REST_URL=priorUrl;
+    if(priorToken===undefined)delete process.env.UPSTASH_REDIS_REST_TOKEN;else process.env.UPSTASH_REDIS_REST_TOKEN=priorToken;
+  }
+});
+
 test('human moderation validates open id and reserves one non-contradictory action',async()=>{
   const original={requireSession:C.requireSession,privateRecords:C.privateRecords,reserveAction:C.reserveAction,existingEnqueue:C.existingEnqueue,enqueue:C.enqueue}; let queued;
   C.requireSession=async()=>({expires_at:123});

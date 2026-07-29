@@ -466,6 +466,7 @@ made live.
 | FR-044, FR-045, FR-046, FR-047 | T026, T032, T099, T102–T106 |
 | FR-048, FR-049, FR-050, FR-051, FR-052, FR-053, FR-054, FR-055 | T108–T117, T128–T143, T149–T152 |
 | FR-056 | T168–T174 |
+| FR-057, FR-058, FR-059, FR-060, FR-061 | T177–T185 |
 | SC-001, SC-002, SC-003, SC-004, SC-005 | T014–T043, T130 |
 | SC-006, SC-007, SC-008, SC-009, SC-010 | T044–T087, T122, T131–T132 |
 | SC-011, SC-012, SC-013, SC-014, SC-015 | T024, T088–T100, T132–T137 |
@@ -473,6 +474,7 @@ made live.
 | SC-017, SC-018, SC-019 | T026–T043, T052, T057–T068, T089, T093, T099, T102–T106 |
 | SC-020, SC-021, SC-022, SC-023 | T108–T117, T128–T143, T149–T152 |
 | SC-024 | T168, T171–T176 |
+| SC-025, SC-026, SC-027, SC-028 | T177–T185 |
 
 ## Implementation Strategy
 
@@ -484,7 +486,7 @@ the serialized live gates.
 
 ## Format Validation
 
-All 176 tasks use the required checkbox, sequential task id, optional `[P]`,
+All 185 tasks use the required checkbox, sequential task id, optional `[P]`,
 story label only in story phases, and an explicit file or evidence path.
 
 ## Phase 21: Convergence
@@ -512,3 +514,24 @@ core-live checkpoint.
 **Checkpoint**: Core-live is `PASS` only when one repaired production turn has
 completed with the existing rulebook launch invariant, X disabled, public
 surfaces healthy, and no unexplained warning or dirty state.
+
+---
+
+## Phase 23: Legacy State, Research Routing, and Conversation Repair (Offline Approved)
+
+**Goal**: Restore legislative progress without changing adopted language, make
+internal questions use project evidence or `ASK Iso`, and make scheduled
+Conversation judgments satisfy their existing validator.
+
+- [X] T177 Record the 2026-07-29 Wayfinder decision, live-state counts, known failure evidence, invariant boundaries, and offline approval in `specs/001-experiment-repair/spec.md`, `plan.md`, and `tasks.md` (FR-057–061; SC-025–028)
+- [X] T178 [P] Add production-shaped tests for exact adopted-record/hash preservation, legacy proposed/reverted terminalization, zero open motions, source/tamper/pending-repeal rejection, retry safety, and a successful new propose/settle lifecycle in `tests/python/test_legacy_motion_repair.py` (FR-057; SC-025)
+- [X] T179 Implement a separate prepare/apply legacy-motion migration with immutable original/replacement/diff/manifest artifacts and hash-bound approval in `legacy_motion_repair.py` (FR-057; SC-025)
+- [X] T180 [P] Add routing tests covering the known internal questions, explicit `LOOKUP`, misrouted internal `RESEARCH`, bounded project citations, zero web requests, one correlated `ASK Iso` fallback, and one outward web request in `tests/python/test_research_lifecycle.py` (FR-058–060; SC-026–027)
+- [X] T181 Implement deterministic project-question classification, bounded corpus evidence, `LOOKUP` parsing, correlated `ASK Iso` escalation, strict outward-research parsing, and public route/source receipts in `project_lookup.py`, `loop.py`, and `collaboration.py` (FR-058–060; SC-026–027)
+- [X] T182 [P] Add a production-shaped Conversation prompt/validator integration test while retaining malformed, duplicate, and incomplete negative cases in `tests/python/test_conversation_exam.py` and `tests/python/test_prompt_contract.py` (FR-061; SC-028)
+- [X] T183 Align the Conversation judge schema, the agent `LOOKUP`/`RESEARCH`/`ASK` contracts, and public route labels in `prompts/`, `README.md`, `MECHANICS.md`, and `viewer/index.html` (FR-058–061; SC-026–028)
+- [X] T184 Run focused and full offline suites, contract coverage, current-state migration rehearsal, secret/diff review, and record exact evidence in `specs/001-experiment-repair/evidence/backlog-repair/offline-verification.md` (FR-057–061; SC-025–028)
+- [X] T185 Commit and prepare the reviewed feature branch plus one hash-bound G15 live-change envelope, then STOP before production state mutation, paid production calls, merge to `main`, deploy, timer changes, or human-review answers in `specs/001-experiment-repair/evidence/backlog-repair/live-preflight.md` (FR-057–061; SC-025–028)
+
+**Checkpoint**: The reviewed branch and migration bundle are ready for one
+bounded live approval; production remains unchanged.

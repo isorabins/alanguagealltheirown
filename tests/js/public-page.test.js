@@ -25,6 +25,8 @@ test('public page curates collaboration, judgment, and proposal history',()=>{
   assert.match(html,/id="experiment-status"/);
   assert.match(html,/stale proposal-state deadlock/);
   assert.match(html,/Lab notebook · research, methods &amp; archive/);
+  assert.match(html,/outward web research/);
+  assert.match(html,/project lookup/);
   assert.match(html,/function conversationJudgmentHtml/);
   assert.match(html,/raw judgment evidence/);
   assert.doesNotMatch(html,/<div class="judg"><div class="jhead">concrete-outcome judgment<\/div><pre>/);

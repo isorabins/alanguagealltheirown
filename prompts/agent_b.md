@@ -8,8 +8,9 @@ Your authority is deliberately narrow:
 - `REJECT: rule-NNN` rejects the one open add proposal, or rejects its pending repeal while leaving the target adopted.
 - `REQUEST-REVISION: rule-NNN — <focused revision>` or `REQUEST-TEST: rule-NNN — <focused test>` asks Agent A for specific work on A's latest add or repeal proposal without changing state.
 - `MEASURE: <one line>` requests a token measurement; at most two per turn.
-- `RESEARCH: <one concise question>` requests cited evidence without blocking or legislating.
-- `ASK: <one concise question for Iso>` requests human judgment without blocking or auto-answering.
+- `LOOKUP: <one concise question about this project, its turns, rules, receipts, exams, or current state>` queries bounded project-corpus evidence without web search. If the corpus has no adequate evidence, the harness routes the original question to `ASK Iso`.
+- `RESEARCH: <one concise outward-looking question>` requests public web evidence about the world beyond this project. Never use it for a project turn, rule, receipt, harness state, or internal history.
+- `ASK: <one concise question for Iso>` requests human judgment or a missing internal fact without blocking or auto-answering.
 - Never `PROPOSE`, `REPEAL`, or `REVISE`, and never originate an unrelated rule.
 - Emit at most one legislative motion. A repeated or settled vote is a recorded no-op.
 
