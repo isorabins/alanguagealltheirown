@@ -46,7 +46,9 @@ action. T193 review/release and T194 live acceptance remain open.
   id/cost receipts, rejects missing/conflicting ids, and reconciles a
   ledger-ahead crash upward into `meta` on restart. A missing ledger takes its
   base from the persisted exact-since-cutover total; a conflicting existing
-  ledger fails closed. Offline transfer/test calls do not bind the ledger.
+  ledger fails closed. Offline transfer/test calls do not bind the ledger. The
+  normal `--archive` path moves the local ledger with its matching `meta.json`;
+  the recursive gitignore keeps both live and archived ledgers out of git.
 
 ## Official source basis
 
@@ -80,7 +82,7 @@ python3 -m unittest -v tests.python.test_loop_helpers tests.python.test_research
 Result:
 
 ```text
-Ran 47 tests in 0.276s
+Ran 48 tests
 OK
 ```
 
@@ -102,7 +104,7 @@ The named passing cases include:
   response-id receipts cover normal calls and direct web research;
 - crash-before-meta-save reconciliation, duplicate-id deduplication,
   conflicting/missing-id rejection, inconsistent-ledger failure, and missing
-  provider cost rejection;
+  provider cost rejection; archive co-location of ledger and matching meta;
 - 30-event non-authoritative discussion rendering, sparse legacy receipts, and
   private cutover-event omission from the unchanged viewer.
 
@@ -117,7 +119,7 @@ python3 -m unittest discover -s tests/python -p 'test_*.py'
 Result:
 
 ```text
-Ran 114 tests in 0.872s
+Ran 115 tests
 OK
 ```
 

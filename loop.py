@@ -52,6 +52,7 @@ WINDOW = 30         # conversation events each agent sees
 SPEND_CAP = 25.00   # dollars, hard stop across all runs — anomaly tripwire, ~50 days at gloves-off burn
 AGENT_TEMP = 0.9
 COST_LEDGER_SCHEMA_VERSION = 1
+COST_LEDGER_FILENAME = "cost-receipts.local.json"
 
 _key = None
 _no_reasoning_field = False
@@ -975,7 +976,7 @@ def run(turns):
     ensure_structured_protocol_cutover(
         conv, rb, meta, activation_turn=start_turn - 1
     )
-    configure_cost_receipt_ledger(STATE / "cost-receipts.local.json", meta)
+    configure_cost_receipt_ledger(STATE / COST_LEDGER_FILENAME, meta)
     for turn in range(start_turn, start_turn + turns):
         if meta["spend_usd"] >= SPEND_CAP:
             print(f"SPEND CAP hit (${meta['spend_usd']:.2f}) — stopping.", flush=True)
@@ -1005,7 +1006,7 @@ def run(turns):
 def archive(name):
     dest = STATE / "tuning-runs" / name
     dest.mkdir(parents=True, exist_ok=True)
-    for f in ("conversation.json", "rulebook.json", "meta.json"):
+    for f in ("conversation.json", "rulebook.json", "meta.json", COST_LEDGER_FILENAME):
         if (STATE / f).exists():
             shutil.move(str(STATE / f), str(dest / f))
     for pf in (ROOT / "prompts").glob("*.md"):

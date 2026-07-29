@@ -65,6 +65,7 @@ new contract.
 | OpenRouter Structured Outputs | Provider constraint | available | official docs plus existing project implementation |
 | Private API key | Natural paid turns | available | authenticated read-only usage check |
 | Actual `usage.cost` | Cost truth | available | OpenRouter usage-accounting contract |
+| Local cost-receipt ledger | Crash-safe exact accounting | available | created atomically at `state/cost-receipts.local.json`, gitignored, response-id deduplicated |
 | GitHub PR/merge path | Release | available; live merge awaits exact approval | current origin access |
 | VPS SSH/repo/systemd | Activation/rollback | available; writes await exact approval | clean read-only state/service receipt |
 | Canonical snapshot | Rollback | available at live gate | turn/hash boundary above |
@@ -72,6 +73,24 @@ new contract.
 | Provider key management credential | Hard account limit | excluded | not preflighted; no credential/key-limit change |
 | Rejected-rule compression | Context cost | excluded | explicitly deferred |
 | Vercel/DNS/X | Delivery | not needed/prohibited | no public asset or route change |
+
+## Cost-ledger lifecycle and rollback
+
+The turn-1165 snapshot records whether the gitignored
+`state/cost-receipts.local.json` exists and, if present, its SHA-256 beside the
+canonical state hashes. First activation normally creates it with the exact
+cost already persisted in `meta.json` as its base. Every successful OpenRouter
+response is atomically journaled by response id before control returns to the
+turn; restart reconciles a ledger-ahead charge upward into `meta`.
+
+Same-cutover repair, redeploy, or VPS recovery preserves/copies the ledger with
+its matching `meta.json`. The normal `--archive` path moves it into the same
+gitignored tuning archive as that meta file. A rollback to `5d44005` first
+pauses the timer and moves a hash-recorded copy outside the live repository;
+otherwise the old commit could see an untracked file and accidentally add it.
+The archived receipt is retained for cost audit. If valid post-cutover
+governance exists, canonical state is not rewound; only an invalid mutation may
+restore the pre-turn canonical snapshot.
 
 ## Acceptance gates
 

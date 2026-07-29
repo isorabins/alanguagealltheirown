@@ -430,6 +430,31 @@ class StructuredLoopTests(unittest.TestCase):
         self.assertNotIn('"type": "protocol_cutover"', payload)
         self.assertIn('"content": "Public deliberation."', payload)
 
+    def test_archive_moves_local_cost_ledger_with_the_matching_meta(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            state = root / "state"
+            prompts = root / "prompts"
+            state.mkdir()
+            prompts.mkdir()
+            (prompts / "constitution.md").write_text("test")
+            (state / "conversation.json").write_text("[]")
+            (state / "rulebook.json").write_text("{}")
+            (state / "meta.json").write_text("{}")
+            (state / loop.COST_LEDGER_FILENAME).write_text('{"receipts": {}}')
+            with mock.patch.object(loop, "ROOT", root), mock.patch.object(
+                loop, "STATE", state
+            ):
+                loop.archive("receipt-test")
+
+            archive = state / "tuning-runs" / "receipt-test"
+            self.assertFalse((state / loop.COST_LEDGER_FILENAME).exists())
+            self.assertEqual(
+                (archive / loop.COST_LEDGER_FILENAME).read_text(),
+                '{"receipts": {}}',
+            )
+            self.assertTrue((archive / "meta.json").exists())
+
 
 if __name__ == "__main__":
     unittest.main()
