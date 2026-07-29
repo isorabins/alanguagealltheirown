@@ -22,6 +22,10 @@ MAX_STRUCTURAL_RETRIES = 2
 
 Role = Literal["A", "B"]
 ActionResultKind = Literal["accepted", "rejected", "structural_failure", "cutover"]
+Deliberation = Annotated[
+    str,
+    Field(min_length=12, max_length=4000, pattern=r"[A-Za-z0-9]"),
+]
 
 
 class StrictModel(BaseModel):
@@ -84,7 +88,7 @@ RecordedMotion = Annotated[
 
 
 class LegislativeAction(StrictModel):
-    deliberation: str = Field(min_length=1, max_length=4000)
+    deliberation: Deliberation
     motion: RecordedMotion | None
     measurements: list[MeasurementRequest] = Field(max_length=2)
     requests: list[CollaborationRequest] = Field(max_length=3)
@@ -208,13 +212,18 @@ def _targeted_motion(base: type[StrictModel], target_ids: list[str]) -> type[Str
     )
 
 
-def _motion_union(motion_types: list[type[StrictModel]]) -> Any:
+def _motion_union(
+    motion_types: list[type[StrictModel]], *, allow_none: bool
+) -> Any:
     if not motion_types:
         return type(None)
     if len(motion_types) == 1:
-        return motion_types[0] | None
-    union_type = reduce(or_, motion_types)
-    return Annotated[union_type, Field(discriminator="kind")] | None
+        union_type = motion_types[0]
+    else:
+        union_type = Annotated[
+            reduce(or_, motion_types), Field(discriminator="kind")
+        ]
+    return union_type | None if allow_none else union_type
 
 
 def state_specific_action_model(
@@ -258,7 +267,13 @@ def state_specific_action_model(
     return create_model(
         f"LegislativeAction_{role}_{state_name.replace('-', '_')}",
         __base__=_ActionEnvelopeBase,
-        motion=(_motion_union(motion_types), ...),
+        motion=(
+            _motion_union(
+                motion_types,
+                allow_none=not (role == "B" and open_motion is not None),
+            ),
+            ...,
+        ),
     )
 
 
