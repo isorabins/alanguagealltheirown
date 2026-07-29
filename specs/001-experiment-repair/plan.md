@@ -91,6 +91,14 @@ use it without another service, framework, or database admin surface.
 provider calls, publication, and git history; Vercel already owns public/static
 functions. Narrow interfaces are safer than a framework rewrite.
 
+**2026-07-29 Backlog Repair Decision**: Keep the repair inside the existing
+Python loop and JSON authority boundaries. A deterministic corpus reader returns
+bounded evidence directly to the requesting agent without a new provider call;
+project evidence misses become `ASK Iso`, while only outward `RESEARCH` may use
+the existing web-search tool. A separate hash-bound state migration terminalizes
+legacy open motions without sharing the semantic-cleanup path that replaces
+adopted language.
+
 **Switch Trigger**: Reconsider Redis only if official availability/cost blocks
 deployment, atomic scripts cannot pass concurrency/restart tests, or sustained
 volume requires relational querying. None is true today.
@@ -138,6 +146,8 @@ canonical dedupe before collaboration UI work.
 | Direct production scripts | `loop.py`, `tweet.py`, deploy/apply can mutate live state | Explicit path/flags plus exact live gates | No execution during offline phase | command/evidence audit |
 | Collaboration Redis calls in `loop.py` | Network outage or hang can cancel a turn | Bounded courier plus atomic local inbox/outbox spools | Remove Redis client/calls from loop path | exception/timeout/replay/restart tests |
 | Legacy open proposals | Copied production proposals would permanently trip one-open guard | Cleanup terminalizes legacy proposed/reverted status with history receipt | Add migration to cleanup application | production-shaped cleanup/authority test |
+| Internal questions sent to web | Project-state questions receive irrelevant external citations | `LOOKUP` and detected internal `RESEARCH` read bounded canonical corpus evidence; misses become `ASK Iso` | Add deterministic router/corpus reader and remove web fallback | known-question route, zero-web, and correlated-ASK tests |
+| Conversation prompt/schema drift | Judge emits `requirement`/`verdict` while validator requires `id`/`pass` | Prompt states the exact 1-based integer-id/boolean-pass contract | Bind prompt contract to the validator seam | production-shaped Conversation integration test |
 | Prompt-only cleanup coverage | Two DeepSeek outputs omitted adopted source ids despite explicit lists; a later complete draft falsely had to retain operational/fractured sources to claim coverage | A returns schema-required per-source assignments plus cleaned groups or explicit reason-coded exclusions; code derives retained `source_ids` and `excluded_sources` | Retire free-form `rules[].source_ids` generation and silent omission | missing/extra assignment, exclusion mismatch, unknown/orphan/duplicate group tests |
 
 **Boundary Result**: PASS for design; live retirement remains planned_stop until
@@ -222,6 +232,7 @@ dependencies are planned stops, not assumed access.
 | G12 Visible acceptance | Human executes every matrix row on deployed site desktop/mobile with continuous video | Every row PASS and independent receipts agree | numbered screenshots, video, matrix | any FAIL/BLOCKED or contaminated evidence | visible approved test cleanup |
 | G13 Convergence/closeout | Run convergence, clean git/state/queues, verify live commit | No gaps, debris, duplicates, stuck work, warnings, or dirty files | updated spec/tasks/evidence, git/live receipts | any remaining gap | overall FAIL/BLOCKED |
 | G14 Launch-first core activation | Under the exact 2026-07-24 approval, preserve the existing rulebook, configure the proven collaboration/human/public-inference dependencies, keep X disabled, sync the paused VPS to reviewed `main`, deploy from `viewer/`, resume, and observe one turn | Public surfaces respond, the repaired runtime advances beyond turn 650, the timer remains healthy, and no cleanup candidate is applied | launch-first preflight, credential metadata, deployment receipt, turn/state/service receipts | credential/cap mismatch, canonical hash drift before resume, wrong deploy root, provider/service/invariant warning | restore prior Vercel deployment, disable new Production targets if needed, re-pause timer, retain turn-650 snapshot |
+| G15 Backlog repair | After one exact approval, pause the timer, verify source/commit hashes, merge the reviewed repair, apply only the legacy-motion bundle, resolve the duplicate human-review questions with the verified diagnostic, resume, and observe the next eligible lookup/legislative/Conversation seams | 23 adopted records and language hash are unchanged; zero legacy open motions remain; internal questions never use web; new Conversation judgments validate | migration bundle/diff, git/runtime/state receipts, collaboration receipts, bounded turn evidence | any source/adopted/hash drift, pending repeal, wrong route, invalid judgment, or service warning | keep timer paused; restore exact pre-apply rulebook and prior runtime commit |
 
 ## Explicit Planned Stops and Approval Text
 
@@ -240,6 +251,7 @@ Recommended phrase forms are:
 9. One exact phrase for the final correction copy and target X profile.
 10. One exact phrase for the final explainer copy, then a separate exact phrase to pin the verified post id.
 11. One exact phrase per researched X account to follow.
+12. `APPROVE LIVE CHANGE: apply reviewed backlog-repair commit <sha> and legacy-motion bundle <bundle-id>/<source-hash>/<replacement-hash> to the paused language loop, answer the named duplicate human-review questions with the verified diagnostic, resume, and stop on any adopted-language hash, routing, Conversation, or service invariant failure; rollback to <commit>/<snapshot>`
 
 Phrase placeholders must be replaced with verified immutable values. Paraphrases,
 blanket approvals, and approval from another agent do not pass a gate.

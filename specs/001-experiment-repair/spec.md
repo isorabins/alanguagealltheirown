@@ -188,6 +188,41 @@ As Iso, I can keep using my visible Mac while the full human browser journey run
 4. **Given** the pilot ends or fails, **when** closeout runs, **then** zero active leases remain and actual new-infrastructure spend is no more than `$2`.
 5. **Given** a different repository with a visible browser journey, **when** Codex invokes the reusable skill, **then** it can repeat the preflight, remote desktop, evidence, and teardown pattern without this project's credentials or assumptions.
 
+---
+
+### User Story 10 - Unstick the Learning Loop Without Changing the Language (Priority: P1)
+
+As Iso, I can clear legacy legislative state, keep all 23 adopted rules exactly
+unchanged, let agents inspect their own project before asking me, and receive
+valid Conversation judgments.
+
+**Why this priority**: The live loop still produces exams, but stale proposal
+records block legislation, internal questions are being sent to irrelevant web
+searches, and every scheduled Conversation judgment is invalid because its
+prompt and validator disagree.
+
+**Independent Test**: Run the repair against a copy of the current production-shaped
+state, replay the observed internal and external questions through the router,
+and execute the Conversation judge seam with a production-shaped response.
+
+**Acceptance Scenarios**:
+
+1. **Given** the current 69 proposed, 7 reverted, and 23 adopted records, **when**
+   the legacy-motion repair is prepared, **then** every legacy open record becomes
+   historical while all adopted records and the adopted-language hash remain exact.
+2. **Given** the repaired copy, **when** Agent A proposes and Agent B settles one
+   new motion, **then** both transitions succeed through normal authority rules.
+3. **Given** a question about a turn, rule, harness receipt, or current experiment
+   state, **when** it enters as `LOOKUP` or a misrouted `RESEARCH`, **then** it uses
+   only bounded project-corpus evidence and performs zero web searches.
+4. **Given** no adequate project evidence, **when** lookup finishes, **then** the
+   original question is correlated into `ASK Iso` and never falls through to web.
+5. **Given** a genuinely outward-looking question, **when** `RESEARCH` runs, **then**
+   it uses web search and accepts only a structured answer with usable citations.
+6. **Given** a complete Conversation exchange, **when** the judge follows its
+   documented schema, **then** the existing validator accepts every numbered
+   requirement exactly once using integer `id` and boolean `pass`.
+
 ### Edge Cases
 
 - A status changes while an exam or Try It request is in progress.
@@ -196,6 +231,10 @@ As Iso, I can keep using my visible Mac while the full human browser journey run
 - The cleanup draft assigns a source to an unknown group, leaves a group unreferenced, duplicates a group id, or arrives from a provider that did not enforce the required schema.
 - The judge returns duplicate, missing, nonnumeric, or out-of-range item identifiers.
 - Research returns no sources, unsupported claims, raw prompt-injection text, or a proposed rule.
+- An internal project question is accidentally emitted as `RESEARCH` instead of `LOOKUP`.
+- Project lookup finds only generic current-state context but no evidence tied to the question.
+- A legacy-motion repair is retried after the replacement was written but before its manifest was updated.
+- The legacy source hash changes, an adopted record differs, or a pending repeal appears before application.
 - Multiple RESEARCH, ASK, human answers, or visitor suggestions arrive before the next turn.
 - Iso submits an answer twice, answers a closed id, or leaves an ASK unanswered indefinitely.
 - A visitor floods suggestions or submits secrets, personal data, links, or hostile instructions.
@@ -303,6 +342,11 @@ As Iso, I can keep using my visible Mac while the full human browser journey run
 - **FR-054**: The pilot MUST verify teardown through coordinator and provider readbacks and MUST NOT pass with an active lease, stuck cleanup, unknown spend, or unverified secret hygiene.
 - **FR-055**: A reusable local Codex skill MUST reproduce the remote human-testing pattern for another repository, include only necessary scripts/references and `agents/openai.yaml`, pass `quick_validate.py`, and pass a fresh realistic off-production forward test.
 - **FR-056**: The launch-first activation MUST sync the repaired runtime to the current reviewed `main`, configure the existing collaboration, human-review, and separately capped public-inference dependencies, keep X delivery disabled, resume the loop with the existing rulebook, and stop or re-pause immediately if the first observed turn changes state outside the normal loop path or emits a health/invariant warning.
+- **FR-057**: A dedicated hash-bound legacy-motion repair MUST terminalize only proposed and reverted records, preserve their prior status in history, leave every adopted rule byte-for-byte unchanged, preserve the adopted-language hash/version, refuse pending repeals or source drift, and be safe to retry.
+- **FR-058**: `LOOKUP` and any deterministically recognized internal project question MUST read only bounded canonical project state/history/documentation and MUST perform zero web searches.
+- **FR-059**: An internal lookup without adequate project evidence MUST create one correlated `ASK Iso` record carrying the original requester and question; it MUST NOT silently answer, retry through web, or mutate language state.
+- **FR-060**: `RESEARCH` MUST be reserved for genuinely outward-looking questions and MUST accept a web result only when the provider returns the required structured fields plus at least one usable HTTP citation; malformed prose MUST become an honest no-evidence result.
+- **FR-061**: The Conversation judge prompt MUST specify the validator's exact requirement-row contract: one row for every 1-based requirement id, integer `id`, boolean `pass`, no duplicates or omissions, with the validator remaining authoritative.
 
 ### Scope and Non-Goals
 
@@ -356,6 +400,10 @@ As Iso, I can keep using my visible Mac while the full human browser journey run
 - **SC-022**: Secret scanning and manual evidence inspection find zero credential values in repository changes, skill files, command history, logs, screenshots, video, or proof bundles.
 - **SC-023**: The reusable skill passes structural validation and a fresh forward test for a second off-production visible browser fixture without project-specific credential names or acceptance assumptions.
 - **SC-024**: One production turn completes on the repaired runtime after activation, advances beyond turn 650, leaves the pre-resume rulebook history intact except for a normal agent-authored turn outcome, keeps X delivery disabled, and leaves the timer active with no service, queue, provider, or invariant warning.
+- **SC-025**: A current-state copy terminalizes exactly 69 proposed and 7 reverted records, preserves all 23 adopted records and the adopted-language hash exactly, leaves zero open motions, and permits one new proposal plus settlement.
+- **SC-026**: Every known internal-question regression fixture routes to project evidence with zero web requests, while an evidence miss creates exactly one correlated `ASK Iso`.
+- **SC-027**: One outward-looking research fixture uses web search and malformed or uncited provider output cannot be marked answered.
+- **SC-028**: The production Conversation judge seam produces a judgment accepted by the existing validator, while malformed, duplicate, and incomplete rows remain invalid.
 
 ## Assumptions
 
@@ -436,3 +484,4 @@ The implementation plan MUST include planned stops before:
 | 2026-07-23 | Explicitly approved Production release: draft PR #1 merged at `0cc16b5`; the corrected `viewer/` deployment is public at `alanguagealltheirown.com`; Crabbox recorded a 180-second, one-restart non-mutating Production inspection | Public `/` and `/human` are HTTP 200. The 26-row inspection is 18/26 PASS: public routes/surfaces render, while loop-dependent cleanup/RESEARCH/ASK, failure-state, and X rows remain inactive. Lease cleanup verified zero resources and `$0.08` cumulative coordinator estimate | Production is publicly reachable, but this is not full Production acceptance. T120 and the active-loop/canonical-state/X gates remain open; no application credential, canonical-state, loop, or X action occurred. |
 | 2026-07-24 | Iso explicitly changed the launch sequence: activate the repaired core runtime with the existing rulebook unchanged, configure the missing Production dependencies, keep X disabled, and verify one real turn | Exact approval `launch-alato-core-with-existing-rulebook-20260724-l4v8` authorizes the bounded launch-first activation; cleanup generation/application and X remain deferred | Complete T168–T176. Full cleanup and X acceptance remain separate optional/public gates and do not block the core-live result. |
 | 2026-07-24 | Launch-first core activation PASS after two fail-closed runtime repairs: 73 Python tests, 37 Node/acceptance tests, 80-requirement coverage, live Try It 100% fidelity smoke, human-session lifecycle, and clean repaired turns 653–654 | Production viewer `dpl_CzgAomaSfG5j7V1ikcjve5W6gDz6` is Ready; public/VPS `main` reached `1ffb3ade`; timer is active/waiting; collaboration has no new warning; X is disabled | Cleanup generation/application, full hostile Production acceptance, correction/explainer/pin/follows, and all X delivery remain the already-traced planned stops T120 and T128–T143; they do not block the core-live PASS. |
+| 2026-07-29 | Iso approved three bounded repairs after a fast Wayfinder pass: terminalize legacy open-motion state without changing the 23 adopted rules; route internal questions to the project corpus with `ASK Iso` on insufficient evidence; align the Conversation judge prompt with its validator | Offline implementation is approved on a clean feature worktree. The rulebook-economics/workbook-cost model remains deliberately unchanged | Complete T177–T185 and stop before production state mutation, paid production calls, merge to `main`, deploy, timer changes, or backlog answers. |

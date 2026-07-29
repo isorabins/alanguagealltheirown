@@ -18,9 +18,10 @@ from pathlib import Path
 
 import requests
 
-from collaboration import (deliver_one, empty_state, import_inbox_spool, public_state,
-                           stable_record, write_outbox)
+from collaboration import (deliver_one, empty_state, escalate_lookup_to_ask,
+                           import_inbox_spool, public_state, stable_record, write_outbox)
 from conversation_exam import run_conversation
+from project_lookup import is_project_question, project_lookup
 from rulebook import (apply_authorized_motion, language_payload, render_language,
                       render_legislature, score_judgment, motion_line)
 from state_store import atomic_write_json, load_json
@@ -214,6 +215,16 @@ def rationale_for(text, line):
     return ""
 
 
+def collaboration_directive(text, kind):
+    """Read one plain, bold, or code-formatted collaboration directive."""
+    match = re.search(
+        rf"^\s*[*`]*{re.escape(kind)}[*`]*\s*:\s*(.+?)\s*[*`]*$",
+        text,
+        re.M,
+    )
+    return match.group(1).strip().strip("*`").strip() if match else None
+
+
 def write_viewer_state(conv, rb, meta, collaboration=None, conversations=None):
     (ROOT / "viewer" / "state.js").write_text(
         "window.STATE = " + json.dumps(
@@ -266,13 +277,13 @@ def agent_turn(conv, rb, meta, collaboration, turn):
             suggestion["status"] = "acted" if receipt.changed else "no_action"
             suggestion["outcome"] = receipt.reason
             suggestion["outcome_turn"] = turn
-    for kind in ("RESEARCH", "ASK"):
-        match = re.search(rf"^\s*{kind}\s*:\s*(.+)$", text, re.M)
-        if match:
+    for kind in ("LOOKUP", "RESEARCH", "ASK"):
+        question = collaboration_directive(text, kind)
+        if question:
             record_id = f"{kind.lower()}-{turn}-{agent.lower()}"
-            bucket = "research" if kind == "RESEARCH" else "asks"
+            bucket = "research" if kind in {"LOOKUP", "RESEARCH"} else "asks"
             if not any(r.get("id") == record_id for r in collaboration[bucket]):
-                record = stable_record(kind, agent, match.group(1), record_id)
+                record = stable_record(kind, agent, question, record_id)
                 record["request_turn"] = turn
                 collaboration[bucket].append(record)
     print(f"[t{turn} {agent}] {usage.get('completion_tokens', 0)}tok  "
@@ -420,6 +431,38 @@ def process_one_research(collaboration, meta, turn):
     record = next((r for r in collaboration.get("research", []) if r.get("status") == "queued"), None)
     if not record:
         return
+    question = str(record.get("question", ""))
+    route = (
+        "project"
+        if record.get("kind") == "LOOKUP"
+        or record.get("route") == "project"
+        or is_project_question(question)
+        else "web"
+    )
+    record["route"] = route
+    if route == "project":
+        record["status"] = "looking_up"
+        result = project_lookup(ROOT, question)
+        record.update({
+            "findings": result["findings"],
+            "limitations": result["limitations"],
+            "citations": result["citations"],
+            "evidence_count": result["evidence_count"],
+            "usage": {
+                "prompt_tokens": 0,
+                "completion_tokens": 0,
+                "web_search_requests": 0,
+            },
+            "cost_usd": 0,
+            "no_evidence": not result["adequate"],
+            "answer_turn": turn,
+        })
+        if result["adequate"]:
+            record["status"] = "answered"
+        else:
+            escalate_lookup_to_ask(collaboration, record, turn)
+        return
+
     record["status"] = "researching"
     spend_before = float(meta.get("spend_usd", 0.0))
     body = {"model": MODEL_A,
@@ -443,21 +486,35 @@ def process_one_research(collaboration, meta, turn):
             + usage.get("prompt_tokens", 0) * PRICE_IN
             + usage.get("completion_tokens", 0) * PRICE_OUT
             + int(tool_use.get("web_search_requests", 0) or 0) * WEB_SEARCH_PRICE, 6)
+        structured = True
         try:
             parsed = json.loads(message.get("content") or "{}")
         except json.JSONDecodeError:
-            parsed = {"findings": message.get("content", ""), "limitations": "model returned non-JSON"}
+            parsed = {}
+            structured = False
+        if not isinstance(parsed, dict) or not {
+            "findings", "limitations", "citations"
+        }.issubset(parsed):
+            parsed = {}
+            structured = False
         citations = []
         for annotation in message.get("annotations", []):
             citation = annotation.get("url_citation", {})
             if citation.get("url"):
                 citations.append({"title": citation.get("title", citation["url"]), "url": citation["url"]})
-        findings = str(parsed.get("findings", "")).strip()
+        findings_value = parsed.get("findings", "")
+        if not isinstance(findings_value, str):
+            structured = False
+        findings = findings_value.strip() if isinstance(findings_value, str) else ""
         limitations = parsed.get("limitations", [])
         if isinstance(limitations, str):
             limitations = [limitations] if limitations.strip() else []
         if not isinstance(limitations, list):
             limitations = ["research response had malformed limitations"]
+            structured = False
+        if not structured:
+            findings = ""
+            limitations = ["research response was malformed; required structured JSON was not returned"]
         resolved_citations = citations or parsed.get("citations", [])
         resolved_citations = resolved_citations if isinstance(resolved_citations, list) else []
         resolved_citations = [c for c in resolved_citations if isinstance(c, dict)
