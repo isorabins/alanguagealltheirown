@@ -116,6 +116,7 @@ class MotionReceipt:
 
 def _motion_lines(text: str) -> list[tuple[str, str, str]]:
     motions = []
+    seen = set()
     for line in text.splitlines():
         original = line.strip()
         candidate = original
@@ -126,11 +127,13 @@ def _motion_lines(text: str) -> list[tuple[str, str, str]]:
         match = MOTION_RE.fullmatch(candidate)
         if match:
             verb = match.group(1).upper()
-            motions.append((
+            canonical = (
                 "REQUEST" if verb.startswith("REQUEST") else verb,
                 re.sub(r"[‐‑‒–—]", "-", match.group(2)).strip(" *"),
-                original,
-            ))
+            )
+            if canonical not in seen:
+                seen.add(canonical)
+                motions.append((*canonical, original))
     return motions
 
 
