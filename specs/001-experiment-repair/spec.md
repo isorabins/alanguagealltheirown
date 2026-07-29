@@ -347,6 +347,13 @@ and execute the Conversation judge seam with a production-shaped response.
 - **FR-059**: An internal lookup without adequate project evidence MUST create one correlated `ASK Iso` record carrying the original requester and question; it MUST NOT silently answer, retry through web, or mutate language state.
 - **FR-060**: `RESEARCH` MUST be reserved for genuinely outward-looking questions and MUST accept a web result only when the provider returns the required structured fields plus at least one usable HTTP citation; malformed prose MUST become an honest no-evidence result.
 - **FR-061**: The Conversation judge prompt MUST specify the validator's exact requirement-row contract: one row for every 1-based requirement id, integer `id`, boolean `pass`, no duplicates or omissions, with the validator remaining authoritative.
+- **FR-062**: Every new A/B legislative response MUST use one strict Pydantic-defined action envelope containing natural-language deliberation, exactly one state-appropriate motion or no motion where allowed, bounded measurement requests, and typed `LOOKUP`/`RESEARCH`/`ASK` requests; the live loop MUST NOT infer these fields from prose or regex.
+- **FR-063**: The harness MUST derive each legislative response schema from the current canonical role and open-motion state. When a motion is open, its exact rule id MUST be the only permitted target and only actions authorized for the current role/state may validate.
+- **FR-064**: A structurally invalid provider response MUST receive at most two bounded regeneration attempts. Exhaustion MUST leave canonical rule state unchanged, record a distinct structural-failure receipt, retain the same next legislative actor, and permit a later scheduled retry rather than silently advancing roles.
+- **FR-065**: Every attempted legislative turn MUST persist a machine-generated post-state receipt containing the attempted action, accepted/rejected/structural-failure result, reason, exact changed and unchanged rule ids, current open motion, adopted count, and adopted-language hash. The receipt and current state MUST be explicitly authoritative over agent prose in later requests.
+- **FR-066**: The structured-protocol cutover MUST preserve all pre-cutover event and rulebook records byte-for-byte. Request assembly MUST label recent agent prose as non-authoritative discussion, normalize available legacy motion receipts without inventing missing fields, and include one cutover-state receipt reconciling the canonical state at activation.
+- **FR-067**: The private experiment cost counter and `$25` application tripwire MUST accumulate OpenRouter's returned `usage.cost` for successful calls, including structured-response retries, rather than a hard-coded model price table. Existing historical spend MUST remain labeled as the prior estimate; no provider-key limit or credential change is included.
+- **FR-068**: This repair MUST leave the complete legislature context, rule texts/statuses, models, cadence, exams, collaboration semantics, public viewer, X configuration, and current canonical rule state unchanged except for valid post-activation autonomous motions.
 
 ### Scope and Non-Goals
 
@@ -357,6 +364,8 @@ and execute the Conversation judge seam with a production-shaped response.
 - No coordinator portal, custom domain, artifact publication service, multi-provider platform, or Semaphore integration is in scope.
 - No manual human rewriting of language rules is allowed; humans shape the experiment and curate context, while agents author and adopt language law.
 - Directive overuse, shorthand conflicts, and token-aware substitution are language questions for the agent cleanup/evolution process, not separate software features.
+- Rejected-rule tombstones, context compression, prompt caching, a general workflow engine, a new database, and a generalized agent framework are explicitly deferred from the structured-protocol repair.
+- A provider-side private-key spending limit is not part of this repair because no management-key path is preflighted; the application tripwire becomes accurate from cutover forward.
 
 ### Key Entities
 
@@ -371,6 +380,8 @@ and execute the Conversation judge seam with a production-shaped response.
 - **Try It Journey**: Encode/decode correlation, rulebook version, allowance/provider state, and visible result.
 - **Public Delivery Record**: Field note identity, platform, attempt count, idempotency identity, confirmation id, posted/blocked state, and error receipt.
 - **Remote Acceptance Lease**: Approved provider/account, coordinator identity, machine/region, start/expiry, projected/actual cost, recording/proof paths, teardown state, and non-secret receipt metadata.
+- **Legislative Action Envelope**: Pydantic-validated natural-language message, state-specific motion, measurements, and typed collaboration requests returned through OpenRouter Structured Outputs.
+- **Post-State Receipt**: Harness-authored transition evidence binding an attempted action to the exact resulting open motion, rule delta, adopted count, and language hash.
 
 ## Success Criteria
 
@@ -404,6 +415,12 @@ and execute the Conversation judge seam with a production-shaped response.
 - **SC-026**: Every known internal-question regression fixture routes to project evidence with zero web requests, while an evidence miss creates exactly one correlated `ASK Iso`.
 - **SC-027**: One outward-looking research fixture uses web search and malformed or uncited provider output cannot be marked answered.
 - **SC-028**: The production Conversation judge seam produces a judgment accepted by the existing validator, while malformed, duplicate, and incomplete rows remain invalid.
+- **SC-029**: Source and integration tests prove the new legislative call path contains zero regex/prose extraction for motions, measurements, or collaboration requests while historical rendering remains readable.
+- **SC-030**: A role/state fixture matrix proves each generated schema accepts every currently legal action, rejects every wrong-role or wrong-target action, and constrains an open target to one exact rule id.
+- **SC-031**: Malformed-response fixtures prove two bounded retries, zero rule-state mutation, one structural-failure receipt, and the same next legislative actor; the following valid fixture completes normally.
+- **SC-032**: Historical failure replays for duplicate inline motions, stale proposals, and the rule-072/083–085 belief divergence produce one unambiguous typed action and a post-state receipt whose changed ids, count, open motion, and hash equal independently computed state.
+- **SC-033**: Cutover verification proves the pre-cutover rulebook and event log are byte-identical, the current 30-event request window is labeled non-authoritative, and the cutover receipt matches production turn, open motion, adopted count, and language hash.
+- **SC-034**: Cost fixtures use provider-returned `usage.cost` exactly once per successful response/retry and the live key-usage delta after bounded activation is consistent with the new counter; no static per-model rate participates in new accounting.
 
 ## Assumptions
 
@@ -418,6 +435,8 @@ and execute the Conversation judge seam with a production-shaped response.
 - Crabbox itself and the Cloudflare coordinator are expected to add no usage charge within free allowance; the single hourly Hetzner lease is created only for remote proof and is governed by the approved `$2` ceiling.
 - Cloudflare and Hetzner account login/MFA/payment readiness remain external dependencies until verified; no account or credential creation is implied by the spend approval.
 - The pinned X explainer, correction, follows, credential/cap changes, deployment, loop pause/resume, and cleaned-rulebook application are separate live/public/account actions requiring the workspace's exact approvals at their implementation gates.
+- Pydantic 2.12.5 is already installed on both the implementation Mac and production VPS; OpenRouter currently documents strict JSON Schema response formats and per-response `usage.cost`.
+- Human-App Acceptance is not applicable to the structured-protocol repair because it changes only the private legislative transport and state receipts, not an interactive user surface. Live acceptance uses canonical state, provider usage, service, repository, and public read-only turn receipts.
 
 ## Definition of Done and Planned Stops
 
@@ -485,3 +504,4 @@ The implementation plan MUST include planned stops before:
 | 2026-07-24 | Iso explicitly changed the launch sequence: activate the repaired core runtime with the existing rulebook unchanged, configure the missing Production dependencies, keep X disabled, and verify one real turn | Exact approval `launch-alato-core-with-existing-rulebook-20260724-l4v8` authorizes the bounded launch-first activation; cleanup generation/application and X remain deferred | Complete T168–T176. Full cleanup and X acceptance remain separate optional/public gates and do not block the core-live result. |
 | 2026-07-24 | Launch-first core activation PASS after two fail-closed runtime repairs: 73 Python tests, 37 Node/acceptance tests, 80-requirement coverage, live Try It 100% fidelity smoke, human-session lifecycle, and clean repaired turns 653–654 | Production viewer `dpl_CzgAomaSfG5j7V1ikcjve5W6gDz6` is Ready; public/VPS `main` reached `1ffb3ade`; timer is active/waiting; collaboration has no new warning; X is disabled | Cleanup generation/application, full hostile Production acceptance, correction/explainer/pin/follows, and all X delivery remain the already-traced planned stops T120 and T128–T143; they do not block the core-live PASS. |
 | 2026-07-29 | Iso approved three bounded repairs after a fast Wayfinder pass: terminalize legacy open-motion state without changing the 23 adopted rules; route internal questions to the project corpus with `ASK Iso` on insufficient evidence; align the Conversation judge prompt with its validator | Offline implementation is approved on a clean feature worktree. The rulebook-economics/workbook-cost model remains deliberately unchanged | Complete T177–T185 and stop before production state mutation, paid production calls, merge to `main`, deploy, timer changes, or backlog answers. |
+| 2026-07-29 | Structured legislative protocol and exact-cost addendum prepared from live turn 1165 after Iso approved the bounded direction and requested end-to-end release | Clean worktree `codex/alato-structured-protocol` starts at production `5d44005`; timer remains paused, rule-129 remains proposed, and adopted-language hash remains `6d1b39ca6d9c…` | Approve the compact T186–T194 contract and exact G16 live envelope; then implement, review, merge, activate, and verify B/test/A without unrelated product work. |
