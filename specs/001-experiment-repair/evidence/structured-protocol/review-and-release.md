@@ -57,8 +57,10 @@ or X action occurred during implementation and review.
 ## Release receipt
 
 - Branch: `codex/alato-structured-protocol`
-- Reviewed HEAD before publication: `92de1ae`
-- Push: pending
-- Pull request: pending
+- Reviewed implementation boundary: `92de1ae`
+- Publication evidence commit: `e2a8249`
+- Push: `origin/codex/alato-structured-protocol`, upstream configured
+- Pull request: [#11](https://github.com/isorabins/alanguagealltheirown/pull/11),
+  ready for review, mergeable, `mergeStateStatus=CLEAN`, no required checks
 - Merge: pending
 - Production: paused at turn 1165 pending T194 activation
