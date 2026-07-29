@@ -17,7 +17,7 @@ The workbook/rulebook cost model is unchanged.
 
 - Clean feature worktree branch: `codex/alato-backlog-repair`
 - Worktree baseline: `e6e5525` (`turn 1138`)
-- Latest fetched `origin/main` during verification: `b328f75` (`turn 1139`)
+- Latest fetched `origin/main` during verification: `5854eb0` (`turn 1146`)
 - Latest remote canonical rulebook snapshot hash:
   `57fbf58ea571eb6de76059e46da5ceb3eb918f6f8c047e7b23a8d01e46c85606`
 - Remote rule counts: 23 adopted, 69 proposed, 7 reverted, 0 pending repeals

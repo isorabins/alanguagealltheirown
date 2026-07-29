@@ -6,10 +6,10 @@ Status: `PLANNED_STOP`
 ## Read-only production receipt
 
 - VPS checkout: clean `main` at
-  `b328f75ef1141784608d019fbc19b0d6e70596d0`, matching `origin/main`
-- Canonical turn: 1139
+  `5854eb09a2d666210ead8bda83c5e78933133f3f`, matching `origin/main`
+- Canonical turn: 1146
 - `language-loop.timer`: active, enabled; next scheduled event read back as
-  2026-07-29 11:45 WITA
+  2026-07-29 13:30 WITA
 - `language-loop.service`: inactive between runs
 - Current Vercel Production deployment:
   `dpl_3jLy3U5xWpUwnqUvGwSBQKgLvMfJ`, Ready, serving
@@ -98,7 +98,7 @@ the approved envelope.
 ## Approval envelope
 
 The final operator handoff must bind the reviewed branch tip, VPS commit
-`b328f75ef1141784608d019fbc19b0d6e70596d0`, a fresh rollback snapshot, current
+`5854eb09a2d666210ead8bda83c5e78933133f3f`, a fresh rollback snapshot, current
 deployment `dpl_3jLy3U5xWpUwnqUvGwSBQKgLvMfJ`, and the five verified ids above.
 The exact `APPROVE LIVE CHANGE:` phrase is supplied only after the final local
 commit exists; a phrase containing placeholders is invalid.
