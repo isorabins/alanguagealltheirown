@@ -92,7 +92,11 @@ class StructuredLoopTests(unittest.TestCase):
         valid = json.dumps(
             {
                 "deliberation": "The queued input remains advisory.",
-                "motion": None,
+                "motion": {
+                    "kind": "REQUEST",
+                    "target_rule_id": "rule-001",
+                    "focus": "Test the proposal against one hostile boundary.",
+                },
                 "measurements": [],
                 "requests": [],
             }
@@ -188,7 +192,11 @@ class StructuredLoopTests(unittest.TestCase):
         valid = json.dumps(
             {
                 "deliberation": "The proposal needs one more boundary check.",
-                "motion": None,
+                "motion": {
+                    "kind": "REQUEST",
+                    "target_rule_id": "rule-001",
+                    "focus": "Test the proposal against one hostile boundary.",
+                },
                 "measurements": [],
                 "requests": [],
             }

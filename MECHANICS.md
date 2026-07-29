@@ -28,7 +28,7 @@ All JSON replacement uses a temporary file, file sync, atomic rename, and direct
 
 ## Legislature
 
-Every new A/B call receives a strict JSON Schema generated from the canonical role and open-motion state. DeepSeek A may return one typed `PROPOSE`, `REPEAL`, or `REVISE` motion; Kimi B may return one typed `ADOPT`, `REJECT`, or focused `REQUEST`. An open motion constrains the schema to its one exact target. `MEASURE`, `LOOKUP`, `RESEARCH`, and `ASK` use bounded typed arrays, and natural-language deliberation has no operative authority.
+Every new A/B call receives a strict JSON Schema generated from the canonical role and open-motion state. DeepSeek A may return one typed `PROPOSE`, `REPEAL`, or `REVISE` motion; Kimi B may return one typed `ADOPT`, `REJECT`, or focused `REQUEST`. An open motion constrains the schema to its one exact target, and B cannot omit the audit motion while that target remains open. Deliberation must contain a substantive English fragment rather than punctuation-only filler. `MEASURE`, `LOOKUP`, `RESEARCH`, and `ASK` use bounded typed arrays, and natural-language deliberation has no operative authority.
 
 Pydantic validates the provider response locally. A structural failure gets at most two regeneration attempts against the unchanged state; exhaustion records one structural-failure receipt, mutates no rule, and retains the same next actor. A validated action enters the existing single-writer state machine directly, without live regex or prose extraction.
 

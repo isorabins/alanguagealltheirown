@@ -141,10 +141,10 @@ class StateSpecificActionTests(unittest.TestCase):
             ("A", empty_book()),
             ("A", open_add_book()),
             ("B", adopted_book()),
-            ("B", open_add_book()),
         ):
             with self.subTest(role=role, no_motion=True):
                 self.assertIsNone(validate_action(action(), role, rulebook).motion)
+        self.assert_invalid("B", open_add_book(), action())
 
     def test_wrong_role_wrong_target_and_illegal_state_are_rejected_locally(self):
         self.assert_invalid(
@@ -235,6 +235,14 @@ class StateSpecificActionTests(unittest.TestCase):
         schema_text = str(options["response_format"]["json_schema"]["schema"])
         self.assertIn("rule-003", schema_text)
         self.assertNotIn("rule-002", schema_text)
+
+    def test_open_auditor_cannot_return_punctuation_or_skip_the_motion(self):
+        self.assert_invalid("B", open_add_book(), action(deliberation=","))
+        self.assert_invalid(
+            "B",
+            open_add_book(),
+            action(deliberation="A real audit statement."),
+        )
 
     def test_multiple_open_motions_fail_closed(self):
         book = open_add_book()
