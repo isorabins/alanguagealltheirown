@@ -57,10 +57,13 @@ or X action occurred during implementation and review.
 ## Release receipt
 
 - Branch: `codex/alato-structured-protocol`
-- Reviewed implementation boundary: `92de1ae`
-- Publication evidence commit: `e2a8249`
+- Reviewed implementation head: `952d1c35f35da7824d6924df9526395fb1019cae`
 - Push: `origin/codex/alato-structured-protocol`, upstream configured
 - Pull request: [#11](https://github.com/isorabins/alanguagealltheirown/pull/11),
-  ready for review, mergeable, `mergeStateStatus=CLEAN`, no required checks
-- Merge: pending
-- Production: paused at turn 1165 pending T194 activation
+  merged as `e8fffe691e8359242b9bcc8a27c23200f823191a`
+- Live schema repair: [#12](https://github.com/isorabins/alanguagealltheirown/pull/12),
+  merged as `2504699b8b88887e01c1b585be524a9e145bb6e8`
+- Receipt compatibility repair:
+  [#13](https://github.com/isorabins/alanguagealltheirown/pull/13), merged as
+  `aba8e9f39554ed42e7b9608a0989c6282d9c4e61`
+- Production acceptance: PASS at turn 1170; see `live-acceptance.md`
