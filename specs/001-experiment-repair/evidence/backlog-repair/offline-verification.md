@@ -60,12 +60,26 @@ loop seam produced four complete rows and the existing validator returned
 The five historical scheduled Conversation artifacts remain preserved and
 invalid; they are not rewritten.
 
+## Human answer repair
+
+Read-only Production logs showed that Iso's six visible clicks reached
+`POST /api/human-action` after the non-sliding session expired and all returned
+`401`. The stale page swallowed the errors and kept the old inbox visible.
+
+The repaired local browser flow now turns an expired session into an explicit
+login prompt, preserves the draft through re-authentication, shows a visible
+submitting/error state, and exposes an accepted command as `answer_pending`
+with the exact answer. The answer remained visible after a full page reload.
+Screenshots and the evidence matrix are in
+`evidence/backlog-repair/human-answer-repair/`. Production remains unchanged
+until the combined live gate is approved.
+
 ## Verification
 
 - `python3 -m unittest discover -s tests/python -p 'test_*.py'`
   — PASS, 85 tests
 - `node --test tests/js/*.test.js`
-  — PASS, 30 tests
+  — PASS, 31 tests
 - `python3 tests/acceptance/check_contract_coverage.py`
   — PASS, 89 requirements and 185 sequential tasks
 - Focused migration, research, prompt, and Conversation tests

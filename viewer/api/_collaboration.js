@@ -122,6 +122,7 @@ async function logout(req, res) {
 async function privateRecords() {
   const raw = await command("GET", `${NAMESPACE}:private-state`);
   const canonical = raw ? JSON.parse(raw) : { asks: [], suggestions: [], cleanup: [] };
+  const asks = (canonical.asks || []).map((row) => ({ ...row }));
   const pendingRows = await command("LRANGE", `${NAMESPACE}:queue:suggestion`, 0, -1);
   const pending = (pendingRows || []).map((row) => JSON.parse(row));
   const suggestions = [...(canonical.suggestions || [])];
@@ -129,11 +130,19 @@ async function privateRecords() {
   const moderationRows = await command("LRANGE", `${NAMESPACE}:queue:moderation`, 0, -1);
   for (const rawRow of moderationRows || []) {
     const row = JSON.parse(rawRow);
-    if (row.action !== "moderate_suggestion") continue;
-    const suggestion = suggestions.find((item) => item.id === row.target_id);
-    if (suggestion) suggestion.status = `${row.decision}_queued`;
+    if (row.action === "answer_ask") {
+      const ask = asks.find((item) => item.id === row.target_id);
+      if (ask && ask.status === "awaiting_iso") {
+        ask.status = "answer_pending";
+        ask.answer = row.answer;
+        ask.answer_submitted_at = row.created_at;
+      }
+    } else if (row.action === "moderate_suggestion") {
+      const suggestion = suggestions.find((item) => item.id === row.target_id);
+      if (suggestion) suggestion.status = `${row.decision}_queued`;
+    }
   }
-  return { asks: canonical.asks || [], suggestions };
+  return { asks, suggestions };
 }
 
 async function cleanupReview() {

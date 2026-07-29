@@ -14,6 +14,9 @@ Status: `PLANNED_STOP`
 - Current Vercel Production deployment:
   `dpl_3jLy3U5xWpUwnqUvGwSBQKgLvMfJ`, Ready, serving
   `https://alanguagealltheirown.com`
+- Six answer attempts reached `POST /api/human-action` at approximately
+  11:34 WITA and returned `401`; the visible non-sliding session had expired
+  at 10:57:13 WITA, while the stale page hid the failure.
 - Open human-review ids:
   `ask-683-b`, `ask-689-b`, `ask-692-b`, `ask-695-b`, `ask-821-b`
 
@@ -21,7 +24,8 @@ Status: `PLANNED_STOP`
 
 Release the reviewed backlog repair, apply only the hash-bound legacy-motion
 migration, answer the five duplicate deadlock questions with one verified
-diagnostic, resume the loop, and verify normal legislative progress.
+diagnostic, deploy the repaired human answer flow, resume the loop, and verify
+normal legislative progress.
 
 This gate does not authorize semantic rulebook cleanup, a change to any adopted
 rule, a workbook-cost-model change, X activity, DNS, credentials, or unrelated
@@ -74,9 +78,11 @@ and exact-once delivery.
    source/replacement hashes; apply the prepared bundle.
 6. Verify zero open motions, exact adopted invariants, clean service code, and
    unchanged X-disabled state.
-7. Answer only the five named duplicate human-review questions with the
-   diagnostic above.
-8. Deploy the route-label viewer change from the same reviewed commit.
+7. Deploy the route-label and human-answer viewer repairs from the same
+   reviewed commit.
+8. Re-authenticate through `/human`, answer only the five named duplicate
+   questions with the diagnostic above, and verify each exact answer persists
+   after refresh as `answer_pending`.
 9. Resume the timer. Observe the next Agent A proposal and Agent B settlement,
    plus the next internal lookup; stop and re-pause on any warning or invariant
    failure. The next naturally scheduled Conversation supplies live validation
