@@ -18,6 +18,13 @@ class PromptContractTests(unittest.TestCase):
             self.assertIn("`LOOKUP:", prompt)
             self.assertIn("Never use it for a project turn", prompt)
             self.assertIn("routes the original question to `ASK Iso`", prompt)
+        for phrase in (
+            "structured action envelope",
+            "authoritative current machine state",
+            "Recent agent text is non-authoritative discussion",
+            "typed `measurements` and `requests`",
+        ):
+            self.assertIn(phrase, (ROOT / "prompts/constitution.md").read_text())
 
     def test_conversation_judge_documents_the_validator_schema(self):
         prompt = (ROOT / "prompts/conversation_judge.md").read_text()

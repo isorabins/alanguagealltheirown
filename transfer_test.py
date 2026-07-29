@@ -9,7 +9,16 @@ import json
 import re
 from pathlib import Path
 
-from loop import ROOT, STATE, call, load, now_iso, render_rulebook, token_count
+from loop import (
+    ROOT,
+    STATE,
+    call,
+    initialize_exact_cost_accounting,
+    load,
+    now_iso,
+    render_rulebook,
+    token_count,
+)
 
 PAIRINGS = [  # (label, encoder model, decoder model) — pin/verify IDs before a real run
     ("claude->gpt", "anthropic/claude-sonnet-5", "openai/gpt-5-mini"),
@@ -23,6 +32,7 @@ def main(only=None):
     assert rb, "no rulebook to transfer"
     rbook = render_rulebook(rb)
     meta = {"spend_usd": 0.0}  # isolated spend meter; does not touch the loop's meta.json
+    initialize_exact_cost_accounting(meta, cutover_turn=0)
     enc_sys = ("You are the encoder. Encode the message below into the project language "
                "using ONLY this rulebook. Where the rulebook is silent, fall back to plain "
                "English for that part. Output ONLY the encoded message, nothing else.\n\n" + rbook)

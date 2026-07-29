@@ -2,7 +2,7 @@ import copy
 import unittest
 
 import loop
-from rulebook import apply_authorized_motion, language_payload, motion_line
+from rulebook import apply_authorized_motion, apply_typed_motion, language_payload, motion_line
 
 
 def book():
@@ -146,6 +146,58 @@ class MotionTests(unittest.TestCase):
         request_line = motion_line(request_text)
         self.assertEqual(loop.rationale_for(request_text, request_line),
                          "Audit evidence describes this boundary clearly.")
+
+    def test_typed_motion_path_replays_inline_duplicate_without_parsing_prose(self):
+        rb = book()
+        receipt = apply_typed_motion(
+            {"kind": "ADOPT", "target_rule_id": "rule-001"},
+            rb,
+            2,
+            "B",
+            "The structured envelope carries one unambiguous vote.",
+        )
+        self.assertTrue(receipt.changed)
+        self.assertEqual(receipt.reason, "motion_applied")
+        self.assertEqual(rb["rules"][0]["status"], "adopted")
+        self.assertIsNone(receipt.line)
+
+    def test_typed_motion_path_rejects_stale_target_without_mutation(self):
+        rb = book()
+        rb["rules"][0]["proposed_turn"] = 1
+        rb["rules"].append(
+            {
+                "id": "rule-002",
+                "text_en": "The current focused proposal has enough detail.",
+                "status": "proposed",
+                "history": [],
+                "proposed_turn": 4,
+            }
+        )
+        before = copy.deepcopy(rb)
+        receipt = apply_typed_motion(
+            {"kind": "ADOPT", "target_rule_id": "rule-001"}, rb, 5, "B"
+        )
+        self.assertEqual(receipt.reason, "not_latest_focused_proposal")
+        self.assertEqual(before, rb)
+
+    def test_typed_repeal_vote_uses_canonical_state_not_agent_belief(self):
+        rb = adopted_book()
+        proposed = apply_typed_motion(
+            {
+                "kind": "REPEAL",
+                "target_rule_id": "rule-001",
+                "rationale": "The marker duplicates the stronger plain-text fallback.",
+            },
+            rb,
+            10,
+            "A",
+        )
+        self.assertEqual(proposed.reason, "repeal_proposed")
+        adopted = apply_typed_motion(
+            {"kind": "ADOPT", "target_rule_id": "rule-001"}, rb, 11, "B"
+        )
+        self.assertEqual(adopted.reason, "repeal_adopted")
+        self.assertEqual(rb["rules"][0]["status"], "repealed")
 
 
 if __name__ == "__main__": unittest.main()

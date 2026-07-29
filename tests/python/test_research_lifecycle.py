@@ -15,6 +15,7 @@ class Response:
         return {"choices":[{"message":{"content":"{\"findings\":\"supported\",\"limitations\":[\"one source\"],\"citations\":[]}",
                                          "annotations":[{"url_citation":{"title":"Primary","url":"https://example.test/source"}}]}}],
                 "usage":{"prompt_tokens":100,"completion_tokens":50,
+                         "cost":0.0123,
                          "server_tool_use":{"web_search_requests":1}}}
 
 
@@ -53,9 +54,9 @@ class ResearchTests(unittest.TestCase):
         self.assertEqual(state["research"][0]["question"],"What current public research compares prompt caching across LLM APIs?")
         self.assertEqual(state["research"][0]["citations"][0]["url"],"https://example.test/source")
         self.assertEqual(rules,before)
-        self.assertGreaterEqual(meta["spend_usd"], loop.WEB_SEARCH_PRICE)
+        self.assertEqual(meta["spend_usd"], 0.0123)
         self.assertEqual(state["research"][0]["usage"]["web_search_requests"],1)
-        self.assertGreaterEqual(state["research"][0]["cost_usd"],loop.WEB_SEARCH_PRICE)
+        self.assertEqual(state["research"][0]["cost_usd"],0.0123)
         self.assertEqual(post.call_count, 1)
 
     def test_no_evidence_and_provider_error_are_explicit(self):
@@ -69,7 +70,7 @@ class ResearchTests(unittest.TestCase):
     def test_no_citation_is_deliverable_honest_no_evidence(self):
         state=empty_state(); state["research"]=[stable_record("RESEARCH","A","unsupported?","r1")]
         class NoEvidence(Response):
-            def json(self): return {"choices":[{"message":{"content":"{\"findings\":\"\",\"limitations\":[\"no source\"],\"citations\":[]}","annotations":[]}}],"usage":{}}
+            def json(self): return {"choices":[{"message":{"content":"{\"findings\":\"\",\"limitations\":[\"no source\"],\"citations\":[]}","annotations":[]}}],"usage":{"cost":0.001}}
         with mock.patch("loop.api_key",return_value="test"), mock.patch("loop.requests.post",return_value=NoEvidence()):
             loop.process_one_research(state,{},11)
         self.assertEqual(state["research"][0]["status"],"no_evidence")
@@ -165,7 +166,7 @@ class ResearchTests(unittest.TestCase):
                             }],
                         }
                     }],
-                    "usage": {"server_tool_use": {"web_search_requests": 1}},
+                    "usage": {"cost": 0.001, "server_tool_use": {"web_search_requests": 1}},
                 }
 
         with mock.patch("loop.api_key", return_value="test"), mock.patch(

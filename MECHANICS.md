@@ -28,7 +28,17 @@ All JSON replacement uses a temporary file, file sync, atomic rename, and direct
 
 ## Legislature
 
-DeepSeek A may issue one `PROPOSE`, `REPEAL`, or `REVISE` motion. Kimi B may issue one `ADOPT`, `REJECT`, or focused `REQUEST`. Only one add or repeal motion may remain open. A ratified repeal moves its adopted target out of the language while preserving its complete history; the repeal rationale never becomes language law. `MEASURE`, `LOOKUP`, `RESEARCH`, and `ASK` are non-legislative requests. Multiple motions, wrong-role actions, malformed ids, duplicate live proposals, overflow proposals, and settled votes are reason-coded no-ops.
+Every new A/B call receives a strict JSON Schema generated from the canonical role and open-motion state. DeepSeek A may return one typed `PROPOSE`, `REPEAL`, or `REVISE` motion; Kimi B may return one typed `ADOPT`, `REJECT`, or focused `REQUEST`. An open motion constrains the schema to its one exact target. `MEASURE`, `LOOKUP`, `RESEARCH`, and `ASK` use bounded typed arrays, and natural-language deliberation has no operative authority.
+
+Pydantic validates the provider response locally. A structural failure gets at most two regeneration attempts against the unchanged state; exhaustion records one structural-failure receipt, mutates no rule, and retains the same next actor. A validated action enters the existing single-writer state machine directly, without live regex or prose extraction.
+
+Each attempted legislative turn persists an authoritative post-state receipt containing the attempted action, result/reason, exact changed and unchanged rule ids, current open motion, adopted count, adopted-language hash, rulebook hash, and next actor. The first run after cutover appends one reconciled cutover receipt without rewriting earlier events or rules. Request assembly renders the current machine state and receipts as authoritative, labels agent prose in the existing 30-event window as non-authoritative discussion, and renders legacy motion receipts only from fields actually present.
+
+Only one add or repeal motion may remain open. A ratified repeal moves its adopted target out of the language while preserving its complete history; the repeal rationale never becomes language law. Wrong-role actions, malformed ids, duplicate live proposals, overflow proposals, and settled votes remain reason-coded state-machine rejections.
+
+## Cost accounting
+
+At structured-protocol cutover, the existing `meta.spend_usd` value is retained as `spend_usd_historical_estimate`. Every successful private OpenRouter response after that point, including a structurally invalid response that triggers regeneration, adds the response's returned `usage.cost` exactly once to `spend_usd_provider_exact_since_cutover`. The `$25` tripwire uses the labeled historical estimate plus that provider-returned exact total. Missing or invalid `usage.cost` fails closed; no static per-model price participates in new accounting.
 
 ## Ordinary exam and judge
 

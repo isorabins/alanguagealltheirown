@@ -153,24 +153,44 @@ def _open_motions(rulebook: dict[str, Any]) -> list[tuple[int, int, str, dict[st
     return open_rows
 
 
-def apply_authorized_motion(text: str, rulebook: dict[str, Any], turn: int, agent: str,
-                            rationale: str = "") -> MotionReceipt:
-    motions = _motion_lines(text)
-    if not motions:
-        return MotionReceipt(False, "no_motion", agent)
-    if len(motions) != 1:
-        return MotionReceipt(False, "multiple_motions", agent)
-    verb, rest, line = motions[0]
+def _starts_with_motion_prefix(text: str) -> bool:
+    upper = text.lstrip().upper()
+    return any(upper.startswith(f"{verb}:") for verb in (
+        "PROPOSE", "REPEAL", "ADOPT", "REJECT", "REVISE",
+        "REQUEST", "REQUEST-REVISION", "REQUEST-TEST",
+    ))
+
+
+def _canonical_rule_id(value: Any) -> str | None:
+    text = str(value or "").strip().lower()
+    if not text.startswith("rule-") or not text[5:].isdigit():
+        return None
+    return f"rule-{int(text[5:]):03d}"
+
+
+def _apply_motion_fields(
+    *,
+    verb: str,
+    rulebook: dict[str, Any],
+    turn: int,
+    agent: str,
+    target_rule_id: str | None = None,
+    text: str = "",
+    rationale: str = "",
+    focus: str = "",
+    history_rationale: str = "",
+    line: str | None = None,
+) -> MotionReceipt:
+    """Apply one already-typed motion; no prose or formatting is interpreted here."""
     if agent == "A" and verb not in {"PROPOSE", "REVISE", "REPEAL"}:
         return MotionReceipt(False, "inventor_cannot_vote", agent, verb, line=line)
     if agent == "B" and verb not in {"ADOPT", "REJECT", "REQUEST"}:
         return MotionReceipt(False, "auditor_cannot_originate", agent, verb, line=line)
-    match = RULE_ID_RE.search(rest)
     if verb == "PROPOSE":
         if _open_motions(rulebook):
             return MotionReceipt(False, "proposal_already_open", agent, verb, line=line)
-        proposed = re.sub(r"^rule-\d+\s*[-:]\s*", "", rest, flags=re.I).strip()
-        if re.match(r"^(?:PROPOSE|REPEAL|ADOPT|REJECT|REVISE|REQUEST(?:-REVISION|-TEST)?)\s*:", proposed, re.I):
+        proposed = text.strip()
+        if _starts_with_motion_prefix(proposed):
             return MotionReceipt(False, "nested_motion", agent, verb, line=line)
         if len(proposed) < 12:
             return MotionReceipt(False, "proposal_too_short", agent, verb, line=line)
@@ -182,12 +202,13 @@ def apply_authorized_motion(text: str, rulebook: dict[str, Any], turn: int, agen
         rulebook["next_id"] = int(rulebook.get("next_id", 1)) + 1
         rulebook.setdefault("rules", []).append({
             "id": rule_id, "text_en": proposed, "status": "proposed", "proposed_turn": turn,
-            "scores": None, "history": [{"verb": "proposed", "turn": turn, "agent": agent, "why": rationale}],
+            "scores": None, "history": [{"verb": "proposed", "turn": turn, "agent": agent,
+                                         "why": history_rationale}],
         })
         return MotionReceipt(True, "proposal_recorded", agent, verb, rule_id, True, line)
-    if not match:
+    rule_id = _canonical_rule_id(target_rule_id)
+    if not rule_id:
         return MotionReceipt(False, "malformed_rule_id", agent, verb, line=line)
-    rule_id = f"rule-{int(match.group(1)):03d}"
     rule = next((r for r in rulebook.get("rules", []) if r.get("id") == rule_id), None)
     if not rule:
         return MotionReceipt(False, "unknown_rule_id", agent, verb, rule_id, line=line)
@@ -197,18 +218,17 @@ def apply_authorized_motion(text: str, rulebook: dict[str, Any], turn: int, agen
             return MotionReceipt(False, "proposal_already_open", agent, verb, rule_id, line=line)
         if rule.get("status") != "adopted":
             return MotionReceipt(False, "repeal_target_not_adopted", agent, verb, rule_id, line=line)
-        if "->" not in rest:
-            return MotionReceipt(False, "missing_repeal_rationale", agent, verb, rule_id, line=line)
-        repeal_reason = rest.split("->", 1)[1].strip(" *")
+        repeal_reason = rationale.strip()
         if len(repeal_reason) < 12:
             return MotionReceipt(False, "repeal_rationale_too_short", agent, verb, rule_id, line=line)
-        if re.match(r"^(?:PROPOSE|REPEAL|ADOPT|REJECT|REVISE|REQUEST(?:-REVISION|-TEST)?)\s*:", repeal_reason, re.I):
+        if _starts_with_motion_prefix(repeal_reason):
             return MotionReceipt(False, "nested_motion", agent, verb, rule_id, line=line)
         rule["pending_repeal"] = {"kind": "repeal", "target_id": rule_id,
                                   "rationale": repeal_reason, "proposed_turn": turn,
                                   "agent": agent}
         rule.setdefault("history", []).append({"verb": "repeal_proposed", "turn": turn,
-                                                "agent": agent, "why": rationale or repeal_reason})
+                                                "agent": agent,
+                                                "why": history_rationale or repeal_reason})
         return MotionReceipt(True, "repeal_proposed", agent, verb, rule_id, True, line)
 
     previous = rule.get("status")
@@ -221,8 +241,7 @@ def apply_authorized_motion(text: str, rulebook: dict[str, Any], turn: int, agen
         if latest is None or rule_id != latest[3].get("id"):
             return MotionReceipt(False, "not_latest_focused_proposal", agent, verb, rule_id, line=line)
         if verb == "REQUEST":
-            focus = re.sub(r"^.*?rule-\d+\s*(?:->|[-:])\s*", "", rest, count=1, flags=re.I).strip(" *")
-            if focus == rest.strip(" *") or len(focus) < 12:
+            if len(focus.strip()) < 12:
                 return MotionReceipt(False, "missing_focused_request", agent, verb, rule_id, line=line)
             return MotionReceipt(True, "focused_work_requested", agent, verb, rule_id, False, line)
 
@@ -232,7 +251,7 @@ def apply_authorized_motion(text: str, rulebook: dict[str, Any], turn: int, agen
         if verb == "ADOPT":
             rule["status"] = "repealed"
         rule.setdefault("history", []).append({"verb": history_verb, "turn": turn,
-                                                "agent": agent, "why": rationale})
+                                                "agent": agent, "why": history_rationale})
         return MotionReceipt(True, f"{history_verb}", agent, verb, rule_id, True, line)
     if verb == "ADOPT":
         rule["status"] = "adopted"
@@ -240,21 +259,18 @@ def apply_authorized_motion(text: str, rulebook: dict[str, Any], turn: int, agen
         rule["status"] = "rejected"
     elif verb == "REVISE":
         if pending_repeal and previous == "adopted":
-            if "->" not in rest:
-                return MotionReceipt(False, "missing_revision_text", agent, verb, rule_id, line=line)
-            replacement = rest.split("->", 1)[1].strip(" *")
+            replacement = text.strip()
             if len(replacement) < 12:
                 return MotionReceipt(False, "revision_too_short", agent, verb, rule_id, line=line)
             rule["pending_repeal"].update({"rationale": replacement, "proposed_turn": turn})
             rule.setdefault("history", []).append({"verb": "repeal_revised", "turn": turn,
-                                                    "agent": agent, "why": rationale or replacement})
+                                                    "agent": agent,
+                                                    "why": history_rationale or replacement})
             return MotionReceipt(True, "repeal_revised", agent, verb, rule_id, True, line)
         if previous != "proposed":
             return MotionReceipt(False, "settled_or_ineligible_motion", agent, verb, rule_id, line=line)
-        if "->" not in rest:
-            return MotionReceipt(False, "missing_revision_text", agent, verb, rule_id, line=line)
-        replacement = rest.split("->", 1)[1].strip(" *")
-        if re.match(r"^(?:PROPOSE|REPEAL|ADOPT|REJECT|REVISE|REQUEST(?:-REVISION|-TEST)?)\s*:", replacement, re.I):
+        replacement = text.strip()
+        if _starts_with_motion_prefix(replacement):
             return MotionReceipt(False, "nested_motion", agent, verb, rule_id, line=line)
         if len(replacement) < 12:
             return MotionReceipt(False, "revision_too_short", agent, verb, rule_id, line=line)
@@ -262,5 +278,95 @@ def apply_authorized_motion(text: str, rulebook: dict[str, Any], turn: int, agen
         rule["status"] = "proposed"
         rule["proposed_turn"] = turn
     rule.setdefault("history", []).append({"verb": verb.lower(), "turn": turn, "agent": agent,
-                                            "why": rationale})
+                                            "why": history_rationale})
     return MotionReceipt(True, "motion_applied", agent, verb, rule_id, True, line)
+
+
+def apply_typed_motion(
+    motion: Any | None,
+    rulebook: dict[str, Any],
+    turn: int,
+    agent: str,
+    rationale: str = "",
+) -> MotionReceipt:
+    """Authoritative new-turn entry point for one state-validated motion object."""
+    if motion is None:
+        return MotionReceipt(True, "no_motion", agent)
+    if hasattr(motion, "model_dump"):
+        data = motion.model_dump(mode="json")
+    elif isinstance(motion, dict):
+        data = dict(motion)
+    else:
+        return MotionReceipt(False, "malformed_typed_motion", agent)
+    verb = str(data.get("kind", "")).upper()
+    if verb == "NO_MOTION":
+        return MotionReceipt(True, "no_motion", agent)
+    if verb not in {"PROPOSE", "REPEAL", "REVISE", "ADOPT", "REJECT", "REQUEST"}:
+        return MotionReceipt(False, "unknown_typed_motion", agent, verb or None)
+    return _apply_motion_fields(
+        verb=verb,
+        rulebook=rulebook,
+        turn=turn,
+        agent=agent,
+        target_rule_id=data.get("target_rule_id"),
+        text=str(data.get("text", "")),
+        rationale=str(data.get("rationale", "")),
+        focus=str(data.get("focus", "")),
+        history_rationale=rationale,
+    )
+
+
+def apply_authorized_motion(text: str, rulebook: dict[str, Any], turn: int, agent: str,
+                            rationale: str = "") -> MotionReceipt:
+    """Legacy history parser retained for replay compatibility, not new live turns."""
+    motions = _motion_lines(text)
+    if not motions:
+        return MotionReceipt(False, "no_motion", agent)
+    if len(motions) != 1:
+        return MotionReceipt(False, "multiple_motions", agent)
+    verb, rest, line = motions[0]
+    target_match = RULE_ID_RE.search(rest)
+    target_rule_id = (
+        f"rule-{int(target_match.group(1)):03d}" if target_match else None
+    )
+    if verb == "PROPOSE":
+        proposed = re.sub(r"^rule-\d+\s*[-:]\s*", "", rest, flags=re.I).strip()
+        return _apply_motion_fields(
+            verb=verb,
+            rulebook=rulebook,
+            turn=turn,
+            agent=agent,
+            text=proposed,
+            history_rationale=rationale,
+            line=line,
+        )
+    if not target_match:
+        return _apply_motion_fields(
+            verb=verb,
+            rulebook=rulebook,
+            turn=turn,
+            agent=agent,
+            target_rule_id=None,
+            history_rationale=rationale,
+            line=line,
+        )
+    remainder = rest[target_match.end():]
+    detail = re.sub(r"^\s*(?:->|[-:])\s*", "", remainder).strip(" *")
+    if verb == "REPEAL" and "->" not in rest:
+        return MotionReceipt(False, "missing_repeal_rationale", agent, verb,
+                             target_rule_id, line=line)
+    if verb == "REVISE" and "->" not in rest:
+        return MotionReceipt(False, "missing_revision_text", agent, verb,
+                             target_rule_id, line=line)
+    return _apply_motion_fields(
+        verb=verb,
+        rulebook=rulebook,
+        turn=turn,
+        agent=agent,
+        target_rule_id=target_rule_id,
+        text=detail if verb == "REVISE" else "",
+        rationale=detail if verb == "REPEAL" else "",
+        focus=detail if verb == "REQUEST" else "",
+        history_rationale=rationale,
+        line=line,
+    )
