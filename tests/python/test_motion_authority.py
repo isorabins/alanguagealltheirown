@@ -43,6 +43,15 @@ class MotionTests(unittest.TestCase):
         self.assert_no_change(
             "`ADOPT: rule-001`\nREJECT: rule-001", "B", "multiple_motions")
 
+    def test_exact_duplicate_motion_lines_are_one_idempotent_decision(self):
+        rb = book()
+        receipt = apply_authorized_motion(
+            "`ADOPT: rule-001`\n\nSupporting analysis.\n\n`ADOPT: rule-001`", rb, 2, "B")
+        self.assertTrue(receipt.changed)
+        self.assertEqual(receipt.reason, "motion_applied")
+        self.assertEqual(receipt.line, "`ADOPT: rule-001`")
+        self.assertEqual(rb["rules"][0]["status"], "adopted")
+
     def test_b_can_only_act_on_latest_focused_proposal(self):
         rb = book()
         rb["rules"][0]["proposed_turn"] = 1
