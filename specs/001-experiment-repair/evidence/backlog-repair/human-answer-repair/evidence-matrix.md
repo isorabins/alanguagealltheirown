@@ -11,7 +11,10 @@ persisted.
 | Expired-session recovery preserves the draft | Local test surface | The stale inbox becomes a clear login prompt, then the same draft returns after login | `local-expired-session.png`, `local-draft-restored.png` | Pass |
 | Repaired submit succeeds | Local test surface | Submit gives a clear success state | `local-answer-queued.png`; `collaboration-api.test.js` | Pass |
 | Submitted answer persists after refresh | Local test surface | The same answer remains after reload | `local-answer-persisted.png`; `collaboration-api.test.js` | Pass |
-| Production path passes after approved deployment | Production, existing signed-in Chrome tab | Success state appears and the answer persists after refresh | Screenshot and read-only persistence receipt | Blocked on deployment approval |
+| Production authentication recovers | Production, existing signed-in Chrome tab | A fresh non-sliding session exposes the five named questions | `01-live-authenticated-five-asks.png`; `GET /api/human-inbox` returned `200` | Pass |
+| Production submit succeeds | Production, existing signed-in Chrome tab | Each answer receives a clear queued state | `02-live-first-answer-pending.png`, `03-live-five-answers-pending.png`; exactly five `POST /api/human-action` requests returned `202` from deployment `dpl_EytqptsgKTxvEmweXD2TCBcQ7bz7` | Pass |
+| Production answers persist after refresh | Production, existing signed-in Chrome tab | All five exact answers remain visible after the real Refresh action | `04-live-five-answers-persisted.png`; subsequent `GET /api/human-inbox` requests returned `200` | Pass |
+| Queued answers enter canonical history | Production loop and refreshed `/human` surface | The courier imports each accepted command exactly once and the UI replaces queued state with recorded state | Turn 1147 imported four commands; turn 1148 imported the fifth and delivered the first to Agent B. `05-live-four-answers-recorded.png`, `07-live-five-answers-recorded.png` | Pass |
 
 ## Finding
 
