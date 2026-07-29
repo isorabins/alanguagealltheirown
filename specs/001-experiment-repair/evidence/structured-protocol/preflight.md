@@ -66,8 +66,8 @@ new contract.
 | Private API key | Natural paid turns | available | authenticated read-only usage check |
 | Actual `usage.cost` | Cost truth | available | OpenRouter usage-accounting contract |
 | Local cost-receipt ledger | Crash-safe exact accounting | available | created atomically at `state/cost-receipts.local.json`, gitignored, response-id deduplicated |
-| GitHub PR/merge path | Release | available; live merge awaits exact approval | current origin access |
-| VPS SSH/repo/systemd | Activation/rollback | available; writes await exact approval | clean read-only state/service receipt |
+| GitHub PR/merge path | Release | pre-approved by recorded G16 envelope | current origin access plus exact approval receipt below |
+| VPS SSH/repo/systemd | Activation/rollback | pre-approved by recorded G16 envelope | clean read-only state/service receipt plus exact approval below |
 | Canonical snapshot | Rollback | available at live gate | turn/hash boundary above |
 | Human app surface | Acceptance | not needed | backend transport only; public smoke is read-only |
 | Provider key management credential | Hard account limit | excluded | not preflighted; no credential/key-limit change |
