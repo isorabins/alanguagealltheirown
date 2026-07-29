@@ -12,7 +12,7 @@ A public, long-running experiment in which two agents build a compact AI-to-AI l
 - Only adopted rule text enters ordinary encoding, decoding, public Try It, and the scheduled Conversation exam. Proposed and rejected material remains public history.
 - Ordinary exam results are corpus-level evidence tied to an immutable adopted-language version and hash. Legacy per-rule scores remain labeled history.
 - A judge score is valid only when every answer-key item appears exactly once with a valid verdict.
-- The `$25` private-loop tripwire retains the pre-cutover total as a labeled historical estimate and adds OpenRouter's returned `usage.cost` exactly once for every successful call from cutover forward.
+- The `$25` private-loop tripwire retains the pre-cutover total as a labeled historical estimate and adds OpenRouter's returned `usage.cost` exactly once for every successful call from cutover forward. Production records response-id/cost receipts atomically in a gitignored local ledger so a crash cannot lose or double-count a charged response.
 
 ## Collaboration
 

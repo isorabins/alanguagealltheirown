@@ -22,7 +22,9 @@ action. T193 review/release and T194 live acceptance remain open.
   its exact rule id, and `provider.require_parameters=true` is set.
 - `loop.py` gives a malformed response at most two regeneration attempts.
   Exhaustion records one structural-failure receipt, changes no rule, and
-  retains the same actor for the next legislative attempt.
+  retains the same actor for the next legislative attempt. Any queued
+  RESEARCH, ASK, or SUGGESTION tentatively delivered before generation is
+  restored byte-for-byte so that same actor receives it again later.
 - Validated typed motions enter `rulebook.apply_typed_motion()` directly.
   Legacy parsing remains available only for pre-cutover compatibility tests and
   historical rendering.
@@ -38,8 +40,13 @@ action. T193 review/release and T194 live acceptance remain open.
 - The `$25` tripwire retains the old total as
   `spend_usd_historical_estimate` and adds each successful response's
   provider-returned `usage.cost` exactly once. Missing/invalid cost fails
-  closed. The isolated manual transfer test initializes the same accounting
-  boundary before calling the shared transport.
+  closed. Production `run()` binds a gitignored VPS-local atomic ledger at
+  `state/cost-receipts.local.json`, keyed by OpenRouter response id. The ledger
+  is written before a successful response returns, deduplicates identical
+  id/cost receipts, rejects missing/conflicting ids, and reconciles a
+  ledger-ahead crash upward into `meta` on restart. A missing ledger takes its
+  base from the persisted exact-since-cutover total; a conflicting existing
+  ledger fails closed. Offline transfer/test calls do not bind the ledger.
 
 ## Official source basis
 
@@ -67,13 +74,13 @@ adds no framework, database, service, ORM, or credential dependency.
 Command:
 
 ```text
-python3 -m unittest -v tests.python.test_legislative_protocol tests.python.test_motion_authority tests.python.test_loop_helpers
+python3 -m unittest -v tests.python.test_loop_helpers tests.python.test_research_lifecycle tests.python.test_motion_authority tests.python.test_legislative_protocol
 ```
 
 Result:
 
 ```text
-Ran 30 tests in 0.029s
+Ran 47 tests in 0.276s
 OK
 ```
 
@@ -82,12 +89,20 @@ The named passing cases include:
 - legal role/state matrix and local wrong-role/wrong-target rejection;
 - exact open-target OpenRouter schema and multiple-open fail-closed behavior;
 - bounded measurements and unique typed `LOOKUP`/`RESEARCH`/`ASK` requests;
-- duplicate inline motion, stale target, and repeal-belief divergence replay;
+- realistic duplicate-inline, stale-proposal, and rule-072/083–085
+  belief-divergence records replayed into complete post-state receipts, with
+  changed ids, open motion, adopted count, and language hash checked
+  independently;
 - exact post-state and cutover receipts;
 - three total malformed attempts, one structural-failure receipt, unchanged
   rule state, same next actor, and following valid completion;
-- provider cost accumulated once for every successful response/retry and
-  missing provider cost rejected;
+- RESEARCH, ASK, and SUGGESTION restored exactly after structural exhaustion,
+  then redelivered to the retained actor; suggestion approval does not drift;
+- provider cost accumulated once for every successful response/retry;
+  response-id receipts cover normal calls and direct web research;
+- crash-before-meta-save reconciliation, duplicate-id deduplication,
+  conflicting/missing-id rejection, inconsistent-ledger failure, and missing
+  provider cost rejection;
 - 30-event non-authoritative discussion rendering, sparse legacy receipts, and
   private cutover-event omission from the unchanged viewer.
 
@@ -102,7 +117,7 @@ python3 -m unittest discover -s tests/python -p 'test_*.py'
 Result:
 
 ```text
-Ran 106 tests in 0.838s
+Ran 114 tests in 0.872s
 OK
 ```
 
@@ -197,6 +212,10 @@ collaboration.py
 conversation_exam.py
 ```
 
+`git check-ignore -v state/cost-receipts.local.json` resolves to the one exact
+`.gitignore` entry, and `test ! -e state/cost-receipts.local.json` passes. No
+tracked or untracked local ledger was created during offline verification.
+
 ## Static and scope checks
 
 A read-only AST/source/diff check returned:
@@ -204,8 +223,13 @@ A read-only AST/source/diff check returned:
 ```text
 new_path_no_regex_or_prose_extract True
 new_path_uses_typed_validation True
+structural_failure_restores_collaboration True
 no_static_model_prices_in_new_code True
-usage_cost_accounting_present True
+usage_cost_and_both_response_ids_present True
+ledger_atomic_and_gitignored True
+ledger_configured_by_run True
+dead_no_motion_removed True
+one_request_kind_validator True
 changed_diff_has_no_secret_value_pattern True
 models_cadence_window_cap_temperature_unchanged True
 preserved_constants {'MODEL_A': 'deepseek/deepseek-v3.2', 'MODEL_B': 'moonshotai/kimi-k2.6', 'MODEL_DECODER': 'moonshotai/kimi-k2.6', 'MODEL_GRADER': 'deepseek/deepseek-v3.2', 'TEST_EVERY': 3, 'WINDOW': 30, 'SPEND_CAP': 25.0, 'AGENT_TEMP': 0.9}
@@ -219,5 +243,6 @@ or persisted by these checks.
 
 - T187–T192: PASS offline
 - T193: OPEN — independent fixed-point review, push, and ready PR
-- T194: OPEN — approved live merge/activation and natural B/test/A acceptance
+- T194: OPEN — consume the recorded G16 approval for live merge/activation and
+  natural B/test/A acceptance; stop only if scope or material risk expands
 - Canonical/live state: unchanged

@@ -37,10 +37,6 @@ class CollaborationRequest(StrictModel):
     question: str = Field(min_length=1, max_length=500)
 
 
-class NoMotion(StrictModel):
-    kind: Literal["NO_MOTION"]
-
-
 class ProposeMotion(StrictModel):
     kind: Literal["PROPOSE"]
     text: str = Field(min_length=12, max_length=4000)
@@ -167,21 +163,8 @@ class LegislativeRequest(StrictModel):
     collaboration_input: dict[str, Any] | None
 
 
-class _ActionEnvelopeBase(StrictModel):
-    deliberation: str = Field(min_length=1, max_length=4000)
+class _ActionEnvelopeBase(LegislativeAction):
     motion: Any
-    measurements: list[MeasurementRequest] = Field(max_length=2)
-    requests: list[CollaborationRequest] = Field(max_length=3)
-
-    @field_validator("requests")
-    @classmethod
-    def requests_have_unique_kinds(
-        cls, requests: list[CollaborationRequest]
-    ) -> list[CollaborationRequest]:
-        kinds = [request.kind for request in requests]
-        if len(kinds) != len(set(kinds)):
-            raise ValueError("at most one LOOKUP, RESEARCH, and ASK request is allowed")
-        return requests
 
 
 def current_open_motion(rulebook: dict[str, Any]) -> OpenMotionState | None:

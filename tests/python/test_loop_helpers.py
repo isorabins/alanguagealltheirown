@@ -7,7 +7,7 @@ from pathlib import Path
 from unittest import mock
 
 import loop
-from collaboration import empty_state
+from collaboration import empty_state, stable_record
 
 
 def open_book():
@@ -31,12 +31,14 @@ class Response:
     status_code = 200
     text = ""
 
-    def __init__(self, content, cost):
+    def __init__(self, content, cost, response_id="generation-test"):
         self._content = content
         self._cost = cost
+        self._response_id = response_id
 
     def json(self):
         return {
+            "id": self._response_id,
             "choices": [{"message": {"content": self._content}}],
             "usage": {
                 "prompt_tokens": 100,
@@ -49,6 +51,94 @@ class Response:
 class StructuredLoopTests(unittest.TestCase):
     def setUp(self):
         loop._no_reasoning_field = False
+        loop.disable_cost_receipt_ledger()
+
+    def tearDown(self):
+        loop.disable_cost_receipt_ledger()
+
+    def _assert_delivery_restored_and_redelivered(self, kind):
+        collaboration = empty_state()
+        if kind == "RESEARCH":
+            record = stable_record(
+                "RESEARCH", "B", "What public evidence supports this?", "research-retry"
+            )
+            record.update(
+                {
+                    "status": "answered",
+                    "findings": "One cited result.",
+                    "limitations": [],
+                    "citations": [{"url": "https://example.test/source"}],
+                }
+            )
+            collaboration["research"].append(record)
+        elif kind == "ASK":
+            record = stable_record(
+                "ASK", "B", "Should this boundary remain?", "ask-retry"
+            )
+            record.update({"status": "answered", "answer": "Keep it bounded."})
+            collaboration["asks"].append(record)
+        else:
+            record = stable_record(
+                "SUGGESTION", "visitor", "Try the shorter marker.", "suggestion-retry"
+            )
+            record.update({"status": "approved", "requester": "B"})
+            collaboration["suggestions"].append(record)
+
+        before = copy.deepcopy(collaboration)
+        conv = []
+        rulebook = open_book()
+        meta = {"last_agent": "A", "spend_usd": 4.0}
+        loop.initialize_exact_cost_accounting(meta, cutover_turn=12)
+        valid = json.dumps(
+            {
+                "deliberation": "The queued input remains advisory.",
+                "motion": None,
+                "measurements": [],
+                "requests": [],
+            }
+        )
+        responses = [
+            Response("not-json", 0.01, f"{kind.lower()}-invalid-{index}")
+            for index in range(3)
+        ]
+        responses.append(Response(valid, 0.01, f"{kind.lower()}-valid"))
+        bodies = []
+
+        def post(_url, *, headers, json, timeout):
+            bodies.append(json)
+            return responses[len(bodies) - 1]
+
+        with mock.patch.object(loop, "api_key", return_value="test-key"), mock.patch.object(
+            loop.requests, "post", side_effect=post
+        ):
+            self.assertEqual(
+                loop.agent_turn(conv, rulebook, meta, collaboration, 13),
+                "structural_failure",
+            )
+            self.assertEqual(collaboration, before)
+            self.assertEqual(
+                loop.agent_turn(conv, rulebook, meta, collaboration, 16),
+                "accepted",
+            )
+
+        delivered_request = bodies[-1]["messages"][0]["content"]
+        self.assertIn(record["id"], delivered_request)
+        self.assertEqual(len(collaboration["deliveries"]), 1)
+        if kind == "SUGGESTION":
+            self.assertEqual(before["suggestions"][0]["status"], "approved")
+            self.assertEqual(collaboration["suggestions"][0]["status"], "no_action")
+        else:
+            bucket = "research" if kind == "RESEARCH" else "asks"
+            self.assertEqual(collaboration[bucket][0]["status"], "delivered")
+
+    def test_structural_failure_restores_research_for_same_actor_redelivery(self):
+        self._assert_delivery_restored_and_redelivered("RESEARCH")
+
+    def test_structural_failure_restores_ask_for_same_actor_redelivery(self):
+        self._assert_delivery_restored_and_redelivered("ASK")
+
+    def test_structural_failure_restores_suggestion_without_status_drift(self):
+        self._assert_delivery_restored_and_redelivered("SUGGESTION")
 
     def test_structural_exhaustion_retries_twice_keeps_actor_and_rule_state(self):
         conv = []
@@ -122,6 +212,106 @@ class StructuredLoopTests(unittest.TestCase):
             loop.record_provider_cost(meta, {"prompt_tokens": 2, "completion_tokens": 1})
         self.assertEqual(meta["spend_usd"], 3.5)
         self.assertEqual(meta["spend_usd_provider_exact_since_cutover"], 0.0)
+
+    def test_cost_ledger_reconciles_after_crash_between_receipt_and_meta(self):
+        with tempfile.TemporaryDirectory() as directory:
+            ledger_path = Path(directory) / "cost-receipts.local.json"
+            meta = {"spend_usd": 3.5}
+            loop.initialize_exact_cost_accounting(meta, cutover_turn=20)
+            loop.configure_cost_receipt_ledger(ledger_path, meta)
+            with mock.patch.object(
+                loop, "_set_meta_exact_cost", side_effect=RuntimeError("crash")
+            ):
+                with self.assertRaisesRegex(RuntimeError, "crash"):
+                    loop.record_provider_cost(
+                        meta,
+                        {"cost": 0.125},
+                        response_id="generation-crash",
+                    )
+            self.assertEqual(meta["spend_usd_provider_exact_since_cutover"], 0.0)
+            persisted = json.loads(ledger_path.read_text())
+            self.assertEqual(persisted["receipts"], {"generation-crash": 0.125})
+
+            loop.disable_cost_receipt_ledger()
+            restarted_meta = copy.deepcopy(meta)
+            loop.configure_cost_receipt_ledger(ledger_path, restarted_meta)
+            self.assertEqual(
+                restarted_meta["spend_usd_provider_exact_since_cutover"], 0.125
+            )
+            self.assertEqual(restarted_meta["spend_usd"], 3.625)
+
+    def test_cost_ledger_deduplicates_and_rejects_conflict_or_missing_id(self):
+        with tempfile.TemporaryDirectory() as directory:
+            ledger_path = Path(directory) / "cost-receipts.local.json"
+            meta = {"spend_usd": 2.0}
+            loop.initialize_exact_cost_accounting(meta, cutover_turn=30)
+            loop.configure_cost_receipt_ledger(ledger_path, meta)
+            loop.record_provider_cost(
+                meta, {"cost": 0.05}, response_id="generation-one"
+            )
+            loop.record_provider_cost(
+                meta, {"cost": 0.05}, response_id="generation-one"
+            )
+            self.assertEqual(meta["spend_usd_provider_exact_since_cutover"], 0.05)
+            persisted = json.loads(ledger_path.read_text())
+            self.assertEqual(persisted["receipts"], {"generation-one": 0.05})
+
+            with self.assertRaisesRegex(
+                loop.CostAccountingError, "conflicting provider cost"
+            ):
+                loop.record_provider_cost(
+                    meta, {"cost": 0.06}, response_id="generation-one"
+                )
+            with self.assertRaisesRegex(
+                loop.CostAccountingError, "missing valid id"
+            ):
+                loop.record_provider_cost(meta, {"cost": 0.01})
+            self.assertEqual(meta["spend_usd_provider_exact_since_cutover"], 0.05)
+            self.assertEqual(
+                json.loads(ledger_path.read_text())["receipts"],
+                {"generation-one": 0.05},
+            )
+
+    def test_call_persists_openrouter_response_id_before_returning(self):
+        with tempfile.TemporaryDirectory() as directory:
+            ledger_path = Path(directory) / "cost-receipts.local.json"
+            meta = {"spend_usd": 2.0}
+            loop.initialize_exact_cost_accounting(meta, cutover_turn=31)
+            loop.configure_cost_receipt_ledger(ledger_path, meta)
+            with mock.patch.object(
+                loop, "api_key", return_value="test-key"
+            ), mock.patch.object(
+                loop.requests,
+                "post",
+                return_value=Response("valid response", 0.075, "generation-call"),
+            ):
+                text, _usage = loop.call(
+                    loop.MODEL_A, "system", "user", meta=meta
+                )
+
+            self.assertEqual(text, "valid response")
+            self.assertEqual(
+                json.loads(ledger_path.read_text())["receipts"],
+                {"generation-call": 0.075},
+            )
+            self.assertEqual(meta["spend_usd_provider_exact_since_cutover"], 0.075)
+
+    def test_existing_cost_ledger_inconsistent_with_meta_fails_closed(self):
+        with tempfile.TemporaryDirectory() as directory:
+            ledger_path = Path(directory) / "cost-receipts.local.json"
+            meta = {"spend_usd": 1.0}
+            loop.initialize_exact_cost_accounting(meta, cutover_turn=40)
+            loop.record_provider_cost(meta, {"cost": 0.2})
+            loop.configure_cost_receipt_ledger(ledger_path, meta)
+            loop.disable_cost_receipt_ledger()
+
+            advanced_meta = copy.deepcopy(meta)
+            advanced_meta["spend_usd_provider_exact_since_cutover"] = 0.3
+            advanced_meta["spend_usd"] = 1.3
+            with self.assertRaisesRegex(
+                loop.CostAccountingError, "conflicts with persisted exact cost"
+            ):
+                loop.configure_cost_receipt_ledger(ledger_path, advanced_meta)
 
     def test_cutover_appends_one_receipt_without_mutating_pre_cutover_objects(self):
         conversation = [

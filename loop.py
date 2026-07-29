@@ -51,11 +51,14 @@ TEST_EVERY = 3      # every Nth turn is a test turn
 WINDOW = 30         # conversation events each agent sees
 SPEND_CAP = 25.00   # dollars, hard stop across all runs — anomaly tripwire, ~50 days at gloves-off burn
 AGENT_TEMP = 0.9
+COST_LEDGER_SCHEMA_VERSION = 1
 
 _key = None
 _no_reasoning_field = False
 _probe_overhead = None
 _probe_cache = {}
+_cost_receipt_ledger_path = None
+_cost_receipt_ledger = None
 
 
 class CostAccountingError(RuntimeError):
@@ -99,22 +102,165 @@ def initialize_exact_cost_accounting(meta, *, cutover_turn):
     )
 
 
-def record_provider_cost(meta, usage):
-    """Accumulate OpenRouter's charged cost exactly once for one successful response."""
-    cost = usage.get("cost") if isinstance(usage, dict) else None
-    if isinstance(cost, bool) or not isinstance(cost, (int, float)) or not math.isfinite(cost) or cost < 0:
-        raise CostAccountingError("api response missing valid usage.cost")
+def _validated_cost(value, *, field):
+    if (
+        isinstance(value, bool)
+        or not isinstance(value, (int, float))
+        or not math.isfinite(value)
+        or value < 0
+    ):
+        raise CostAccountingError(f"{field} must be a finite non-negative number")
+    return float(value)
+
+
+def _exact_cost_total(meta):
     if "spend_usd_historical_estimate" not in meta:
         raise CostAccountingError("exact cost accounting was not initialized at cutover")
-    meta["spend_usd_provider_exact_since_cutover"] = round(
-        float(meta.get("spend_usd_provider_exact_since_cutover", 0.0)) + float(cost),
+    return round(
+        _validated_cost(
+            meta.get("spend_usd_provider_exact_since_cutover"),
+            field="meta exact provider cost",
+        ),
         12,
     )
-    meta["spend_usd"] = round(
-        float(meta["spend_usd_historical_estimate"])
-        + float(meta["spend_usd_provider_exact_since_cutover"]),
-        12,
+
+
+def _set_meta_exact_cost(meta, exact_total):
+    exact_total = round(
+        _validated_cost(exact_total, field="exact provider cost total"), 12
     )
+    historical = _validated_cost(
+        meta.get("spend_usd_historical_estimate"),
+        field="historical spend estimate",
+    )
+    meta["spend_usd_provider_exact_since_cutover"] = exact_total
+    meta["spend_usd"] = round(historical + exact_total, 12)
+
+
+def _validated_cost_ledger(ledger, meta):
+    required = {
+        "schema_version",
+        "protocol_version",
+        "cutover_turn",
+        "base_exact_usd",
+        "receipts",
+    }
+    if not isinstance(ledger, dict) or set(ledger) != required:
+        raise CostAccountingError("cost receipt ledger has an invalid shape")
+    if ledger["schema_version"] != COST_LEDGER_SCHEMA_VERSION:
+        raise CostAccountingError("cost receipt ledger schema version mismatch")
+    if ledger["protocol_version"] != PROTOCOL_VERSION:
+        raise CostAccountingError("cost receipt ledger protocol version mismatch")
+    cutover_turn = ledger["cutover_turn"]
+    if isinstance(cutover_turn, bool) or not isinstance(cutover_turn, int):
+        raise CostAccountingError("cost receipt ledger cutover turn is invalid")
+    if cutover_turn != meta.get("cost_accounting_cutover_turn"):
+        raise CostAccountingError("cost receipt ledger cutover turn mismatch")
+    base = round(
+        _validated_cost(ledger["base_exact_usd"], field="cost ledger base"), 12
+    )
+    receipts = ledger["receipts"]
+    if not isinstance(receipts, dict):
+        raise CostAccountingError("cost receipt ledger receipts must be an object")
+    costs = []
+    for response_id, value in receipts.items():
+        if (
+            not isinstance(response_id, str)
+            or not response_id
+            or response_id != response_id.strip()
+        ):
+            raise CostAccountingError("cost receipt ledger response id is invalid")
+        costs.append(
+            _validated_cost(value, field="cost receipt ledger response cost")
+        )
+    return base, round(base + sum(costs), 12)
+
+
+def disable_cost_receipt_ledger():
+    """Disable the process-local ledger binding used only by production run()."""
+    global _cost_receipt_ledger_path, _cost_receipt_ledger
+    _cost_receipt_ledger_path = None
+    _cost_receipt_ledger = None
+
+
+def configure_cost_receipt_ledger(path, meta):
+    """Bind and reconcile the VPS-local response receipt ledger for this process."""
+    global _cost_receipt_ledger_path, _cost_receipt_ledger
+    disable_cost_receipt_ledger()
+    ledger_path = Path(path)
+    current_exact = _exact_cost_total(meta)
+    cutover_turn = meta.get("cost_accounting_cutover_turn")
+    if isinstance(cutover_turn, bool) or not isinstance(cutover_turn, int):
+        raise CostAccountingError("meta cost-accounting cutover turn is invalid")
+    if ledger_path.exists():
+        try:
+            ledger = json.loads(ledger_path.read_text())
+        except (OSError, json.JSONDecodeError) as exc:
+            raise CostAccountingError("cost receipt ledger is unreadable") from exc
+        base, ledger_total = _validated_cost_ledger(ledger, meta)
+        if base > current_exact or ledger_total < current_exact:
+            raise CostAccountingError(
+                "cost receipt ledger conflicts with persisted exact cost"
+            )
+        if ledger_total > current_exact:
+            _set_meta_exact_cost(meta, ledger_total)
+    else:
+        ledger = {
+            "schema_version": COST_LEDGER_SCHEMA_VERSION,
+            "protocol_version": PROTOCOL_VERSION,
+            "cutover_turn": cutover_turn,
+            "base_exact_usd": current_exact,
+            "receipts": {},
+        }
+        atomic_write_json(ledger_path, ledger)
+    _cost_receipt_ledger_path = ledger_path
+    _cost_receipt_ledger = ledger
+    return ledger
+
+
+def _record_cost_receipt(response_id, cost, meta):
+    global _cost_receipt_ledger
+    if _cost_receipt_ledger_path is None or _cost_receipt_ledger is None:
+        return None
+    if (
+        not isinstance(response_id, str)
+        or not response_id
+        or response_id != response_id.strip()
+    ):
+        raise CostAccountingError("api response missing valid id for cost receipt")
+    _, current_total = _validated_cost_ledger(_cost_receipt_ledger, meta)
+    existing = _cost_receipt_ledger["receipts"].get(response_id)
+    if existing is not None:
+        if _validated_cost(existing, field="existing response cost") != cost:
+            raise CostAccountingError(
+                "api response id has a conflicting provider cost"
+            )
+        return current_total
+    updated = copy.deepcopy(_cost_receipt_ledger)
+    updated["receipts"][response_id] = cost
+    _validated_cost_ledger(updated, meta)
+    atomic_write_json(_cost_receipt_ledger_path, updated)
+    _cost_receipt_ledger = updated
+    _, updated_total = _validated_cost_ledger(updated, meta)
+    return updated_total
+
+
+def record_provider_cost(meta, usage, *, response_id=None):
+    """Accumulate one successful response, durably deduplicated when configured."""
+    cost = _validated_cost(
+        usage.get("cost") if isinstance(usage, dict) else None,
+        field="api response usage.cost",
+    )
+    current_exact = _exact_cost_total(meta)
+    ledger_total = _record_cost_receipt(response_id, cost, meta)
+    exact_total = (
+        round(current_exact + cost, 12)
+        if ledger_total is None
+        else ledger_total
+    )
+    if exact_total < current_exact:
+        raise CostAccountingError("cost receipt ledger would reduce exact cost")
+    _set_meta_exact_cost(meta, exact_total)
 
 
 def call(model, system, user, max_tokens=600, temperature=0.7, meta=None,
@@ -164,7 +310,7 @@ def call(model, system, user, max_tokens=600, temperature=0.7, meta=None,
             continue
         usage = d.get("usage", {})
         if meta is not None:
-            record_provider_cost(meta, usage)
+            record_provider_cost(meta, usage, response_id=d.get("id"))
         return d["choices"][0]["message"]["content"] or "", usage
     raise RuntimeError("api: retries exhausted")
 
@@ -371,6 +517,7 @@ def agent_turn(conv, rb, meta, collaboration, turn):
     model = MODEL_A if agent == "A" else MODEL_B
     prompt = (ROOT / "prompts" / f"agent_{agent.lower()}.md").read_text()
     constitution = (ROOT / "prompts" / "constitution.md").read_text()
+    collaboration_before_delivery = copy.deepcopy(collaboration)
     delivery = (deliver_one(collaboration, "RESEARCH", agent, turn) or
                 deliver_one(collaboration, "ASK", agent, turn) or
                 deliver_one(collaboration, "SUGGESTION", agent, turn))
@@ -425,6 +572,8 @@ def agent_turn(conv, rb, meta, collaboration, turn):
             last_structural_reason = validation_reason(exc)
 
     if structured_action is None:
+        collaboration.clear()
+        collaboration.update(collaboration_before_delivery)
         receipt = build_post_state_receipt(
             turn=turn,
             role=agent,
@@ -725,12 +874,12 @@ def process_one_research(collaboration, meta, turn):
                                  json=body, timeout=180)
         response.raise_for_status()
         data = response.json()
-        message = data["choices"][0]["message"]
         usage = data.get("usage", {})
         usage = usage if isinstance(usage, dict) else {}
+        record_provider_cost(meta, usage, response_id=data.get("id"))
+        message = data["choices"][0]["message"]
         tool_use = usage.get("server_tool_use", {})
         tool_use = tool_use if isinstance(tool_use, dict) else {}
-        record_provider_cost(meta, usage)
         structured = True
         try:
             parsed = json.loads(message.get("content") or "{}")
@@ -826,6 +975,7 @@ def run(turns):
     ensure_structured_protocol_cutover(
         conv, rb, meta, activation_turn=start_turn - 1
     )
+    configure_cost_receipt_ledger(STATE / "cost-receipts.local.json", meta)
     for turn in range(start_turn, start_turn + turns):
         if meta["spend_usd"] >= SPEND_CAP:
             print(f"SPEND CAP hit (${meta['spend_usd']:.2f}) — stopping.", flush=True)

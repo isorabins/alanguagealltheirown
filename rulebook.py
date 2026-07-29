@@ -299,8 +299,6 @@ def apply_typed_motion(
     else:
         return MotionReceipt(False, "malformed_typed_motion", agent)
     verb = str(data.get("kind", "")).upper()
-    if verb == "NO_MOTION":
-        return MotionReceipt(True, "no_motion", agent)
     if verb not in {"PROPOSE", "REPEAL", "REVISE", "ADOPT", "REJECT", "REQUEST"}:
         return MotionReceipt(False, "unknown_typed_motion", agent, verb or None)
     return _apply_motion_fields(

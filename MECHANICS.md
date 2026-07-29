@@ -40,6 +40,8 @@ Only one add or repeal motion may remain open. A ratified repeal moves its adopt
 
 At structured-protocol cutover, the existing `meta.spend_usd` value is retained as `spend_usd_historical_estimate`. Every successful private OpenRouter response after that point, including a structurally invalid response that triggers regeneration, adds the response's returned `usage.cost` exactly once to `spend_usd_provider_exact_since_cutover`. The `$25` tripwire uses the labeled historical estimate plus that provider-returned exact total. Missing or invalid `usage.cost` fails closed; no static per-model price participates in new accounting.
 
+Production `run()` also binds the gitignored VPS-local `state/cost-receipts.local.json` ledger. It atomically records each successful response id and `usage.cost` before the call returns, deduplicates an identical id/cost retry, rejects missing or conflicting ids, and reconciles a ledger-ahead crash back into `meta` on restart. A new ledger takes its base from the already-persisted exact post-cutover total; an existing ledger that conflicts with persisted metadata fails closed. Offline transfer/test calls do not bind this ledger.
+
 ## Ordinary exam and judge
 
 The existing cadence and payload generator remain. Encoder and foreign Kimi decoder both receive the same captured adopted-language text. Each exam records its language version/hash, original, encoding, decode, token counts, and corpus judgment.

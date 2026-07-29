@@ -2,7 +2,9 @@ import copy
 import unittest
 
 import loop
+from legislative_protocol import build_post_state_receipt
 from rulebook import apply_authorized_motion, apply_typed_motion, language_payload, motion_line
+from state_store import snapshot_hash
 
 
 def book():
@@ -11,6 +13,164 @@ def book():
 
 def adopted_book():
     return {"version":"0.1","changes":1,"next_id":2,"rules":[{"id":"rule-001","text_en":"Use one stable compact marker.","status":"adopted","history":[],"scores":None}]}
+
+
+def extracted_turn_1165_book():
+    """Small record-shaped slice of the historical 072/083–085/128/129 state."""
+    return {
+        "version": "0.124",
+        "changes": 124,
+        "next_id": 130,
+        "kernel_tokens": 901,
+        "rules": [
+            {
+                "id": "rule-072",
+                "text_en": "Within a message, the sender may define a local alias.",
+                "status": "repealed",
+                "proposed_turn": 406,
+                "scores": {"fidelity_pct": 100, "token_delta_pct": -22},
+                "history": [
+                    {"agent": "A", "turn": 406, "verb": "proposed", "why": "Lock aliasing."},
+                    "tested turn 648: fid 100, -22%",
+                    {"agent": "B", "turn": 1163, "verb": "repeal_adopted", "why": "Clean ratification."},
+                ],
+            },
+            {
+                "id": "rule-083",
+                "text_en": "Alias only when the measured savings are positive.",
+                "status": "adopted",
+                "proposed_turn": 434,
+                "scores": {"fidelity_pct": 100, "token_delta_pct": -22},
+                "history": [
+                    {"agent": "B", "turn": 434, "verb": "proposed", "why": "Revise the guideline."},
+                    "tested turn 648: fid 100, -22%",
+                ],
+            },
+            {
+                "id": "rule-084",
+                "text_en": "Use the repeat threshold only with bounded definition overhead.",
+                "status": "adopted",
+                "proposed_turn": 437,
+                "scores": {"fidelity_pct": 100, "token_delta_pct": -22},
+                "history": [{"agent": "B", "turn": 473, "verb": "adopt", "why": ""}],
+            },
+            {
+                "id": "rule-085",
+                "text_en": "Keep one minimal alias example in the language.",
+                "status": "adopted",
+                "proposed_turn": 437,
+                "scores": {"fidelity_pct": 100, "token_delta_pct": -22},
+                "history": [{"agent": "B", "turn": 482, "verb": "adopt", "why": ""}],
+            },
+            {
+                "id": "rule-128",
+                "text_en": "A stale legacy proposal that is already terminal.",
+                "status": "historical",
+                "proposed_turn": 1147,
+                "scores": None,
+                "history": [
+                    {
+                        "agent": "harness",
+                        "turn": 1148,
+                        "verb": "archived_legacy_motion",
+                        "prior_status": "proposed",
+                    }
+                ],
+            },
+            {
+                "id": "rule-129",
+                "text_en": "A directive line must contain only an actionable instruction.",
+                "status": "proposed",
+                "proposed_turn": 1165,
+                "scores": None,
+                "history": [
+                    {
+                        "agent": "A",
+                        "turn": 1165,
+                        "verb": "proposed",
+                        "why": "Restate the directive boundary.",
+                    }
+                ],
+            },
+        ],
+    }
+
+
+def extracted_turn_1162_repeal_book():
+    rb = extracted_turn_1165_book()
+    rb["rules"] = [
+        rule for rule in rb["rules"] if rule["id"] in {"rule-072", "rule-083", "rule-084", "rule-085"}
+    ]
+    rule_072 = rb["rules"][0]
+    rule_072["status"] = "adopted"
+    rule_072["pending_repeal"] = {
+        "kind": "repeal",
+        "target_id": "rule-072",
+        "rationale": "Aliasing produced repeated measured bloat.",
+        "proposed_turn": 1150,
+        "agent": "A",
+    }
+    rule_072["history"] = [
+        entry
+        for entry in rule_072["history"]
+        if not (isinstance(entry, dict) and entry.get("verb") == "repeal_adopted")
+    ]
+    rule_072["history"].append(
+        {
+            "agent": "A",
+            "turn": 1153,
+            "verb": "repeal_revised",
+            "why": "Agent prose claimed the dependent cluster would also repeal.",
+        }
+    )
+    return rb
+
+
+def expected_language_receipt_fields(rulebook):
+    rules = [
+        {"id": rule["id"], "text_en": rule["text_en"]}
+        for rule in rulebook["rules"]
+        if rule["status"] == "adopted"
+    ]
+    return len(rules), snapshot_hash({"rules": rules})
+
+
+def independently_changed_rule_ids(before, after):
+    before_by_id = {rule["id"]: rule for rule in before["rules"]}
+    return [
+        rule["id"]
+        for rule in after["rules"]
+        if rule != before_by_id.get(rule["id"])
+    ]
+
+
+def apply_with_post_state(rulebook, motion, *, turn, agent, deliberation):
+    before = copy.deepcopy(rulebook)
+    motion_receipt = apply_typed_motion(
+        motion, rulebook, turn, agent, deliberation
+    )
+    if motion_receipt.changed:
+        rulebook["changes"] += 1
+        rulebook["version"] = f"0.{rulebook['changes']}"
+    result = "accepted" if motion_receipt.accepted else "rejected"
+    action = {
+        "deliberation": deliberation,
+        "motion": motion,
+        "measurements": [],
+        "requests": [],
+    }
+    post_state = build_post_state_receipt(
+        turn=turn,
+        role=agent,
+        action=action,
+        result=result,
+        reason=motion_receipt.reason,
+        before_rulebook=before,
+        after_rulebook=rulebook,
+        next_actor="A" if agent == "B" else "B",
+        attempts=1,
+    )
+    return before, motion_receipt, post_state
 
 
 class MotionTests(unittest.TestCase):
@@ -148,56 +308,120 @@ class MotionTests(unittest.TestCase):
                          "Audit evidence describes this boundary clearly.")
 
     def test_typed_motion_path_replays_inline_duplicate_without_parsing_prose(self):
-        rb = book()
-        receipt = apply_typed_motion(
-            {"kind": "ADOPT", "target_rule_id": "rule-001"},
+        historical_record = {
+            "turn": 1160,
+            "agent": "B",
+            "type": "message",
+            "content": (
+                "`ADOPT: rule-072`\nEvidence and a typed measurement request.\n"
+                "`ADOPT: rule-072`\n`MEASURE: turn 1158 encoded tokens`"
+            ),
+        }
+        self.assertEqual(historical_record["content"].count("ADOPT: rule-072"), 2)
+        rb = extracted_turn_1162_repeal_book()
+        before, receipt, post_state = apply_with_post_state(
             rb,
-            2,
-            "B",
-            "The structured envelope carries one unambiguous vote.",
+            {"kind": "ADOPT", "target_rule_id": "rule-072"},
+            turn=1160,
+            agent="B",
+            deliberation="The structured envelope carries one unambiguous vote.",
         )
         self.assertTrue(receipt.changed)
-        self.assertEqual(receipt.reason, "motion_applied")
-        self.assertEqual(rb["rules"][0]["status"], "adopted")
+        self.assertEqual(receipt.reason, "repeal_adopted")
+        self.assertEqual(rb["rules"][0]["status"], "repealed")
         self.assertIsNone(receipt.line)
+        self.assertEqual(post_state.changed_rule_ids, ["rule-072"])
+        self.assertEqual(independently_changed_rule_ids(before, rb), ["rule-072"])
+        self.assertIsNone(post_state.current_open_motion)
+        expected_count, expected_hash = expected_language_receipt_fields(rb)
+        self.assertEqual(expected_count, 3)
+        self.assertEqual(post_state.adopted_count, expected_count)
+        self.assertEqual(post_state.adopted_language_hash, expected_hash)
 
     def test_typed_motion_path_rejects_stale_target_without_mutation(self):
-        rb = book()
-        rb["rules"][0]["proposed_turn"] = 1
-        rb["rules"].append(
+        historical_record = {
+            "turn": 1149,
+            "agent": "B",
+            "type": "message",
+            "content": "`ADOPT: rule-128`",
+        }
+        rb = extracted_turn_1165_book()
+        before, receipt, post_state = apply_with_post_state(
+            rb,
+            {"kind": "ADOPT", "target_rule_id": "rule-128"},
+            turn=1166,
+            agent="B",
+            deliberation=historical_record["content"],
+        )
+        self.assertEqual(receipt.reason, "settled_or_ineligible_motion")
+        self.assertEqual(before, rb)
+        self.assertEqual(post_state.changed_rule_ids, [])
+        self.assertEqual(
+            post_state.unchanged_rule_ids,
+            [rule["id"] for rule in before["rules"]],
+        )
+        self.assertEqual(post_state.current_open_motion.target_rule_id, "rule-129")
+        expected_count, expected_hash = expected_language_receipt_fields(rb)
+        self.assertEqual(post_state.adopted_count, expected_count)
+        self.assertEqual(post_state.adopted_language_hash, expected_hash)
+
+    def test_typed_repeal_revision_uses_canonical_state_not_agent_belief(self):
+        historical_belief = {
+            "turn": 1153,
+            "agent": "A",
+            "type": "message",
+            "content": (
+                "Revise the pending repeal to encompass the entire aliasing "
+                "cluster in one motion: 072, 083, 084, and 085."
+            ),
+        }
+        rb = extracted_turn_1162_repeal_book()
+        rb["rules"][0]["pending_repeal"].update(
             {
-                "id": "rule-002",
-                "text_en": "The current focused proposal has enough detail.",
-                "status": "proposed",
-                "history": [],
-                "proposed_turn": 4,
+                "rationale": "Initial repeal targets rule-072 only.",
+                "proposed_turn": 1150,
             }
         )
-        before = copy.deepcopy(rb)
-        receipt = apply_typed_motion(
-            {"kind": "ADOPT", "target_rule_id": "rule-001"}, rb, 5, "B"
+        rb["rules"][0]["history"] = [
+            entry
+            for entry in rb["rules"][0]["history"]
+            if not (
+                isinstance(entry, dict)
+                and entry.get("verb") == "repeal_revised"
+            )
+        ]
+        before_language_count, before_language_hash = expected_language_receipt_fields(
+            rb
         )
-        self.assertEqual(receipt.reason, "not_latest_focused_proposal")
-        self.assertEqual(before, rb)
-
-    def test_typed_repeal_vote_uses_canonical_state_not_agent_belief(self):
-        rb = adopted_book()
-        proposed = apply_typed_motion(
-            {
-                "kind": "REPEAL",
-                "target_rule_id": "rule-001",
-                "rationale": "The marker duplicates the stronger plain-text fallback.",
-            },
+        before, revised, post_state = apply_with_post_state(
             rb,
-            10,
-            "A",
+            {
+                "kind": "REVISE",
+                "target_rule_id": "rule-072",
+                "text": (
+                    "Remove rule-072 and, according to deliberation only, "
+                    "dependent rules 083, 084, and 085."
+                ),
+            },
+            turn=1153,
+            agent="A",
+            deliberation=historical_belief["content"],
         )
-        self.assertEqual(proposed.reason, "repeal_proposed")
-        adopted = apply_typed_motion(
-            {"kind": "ADOPT", "target_rule_id": "rule-001"}, rb, 11, "B"
+        self.assertEqual(revised.reason, "repeal_revised")
+        self.assertEqual(post_state.changed_rule_ids, ["rule-072"])
+        self.assertEqual(independently_changed_rule_ids(before, rb), ["rule-072"])
+        self.assertEqual(post_state.current_open_motion.target_rule_id, "rule-072")
+        self.assertEqual(rb["rules"][0]["status"], "adopted")
+        self.assertEqual(
+            [rule["status"] for rule in rb["rules"][1:]],
+            ["adopted", "adopted", "adopted"],
         )
-        self.assertEqual(adopted.reason, "repeal_adopted")
-        self.assertEqual(rb["rules"][0]["status"], "repealed")
+        expected_count, expected_hash = expected_language_receipt_fields(rb)
+        self.assertEqual(expected_count, 4)
+        self.assertEqual(expected_count, before_language_count)
+        self.assertEqual(expected_hash, before_language_hash)
+        self.assertEqual(post_state.adopted_count, expected_count)
+        self.assertEqual(post_state.adopted_language_hash, expected_hash)
 
 
 if __name__ == "__main__": unittest.main()
