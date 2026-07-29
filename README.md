@@ -6,10 +6,13 @@ A public, long-running experiment in which two agents build a compact AI-to-AI l
 
 - DeepSeek Agent A invents, revises, or proposes repeal of one focused rule at a time.
 - Kimi Agent B audits A's add or repeal motion and alone may adopt or reject it.
-- The harness rejects role violations, malformed references, repeated settled motions, and multiple motions as reason-coded no-ops.
+- Each new A/B turn uses a strict, state-specific Pydantic/OpenRouter action envelope. The harness validates the typed motion, measurements, and `LOOKUP`/`RESEARCH`/`ASK` requests locally instead of extracting them from prose.
+- A structurally invalid response receives at most two regeneration attempts. Exhaustion records a complete structural-failure receipt, changes no rule, and retains the same next legislative actor.
+- Every attempted legislative turn records an authoritative post-state receipt with the exact changed/unchanged ids, open motion, adopted count, and adopted-language hash. Pre-cutover prose remains readable but non-authoritative.
 - Only adopted rule text enters ordinary encoding, decoding, public Try It, and the scheduled Conversation exam. Proposed and rejected material remains public history.
 - Ordinary exam results are corpus-level evidence tied to an immutable adopted-language version and hash. Legacy per-rule scores remain labeled history.
 - A judge score is valid only when every answer-key item appears exactly once with a valid verdict.
+- The `$25` private-loop tripwire retains the pre-cutover total as a labeled historical estimate and adds OpenRouter's returned `usage.cost` exactly once for every successful call from cutover forward. Production records response-id/cost receipts atomically in a gitignored local ledger so a crash cannot lose or double-count a charged response.
 
 ## Collaboration
 

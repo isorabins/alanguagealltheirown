@@ -47,10 +47,10 @@ class EvidenceTests(unittest.TestCase):
                "motion_receipt":{"verb":"PROPOSE","accepted":False,
                                  "reason":"proposal_already_open"}}
         rendered=loop.render_window([event])
-        self.assertEqual(
-            rendered,
-            "[turn 4 — LEGISLATURE] PROPOSE: proposal_already_open",
-        )
+        self.assertIn("LEGACY MACHINE RECEIPT; AVAILABLE FIELDS ONLY", rendered)
+        self.assertIn('"reason": "proposal_already_open"', rendered)
+        self.assertIn('"verb": "PROPOSE"', rendered)
+        self.assertNotIn('"rule_id"', rendered)
 
     def test_dead_economics_stub_is_removed(self):
         self.assertNotIn("def econ_line", (ROOT / "loop.py").read_text())

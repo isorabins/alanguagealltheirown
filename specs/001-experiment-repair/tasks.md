@@ -467,6 +467,7 @@ made live.
 | FR-048, FR-049, FR-050, FR-051, FR-052, FR-053, FR-054, FR-055 | T108–T117, T128–T143, T149–T152 |
 | FR-056 | T168–T174 |
 | FR-057, FR-058, FR-059, FR-060, FR-061 | T177–T185 |
+| FR-062, FR-063, FR-064, FR-065, FR-066, FR-067, FR-068 | T186–T194 |
 | SC-001, SC-002, SC-003, SC-004, SC-005 | T014–T043, T130 |
 | SC-006, SC-007, SC-008, SC-009, SC-010 | T044–T087, T122, T131–T132 |
 | SC-011, SC-012, SC-013, SC-014, SC-015 | T024, T088–T100, T132–T137 |
@@ -475,6 +476,7 @@ made live.
 | SC-020, SC-021, SC-022, SC-023 | T108–T117, T128–T143, T149–T152 |
 | SC-024 | T168, T171–T176 |
 | SC-025, SC-026, SC-027, SC-028 | T177–T185 |
+| SC-029, SC-030, SC-031, SC-032, SC-033, SC-034 | T186–T194 |
 
 ## Implementation Strategy
 
@@ -486,7 +488,7 @@ the serialized live gates.
 
 ## Format Validation
 
-All 185 tasks use the required checkbox, sequential task id, optional `[P]`,
+All 194 tasks use the required checkbox, sequential task id, optional `[P]`,
 story label only in story phases, and an explicit file or evidence path.
 
 ## Phase 21: Convergence
@@ -535,3 +537,26 @@ Conversation judgments satisfy their existing validator.
 
 **Checkpoint**: The reviewed branch and migration bundle are ready for one
 bounded live approval; production remains unchanged.
+
+---
+
+## Phase 24: Structured Legislative Protocol and Exact Cost Accounting
+
+**Goal**: Replace prose/regex legislative control with one state-aware typed
+contract, re-ground each fresh model call in exact machine state, and make the
+private experiment's application spend counter reflect provider-charged cost.
+
+- [x] T186 Record the verified turn-1165 state, preserved hashes, official OpenRouter/Pydantic sources, clean-worktree boundary, complete G16 runway, rollback, exclusions, and exact approval in `specs/001-experiment-repair/evidence/structured-protocol/preflight.md` (FR-062–068; SC-029–034)
+- [x] T187 [P] Add failing role/state schema, wrong-target, malformed/retry, same-actor, exact-receipt, cutover-rendering, legacy-preservation, historical-failure-replay, and provider-cost tests in `tests/python/test_legislative_protocol.py`, `tests/python/test_motion_authority.py`, and `tests/python/test_loop_helpers.py` (FR-062–067; SC-029–034)
+- [x] T188 Implement strict Pydantic action, request, result, and post-state receipt models plus state-specific OpenRouter JSON Schema generation in `legislative_protocol.py` without a framework or database (FR-062–065; SC-029–032)
+- [x] T189 Integrate bounded structured generation, local validation, same-actor structural failure, typed measurements/questions, and exact provider cost accumulation into `loop.py`; remove regex/prose extraction from the new legislative path only (FR-062–064, FR-067; SC-029–031, SC-034)
+- [x] T190 Add typed state-machine entry, exact changed/unchanged/open/count/hash receipts, authoritative cutover state, and non-authoritative legacy discussion rendering in `rulebook.py`, `loop.py`, and `prompts/constitution.md` while preserving raw history and rulebook bytes (FR-065–066, FR-068; SC-032–033)
+- [x] T191 Update `README.md` and `MECHANICS.md` only where needed to describe the structured legislative boundary, authoritative receipts, bounded structural retry, and provider-returned cost truth; do not change rule/history context policy (FR-062–068)
+- [x] T192 Run focused and full offline suites, historical-failure replays, state/hash preservation, source/secret/static-price/new-regex searches, and contract coverage; save exact outputs in `specs/001-experiment-repair/evidence/structured-protocol/offline-verification.md` (SC-029–034)
+- [x] T193 Run `$code-review` against fixed point `5d44005`, resolve all hard findings in scope, commit/push the reviewed branch, open a ready PR, and verify clean branch/state in `specs/001-experiment-repair/evidence/structured-protocol/review-and-release.md`
+- [ ] T194 Consume the exact G16 approval already recorded in `specs/001-experiment-repair/evidence/structured-protocol/preflight.md`; merge the reviewed PR, snapshot and sync the paused clean VPS, resume natural cadence, observe turns 1166–1168 with at most `$0.25` incremental validation spend, pause on any warning, otherwise leave the timer active, append live evidence/progress, publish through the normal PR path, and align local main/VPS/origin in `specs/001-experiment-repair/evidence/structured-protocol/live-acceptance.md`. STOP and obtain new approval only if the target, recipient/content, spend cap, credential authority, destructive impact, or other material risk expands beyond G16.
+
+**Checkpoint**: PASS requires clean offline/review evidence plus live B/test/A
+structured turns whose receipts, canonical hashes, actual cost, service state,
+and repositories agree. No public UI or human-app testing is required because
+the changed surface is the private legislative transport.

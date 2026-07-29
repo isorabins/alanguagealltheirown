@@ -6,8 +6,9 @@ an encode/decode test against a fresh decoder. This file is deliberately all
 the code there is: plumbing only, the LLMs do the language.
 """
 import argparse
-import hashlib
+import copy
 import json
+import math
 import os
 import re
 import shutil
@@ -17,13 +18,24 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 import requests
+from pydantic import ValidationError
 
 from collaboration import (deliver_one, empty_state, escalate_lookup_to_ask,
                            import_inbox_spool, public_state, stable_record, write_outbox)
 from conversation_exam import run_conversation
+from legislative_protocol import (
+    MAX_STRUCTURAL_RETRIES,
+    PROTOCOL_VERSION,
+    action_request_options,
+    build_cutover_receipt,
+    build_legislative_request,
+    build_post_state_receipt,
+    validate_action,
+    validation_reason,
+)
 from project_lookup import is_project_question, project_lookup
-from rulebook import (apply_authorized_motion, language_payload, render_language,
-                      render_legislature, score_judgment, motion_line)
+from rulebook import (apply_typed_motion, language_payload, render_language,
+                      render_legislature, score_judgment)
 from state_store import atomic_write_json, load_json
 
 ROOT = Path(__file__).resolve().parent
@@ -34,19 +46,24 @@ MODEL_A = "deepseek/deepseek-v3.2"
 MODEL_B = "moonshotai/kimi-k2.6"
 MODEL_DECODER = "moonshotai/kimi-k2.6"  # a FOREIGN decoder: the stranger must not share the negotiators' weights
 MODEL_GRADER = "deepseek/deepseek-v3.2"
-PRICE_IN = 0.2145 / 1e6   # $/token, OpenRouter listing 2026-07-14
-PRICE_OUT = 0.32175 / 1e6
-WEB_SEARCH_PRICE = 0.005
 
 TEST_EVERY = 3      # every Nth turn is a test turn
 WINDOW = 30         # conversation events each agent sees
 SPEND_CAP = 25.00   # dollars, hard stop across all runs — anomaly tripwire, ~50 days at gloves-off burn
 AGENT_TEMP = 0.9
+COST_LEDGER_SCHEMA_VERSION = 1
+COST_LEDGER_FILENAME = "cost-receipts.local.json"
 
 _key = None
 _no_reasoning_field = False
 _probe_overhead = None
 _probe_cache = {}
+_cost_receipt_ledger_path = None
+_cost_receipt_ledger = None
+
+
+class CostAccountingError(RuntimeError):
+    pass
 
 
 def api_key():
@@ -72,7 +89,183 @@ def now_iso():
     return datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
 
 
-def call(model, system, user, max_tokens=600, temperature=0.7, meta=None):
+def initialize_exact_cost_accounting(meta, *, cutover_turn):
+    """Label the inherited estimate once, then track provider-returned charges."""
+    if "spend_usd_historical_estimate" not in meta:
+        meta["spend_usd_historical_estimate"] = float(meta.get("spend_usd", 0.0))
+        meta["spend_usd_provider_exact_since_cutover"] = 0.0
+        meta["cost_accounting_cutover_turn"] = int(cutover_turn)
+        meta["cost_accounting_basis"] = "historical_estimate_plus_provider_usage_cost"
+    meta["spend_usd"] = round(
+        float(meta["spend_usd_historical_estimate"])
+        + float(meta["spend_usd_provider_exact_since_cutover"]),
+        12,
+    )
+
+
+def _validated_cost(value, *, field):
+    if (
+        isinstance(value, bool)
+        or not isinstance(value, (int, float))
+        or not math.isfinite(value)
+        or value < 0
+    ):
+        raise CostAccountingError(f"{field} must be a finite non-negative number")
+    return float(value)
+
+
+def _exact_cost_total(meta):
+    if "spend_usd_historical_estimate" not in meta:
+        raise CostAccountingError("exact cost accounting was not initialized at cutover")
+    return round(
+        _validated_cost(
+            meta.get("spend_usd_provider_exact_since_cutover"),
+            field="meta exact provider cost",
+        ),
+        12,
+    )
+
+
+def _set_meta_exact_cost(meta, exact_total):
+    exact_total = round(
+        _validated_cost(exact_total, field="exact provider cost total"), 12
+    )
+    historical = _validated_cost(
+        meta.get("spend_usd_historical_estimate"),
+        field="historical spend estimate",
+    )
+    meta["spend_usd_provider_exact_since_cutover"] = exact_total
+    meta["spend_usd"] = round(historical + exact_total, 12)
+
+
+def _validated_cost_ledger(ledger, meta):
+    required = {
+        "schema_version",
+        "protocol_version",
+        "cutover_turn",
+        "base_exact_usd",
+        "receipts",
+    }
+    if not isinstance(ledger, dict) or set(ledger) != required:
+        raise CostAccountingError("cost receipt ledger has an invalid shape")
+    if ledger["schema_version"] != COST_LEDGER_SCHEMA_VERSION:
+        raise CostAccountingError("cost receipt ledger schema version mismatch")
+    if ledger["protocol_version"] != PROTOCOL_VERSION:
+        raise CostAccountingError("cost receipt ledger protocol version mismatch")
+    cutover_turn = ledger["cutover_turn"]
+    if isinstance(cutover_turn, bool) or not isinstance(cutover_turn, int):
+        raise CostAccountingError("cost receipt ledger cutover turn is invalid")
+    if cutover_turn != meta.get("cost_accounting_cutover_turn"):
+        raise CostAccountingError("cost receipt ledger cutover turn mismatch")
+    base = round(
+        _validated_cost(ledger["base_exact_usd"], field="cost ledger base"), 12
+    )
+    receipts = ledger["receipts"]
+    if not isinstance(receipts, dict):
+        raise CostAccountingError("cost receipt ledger receipts must be an object")
+    costs = []
+    for response_id, value in receipts.items():
+        if (
+            not isinstance(response_id, str)
+            or not response_id
+            or response_id != response_id.strip()
+        ):
+            raise CostAccountingError("cost receipt ledger response id is invalid")
+        costs.append(
+            _validated_cost(value, field="cost receipt ledger response cost")
+        )
+    return base, round(base + sum(costs), 12)
+
+
+def disable_cost_receipt_ledger():
+    """Disable the process-local ledger binding used only by production run()."""
+    global _cost_receipt_ledger_path, _cost_receipt_ledger
+    _cost_receipt_ledger_path = None
+    _cost_receipt_ledger = None
+
+
+def configure_cost_receipt_ledger(path, meta):
+    """Bind and reconcile the VPS-local response receipt ledger for this process."""
+    global _cost_receipt_ledger_path, _cost_receipt_ledger
+    disable_cost_receipt_ledger()
+    ledger_path = Path(path)
+    current_exact = _exact_cost_total(meta)
+    cutover_turn = meta.get("cost_accounting_cutover_turn")
+    if isinstance(cutover_turn, bool) or not isinstance(cutover_turn, int):
+        raise CostAccountingError("meta cost-accounting cutover turn is invalid")
+    if ledger_path.exists():
+        try:
+            ledger = json.loads(ledger_path.read_text())
+        except (OSError, json.JSONDecodeError) as exc:
+            raise CostAccountingError("cost receipt ledger is unreadable") from exc
+        base, ledger_total = _validated_cost_ledger(ledger, meta)
+        if base > current_exact or ledger_total < current_exact:
+            raise CostAccountingError(
+                "cost receipt ledger conflicts with persisted exact cost"
+            )
+        if ledger_total > current_exact:
+            _set_meta_exact_cost(meta, ledger_total)
+    else:
+        ledger = {
+            "schema_version": COST_LEDGER_SCHEMA_VERSION,
+            "protocol_version": PROTOCOL_VERSION,
+            "cutover_turn": cutover_turn,
+            "base_exact_usd": current_exact,
+            "receipts": {},
+        }
+        atomic_write_json(ledger_path, ledger)
+    _cost_receipt_ledger_path = ledger_path
+    _cost_receipt_ledger = ledger
+    return ledger
+
+
+def _record_cost_receipt(response_id, cost, meta):
+    global _cost_receipt_ledger
+    if _cost_receipt_ledger_path is None or _cost_receipt_ledger is None:
+        return None
+    if (
+        not isinstance(response_id, str)
+        or not response_id
+        or response_id != response_id.strip()
+    ):
+        raise CostAccountingError("api response missing valid id for cost receipt")
+    _, current_total = _validated_cost_ledger(_cost_receipt_ledger, meta)
+    existing = _cost_receipt_ledger["receipts"].get(response_id)
+    if existing is not None:
+        if _validated_cost(existing, field="existing response cost") != cost:
+            raise CostAccountingError(
+                "api response id has a conflicting provider cost"
+            )
+        return current_total
+    updated = copy.deepcopy(_cost_receipt_ledger)
+    updated["receipts"][response_id] = cost
+    _validated_cost_ledger(updated, meta)
+    atomic_write_json(_cost_receipt_ledger_path, updated)
+    _cost_receipt_ledger = updated
+    _, updated_total = _validated_cost_ledger(updated, meta)
+    return updated_total
+
+
+def record_provider_cost(meta, usage, *, response_id=None):
+    """Accumulate one successful response, durably deduplicated when configured."""
+    cost = _validated_cost(
+        usage.get("cost") if isinstance(usage, dict) else None,
+        field="api response usage.cost",
+    )
+    current_exact = _exact_cost_total(meta)
+    ledger_total = _record_cost_receipt(response_id, cost, meta)
+    exact_total = (
+        round(current_exact + cost, 12)
+        if ledger_total is None
+        else ledger_total
+    )
+    if exact_total < current_exact:
+        raise CostAccountingError("cost receipt ledger would reduce exact cost")
+    _set_meta_exact_cost(meta, exact_total)
+
+
+def call(model, system, user, max_tokens=600, temperature=0.7, meta=None,
+         request_options=None):
     """One chat call. Returns (text, usage). Retries transient failures."""
     global _no_reasoning_field
     messages = ([{"role": "system", "content": system}] if system else []) + [
@@ -81,10 +274,14 @@ def call(model, system, user, max_tokens=600, temperature=0.7, meta=None):
     body = {"model": model, "messages": messages, "max_tokens": max_tokens,
             "temperature": temperature}
     if model.startswith("deepseek/"):
-        # pin deepseek calls to one provider: all token accounting (probes, MEASURE)
-        # flows through these and must stay on a single tokenizer/provider. Foreign
-        # models (the decoder) stay unpinned — their usage never feeds accounting.
+        # Pin DeepSeek calls so token probes stay on one tokenizer/provider. Foreign
+        # decoder calls remain unpinned; every successful call still uses usage.cost.
         body["provider"] = {"order": ["deepseek"]}
+    for key, value in (request_options or {}).items():
+        if key == "provider":
+            body.setdefault("provider", {}).update(value)
+        else:
+            body[key] = value
     if not _no_reasoning_field:
         body["reasoning"] = {"enabled": False}
     headers = {"Authorization": f"Bearer {api_key()}",
@@ -114,10 +311,7 @@ def call(model, system, user, max_tokens=600, temperature=0.7, meta=None):
             continue
         usage = d.get("usage", {})
         if meta is not None:
-            meta["spend_usd"] = round(
-                meta.get("spend_usd", 0.0)
-                + usage.get("prompt_tokens", 0) * PRICE_IN
-                + usage.get("completion_tokens", 0) * PRICE_OUT, 6)
+            record_provider_cost(meta, usage, response_id=d.get("id"))
         return d["choices"][0]["message"]["content"] or "", usage
     raise RuntimeError("api: retries exhausted")
 
@@ -168,6 +362,13 @@ def render_decode(dec):
 def render_window(conv):
     out = []
     for e in conv[-WINDOW:]:
+        if e["type"] == "protocol_cutover":
+            receipt = e.get("state_receipt") or {}
+            out.append(
+                f"[turn {e['turn']} — AUTHORITATIVE PROTOCOL CUTOVER RECEIPT]\n"
+                + json.dumps(receipt, sort_keys=True, ensure_ascii=False)
+            )
+            continue
         if e["type"] == "measure":
             out.append(f"[turn {e['turn']} — MEASUREMENT] \"{e['text']}\" = {e['tokens']} tokens (exact)")
             continue
@@ -175,11 +376,25 @@ def render_window(conv):
             out.append(f"[turn {e['turn']} — HARNESS CORRECTION]\n{e['content']}")
             continue
         if e["type"] == "legislature":
+            post_state = e.get("post_state_receipt")
+            if isinstance(post_state, dict):
+                out.append(
+                    f"[turn {e['turn']} — AUTHORITATIVE POST-STATE RECEIPT]\n"
+                    + json.dumps(post_state, sort_keys=True, ensure_ascii=False)
+                )
+                continue
             receipt = e.get("motion_receipt") or {}
+            available = {
+                key: receipt[key]
+                for key in (
+                    "accepted", "reason", "agent", "verb", "rule_id", "changed", "line"
+                )
+                if key in receipt
+            }
             out.append(
-                f"[turn {e['turn']} — LEGISLATURE] "
-                f"{receipt.get('verb') or 'no motion'}: "
-                f"{receipt.get('reason') or 'no receipt'}")
+                f"[turn {e['turn']} — LEGACY MACHINE RECEIPT; AVAILABLE FIELDS ONLY]\n"
+                + json.dumps(available, sort_keys=True, ensure_ascii=False)
+            )
             continue
         if e["type"] == "test":
             audit = ""
@@ -199,7 +414,10 @@ def render_window(conv):
                 f"fresh decoder returned: {render_decode(e['decoded'])}\n"
                 f"grader: {e['lost']}" + audit)
         else:
-            out.append(f"[turn {e['turn']}] AGENT {e['agent']}:\n{e['content']}")
+            out.append(
+                f"[turn {e['turn']} — NON-AUTHORITATIVE AGENT DISCUSSION] "
+                f"AGENT {e['agent']}:\n{e['content']}"
+            )
     return "\n\n".join(out) if out else "(no conversation yet — the rulebook is empty and you speak first)"
 
 
@@ -226,59 +444,236 @@ def collaboration_directive(text, kind):
 
 
 def write_viewer_state(conv, rb, meta, collaboration=None, conversations=None):
+    # Protocol cutover receipts are canonical harness bookkeeping, not public
+    # conversation events. Keep them in the persisted source log and out of the
+    # unchanged viewer renderer, which has no cutover event presentation.
+    public_conversation = [
+        event for event in conv if event.get("type") != "protocol_cutover"
+    ]
     (ROOT / "viewer" / "state.js").write_text(
         "window.STATE = " + json.dumps(
-            {"conversation": conv, "rulebook": rb,
+            {"conversation": public_conversation, "rulebook": rb,
              "collaboration": public_state(collaboration or empty_state()),
              "conversations": conversations or [],
              "meta": {"spend_usd": meta.get("spend_usd", 0), "model": MODEL_A,
+                      "spend_usd_historical_estimate":
+                          meta.get("spend_usd_historical_estimate"),
+                      "spend_usd_provider_exact_since_cutover":
+                          meta.get("spend_usd_provider_exact_since_cutover"),
+                      "cost_accounting_basis": meta.get("cost_accounting_basis"),
                       "updated": now_iso(), "run": meta.get("run", "local")}}) + ";\n")
 
 
+def next_legislative_actor(meta):
+    return "B" if meta.get("last_agent") == "A" else "A"
+
+
+def latest_post_state_receipt(conv):
+    for event in reversed(conv):
+        if isinstance(event.get("post_state_receipt"), dict):
+            return event["post_state_receipt"]
+        if event.get("type") == "protocol_cutover" and isinstance(
+            event.get("state_receipt"), dict
+        ):
+            return event["state_receipt"]
+    return None
+
+
+def ensure_structured_protocol_cutover(conv, rb, meta, *, activation_turn):
+    """Append one authoritative boundary receipt while leaving old records untouched."""
+    existing = meta.get("structured_protocol")
+    if isinstance(existing, dict):
+        if existing.get("version") != PROTOCOL_VERSION:
+            raise RuntimeError("unknown structured protocol state")
+        receipt = latest_post_state_receipt(conv)
+        if not receipt:
+            raise RuntimeError("structured protocol metadata has no persisted receipt")
+        initialize_exact_cost_accounting(
+            meta, cutover_turn=int(existing["cutover_turn"])
+        )
+        return receipt
+
+    next_actor = next_legislative_actor(meta)
+    receipt = build_cutover_receipt(
+        rb, turn=int(activation_turn), next_actor=next_actor
+    ).model_dump(mode="json")
+    conv.append(
+        {
+            "turn": int(activation_turn),
+            "agent": "harness",
+            "type": "protocol_cutover",
+            "state_receipt": receipt,
+        }
+    )
+    meta["structured_protocol"] = {
+        "version": PROTOCOL_VERSION,
+        "cutover_turn": int(activation_turn),
+    }
+    initialize_exact_cost_accounting(meta, cutover_turn=int(activation_turn))
+    return receipt
+
+
 def agent_turn(conv, rb, meta, collaboration, turn):
-    agent = "B" if meta.get("last_agent") == "A" else "A"
-    meta["last_agent"] = agent
+    agent = next_legislative_actor(meta)
     model = MODEL_A if agent == "A" else MODEL_B
     prompt = (ROOT / "prompts" / f"agent_{agent.lower()}.md").read_text()
     constitution = (ROOT / "prompts" / "constitution.md").read_text()
+    collaboration_before_delivery = copy.deepcopy(collaboration)
     delivery = (deliver_one(collaboration, "RESEARCH", agent, turn) or
                 deliver_one(collaboration, "ASK", agent, turn) or
                 deliver_one(collaboration, "SUGGESTION", agent, turn))
-    delivered = ""
-    if delivery:
-        delivered = "\n\n=== BOUNDED COLLABORATION INPUT ===\n" + json.dumps(delivery, ensure_ascii=False)
-    system = (f"{constitution}\n\n{prompt}\n\n=== ADOPTED LANGUAGE ===\n{render_language(rb)}\n"
-              f"\n=== LEGISLATURE ===\n{render_legislature(rb)}\n"
-              f"=== STATE ===\nturn {turn} | next live test at turn "
-              f"{((turn // TEST_EVERY) + 1) * TEST_EVERY}" + delivered)
-    user = render_window(conv) + f"\n\nIt is turn {turn}. You are Agent {agent}. Respond."
-    text, usage = call(model, system, user, max_tokens=2000, temperature=AGENT_TEMP, meta=meta)
-    conv.append({"turn": turn, "agent": agent, "type": "message", "content": text.strip(),
-                 "tokens": usage.get("completion_tokens", 0)})
-    for mm in list(re.finditer(r"^\s*\**MEASURE\**\s*:\s*(.+)$", text, re.M))[:2]:
-        probe_text = mm.group(1).strip().strip("`")
+    next_test = ((turn // TEST_EVERY) + 1) * TEST_EVERY
+    request = build_legislative_request(
+        role=agent,
+        turn=turn,
+        next_live_test_turn=next_test,
+        rulebook=rb,
+        latest_receipt=latest_post_state_receipt(conv),
+        collaboration_input=delivery,
+    )
+    system = (
+        f"{constitution}\n\n{prompt}\n\n"
+        f"=== ADOPTED LANGUAGE ===\n{render_language(rb)}\n\n"
+        f"=== COMPLETE LEGISLATURE ===\n{render_legislature(rb)}\n\n"
+        f"=== AUTHORITATIVE CURRENT MACHINE STATE AND RECEIPT ===\n"
+        f"{request.model_dump_json(indent=2)}"
+    )
+    base_user = (
+        "=== RECENT EVENT WINDOW ===\n"
+        + render_window(conv)
+        + f"\n\nIt is turn {turn}. You are Agent {agent}. "
+        "Return only the structured response required by the supplied schema."
+    )
+    request_options = action_request_options(agent, rb)
+    structured_action = None
+    usage = {}
+    last_structural_reason = "unknown structural validation error"
+    attempts = 0
+    for attempts in range(1, MAX_STRUCTURAL_RETRIES + 2):
+        retry_note = (
+            ""
+            if attempts == 1
+            else "\n\nYour previous response failed local structural validation. "
+            "Regenerate from the unchanged authoritative state. "
+            f"Error: {last_structural_reason}"
+        )
+        text, usage = call(
+            model,
+            system,
+            base_user + retry_note,
+            max_tokens=2000,
+            temperature=AGENT_TEMP,
+            meta=meta,
+            request_options=request_options,
+        )
+        try:
+            structured_action = validate_action(text, agent, rb)
+            break
+        except ValidationError as exc:
+            last_structural_reason = validation_reason(exc)
+
+    if structured_action is None:
+        collaboration.clear()
+        collaboration.update(collaboration_before_delivery)
+        receipt = build_post_state_receipt(
+            turn=turn,
+            role=agent,
+            action=None,
+            result="structural_failure",
+            reason=f"structural_validation_exhausted: {last_structural_reason}",
+            before_rulebook=rb,
+            after_rulebook=rb,
+            next_actor=agent,
+            attempts=attempts,
+        )
+        conv.append(
+            {
+                "turn": turn,
+                "agent": "harness",
+                "type": "legislature",
+                "protocol": PROTOCOL_VERSION,
+                # Compatibility projection for the unchanged public viewer.
+                # The full authoritative result remains post_state_receipt.
+                "motion_receipt": {
+                    "accepted": False,
+                    "reason": "structural_validation_exhausted",
+                    "agent": agent,
+                    "verb": None,
+                    "rule_id": None,
+                    "changed": False,
+                    "line": None,
+                },
+                "post_state_receipt": receipt.model_dump(mode="json"),
+            }
+        )
+        print(
+            f"[t{turn} {agent}] structural validation exhausted; same actor retained  "
+            f"${meta['spend_usd']:.3f}",
+            flush=True,
+        )
+        return "structural_failure"
+
+    before_rulebook = copy.deepcopy(rb)
+    conv.append(
+        {
+            "turn": turn,
+            "agent": agent,
+            "type": "message",
+            "content": structured_action.deliberation,
+            "structured_action": structured_action.model_dump(mode="json"),
+            "tokens": usage.get("completion_tokens", 0),
+        }
+    )
+    for measurement in structured_action.measurements:
+        probe_text = measurement.text
         n = token_count(probe_text, meta)
         conv.append({"turn": turn, "agent": "harness", "type": "measure",
                      "text": probe_text[:120], "tokens": n})
         print(f"[t{turn} MEASURE] \"{probe_text[:40]}\" = {n}tok", flush=True)
-    matched_line = motion_line(text)
-    receipt = apply_authorized_motion(text, rb, turn, agent,
-                                      rationale_for(text, matched_line) if matched_line else "")
-    conv.append({"turn": turn, "agent": "harness", "type": "legislature",
-                 "motion_receipt": receipt.dict()})
-    if receipt.changed:
+    motion_receipt = apply_typed_motion(
+        structured_action.motion,
+        rb,
+        turn,
+        agent,
+        structured_action.deliberation[:280],
+    )
+    if motion_receipt.changed:
         rb["version"] = f"0.{rb['changes'] + 1}"
         rb["changes"] += 1
         rb["kernel_tokens"] = token_count(render_language(rb), meta)
+    result = "accepted" if motion_receipt.accepted else "rejected"
+    next_actor = "A" if agent == "B" else "B"
+    receipt = build_post_state_receipt(
+        turn=turn,
+        role=agent,
+        action=structured_action,
+        result=result,
+        reason=motion_receipt.reason,
+        before_rulebook=before_rulebook,
+        after_rulebook=rb,
+        next_actor=next_actor,
+        attempts=attempts,
+    )
+    conv.append(
+        {
+            "turn": turn,
+            "agent": "harness",
+            "type": "legislature",
+            "protocol": PROTOCOL_VERSION,
+            "motion_receipt": motion_receipt.dict(),
+            "post_state_receipt": receipt.model_dump(mode="json"),
+        }
+    )
     if delivery and delivery.get("kind") == "SUGGESTION":
         suggestion = next((row for row in collaboration.get("suggestions", [])
                            if row.get("id") == delivery.get("id")), None)
         if suggestion:
-            suggestion["status"] = "acted" if receipt.changed else "no_action"
-            suggestion["outcome"] = receipt.reason
+            suggestion["status"] = "acted" if motion_receipt.changed else "no_action"
+            suggestion["outcome"] = motion_receipt.reason
             suggestion["outcome_turn"] = turn
-    for kind in ("LOOKUP", "RESEARCH", "ASK"):
-        question = collaboration_directive(text, kind)
+    for typed_request in structured_action.requests:
+        kind = typed_request.kind
+        question = typed_request.question
         if question:
             record_id = f"{kind.lower()}-{turn}-{agent.lower()}"
             bucket = "research" if kind in {"LOOKUP", "RESEARCH"} else "asks"
@@ -286,8 +681,10 @@ def agent_turn(conv, rb, meta, collaboration, turn):
                 record = stable_record(kind, agent, question, record_id)
                 record["request_turn"] = turn
                 collaboration[bucket].append(record)
+    meta["last_agent"] = agent
     print(f"[t{turn} {agent}] {usage.get('completion_tokens', 0)}tok  "
           f"rules:{len(rb['rules'])}  ${meta['spend_usd']:.3f}", flush=True)
+    return result
 
 
 DOMAINS = ["logistics", "software operations", "event planning", "food service", "travel",
@@ -464,6 +861,8 @@ def process_one_research(collaboration, meta, turn):
         return
 
     record["status"] = "researching"
+    if "spend_usd_historical_estimate" not in meta:
+        initialize_exact_cost_accounting(meta, cutover_turn=turn)
     spend_before = float(meta.get("spend_usd", 0.0))
     body = {"model": MODEL_A,
             "messages": [{"role": "system", "content": (ROOT / "prompts" / "research.md").read_text()},
@@ -476,16 +875,12 @@ def process_one_research(collaboration, meta, turn):
                                  json=body, timeout=180)
         response.raise_for_status()
         data = response.json()
-        message = data["choices"][0]["message"]
         usage = data.get("usage", {})
         usage = usage if isinstance(usage, dict) else {}
+        record_provider_cost(meta, usage, response_id=data.get("id"))
+        message = data["choices"][0]["message"]
         tool_use = usage.get("server_tool_use", {})
         tool_use = tool_use if isinstance(tool_use, dict) else {}
-        meta["spend_usd"] = round(
-            meta.get("spend_usd", 0.0)
-            + usage.get("prompt_tokens", 0) * PRICE_IN
-            + usage.get("completion_tokens", 0) * PRICE_OUT
-            + int(tool_use.get("web_search_requests", 0) or 0) * WEB_SEARCH_PRICE, 6)
         structured = True
         try:
             parsed = json.loads(message.get("content") or "{}")
@@ -529,11 +924,13 @@ def process_one_research(collaboration, meta, turn):
                        "usage": {"prompt_tokens": usage.get("prompt_tokens", 0),
                                  "completion_tokens": usage.get("completion_tokens", 0),
                                  "web_search_requests": int(tool_use.get("web_search_requests", 0) or 0)},
-                       "cost_usd": round(float(meta.get("spend_usd", 0.0)) - spend_before, 6)})
+                       "cost_usd": round(float(meta.get("spend_usd", 0.0)) - spend_before, 12)})
+    except CostAccountingError:
+        raise
     except Exception as exc:
         record.update({"status": "error", "findings": "", "citations": [], "no_evidence": True,
                        "limitations": [f"research unavailable: {exc.__class__.__name__}"],
-                       "error": exc.__class__.__name__, "cost_usd": round(float(meta.get("spend_usd", 0.0)) - spend_before, 6),
+                       "error": exc.__class__.__name__, "cost_usd": round(float(meta.get("spend_usd", 0.0)) - spend_before, 12),
                        "answer_turn": turn})
 
 
@@ -576,6 +973,10 @@ def run(turns):
     collaboration = load("collaboration.json", empty_state())
     conversations = load("conversations.json", [])
     start_turn = (conv[-1]["turn"] + 1) if conv else 1
+    ensure_structured_protocol_cutover(
+        conv, rb, meta, activation_turn=start_turn - 1
+    )
+    configure_cost_receipt_ledger(STATE / COST_LEDGER_FILENAME, meta)
     for turn in range(start_turn, start_turn + turns):
         if meta["spend_usd"] >= SPEND_CAP:
             print(f"SPEND CAP hit (${meta['spend_usd']:.2f}) — stopping.", flush=True)
@@ -605,7 +1006,7 @@ def run(turns):
 def archive(name):
     dest = STATE / "tuning-runs" / name
     dest.mkdir(parents=True, exist_ok=True)
-    for f in ("conversation.json", "rulebook.json", "meta.json"):
+    for f in ("conversation.json", "rulebook.json", "meta.json", COST_LEDGER_FILENAME):
         if (STATE / f).exists():
             shutil.move(str(STATE / f), str(dest / f))
     for pf in (ROOT / "prompts").glob("*.md"):

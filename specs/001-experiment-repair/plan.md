@@ -48,6 +48,8 @@ implementation contracts.
 | OpenRouter web search | https://openrouter.ai/docs/guides/features/server-tools/web-search | 2026-07-20 | `openrouter:web_search`; plugin/`:online` deprecated | Bounded RESEARCH tool |
 | OpenRouter keys | https://openrouter.ai/docs/api/api-reference/api-keys/create-keys | 2026-07-20 | Per-key USD limit and monthly reset metadata | Dedicated $20 public key |
 | OpenRouter structured outputs | https://openrouter.ai/docs/guides/features/structured-outputs and https://openrouter.ai/docs/guides/routing/provider-selection | 2026-07-21 | Strict `response_format.json_schema` is the supported shape; `provider.require_parameters=true` prevents routing to an endpoint that ignores it | Require all adopted ids as schema properties; compile model mapping/text into candidate locally |
+| OpenRouter usage accounting | https://openrouter.ai/docs/cookbook/administration/usage-accounting | 2026-07-29 | Every non-streaming response includes native token counts and the exact charged `usage.cost` | Accumulate returned cost once per successful response; retire static prices for new calls |
+| Pydantic 2.12 validation/schema | https://docs.pydantic.dev/2.12/errors/usage_errors/ and installed 2.12.5 runtime | 2026-07-29 | `model_json_schema()` and strict local validation provide one typed contract; validation errors do not retry providers by themselves | Generate one stable envelope family and state-specific per-turn variants; harness owns bounded retries |
 | DeepSeek V3.2 | https://openrouter.ai/deepseek/deepseek-v3.2 | 2026-07-20 | Slug `deepseek/deepseek-v3.2` | A/encoder/judge |
 | Kimi K2.6 | https://openrouter.ai/moonshotai/kimi-k2.6 | 2026-07-20 | Slug `moonshotai/kimi-k2.6` | B/stranger/Conversation |
 | Upload-Post text | https://docs.upload-post.com/api/upload-text/ | 2026-07-20 | Stable idempotency/request id, poll async, inspect `results.x`, use `x_title`; long text auto-threads | Confirmed bounded X state machine |
@@ -137,7 +139,7 @@ canonical dedupe before collaboration UI work.
 | `render_rulebook` | Proposed text enters ordinary prompts | Typed legislature/language/proposal views | Replace all language callers; no legacy fallback | prompt fixture battery |
 | Rule `scores` | Corpus score stamped per rule | Corpus evidence only; explicit proposal trial evidence | Preserve old fields as labeled history, stop writes | state diff + page labels |
 | `probe.py` / run hook | Active dumb-script measurement/framing | Historical evidence only | Remove hook/import/current UI/prompt/economics path | runtime/page search |
-| A/B prompts/parser | Same model/soft leans/unrestricted verbs | DeepSeek A inventor; Kimi B auditor; enforced permissions | Replace prompts and authority validator | forbidden-motion tests |
+| A/B prompts/parser | Same model/soft leans; live actions embedded in prose and regex-parsed | DeepSeek A inventor; Kimi B auditor; typed state-specific envelope plus enforced permissions | Replace new-turn regex path with Pydantic/OpenRouter structured contract; retain raw history only for audit | role/state schema matrix, no-regex negative search, historical failure replay |
 | Judge arithmetic | Incomplete/duplicate ids can score | Exact coverage or invalid/no score | Central validator used by loop and Try It | malformed matrix |
 | `pending-notice.txt` | Single overwrite/remove mailbox | Harness notices only or retired; never collaboration queue | Box from collaboration paths | concurrency test/search |
 | Vercel Try It | Shared key and version race | Dedicated capped key; version/hash check | Reject old key name in public handlers | env/key metadata + mismatch test |
@@ -162,8 +164,12 @@ and `crypto`; Upstash Redis REST; OpenRouter Chat Completions/server tools;
 Upload-Post text/status API; pinned Crabbox v0.40.0 binary; isolated exact-pinned
 Playwright acceptance package
 
-**Storage**: Canonical JSON/git history, local atomic collaboration transport spools,
-plus one Upstash Redis inbox/session store
+**Storage**: Canonical JSON/git history, local atomic collaboration transport
+spools, one gitignored VPS-local atomic OpenRouter cost-receipt ledger, plus one
+Upstash Redis inbox/session store. The cost ledger is operational recovery
+state rather than language authority: it is snapshot and archived with its
+matching `meta.json`, copied with the VPS during same-cutover recovery, and
+moved out of the live worktree before rollback to code that predates it.
 
 **Testing**: Python `unittest`, Node `node:test`, fixture state, stub HTTP servers,
 production-shaped local Vercel handlers, repository-owned Playwright visible
@@ -233,6 +239,7 @@ dependencies are planned stops, not assumed access.
 | G13 Convergence/closeout | Run convergence, clean git/state/queues, verify live commit | No gaps, debris, duplicates, stuck work, warnings, or dirty files | updated spec/tasks/evidence, git/live receipts | any remaining gap | overall FAIL/BLOCKED |
 | G14 Launch-first core activation | Under the exact 2026-07-24 approval, preserve the existing rulebook, configure the proven collaboration/human/public-inference dependencies, keep X disabled, sync the paused VPS to reviewed `main`, deploy from `viewer/`, resume, and observe one turn | Public surfaces respond, the repaired runtime advances beyond turn 650, the timer remains healthy, and no cleanup candidate is applied | launch-first preflight, credential metadata, deployment receipt, turn/state/service receipts | credential/cap mismatch, canonical hash drift before resume, wrong deploy root, provider/service/invariant warning | restore prior Vercel deployment, disable new Production targets if needed, re-pause timer, retain turn-650 snapshot |
 | G15 Backlog repair | After one exact approval, pause the timer, verify source/commit hashes, merge the reviewed repair, apply only the legacy-motion bundle, resolve the duplicate human-review questions with the verified diagnostic, resume, and observe the next eligible lookup/legislative/Conversation seams | 23 adopted records and language hash are unchanged; zero legacy open motions remain; internal questions never use web; new Conversation judgments validate | migration bundle/diff, git/runtime/state receipts, collaboration receipts, bounded turn evidence | any source/adopted/hash drift, pending repeal, wrong route, invalid judgment, or service warning | keep timer paused; restore exact pre-apply rulebook and prior runtime commit |
+| G16 Structured legislative protocol | Under one exact approval, implement and review the typed envelope/cost repair from paused turn 1165, merge through a PR, sync the clean VPS, preserve canonical state, resume, and observe the natural B/test/A sequence | New turns use state-specific schemas and complete receipts; rule-129 is addressed only by B; cost uses `usage.cost`; old history is untouched; service and repository remain clean | offline replay suite, code-review receipt, PR/merge/VPS hashes, canonical state plus local cost-ledger presence/hash snapshot, cutover/state/cost receipts, turns 1166–1168, timer/service readbacks | any schema/provider incompatibility, unauthorized rule delta, receipt/hash mismatch, structural retry exhaustion, cost uncertainty, dirty repo, service/queue warning | pause timer and preserve canonical state plus the cost ledger; same-cutover repair/redeploy retains the ledger; before reverting to `5d44005`, archive/move the ledger outside the live worktree so old code cannot track it; restore the pre-turn canonical snapshot only for an invalid state mutation |
 
 ## Explicit Planned Stops and Approval Text
 
@@ -252,9 +259,23 @@ Recommended phrase forms are:
 10. One exact phrase for the final explainer copy, then a separate exact phrase to pin the verified post id.
 11. One exact phrase per researched X account to follow.
 12. `APPROVE LIVE CHANGE: apply reviewed backlog-repair commit <sha> and legacy-motion bundle <bundle-id>/<source-hash>/<replacement-hash> to the paused language loop, answer the named duplicate human-review questions with the verified diagnostic, resume, and stop on any adopted-language hash, routing, Conversation, or service invariant failure; rollback to <commit>/<snapshot>`
+13. `APPROVE LIVE CHANGE: alato-structured-protocol-cost-and-receipts-20260729-turn1165-g16`
 
 Phrase placeholders must be replaced with verified immutable values. Paraphrases,
 blanket approvals, and approval from another agent do not pass a gate.
+
+The exact G16 phrase authorizes one bounded end-to-end package: implement and
+review T186–T193 in a clean branch, push/open/merge its PR to `main`, sync the
+paused clean VPS, snapshot turn 1165, activate Pydantic/OpenRouter state-specific
+legislative envelopes and exact `usage.cost` accounting, resume the existing
+timer, allow normal agent-authored governance (including settlement of open
+rule-129), observe natural turns 1166–1168, repair/redeploy only defects inside
+this contract, leave the timer active only after clean evidence, and publish
+the evidence/progress commit through the normal PR path. It authorizes at most
+`$0.25` of incremental private OpenRouter spend for validation. It prohibits
+manual rule edits, rejected-rule compression, credentials/key-limit changes,
+DNS, X, public copy/UI changes, cleanup generation/application, model/cadence/
+exam changes, and unrelated production behavior.
 
 The exact phrase
 `APPROVE LIVE CHANGE: launch-alato-core-with-existing-rulebook-20260724-l4v8`
@@ -341,6 +362,7 @@ specs/001-experiment-repair/
 loop.py                           # orchestration, canonical single writer
 collaboration.py                  # inbox client + canonical lifecycle/dedupe
 rulebook.py                       # explicit rule views, motion authority, judge validation
+legislative_protocol.py           # Pydantic envelope/schema/validation and receipts
 cleanup_rulebook.py               # snapshot-only generate/apply commands with hard gates
 conversation_exam.py              # six-message judged artifact
 tweet.py                          # confirmed/idempotent/bounded X delivery
