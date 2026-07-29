@@ -3,6 +3,20 @@
 Date: 2026-07-29 WITA
 Status: `PLANNED_STOP`
 
+## Read-only production receipt
+
+- VPS checkout: clean `main` at
+  `b328f75ef1141784608d019fbc19b0d6e70596d0`, matching `origin/main`
+- Canonical turn: 1139
+- `language-loop.timer`: active, enabled; next scheduled event read back as
+  2026-07-29 11:45 WITA
+- `language-loop.service`: inactive between runs
+- Current Vercel Production deployment:
+  `dpl_3jLy3U5xWpUwnqUvGwSBQKgLvMfJ`, Ready, serving
+  `https://alanguagealltheirown.com`
+- Open human-review ids:
+  `ask-683-b`, `ask-689-b`, `ask-692-b`, `ask-695-b`, `ask-821-b`
+
 ## Target
 
 Release the reviewed backlog repair, apply only the hash-bound legacy-motion
@@ -42,7 +56,7 @@ path. The reviewed repair archives only legacy proposed/reverted records,
 preserves all 23 adopted rules, and allows normal agent governance to resume.
 The 23-rule language is not being declared final.
 
-The five open duplicate questions must each receive this same factual answer
+The five named open questions above must each receive this same factual answer
 through the authenticated human-review action, preserving their original ids
 and exact-once delivery.
 
@@ -77,7 +91,8 @@ the approved envelope.
 
 ## Approval envelope
 
-The operator must substitute the final reviewed commit, current VPS commit,
-rollback snapshot, deployment id, and five verified collaboration ids before
-presenting the exact `APPROVE LIVE CHANGE:` phrase. A phrase containing
-placeholders is invalid.
+The final operator handoff must bind the reviewed branch tip, VPS commit
+`b328f75ef1141784608d019fbc19b0d6e70596d0`, a fresh rollback snapshot, current
+deployment `dpl_3jLy3U5xWpUwnqUvGwSBQKgLvMfJ`, and the five verified ids above.
+The exact `APPROVE LIVE CHANGE:` phrase is supplied only after the final local
+commit exists; a phrase containing placeholders is invalid.
