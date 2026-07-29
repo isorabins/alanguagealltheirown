@@ -104,6 +104,15 @@ class LegislativeAction(StrictModel):
         return requests
 
 
+class RecordedLegislativeAction(StrictModel):
+    """Immutable receipt payload, decoupled from the current input policy."""
+
+    deliberation: str = Field(max_length=4000)
+    motion: RecordedMotion | None
+    measurements: list[MeasurementRequest] = Field(max_length=2)
+    requests: list[CollaborationRequest] = Field(max_length=3)
+
+
 class OpenMotionState(StrictModel):
     kind: Literal["add", "repeal"]
     target_rule_id: str
@@ -141,7 +150,7 @@ class PostStateReceipt(StrictModel):
     protocol_version: Literal[PROTOCOL_VERSION] = PROTOCOL_VERSION
     turn: int = Field(ge=0)
     actor: Role | Literal["harness"]
-    attempted_action: LegislativeAction | None
+    attempted_action: RecordedLegislativeAction | None
     result: ActionResultKind
     reason: str = Field(min_length=1, max_length=500)
     attempts: int = Field(ge=0, le=MAX_STRUCTURAL_RETRIES + 1)
@@ -328,11 +337,13 @@ def canonical_legislative_state(
     )
 
 
-def _recorded_action(action: BaseModel | dict[str, Any] | None) -> LegislativeAction | None:
+def _recorded_action(
+    action: BaseModel | dict[str, Any] | None
+) -> RecordedLegislativeAction | None:
     if action is None:
         return None
     payload = action.model_dump(mode="json") if isinstance(action, BaseModel) else action
-    return LegislativeAction.model_validate(payload, strict=True)
+    return RecordedLegislativeAction.model_validate(payload, strict=True)
 
 
 def _rule_changes(
