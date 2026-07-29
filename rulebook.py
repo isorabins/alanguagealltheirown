@@ -8,7 +8,7 @@ from typing import Any
 
 from state_store import snapshot_hash
 
-MOTION_RE = re.compile(r"^\s*\**(PROPOSE|REPEAL|ADOPT|REJECT|REVISE|REQUEST(?:-REVISION|-TEST)?)\**\s*:\s*(.+?)\s*$", re.M)
+MOTION_RE = re.compile(r"^\s*\**(PROPOSE|REPEAL|ADOPT|REJECT|REVISE|REQUEST(?:-REVISION|-TEST)?)\**\s*:\s*(.+?)\s*$")
 RULE_ID_RE = re.compile(r"\brule[-‐‑‒–—](\d+)\b", re.I)
 VALID_VERDICTS = {"SURVIVED", "CORRUPTED", "MISSING"}
 
@@ -115,9 +115,23 @@ class MotionReceipt:
 
 
 def _motion_lines(text: str) -> list[tuple[str, str, str]]:
-    return [("REQUEST" if m.group(1).upper().startswith("REQUEST") else m.group(1).upper(),
-             re.sub(r"[‐‑‒–—]", "-", m.group(2)).strip(" *"), m.group(0).strip())
-            for m in MOTION_RE.finditer(text)]
+    motions = []
+    for line in text.splitlines():
+        original = line.strip()
+        candidate = original
+        if (len(candidate) > 2 and candidate.startswith("`") and candidate.endswith("`")
+                and not candidate.startswith("``") and not candidate.endswith("``")
+                and candidate.count("`") == 2):
+            candidate = candidate[1:-1].strip()
+        match = MOTION_RE.fullmatch(candidate)
+        if match:
+            verb = match.group(1).upper()
+            motions.append((
+                "REQUEST" if verb.startswith("REQUEST") else verb,
+                re.sub(r"[‐‑‒–—]", "-", match.group(2)).strip(" *"),
+                original,
+            ))
+    return motions
 
 
 def motion_line(text: str) -> str | None:
