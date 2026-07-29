@@ -312,6 +312,35 @@ class ReceiptTests(unittest.TestCase):
         self.assertEqual(request.latest_receipt.result, "cutover")
         self.assertEqual(request.acting_role, "B")
 
+    def test_request_accepts_receipt_written_under_an_older_input_policy(self):
+        book = open_add_book()
+        prior_receipt = build_cutover_receipt(
+            book, turn=12, next_actor="B"
+        ).model_dump(mode="json")
+        prior_receipt.update(
+            {
+                "actor": "B",
+                "attempted_action": action(deliberation=","),
+                "result": "accepted",
+                "reason": "no_motion",
+                "attempts": 2,
+                "next_actor": "A",
+            }
+        )
+
+        request = build_legislative_request(
+            role="A",
+            turn=13,
+            next_live_test_turn=15,
+            rulebook=book,
+            latest_receipt=prior_receipt,
+            collaboration_input=None,
+        )
+
+        self.assertEqual(request.latest_receipt.attempted_action.deliberation, ",")
+        self.assertEqual(request.latest_receipt.reason, "no_motion")
+        self.assertEqual(request.current_state.open_motion.target_rule_id, "rule-003")
+
 
 if __name__ == "__main__":
     unittest.main()
