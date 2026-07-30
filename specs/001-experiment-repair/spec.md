@@ -360,6 +360,8 @@ and execute the Conversation judge seam with a production-shaped response.
 - **FR-072**: A model-facing `LOOKUP`/`RESEARCH` delivery MUST use a bounded deterministic projection containing the original correlation fields, a concise findings prefix/direct answer, bounded limitations and safe citations, and explicit original/included/omitted truncation metadata. The full canonical research row and prior delivery record MUST remain available unchanged apart from their existing lifecycle fields.
 - **FR-073**: Structural-validation exhaustion MUST restore the complete pre-delivery collaboration state exactly once and retain the same next actor. A later delivery attempt MUST regenerate the same bounded projection and MUST NOT reinsert the full research payload into the model request.
 - **FR-074**: Legislative prompt assembly MUST have one pure, reusable assembly boundary shared by `agent_turn` and regression tests; it MUST preserve the complete legislature, role/state schema, substantive-deliberation validator, models, cadence, limits, and provider-call behavior.
+- **FR-075**: Recent live-test events MUST remain in the 30-event model window as deterministic outcome receipts containing turn, payload, original/encoded token counts, token delta, fidelity or invalid-score reason, grader loss, and bounded corrupted/missing/invented audit details. Full encoded and decoded artifacts MUST remain canonical but MUST NOT be duplicated into the legislative model prompt.
+- **FR-076**: The structured-output schema MUST describe the existing substantive-deliberation boundary in the `deliberation` property itself, following OpenRouter's documented structured-output guidance. The local 12-character/alphanumeric validator, model, retry count, and provider routing MUST remain unchanged.
 
 ### Scope and Non-Goals
 
@@ -430,6 +432,7 @@ and execute the Conversation judge seam with a production-shaped response.
 - **SC-034**: Cost fixtures use provider-returned `usage.cost` exactly once per successful response/retry and the live key-usage delta after bounded activation is consistent with the new counter; no static per-model rate participates in new accounting.
 - **SC-035**: A production-shaped fixture with 127 rules, 30 recent events, and an approximately 14,000-character eligible lookup produces one B/open-`rule-132` schema and prompt that is at least 30% smaller than the same unprojected canonical material while retaining the complete legislature and every authoritative hash.
 - **SC-036**: Prompt assembly and structural-failure replay prove identical canonical rulebook/event hashes and full research findings/citations, omit `attempted_action`, `unchanged_rule_ids`, and `rule_states` only from model-facing projections, bound every lookup redelivery, and perform zero web requests.
+- **SC-037**: After the fail-closed turn-1210 canary, the exact paused turn-1211 rehearsal is no more than 70,000 model-facing characters, contains the unchanged B/open-`rule-132` schema with an explicit substantive-deliberation description, retains all 30 recent event outcomes and full canonical artifacts, and supports one valid live B action within the remaining approved provider-cost ceiling.
 
 ## Assumptions
 

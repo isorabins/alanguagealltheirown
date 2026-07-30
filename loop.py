@@ -417,11 +417,10 @@ def render_window(conv):
             score = (f"decode fidelity {e['fidelity']}/100" if e.get("fidelity") is not None
                      else f"no valid score ({e.get('judge_reason', 'invalid')})")
             out.append(
-                f"[turn {e['turn']} — LIVE TEST | payload: {e['payload']}]\n"
+                f"[turn {e['turn']} — AUTHORITATIVE LIVE TEST RECEIPT | "
+                f"payload: {e['payload']}]\n"
                 f"original {e['orig_tokens']} tokens -> encoded {e['enc_tokens']} tokens "
                 f"({e['token_delta_pct']:+d}%) | {score}\n"
-                f"encoded: {e['encoded']}\n"
-                f"fresh decoder returned: {render_decode(e['decoded'])}\n"
                 f"grader: {e['lost']}" + audit)
         else:
             out.append(
@@ -549,7 +548,7 @@ def assemble_legislative_prompt(
         f"=== ADOPTED LANGUAGE ===\n{render_language(rb)}\n\n"
         f"=== COMPLETE LEGISLATURE ===\n{render_legislature(rb)}\n\n"
         f"=== AUTHORITATIVE CURRENT MACHINE STATE AND RECEIPT ===\n"
-        f"{json.dumps(prompt_request, indent=2, ensure_ascii=False)}"
+        f"{json.dumps(prompt_request, ensure_ascii=False, separators=(',', ':'))}"
     )
     user = (
         "=== RECENT EVENT WINDOW ===\n"

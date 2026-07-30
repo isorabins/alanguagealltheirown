@@ -24,7 +24,16 @@ Role = Literal["A", "B"]
 ActionResultKind = Literal["accepted", "rejected", "structural_failure", "cutover"]
 Deliberation = Annotated[
     str,
-    Field(min_length=12, max_length=4000, pattern=r"[A-Za-z0-9]"),
+    Field(
+        min_length=12,
+        max_length=4000,
+        pattern=r"[A-Za-z0-9]",
+        description=(
+            "Required substantive English deliberation. Write at least 12 "
+            "characters including a letter or digit; never return an empty "
+            "or punctuation-only value."
+        ),
+    ),
 ]
 
 

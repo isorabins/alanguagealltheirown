@@ -469,6 +469,7 @@ made live.
 | FR-057, FR-058, FR-059, FR-060, FR-061 | T177–T185 |
 | FR-062, FR-063, FR-064, FR-065, FR-066, FR-067, FR-068 | T186–T194 |
 | FR-069, FR-070, FR-071, FR-072, FR-073, FR-074 | T195–T202 |
+| FR-075, FR-076 | T203–T206 |
 | SC-001, SC-002, SC-003, SC-004, SC-005 | T014–T043, T130 |
 | SC-006, SC-007, SC-008, SC-009, SC-010 | T044–T087, T122, T131–T132 |
 | SC-011, SC-012, SC-013, SC-014, SC-015 | T024, T088–T100, T132–T137 |
@@ -479,6 +480,7 @@ made live.
 | SC-025, SC-026, SC-027, SC-028 | T177–T185 |
 | SC-029, SC-030, SC-031, SC-032, SC-033, SC-034 | T186–T194 |
 | SC-035, SC-036 | T195–T202 |
+| SC-037 | T203–T206 |
 
 ## Implementation Strategy
 
@@ -490,7 +492,7 @@ the serialized live gates.
 
 ## Format Validation
 
-All 202 tasks use the required checkbox, sequential task id, optional `[P]`,
+All 206 tasks use the required checkbox, sequential task id, optional `[P]`,
 story label only in story phases, and an explicit file or evidence path.
 
 ## Phase 21: Convergence
@@ -579,6 +581,10 @@ research, schema, validator, role, or cadence boundary.
 - [X] T200 Update `README.md` and `MECHANICS.md` to describe the prompt-only projection, canonical/full-record boundary, bounded delivery metadata, and exact-once failure restoration without changing public/UI claims (FR-069–074)
 - [X] T201 Run focused/full Python, full JavaScript, contract coverage, compile, diff, canonical-state, no-web/no-model/no-validator-weakening, and scoped search checks; record exact results in `evidence/model-context-compaction/offline-verification.md` (SC-035–036)
 - [ ] T202 STOP for manager-owned fixed-point review, commit/push/PR/merge, VPS sync, normal-cadence resume, at-most-`$0.10` live validation, and the next natural B/open-`rule-132` receipt under the existing exact approval envelope. The offline worker MUST NOT access/mutate production, call a provider/web service, commit, push, merge, open a PR, resume the timer, or alter canonical state/history, models, cadence, credentials, limits, UI, DNS, or X.
+- [X] T203 Record the fail-closed turn-1210 structural receipt, exact provider metadata/cost, restored lookup/open-motion state, pause boundary, remaining approved cost, official structured-output guidance, and unchanged exclusions in `evidence/model-context-compaction/live-repair.md` (FR-075–076; SC-037)
+- [X] T204 Add failing/repaired tests for prompt-only live-test outcome receipts, full canonical test-event preservation, complete-boundary project evidence, unchanged schema validation, and explicit substantive-deliberation description in `tests/python/test_model_context_compaction.py` (FR-075–076; SC-037)
+- [X] T205 Implement compact live-test/request rendering, complete-record project evidence projection, and the schema-property description in `loop.py`, `collaboration.py`, and `legislative_protocol.py`; preserve provider routing, retries, model, cadence, and all canonical artifacts (FR-075–076; SC-037)
+- [ ] T206 Rerun focused/full verification and fixed-point review, update ready PR #15, merge through the normal path, sync the clean paused VPS, rehearse the exact request at no more than 70,000 characters, resume normal cadence, and require one valid B/open-`rule-132` action without exceeding the remaining `$0.048854900` approved validation allowance. Keep the timer paused on any warning and publish final live evidence through the normal PR path (FR-075–076; SC-037).
 
 **Checkpoint**: Offline PASS requires the production-shaped prompt and replay
 oracles plus canonical preservation. Live PASS remains T202 and belongs to the

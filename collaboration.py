@@ -22,6 +22,8 @@ MAX_RESEARCH_CITATIONS = 4
 MAX_RESEARCH_CITATION_CHARS = 1_800
 MAX_RESEARCH_CITATION_TITLE_CHARS = 120
 MAX_RESEARCH_CITATION_URL_CHARS = 450
+MAX_PROJECT_EVIDENCE_RECORDS = 2
+PROJECT_FINDINGS_PREFIX = "Project corpus evidence (not a web result):\n"
 
 
 def empty_state() -> dict[str, Any]:
@@ -187,6 +189,33 @@ def _rendered_json_chars(value: dict[str, Any]) -> int:
     return len(json.dumps(value, ensure_ascii=False, separators=(",", ":")))
 
 
+def _findings_projection(value: Any, route: str) -> tuple[str, str]:
+    source = _text_value(value)
+    if route == "project" and source.startswith(PROJECT_FINDINGS_PREFIX):
+        try:
+            records = json.loads(source[len(PROJECT_FINDINGS_PREFIX):])
+        except (TypeError, ValueError, json.JSONDecodeError):
+            records = None
+        if isinstance(records, list):
+            included = records[:MAX_PROJECT_EVIDENCE_RECORDS]
+            projected = (
+                PROJECT_FINDINGS_PREFIX
+                + json.dumps(
+                    included,
+                    ensure_ascii=False,
+                    separators=(",", ":"),
+                )
+            )
+            if len(records) > len(included):
+                projected += (
+                    f"\n[bounded projection: {len(included)} of "
+                    f"{len(records)} evidence records included]"
+                )
+            if len(projected) <= MAX_RESEARCH_FINDINGS_CHARS:
+                return projected, source
+    return _bounded_prefix(source, MAX_RESEARCH_FINDINGS_CHARS), source
+
+
 def project_research_delivery_for_prompt(
     delivery: dict[str, Any],
 ) -> dict[str, Any]:
@@ -194,10 +223,9 @@ def project_research_delivery_for_prompt(
     record_id = _text_value(delivery.get("id"))
     question = _text_value(delivery.get("question"))
     route = _text_value(delivery.get("route"))
-    findings_source = _text_value(delivery.get("findings"))
     limitations_source = _limitations_text(delivery.get("limitations"))
-    findings = _bounded_prefix(
-        delivery.get("findings"), MAX_RESEARCH_FINDINGS_CHARS
+    findings, findings_source = _findings_projection(
+        delivery.get("findings"), route
     )
     limitations = _bounded_prefix(
         limitations_source,
