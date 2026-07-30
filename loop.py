@@ -51,6 +51,8 @@ MODEL_GRADER = "deepseek/deepseek-v3.2"
 
 TEST_EVERY = 3      # every Nth turn is a test turn
 WINDOW = 30         # conversation events each agent sees
+MAX_TEST_AUDIT_CATEGORY_CHARS = 320
+MAX_TEST_GRADER_LOSS_CHARS = 600
 SPEND_CAP = 25.00   # dollars, hard stop across all runs — anomaly tripwire, ~50 days at gloves-off burn
 AGENT_TEMP = 0.9
 COST_LEDGER_SCHEMA_VERSION = 1
@@ -412,17 +414,31 @@ def render_window(conv):
                 bits = [f"answer key: {e.get('survived')}/{e['total']} items survived"]
                 for lab in ("corrupted", "missing", "invented"):
                     if e.get(lab):
-                        bits.append(f"{lab}: " + "; ".join(str(x) for x in e[lab][:4]))
+                        rows = e[lab] if isinstance(e[lab], list) else [e[lab]]
+                        body = "; ".join(str(x) for x in rows[:4])
+                        if len(body) > MAX_TEST_AUDIT_CATEGORY_CHARS:
+                            body = (
+                                body[:MAX_TEST_AUDIT_CATEGORY_CHARS].rstrip()
+                                + "…"
+                            )
+                        bits.append(
+                            f"{lab} ({min(len(rows), 4)}/{len(rows)}): {body}"
+                        )
                 audit = "\n" + " | ".join(bits)
             score = (f"decode fidelity {e['fidelity']}/100" if e.get("fidelity") is not None
                      else f"no valid score ({e.get('judge_reason', 'invalid')})")
+            grader_loss = str(e.get("lost", ""))
+            if len(grader_loss) > MAX_TEST_GRADER_LOSS_CHARS:
+                grader_loss = (
+                    grader_loss[:MAX_TEST_GRADER_LOSS_CHARS].rstrip()
+                    + "…"
+                )
             out.append(
-                f"[turn {e['turn']} — LIVE TEST | payload: {e['payload']}]\n"
+                f"[turn {e['turn']} — AUTHORITATIVE LIVE TEST RECEIPT | "
+                f"payload: {e['payload']}]\n"
                 f"original {e['orig_tokens']} tokens -> encoded {e['enc_tokens']} tokens "
                 f"({e['token_delta_pct']:+d}%) | {score}\n"
-                f"encoded: {e['encoded']}\n"
-                f"fresh decoder returned: {render_decode(e['decoded'])}\n"
-                f"grader: {e['lost']}" + audit)
+                f"grader: {grader_loss}" + audit)
         else:
             out.append(
                 f"[turn {e['turn']} — NON-AUTHORITATIVE AGENT DISCUSSION] "
@@ -549,7 +565,7 @@ def assemble_legislative_prompt(
         f"=== ADOPTED LANGUAGE ===\n{render_language(rb)}\n\n"
         f"=== COMPLETE LEGISLATURE ===\n{render_legislature(rb)}\n\n"
         f"=== AUTHORITATIVE CURRENT MACHINE STATE AND RECEIPT ===\n"
-        f"{json.dumps(prompt_request, indent=2, ensure_ascii=False)}"
+        f"{json.dumps(prompt_request, ensure_ascii=False, separators=(',', ':'))}"
     )
     user = (
         "=== RECENT EVENT WINDOW ===\n"

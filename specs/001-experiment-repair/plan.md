@@ -108,6 +108,16 @@ from current state while retaining `COMPLETE LEGISLATURE`, and bound one eligibl
 lookup/research delivery with explicit truncation metadata. Reuse one pure prompt
 assembly helper; do not add an LLM summarizer, database, cache, or provider call.
 
+**Turn-1210 fail-closed repair**: The first live canary retained B and
+`rule-132` safely but again returned empty deliberation across three completed
+responses. Preserve the validator and provider routing. Follow OpenRouter's
+official structured-output guidance by describing the existing substantive
+constraint in the schema, render recent live tests as outcome receipts instead
+of duplicated encoded/decoded payloads, keep project lookup evidence on complete
+record boundaries, and use compact request JSON. No canonical artifact, model,
+retry count, cadence, credential, public surface, or approved cost ceiling
+changes.
+
 **Switch Trigger**: Reconsider Redis only if official availability/cost blocks
 deployment, atomic scripts cannot pass concurrency/restart tests, or sustained
 volume requires relational querying. None is true today.
@@ -159,6 +169,7 @@ canonical dedupe before collaboration UI work.
 | Conversation prompt/schema drift | Judge emits `requirement`/`verdict` while validator requires `id`/`pass` | Prompt states the exact 1-based integer-id/boolean-pass contract | Bind prompt contract to the validator seam | production-shaped Conversation integration test |
 | Prompt-only cleanup coverage | Two DeepSeek outputs omitted adopted source ids despite explicit lists; a later complete draft falsely had to retain operational/fractured sources to claim coverage | A returns schema-required per-source assignments plus cleaned groups or explicit reason-coded exclusions; code derives retained `source_ids` and `excluded_sources` | Retire free-form `rules[].source_ids` generation and silent omission | missing/extra assignment, exclusion mismatch, unknown/orphan/duplicate group tests |
 | Legislative model context | The 30-event window renders full receipts, current state repeats all 127 rule statuses already in `COMPLETE LEGISLATURE`, and a restored lookup can reinsert about 14k characters on every B retry | Deterministic compact receipt/current-state/research projections with one shared prompt assembler; canonical records remain full | Replace only transient model rendering and leave persistence/schema/state-machine authority intact | 127-rule/30-event/14k regression, hash/record equality, bounded exact-once redelivery, zero-web assertion |
+| Live test events and substantive field guidance | Canonical tests duplicate full encoded/decoded payloads in the legislative window; provider structured output completed but repeatedly left `deliberation` empty despite schema bounds | Prompt-only live-test outcome receipts plus an explicit schema-property description matching the unchanged local validator | Keep full test artifacts canonical; add description without changing validator, retries, model, or routing | sentinel omission/canonical-hash test, schema-description assertion, exact paused prompt rehearsal |
 
 **Boundary Result**: PASS for design; live retirement remains planned_stop until
 the corresponding approved production gate.
@@ -195,7 +206,8 @@ static/serverless web surface
 **Performance Goals**: Collaboration endpoints return within 2 seconds excluding
 provider calls; queue work is bounded to one research result and one eligible
 delivery per turn; the Phase 25 production-shaped legislative prompt is at
-least 30% smaller than its unprojected equivalent; no change to 15-minute
+least 30% smaller than its unprojected equivalent and the post-failure exact
+turn-1211 rehearsal is at most 70,000 characters; no change to 15-minute
 cadence; page remains usable at 375px
 
 **Constraints**: No new general framework, no competing canonical writer, no

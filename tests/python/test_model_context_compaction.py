@@ -12,7 +12,9 @@ from collaboration import (
     project_research_delivery_for_prompt,
     stable_record,
 )
+from project_lookup import PROJECT_FINDINGS_PREFIX
 from legislative_protocol import (
+    action_request_options,
     build_legislative_request,
     prompt_receipt_projection,
     prompt_request_projection,
@@ -262,6 +264,16 @@ class ProjectionUnitTests(unittest.TestCase):
         self.assertIn("unchanged_rule_ids", request.latest_receipt.model_dump())
         self.assertEqual(request.model_dump_json(), canonical_json)
 
+    def test_schema_describes_the_unchanged_substantive_deliberation_boundary(self):
+        schema = action_request_options("B", production_book())["response_format"][
+            "json_schema"
+        ]["schema"]
+        deliberation = schema["properties"]["deliberation"]
+
+        self.assertEqual(deliberation["minLength"], 12)
+        self.assertEqual(deliberation["pattern"], "[A-Za-z0-9]")
+        self.assertIn("never return an empty", deliberation["description"])
+
     def test_research_projection_is_bounded_deterministic_and_preserves_full_delivery(self):
         state = empty_state()
         row = answered_lookup()
@@ -363,6 +375,81 @@ class ProjectionUnitTests(unittest.TestCase):
         self.assertTrue(projected["findings"].startswith("Direct answer:"))
         self.assertTrue(projected["projection"]["truncated"])
 
+    def test_project_findings_projection_keeps_complete_evidence_records(self):
+        evidence = [
+            {
+                "source_id": f"source-{index}",
+                "title": f"Canonical source {index}",
+                "data": {"answer": f"complete answer {index}"},
+            }
+            for index in range(5)
+        ]
+        findings = PROJECT_FINDINGS_PREFIX + json.dumps(
+            evidence,
+            ensure_ascii=False,
+            separators=(",", ":"),
+        )
+        delivery = {
+            "kind": "RESEARCH",
+            "id": "lookup-complete-records",
+            "question": "Which canonical records answer the question?",
+            "findings": findings,
+            "limitations": [],
+            "citations": [],
+            "route": "project",
+        }
+
+        projected = project_research_delivery_for_prompt(delivery)
+        rendered_records, bounded_note = projected["findings"].split(
+            "\n[bounded projection:", 1
+        )
+        included = json.loads(rendered_records[len(PROJECT_FINDINGS_PREFIX):])
+
+        self.assertEqual(included, evidence[:2])
+        self.assertIn("2 of 5 evidence records included", bounded_note)
+        self.assertIn("3 omitted", bounded_note)
+        self.assertGreater(
+            projected["projection"]["findings_omitted_chars"],
+            0,
+        )
+
+    def test_oversized_project_record_never_becomes_partial_json(self):
+        evidence = [
+            {
+                "source_id": "oversized-source",
+                "data": {"answer": "x" * 5_000},
+            },
+            {"source_id": "small-source", "data": {"answer": "complete"}},
+        ]
+        findings = PROJECT_FINDINGS_PREFIX + json.dumps(
+            evidence,
+            ensure_ascii=False,
+            separators=(",", ":"),
+        )
+        delivery = {
+            "kind": "RESEARCH",
+            "id": "lookup-oversized-record",
+            "question": "Which complete evidence records fit?",
+            "findings": findings,
+            "limitations": [],
+            "citations": [],
+            "route": "project",
+        }
+
+        projected = project_research_delivery_for_prompt(delivery)
+        rendered_records, bounded_note = projected["findings"].split(
+            "\n[bounded projection:", 1
+        )
+        included = json.loads(rendered_records[len(PROJECT_FINDINGS_PREFIX):])
+
+        self.assertEqual(included, [])
+        self.assertIn("0 of 2 evidence records included", bounded_note)
+        self.assertIn("2 omitted", bounded_note)
+        self.assertLessEqual(
+            len(json.dumps(projected, ensure_ascii=False, separators=(",", ":"))),
+            MAX_RESEARCH_DELIVERY_JSON_CHARS,
+        )
+
     def test_projection_failure_cannot_consume_delivery(self):
         state = empty_state()
         row = answered_lookup()
@@ -381,6 +468,70 @@ class ProjectionUnitTests(unittest.TestCase):
 
 
 class ProductionShapedPromptTests(unittest.TestCase):
+    def test_live_test_projection_keeps_outcome_not_duplicate_payloads(self):
+        event = {
+            "turn": 1209,
+            "type": "test",
+            "agent": "harness",
+            "payload": "gen-prose-logistics",
+            "orig_tokens": 553,
+            "enc_tokens": 322,
+            "token_delta_pct": -42,
+            "fidelity": 76,
+            "judge_reason": "valid",
+            "lost": "one binding relationship was ambiguous",
+            "total": 4,
+            "survived": 3,
+            "corrupted": ["binding relationship"],
+            "missing": [],
+            "invented": [],
+            "encoded": "ENCODED_PAYLOAD_SENTINEL " * 200,
+            "decoded": "DECODED_PAYLOAD_SENTINEL " * 200,
+        }
+        event_hash = snapshot_hash(event)
+
+        rendered = loop.render_window([event])
+
+        self.assertIn("AUTHORITATIVE LIVE TEST RECEIPT", rendered)
+        self.assertIn("553 tokens -> encoded 322 tokens (-42%)", rendered)
+        self.assertIn("decode fidelity 76/100", rendered)
+        self.assertIn("binding relationship was ambiguous", rendered)
+        self.assertIn("corrupted (1/1): binding relationship", rendered)
+        self.assertNotIn("ENCODED_PAYLOAD_SENTINEL", rendered)
+        self.assertNotIn("DECODED_PAYLOAD_SENTINEL", rendered)
+        self.assertEqual(snapshot_hash(event), event_hash)
+
+    def test_live_test_audit_details_are_size_bounded(self):
+        event = {
+            "turn": 1209,
+            "type": "test",
+            "agent": "harness",
+            "payload": "gen-prose-logistics",
+            "orig_tokens": 553,
+            "enc_tokens": 322,
+            "token_delta_pct": -42,
+            "fidelity": 76,
+            "judge_reason": "valid",
+            "lost": "loss " * 30_000,
+            "total": 12,
+            "survived": 3,
+            "corrupted": ["corrupted " * 20_000],
+            "missing": ["missing " * 20_000],
+            "invented": ["invented " * 20_000],
+            "encoded": "ENCODED_PAYLOAD_SENTINEL " * 200,
+            "decoded": "DECODED_PAYLOAD_SENTINEL " * 200,
+        }
+        event_hash = snapshot_hash(event)
+
+        rendered = loop.render_window([event])
+
+        self.assertLess(len(rendered), 2_000)
+        for label in ("corrupted (1/1)", "missing (1/1)", "invented (1/1)"):
+            self.assertIn(label, rendered)
+        self.assertNotIn("ENCODED_PAYLOAD_SENTINEL", rendered)
+        self.assertNotIn("DECODED_PAYLOAD_SENTINEL", rendered)
+        self.assertEqual(snapshot_hash(event), event_hash)
+
     def test_127_rule_30_event_14k_lookup_prompt_is_materially_smaller_and_exact(self):
         book = production_book()
         events = production_window(book)

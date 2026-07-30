@@ -36,6 +36,8 @@ Each attempted legislative turn persists an authoritative post-state receipt con
 
 Persistence stays complete while model rendering is compact. The single prompt assembler keeps `COMPLETE LEGISLATURE` as the full rule/status view, then projects current state without its duplicate `rule_states` array. Recent and latest structured receipts retain turn, actor, result/reason, attempts, changed ids, open motion, adopted count/hash, rulebook version/hash, and next actor; duplicated attempted actions, unchanged ids, and the rulebook change counter remain in canonical JSON but not the model window. These are deterministic field projections, not semantic summaries, and they never replace the canonical Pydantic models or event records.
 
+Recent live-test events follow the same boundary: complete encoded and decoded artifacts remain persisted, while the legislative window carries the payload id, original/encoded token counts, delta, fidelity or invalid-score reason, grader loss, and bounded corrupted/missing/invented audit. The structured-response schema describes the existing substantive English requirement on `deliberation`; local minimum length, alphanumeric check, retry count, model, and provider routing remain unchanged.
+
 Only one add or repeal motion may remain open. A ratified repeal moves its adopted target out of the language while preserving its complete history; the repeal rationale never becomes language law. Wrong-role actions, malformed ids, duplicate live proposals, overflow proposals, and settled votes remain reason-coded state-machine rejections.
 
 ## Cost accounting
