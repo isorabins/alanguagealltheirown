@@ -578,16 +578,77 @@ class ProductionShapedPromptTests(unittest.TestCase):
         self.assertNotIn('"rule_states"', assembled["system"])
         self.assertNotIn('"attempted_action"', assembled["system"])
         self.assertNotIn('"unchanged_rule_ids"', assembled["system"])
+        self.assertTrue(
+            assembled["system"].startswith(
+                "=== MANDATORY PUBLIC OUTPUT CONTRACT ==="
+            )
+        )
         self.assertIn(
-            "public-facing summary of your conclusion, not private reasoning",
+            'beginning exactly "Public audit:"',
             assembled["user"],
         )
+        self.assertNotIn("RECENT EVENT WINDOW", assembled["user"])
+        self.assertNotIn("AUTHORITATIVE LIVE TEST RECEIPT", assembled["user"])
+        self.assertNotIn("NON-AUTHORITATIVE AGENT DISCUSSION", assembled["user"])
         schema = json.dumps(assembled["request_options"], sort_keys=True)
         self.assertIn("rule-132", schema)
         self.assertNotIn("rule-126", schema)
         self.assertEqual(
             assembled["canonical_request"].current_state.rule_states[-1].rule_id,
             "rule-132",
+        )
+
+    def test_legislative_output_contract_covers_a_and_b_without_open_motion(self):
+        book = production_book()
+        events = production_window(book)
+
+        assembled_a = loop.assemble_legislative_prompt(
+            events,
+            book,
+            turn=1214,
+            agent="A",
+            collaboration_input=None,
+        )
+        self.assertTrue(
+            assembled_a["system"].startswith(
+                "=== MANDATORY PUBLIC OUTPUT CONTRACT ==="
+            )
+        )
+        self.assertIn(
+            'beginning exactly "Public proposal:"',
+            assembled_a["user"],
+        )
+        self.assertIn(
+            '"deliberation":"Public proposal: the current idea needs one '
+            'focused revision."',
+            assembled_a["system"],
+        )
+        self.assertIn(
+            '"motion":{"kind":"REVISE","target_rule_id":"rule-132"',
+            assembled_a["system"],
+        )
+
+        book["rules"][-1]["status"] = "rejected"
+        assembled_b = loop.assemble_legislative_prompt(
+            events,
+            book,
+            turn=1215,
+            agent="B",
+            collaboration_input=None,
+        )
+        self.assertIn(
+            "Audit only the authoritative current state",
+            assembled_b["user"],
+        )
+        self.assertIn(
+            '"deliberation":"Public audit: the authoritative current state '
+            'needs a focused verification before adoption."',
+            assembled_b["system"],
+        )
+        self.assertIn('"motion":null', assembled_b["system"])
+        self.assertIn(
+            "Never put legacy prose such as `ADOPT: rule-NNN`",
+            assembled_b["system"],
         )
 
     def test_structural_failure_restores_full_state_and_redelivers_bounded_once(self):

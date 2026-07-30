@@ -559,21 +559,87 @@ def assemble_legislative_prompt(
         latest_receipt=latest_post_state_receipt(conv),
         collaboration_input=collaboration_input,
     )
+    open_motion = request.current_state.open_motion
+    target = (
+        open_motion.target_rule_id
+        if open_motion is not None
+        else "the authoritative current state"
+    )
+    audit_focus = (
+        f"open {target}"
+        if open_motion is not None
+        else target
+    )
+    public_stem = "Public audit:" if agent == "B" else "Public proposal:"
+    example_deliberation = (
+        f"Public audit: {target} needs a focused verification before adoption."
+        if agent == "B"
+        else "Public proposal: the current idea needs one focused revision."
+    )
+    if agent == "B":
+        example_motion = (
+            {
+                "kind": "REQUEST",
+                "target_rule_id": target,
+                "focus": "Verify one exact boundary before adoption.",
+            }
+            if open_motion is not None
+            else None
+        )
+    else:
+        example_motion = (
+            {
+                "kind": "REVISE",
+                "target_rule_id": target,
+                "text": "Preserve the idea with one exact boundary.",
+            }
+            if open_motion is not None
+            else {
+                "kind": "PROPOSE",
+                "text": "Use one exact marker for one repeated meaning.",
+            }
+        )
+    example = json.dumps(
+        {
+            "deliberation": example_deliberation,
+            "motion": example_motion,
+            "measurements": [],
+            "requests": [],
+        },
+        ensure_ascii=False,
+        separators=(",", ":"),
+    )
+    output_contract = (
+        "=== MANDATORY PUBLIC OUTPUT CONTRACT ===\n"
+        "`deliberation` is required public output, not private reasoning. It "
+        f"must be a complete sentence beginning exactly \"{public_stem}\". "
+        "Return the exact object key and value types required by the schema; "
+        "never substitute prose strings or differently named request fields. "
+        f"Valid non-operative shape example: {example}\n"
+        "Never return an empty, whitespace-only, or punctuation-only "
+        "`deliberation` value.\n\n"
+    )
     prompt_request = prompt_request_projection(request)
     system = (
-        f"{constitution}\n\n{role_prompt}\n\n"
+        f"{output_contract}{constitution}\n\n{role_prompt}\n\n"
         f"=== ADOPTED LANGUAGE ===\n{render_language(rb)}\n\n"
         f"=== COMPLETE LEGISLATURE ===\n{render_legislature(rb)}\n\n"
         f"=== AUTHORITATIVE CURRENT MACHINE STATE AND RECEIPT ===\n"
         f"{json.dumps(prompt_request, ensure_ascii=False, separators=(',', ':'))}"
     )
     user = (
-        "=== RECENT EVENT WINDOW ===\n"
-        + render_window(conv)
-        + f"\n\nIt is turn {turn}. You are Agent {agent}. "
-        "The required `deliberation` field is a concise public-facing summary "
-        "of your conclusion, not private reasoning; never leave it empty. "
-        "Return only the structured response required by the supplied schema."
+        f"It is turn {turn}. You are Agent B. Audit only {audit_focus} using "
+        "the complete legislature, authoritative current state, and "
+        "collaboration input above. Set `deliberation` to one public sentence "
+        "beginning exactly \"Public audit:\". Return only the required "
+        "structured response."
+        if agent == "B"
+        else (
+            f"It is turn {turn}. You are Agent A. Use the complete legislature, "
+            "authoritative current state, and collaboration input above. Set "
+            "`deliberation` to one public sentence beginning exactly "
+            "\"Public proposal:\". Return only the required structured response."
+        )
     )
     return {
         "system": system,

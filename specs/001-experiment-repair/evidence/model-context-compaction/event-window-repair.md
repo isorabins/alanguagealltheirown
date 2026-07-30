@@ -1,0 +1,132 @@
+# Legislative Event-Replay Removal
+
+Date: 2026-07-30 WITA
+Fixed point: `4da2d28287f3412a45c9195cb1dcdc9b89890b42`
+Approval baseline: OpenRouter key usage `$8.328790335`
+Approval: `$1` additional provider spend and up to three prompt-only
+review/PR/deploy/retry cycles
+State: **PAUSED / CYCLE 3 IN REVIEW**
+
+## Turn-1213 warning stop
+
+The deployed 68,180-character prompt still exhausted all three Kimi responses
+with `string_too_short at deliberation`. The authoritative receipt recorded
+`result=structural_failure`, `attempts=3`, no changed rule ids, open
+`rule-132`, and B retained as next actor. Exact provider cost was
+`$0.017273050`.
+
+The timer was paused before turn 1214. The rulebook hash remained
+`8bcd8c49d62581f30c5d0bf676451dbc44c6dd8af8fdbf1940b5bc115059fb45`.
+`lookup-1202-b` restored to `answered` with 11,248 findings characters, 10
+citations, no delivery turn, and zero canonical deliveries.
+
+## Production-shaped isolation
+
+Every row used the unchanged production Kimi model, provider routing, strict
+B/open-`rule-132` schema, validator, two retries configuration, and temperature.
+No diagnostic output was applied to state.
+
+| Prompt variant | Chars | Prompt tokens | Deliberation | Validation | Cost |
+|---|---:|---:|---:|---|---:|
+| Full prompt plus fixed public stem | 68,499 | 17,145 | 1 | FAIL | `$0.0129707500` |
+| Full system, no event window | 54,393 | 13,585 | 363 | PASS | `$0.0046028724` |
+| Fourteen test/measure/notice events | 57,567 | 13,722 | 1 | FAIL | `$0.0101059000` |
+| Latest test receipt only | 54,576 | 12,879 | 1 | FAIL | `$0.0091371400` |
+| No event replay + example, pass 1 | 54,585 | 13,622 | 281 | PASS | `$0.0046303580` |
+| No event replay + example, pass 2 | 54,585 | 13,622 | 323 | PASS | `$0.0043107648` |
+| No event replay + example, pass 3 | 54,585 | 13,622 | 274 | PASS | `$0.0044036256` |
+
+The first full-system/no-window pass isolated event replay as the differentiator.
+Reintroducing even one canonical test receipt reproduced the one-character
+failure. The final prompt passed three consecutive production-shaped calls at
+the unchanged sampling temperature.
+
+## Cycle-1 exact-replay stop
+
+The first request cryptographically bound to implementation commit `27410aa`
+used the expected 54,585-character prompt but failed local validation: Kimi
+returned `motion` as a prose string and used invalid `type`/`id`/`content`
+fields in a request object. The remaining two calls were stopped, the timer
+remained inactive, and no production state or repository changed.
+
+Immutable request fingerprint:
+
+- system SHA-256:
+  `c5747814153f9f99551e92aad7c04109586e08b97076b97968be9e1bbd80c329`;
+- user SHA-256:
+  `787212787499c76a125edc4804700d621dc67849261b965663abc3f6afd7310b`;
+- request-options SHA-256:
+  `9cd8b5e2122a89e9cdfd13c69cff8ec562668be00ae4abad38f21ddd662cfbf8`;
+- complete request-body SHA-256:
+  `d993f4917b86deb9ffef001d2e42d63b49fc50751b7691381bbb66d9f6dce8cb`.
+
+The diagnostic process stopped on validation before emitting its response id
+or returned cost. The immediately authenticated shared-key total remained
+`$8.424876299`, so no additional amount was observable at that checkpoint.
+Cycle 2 keeps schema and validation unchanged and adds a role/state-specific
+complete-object shape example to the leading prompt contract.
+
+## Cycle-2 exact-replay stop
+
+The first exact request at implementation commit `408b727` used a
+54,908-character prompt. OpenRouter response
+`gen-1785458651-xExN1RIIyixCeutMuTuF` cost `$0.009833100` and returned a
+schema-shaped object, but its `deliberation` value was the single letter `T`.
+Local validation stopped the cycle with `string_too_short at deliberation`;
+the remaining two calls were not made.
+
+Immutable request fingerprint:
+
+- system SHA-256:
+  `0f2b6e9485e90d070fc8c49f736b50666c8f660d6f1b77d2ce0282d89ea53ffd`;
+- user SHA-256:
+  `787212787499c76a125edc4804700d621dc67849261b965663abc3f6afd7310b`;
+- request-options SHA-256:
+  `9cd8b5e2122a89e9cdfd13c69cff8ec562668be00ae4abad38f21ddd662cfbf8`;
+- complete request-body SHA-256:
+  `218a47dc4eabb1e77e79fb8159f5a52c38b216301b068e5df49779f424608310`.
+
+The retained Agent B role prompt still described the superseded prose
+transport (`REQUEST-TEST: ...`, `MEASURE: ...`) while the constitution,
+schema, validator, and leading contract required typed objects. Cycle 3 removes
+that contradictory transport wording from Agent B's prompt and states the
+already-canonical object shapes; no schema, validator, protocol, model, routing,
+retry, temperature, or state behavior changes.
+
+## Cycle-1 decision
+
+The fresh legislative call will retain:
+
+- the shared constitution and role prompt;
+- adopted language and `COMPLETE LEGISLATURE`;
+- authoritative current state/latest receipt;
+- bounded collaboration input;
+- the unchanged state-specific schema and local validator.
+
+It will not replay prior canonical events. Those events remain byte-complete in
+canonical persistence and public history. A deterministic leading contract
+requires one public `Public audit:` sentence and provides one non-operative
+complete-object shape example.
+
+Named response receipts in this recovery envelope total `$0.0674344608`.
+Authenticated shared-key usage is `$0.0960859640` above the approval baseline,
+including `$0.0286515032` of concurrent/unattributed key usage. The conservative
+remaining allowance is therefore `$0.9039140360` before the `$1` ceiling. No
+model, routing, schema, validator, retry, temperature, cadence, credential, UI,
+DNS, X, rule, research, or canonical-event mutation occurred during diagnosis.
+
+## Offline implementation verification
+
+The exact paused-state turn-1214 rehearsal is 54,585 characters: 54,312 system
+and 273 user. It begins with the tested mandatory contract, contains the
+complete B/open-`rule-132` schema, complete legislature, authoritative state,
+and a 3,108-character bounded collaboration delivery, and contains no event
+replay. The full canonical lookup remains 11,248 findings characters while the
+model projection is 1,318.
+
+- focused protocol/compaction suite: 37 passed;
+- full Python: 130 passed;
+- JavaScript: 31 passed;
+- contract coverage: 115 requirements / 210 sequential tasks;
+- compile, whitespace, and canonical state/prompt/viewer/provider-boundary
+  preservation: PASS.
