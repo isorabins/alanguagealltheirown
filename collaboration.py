@@ -15,6 +15,13 @@ from state_store import atomic_write_json, load_json
 
 SCHEMA_VERSION = 1
 PUBLIC_STATUSES = {"awaiting_iso", "answered", "delivered", "approved", "dismissed", "acted", "no_action"}
+MAX_RESEARCH_DELIVERY_JSON_CHARS = 8_000
+MAX_RESEARCH_FINDINGS_CHARS = 3_000
+MAX_RESEARCH_LIMITATIONS_CHARS = 800
+MAX_RESEARCH_CITATIONS = 4
+MAX_RESEARCH_CITATION_CHARS = 1_800
+MAX_RESEARCH_CITATION_TITLE_CHARS = 120
+MAX_RESEARCH_CITATION_URL_CHARS = 450
 
 
 def empty_state() -> dict[str, Any]:
@@ -119,6 +126,151 @@ def reconcile(state_path: Path, records: list[dict[str, Any]]) -> dict[str, Any]
     return state
 
 
+def _bounded_prefix(value: Any, limit: int) -> str:
+    text = value if isinstance(value, str) else str(value or "")
+    return text[:limit].rstrip()
+
+
+def _text_value(value: Any) -> str:
+    return value if isinstance(value, str) else str(value or "")
+
+
+def _limitations_text(value: Any) -> str:
+    if isinstance(value, list):
+        return "\n".join(f"- {item}" for item in value)
+    if isinstance(value, str):
+        return value
+    return str(value or "")
+
+
+def _bounded_citations(
+    value: Any,
+) -> tuple[list[dict[str, str]], int, int, int]:
+    rows = value if isinstance(value, list) else []
+    included: list[dict[str, str]] = []
+    used_chars = 0
+    original_chars = 0
+    for row in rows:
+        if not isinstance(row, dict):
+            continue
+        url = row.get("url")
+        title_value = row.get("title", url)
+        original_chars += len(str(title_value or "")) + len(str(url or ""))
+        if len(included) >= MAX_RESEARCH_CITATIONS:
+            continue
+        if (
+            not isinstance(url, str)
+            or not url.lower().startswith(("https://", "http://"))
+            or len(url) > MAX_RESEARCH_CITATION_URL_CHARS
+        ):
+            continue
+        title = (
+            title_value if isinstance(title_value, str) else str(title_value)
+        )[:MAX_RESEARCH_CITATION_TITLE_CHARS].rstrip()
+        candidate_chars = len(title) + len(url)
+        if used_chars + candidate_chars > MAX_RESEARCH_CITATION_CHARS:
+            continue
+        included.append({"title": title or url, "url": url})
+        used_chars += candidate_chars
+    return included, len(rows), original_chars, used_chars
+
+
+def _length_metadata(name: str, original: str, included: str) -> dict[str, int]:
+    return {
+        f"{name}_original_chars": len(original),
+        f"{name}_included_chars": len(included),
+        f"{name}_omitted_chars": len(original) - len(included),
+    }
+
+
+def _rendered_json_chars(value: dict[str, Any]) -> int:
+    return len(json.dumps(value, ensure_ascii=False, separators=(",", ":")))
+
+
+def project_research_delivery_for_prompt(
+    delivery: dict[str, Any],
+) -> dict[str, Any]:
+    """Bound one research delivery without changing its canonical record."""
+    record_id = _text_value(delivery.get("id"))
+    question = _text_value(delivery.get("question"))
+    route = _text_value(delivery.get("route"))
+    findings_source = _text_value(delivery.get("findings"))
+    limitations_source = _limitations_text(delivery.get("limitations"))
+    findings = _bounded_prefix(
+        delivery.get("findings"), MAX_RESEARCH_FINDINGS_CHARS
+    )
+    limitations = _bounded_prefix(
+        limitations_source,
+        MAX_RESEARCH_LIMITATIONS_CHARS,
+    )
+    citations, citation_count, citation_chars, _ = (
+        _bounded_citations(delivery.get("citations"))
+    )
+
+    def build_projection() -> dict[str, Any]:
+        citation_included_chars = sum(
+            len(row["title"]) + len(row["url"]) for row in citations
+        )
+        size_metadata = {}
+        for name, original, included in (
+            ("id", record_id, record_id),
+            ("question", question, question),
+            ("route", route, route),
+            ("findings", findings_source, findings),
+            ("limitations", limitations_source, limitations),
+        ):
+            size_metadata.update(_length_metadata(name, original, included))
+        projection_metadata = {
+            "type": "bounded_research_delivery_v1",
+            **size_metadata,
+            "citations_original_count": citation_count,
+            "citations_included_count": len(citations),
+            "citations_omitted_count": citation_count - len(citations),
+            "citations_original_chars": citation_chars,
+            "citations_included_chars": citation_included_chars,
+            "citations_omitted_chars":
+                citation_chars - citation_included_chars,
+        }
+        projection_metadata["truncated"] = any(
+            projection_metadata[key] > 0
+            for key in projection_metadata
+            if key.endswith(("_omitted_chars", "_omitted_count"))
+        )
+        return {
+            "kind": "RESEARCH",
+            "id": record_id,
+            "question": question,
+            "findings": findings,
+            "limitations": limitations,
+            "citations": citations,
+            "route": route,
+            "projection": projection_metadata,
+        }
+
+    projection = build_projection()
+    while (
+        _rendered_json_chars(projection) > MAX_RESEARCH_DELIVERY_JSON_CHARS
+        and citations
+    ):
+        citations.pop()
+        projection = build_projection()
+    while (
+        _rendered_json_chars(projection) > MAX_RESEARCH_DELIVERY_JSON_CHARS
+        and limitations
+    ):
+        limitations = limitations[:-1].rstrip()
+        projection = build_projection()
+    while (
+        _rendered_json_chars(projection) > MAX_RESEARCH_DELIVERY_JSON_CHARS
+        and findings
+    ):
+        findings = findings[:-1].rstrip()
+        projection = build_projection()
+    if _rendered_json_chars(projection) > MAX_RESEARCH_DELIVERY_JSON_CHARS:
+        raise RuntimeError("bounded research delivery exceeded its fixed limit")
+    return projection
+
+
 def deliver_one(state: dict[str, Any], kind: str, agent: str, turn: int | None = None) -> dict[str, Any] | None:
     bucket = {"ASK": "asks", "SUGGESTION": "suggestions", "RESEARCH": "research"}[kind]
     eligible_status = {"ASK": "answered", "SUGGESTION": "approved", "RESEARCH": "answered"}[kind]
@@ -129,10 +281,6 @@ def deliver_one(state: dict[str, Any], kind: str, agent: str, turn: int | None =
         requester = record.get("requester", record.get("asker", agent))
         if record.get("status") not in statuses or requester != agent:
             continue
-        record["status"] = "delivered"
-        record["delivered_to"] = agent
-        if turn is not None:
-            record["delivery_turn"] = turn
         if kind == "ASK":
             payload = {"id": record["id"], "question": record["question"], "answer": record["answer"]}
         elif kind == "RESEARCH":
@@ -141,8 +289,18 @@ def deliver_one(state: dict[str, Any], kind: str, agent: str, turn: int | None =
                        "route": record.get("route")}
         else:
             payload = {"id": record["id"], "optional_suggestion": record["text"]}
-        state.setdefault("deliveries", []).append({"kind": kind, **payload})
-        return {"kind": kind, **payload}
+        canonical_delivery = {"kind": kind, **payload}
+        model_delivery = (
+            project_research_delivery_for_prompt(canonical_delivery)
+            if kind == "RESEARCH"
+            else canonical_delivery
+        )
+        record["status"] = "delivered"
+        record["delivered_to"] = agent
+        if turn is not None:
+            record["delivery_turn"] = turn
+        state.setdefault("deliveries", []).append(canonical_delivery)
+        return model_delivery
     return None
 
 

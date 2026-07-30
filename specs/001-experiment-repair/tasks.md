@@ -468,6 +468,7 @@ made live.
 | FR-056 | T168–T174 |
 | FR-057, FR-058, FR-059, FR-060, FR-061 | T177–T185 |
 | FR-062, FR-063, FR-064, FR-065, FR-066, FR-067, FR-068 | T186–T194 |
+| FR-069, FR-070, FR-071, FR-072, FR-073, FR-074 | T195–T202 |
 | SC-001, SC-002, SC-003, SC-004, SC-005 | T014–T043, T130 |
 | SC-006, SC-007, SC-008, SC-009, SC-010 | T044–T087, T122, T131–T132 |
 | SC-011, SC-012, SC-013, SC-014, SC-015 | T024, T088–T100, T132–T137 |
@@ -477,6 +478,7 @@ made live.
 | SC-024 | T168, T171–T176 |
 | SC-025, SC-026, SC-027, SC-028 | T177–T185 |
 | SC-029, SC-030, SC-031, SC-032, SC-033, SC-034 | T186–T194 |
+| SC-035, SC-036 | T195–T202 |
 
 ## Implementation Strategy
 
@@ -488,7 +490,7 @@ the serialized live gates.
 
 ## Format Validation
 
-All 194 tasks use the required checkbox, sequential task id, optional `[P]`,
+All 202 tasks use the required checkbox, sequential task id, optional `[P]`,
 story label only in story phases, and an explicit file or evidence path.
 
 ## Phase 21: Convergence
@@ -560,3 +562,24 @@ private experiment's application spend counter reflect provider-charged cost.
 structured turns whose receipts, canonical hashes, actual cost, service state,
 and repositories agree. No public UI or human-app testing is required because
 the changed surface is the private legislative transport.
+
+---
+
+## Phase 25: Deterministic Model-Context Compaction
+
+**Goal**: Remove deterministic duplication from the transient A/B model prompt
+without compressing, rewriting, or weakening any canonical state, history,
+research, schema, validator, role, or cadence boundary.
+
+- [X] T195 Record the manager-supplied turn-1210 rehearsal, fixed point, canonical hashes, complete runway/exclusions, deterministic architecture decision, and offline/live ownership boundary in `specs/001-experiment-repair/spec.md`, `plan.md`, `tasks.md`, and `evidence/model-context-compaction/preflight.md` (FR-069–074; SC-035–036)
+- [X] T196 [P] Add failing production-shaped tests for 127 rules, 30 events, an approximately 14k lookup, compact receipt/current-state fields, B/open-`rule-132` schema, materially smaller prompt, canonical hash/record equality, bounded redelivery, and zero web requests in `tests/python/test_model_context_compaction.py` and focused existing suites (FR-069–074; SC-035–036)
+- [X] T197 Implement explicit prompt-only current-state and receipt projections in `legislative_protocol.py` while leaving canonical Pydantic models and persisted receipt JSON unchanged (FR-069–071)
+- [X] T198 Implement deterministic bounded lookup/research delivery projection and exact truncation metadata in `collaboration.py`, preserving the full canonical research row and prior delivery record plus structural restoration semantics (FR-072–073)
+- [X] T199 Integrate one reusable legislative prompt assembly helper into `loop.py`, use compact receipts in the 30-event model window, retain `COMPLETE LEGISLATURE`, and leave substantive deliberation validation and provider schema/call behavior unchanged (FR-070–074)
+- [X] T200 Update `README.md` and `MECHANICS.md` to describe the prompt-only projection, canonical/full-record boundary, bounded delivery metadata, and exact-once failure restoration without changing public/UI claims (FR-069–074)
+- [X] T201 Run focused/full Python, full JavaScript, contract coverage, compile, diff, canonical-state, no-web/no-model/no-validator-weakening, and scoped search checks; record exact results in `evidence/model-context-compaction/offline-verification.md` (SC-035–036)
+- [ ] T202 STOP for manager-owned fixed-point review, commit/push/PR/merge, VPS sync, normal-cadence resume, at-most-`$0.10` live validation, and the next natural B/open-`rule-132` receipt under the existing exact approval envelope. The offline worker MUST NOT access/mutate production, call a provider/web service, commit, push, merge, open a PR, resume the timer, or alter canonical state/history, models, cadence, credentials, limits, UI, DNS, or X.
+
+**Checkpoint**: Offline PASS requires the production-shaped prompt and replay
+oracles plus canonical preservation. Live PASS remains T202 and belongs to the
+manager.

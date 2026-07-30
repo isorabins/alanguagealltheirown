@@ -30,6 +30,8 @@ from legislative_protocol import (
     build_cutover_receipt,
     build_legislative_request,
     build_post_state_receipt,
+    prompt_receipt_projection,
+    prompt_request_projection,
     validate_action,
     validation_reason,
 )
@@ -366,7 +368,11 @@ def render_window(conv):
             receipt = e.get("state_receipt") or {}
             out.append(
                 f"[turn {e['turn']} — AUTHORITATIVE PROTOCOL CUTOVER RECEIPT]\n"
-                + json.dumps(receipt, sort_keys=True, ensure_ascii=False)
+                + json.dumps(
+                    prompt_receipt_projection(receipt),
+                    sort_keys=True,
+                    ensure_ascii=False,
+                )
             )
             continue
         if e["type"] == "measure":
@@ -380,7 +386,11 @@ def render_window(conv):
             if isinstance(post_state, dict):
                 out.append(
                     f"[turn {e['turn']} — AUTHORITATIVE POST-STATE RECEIPT]\n"
-                    + json.dumps(post_state, sort_keys=True, ensure_ascii=False)
+                    + json.dumps(
+                        prompt_receipt_projection(post_state),
+                        sort_keys=True,
+                        ensure_ascii=False,
+                    )
                 )
                 continue
             receipt = e.get("motion_receipt") or {}
@@ -513,15 +523,17 @@ def ensure_structured_protocol_cutover(conv, rb, meta, *, activation_turn):
     return receipt
 
 
-def agent_turn(conv, rb, meta, collaboration, turn):
-    agent = next_legislative_actor(meta)
-    model = MODEL_A if agent == "A" else MODEL_B
-    prompt = (ROOT / "prompts" / f"agent_{agent.lower()}.md").read_text()
+def assemble_legislative_prompt(
+    conv,
+    rb,
+    *,
+    turn,
+    agent,
+    collaboration_input,
+):
+    """Assemble the one deterministic model-facing legislative projection."""
+    role_prompt = (ROOT / "prompts" / f"agent_{agent.lower()}.md").read_text()
     constitution = (ROOT / "prompts" / "constitution.md").read_text()
-    collaboration_before_delivery = copy.deepcopy(collaboration)
-    delivery = (deliver_one(collaboration, "RESEARCH", agent, turn) or
-                deliver_one(collaboration, "ASK", agent, turn) or
-                deliver_one(collaboration, "SUGGESTION", agent, turn))
     next_test = ((turn // TEST_EVERY) + 1) * TEST_EVERY
     request = build_legislative_request(
         role=agent,
@@ -529,22 +541,49 @@ def agent_turn(conv, rb, meta, collaboration, turn):
         next_live_test_turn=next_test,
         rulebook=rb,
         latest_receipt=latest_post_state_receipt(conv),
-        collaboration_input=delivery,
+        collaboration_input=collaboration_input,
     )
+    prompt_request = prompt_request_projection(request)
     system = (
-        f"{constitution}\n\n{prompt}\n\n"
+        f"{constitution}\n\n{role_prompt}\n\n"
         f"=== ADOPTED LANGUAGE ===\n{render_language(rb)}\n\n"
         f"=== COMPLETE LEGISLATURE ===\n{render_legislature(rb)}\n\n"
         f"=== AUTHORITATIVE CURRENT MACHINE STATE AND RECEIPT ===\n"
-        f"{request.model_dump_json(indent=2)}"
+        f"{json.dumps(prompt_request, indent=2, ensure_ascii=False)}"
     )
-    base_user = (
+    user = (
         "=== RECENT EVENT WINDOW ===\n"
         + render_window(conv)
         + f"\n\nIt is turn {turn}. You are Agent {agent}. "
         "Return only the structured response required by the supplied schema."
     )
-    request_options = action_request_options(agent, rb)
+    return {
+        "system": system,
+        "user": user,
+        "request_options": action_request_options(agent, rb),
+        "canonical_request": request,
+        "prompt_request": prompt_request,
+        "total_chars": len(system) + len(user),
+    }
+
+
+def agent_turn(conv, rb, meta, collaboration, turn):
+    agent = next_legislative_actor(meta)
+    model = MODEL_A if agent == "A" else MODEL_B
+    collaboration_before_delivery = copy.deepcopy(collaboration)
+    delivery = (deliver_one(collaboration, "RESEARCH", agent, turn) or
+                deliver_one(collaboration, "ASK", agent, turn) or
+                deliver_one(collaboration, "SUGGESTION", agent, turn))
+    assembled = assemble_legislative_prompt(
+        conv,
+        rb,
+        turn=turn,
+        agent=agent,
+        collaboration_input=delivery,
+    )
+    system = assembled["system"]
+    base_user = assembled["user"]
+    request_options = assembled["request_options"]
     structured_action = None
     usage = {}
     last_structural_reason = "unknown structural validation error"

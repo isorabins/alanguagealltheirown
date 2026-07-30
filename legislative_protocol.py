@@ -337,6 +337,55 @@ def canonical_legislative_state(
     )
 
 
+def prompt_receipt_projection(
+    receipt: PostStateReceipt | dict[str, Any],
+) -> dict[str, Any]:
+    """Project a complete canonical receipt into its non-duplicative prompt view."""
+    payload = (
+        receipt.model_dump(mode="json")
+        if isinstance(receipt, PostStateReceipt)
+        else receipt
+    )
+    return {
+        key: payload.get(key)
+        for key in (
+            "turn",
+            "actor",
+            "result",
+            "reason",
+            "attempts",
+            "changed_rule_ids",
+            "current_open_motion",
+            "adopted_count",
+            "adopted_language_hash",
+            "rulebook_version",
+            "rulebook_hash",
+            "next_actor",
+        )
+    }
+
+
+def prompt_request_projection(request: LegislativeRequest) -> dict[str, Any]:
+    """Return the ephemeral model request while keeping the canonical model whole."""
+    current_state = request.current_state.model_dump(
+        mode="json", exclude={"rule_states"}
+    )
+    return {
+        "authoritative": request.authoritative,
+        "protocol_version": request.protocol_version,
+        "turn": request.turn,
+        "acting_role": request.acting_role,
+        "next_live_test_turn": request.next_live_test_turn,
+        "current_state": current_state,
+        "latest_receipt": (
+            prompt_receipt_projection(request.latest_receipt)
+            if request.latest_receipt is not None
+            else None
+        ),
+        "collaboration_input": request.collaboration_input,
+    }
+
+
 def _recorded_action(
     action: BaseModel | dict[str, Any] | None
 ) -> RecordedLegislativeAction | None:

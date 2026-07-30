@@ -101,6 +101,13 @@ the existing web-search tool. A separate hash-bound state migration terminalizes
 legacy open motions without sharing the semantic-cleanup path that replaces
 adopted language.
 
+**2026-07-30 Model-Context Compaction Decision**: Keep every canonical model,
+JSON record, event, and receipt complete. Project only the transient legislative
+model request: compact post-state receipts, omit the duplicate rule-status list
+from current state while retaining `COMPLETE LEGISLATURE`, and bound one eligible
+lookup/research delivery with explicit truncation metadata. Reuse one pure prompt
+assembly helper; do not add an LLM summarizer, database, cache, or provider call.
+
 **Switch Trigger**: Reconsider Redis only if official availability/cost blocks
 deployment, atomic scripts cannot pass concurrency/restart tests, or sustained
 volume requires relational querying. None is true today.
@@ -151,6 +158,7 @@ canonical dedupe before collaboration UI work.
 | Internal questions sent to web | Project-state questions receive irrelevant external citations | `LOOKUP` and detected internal `RESEARCH` read bounded canonical corpus evidence; misses become `ASK Iso` | Add deterministic router/corpus reader and remove web fallback | known-question route, zero-web, and correlated-ASK tests |
 | Conversation prompt/schema drift | Judge emits `requirement`/`verdict` while validator requires `id`/`pass` | Prompt states the exact 1-based integer-id/boolean-pass contract | Bind prompt contract to the validator seam | production-shaped Conversation integration test |
 | Prompt-only cleanup coverage | Two DeepSeek outputs omitted adopted source ids despite explicit lists; a later complete draft falsely had to retain operational/fractured sources to claim coverage | A returns schema-required per-source assignments plus cleaned groups or explicit reason-coded exclusions; code derives retained `source_ids` and `excluded_sources` | Retire free-form `rules[].source_ids` generation and silent omission | missing/extra assignment, exclusion mismatch, unknown/orphan/duplicate group tests |
+| Legislative model context | The 30-event window renders full receipts, current state repeats all 127 rule statuses already in `COMPLETE LEGISLATURE`, and a restored lookup can reinsert about 14k characters on every B retry | Deterministic compact receipt/current-state/research projections with one shared prompt assembler; canonical records remain full | Replace only transient model rendering and leave persistence/schema/state-machine authority intact | 127-rule/30-event/14k regression, hash/record equality, bounded exact-once redelivery, zero-web assertion |
 
 **Boundary Result**: PASS for design; live retirement remains planned_stop until
 the corresponding approved production gate.
@@ -186,7 +194,9 @@ static/serverless web surface
 
 **Performance Goals**: Collaboration endpoints return within 2 seconds excluding
 provider calls; queue work is bounded to one research result and one eligible
-delivery per turn; no change to 15-minute cadence; page remains usable at 375px
+delivery per turn; the Phase 25 production-shaped legislative prompt is at
+least 30% smaller than its unprojected equivalent; no change to 15-minute
+cadence; page remains usable at 375px
 
 **Constraints**: No new general framework, no competing canonical writer, no
 production state in tests, no uncapped public inference, no more than three X
@@ -240,6 +250,7 @@ dependencies are planned stops, not assumed access.
 | G14 Launch-first core activation | Under the exact 2026-07-24 approval, preserve the existing rulebook, configure the proven collaboration/human/public-inference dependencies, keep X disabled, sync the paused VPS to reviewed `main`, deploy from `viewer/`, resume, and observe one turn | Public surfaces respond, the repaired runtime advances beyond turn 650, the timer remains healthy, and no cleanup candidate is applied | launch-first preflight, credential metadata, deployment receipt, turn/state/service receipts | credential/cap mismatch, canonical hash drift before resume, wrong deploy root, provider/service/invariant warning | restore prior Vercel deployment, disable new Production targets if needed, re-pause timer, retain turn-650 snapshot |
 | G15 Backlog repair | After one exact approval, pause the timer, verify source/commit hashes, merge the reviewed repair, apply only the legacy-motion bundle, resolve the duplicate human-review questions with the verified diagnostic, resume, and observe the next eligible lookup/legislative/Conversation seams | 23 adopted records and language hash are unchanged; zero legacy open motions remain; internal questions never use web; new Conversation judgments validate | migration bundle/diff, git/runtime/state receipts, collaboration receipts, bounded turn evidence | any source/adopted/hash drift, pending repeal, wrong route, invalid judgment, or service warning | keep timer paused; restore exact pre-apply rulebook and prior runtime commit |
 | G16 Structured legislative protocol | Under one exact approval, implement and review the typed envelope/cost repair from paused turn 1165, merge through a PR, sync the clean VPS, preserve canonical state, resume, and observe the natural B/test/A sequence | New turns use state-specific schemas and complete receipts; rule-129 is addressed only by B; cost uses `usage.cost`; old history is untouched; service and repository remain clean | offline replay suite, code-review receipt, PR/merge/VPS hashes, canonical state plus local cost-ledger presence/hash snapshot, cutover/state/cost receipts, turns 1166–1168, timer/service readbacks | any schema/provider incompatibility, unauthorized rule delta, receipt/hash mismatch, structural retry exhaustion, cost uncertainty, dirty repo, service/queue warning | pause timer and preserve canonical state plus the cost ledger; same-cutover repair/redeploy retains the ledger; before reverting to `5d44005`, archive/move the ledger outside the live worktree so old code cannot track it; restore the pre-turn canonical snapshot only for an invalid state mutation |
+| G17 Deterministic model-context compaction | Under the exact 2026-07-30 approval, implement/review prompt-only projections from paused canonical turn 1209, publish through the normal PR path, sync the preserved VPS, resume normal cadence, and observe the next natural B legislative turn | B receives one open-`rule-132` schema through materially smaller context; canonical rule/event/research hashes and full records remain unchanged except for valid autonomous governance/lifecycle fields; restored lookup redelivery remains bounded; incremental provider cost is at most `$0.10` | turn-1210 rehearsal, production-shaped offline regression, fixed-point review, PR/merge/VPS hashes, canonical snapshots, prompt-size receipt, B structured action/receipt, provider/service readbacks | prompt is not at least 30% smaller in the fixture, any full canonical record changes from projection, wrong B/open target schema, unbounded redelivery, web request, structural-validator weakening, unauthorized state delta, cost/service/repository warning | keep timer paused; retain the manager's canonical and cost-ledger snapshots; revert only the reviewed code through the normal release path and never rewrite valid autonomous governance |
 
 ## Explicit Planned Stops and Approval Text
 
