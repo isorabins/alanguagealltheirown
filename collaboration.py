@@ -126,9 +126,9 @@ def reconcile(state_path: Path, records: list[dict[str, Any]]) -> dict[str, Any]
     return state
 
 
-def _bounded_prefix(value: Any, limit: int) -> tuple[str, int]:
+def _bounded_prefix(value: Any, limit: int) -> str:
     text = value if isinstance(value, str) else str(value or "")
-    return text[:limit].rstrip(), len(text)
+    return text[:limit].rstrip()
 
 
 def _text_value(value: Any) -> str:
@@ -196,10 +196,10 @@ def project_research_delivery_for_prompt(
     route = _text_value(delivery.get("route"))
     findings_source = _text_value(delivery.get("findings"))
     limitations_source = _limitations_text(delivery.get("limitations"))
-    findings, _ = _bounded_prefix(
+    findings = _bounded_prefix(
         delivery.get("findings"), MAX_RESEARCH_FINDINGS_CHARS
     )
-    limitations, _ = _bounded_prefix(
+    limitations = _bounded_prefix(
         limitations_source,
         MAX_RESEARCH_LIMITATIONS_CHARS,
     )
