@@ -39,8 +39,9 @@ Build only ephemeral projections:
 
 1. compact model-window receipts without attempted actions or unchanged ids;
 2. current state without the duplicate 127-item rule-status list;
-3. a bounded lookup/research delivery with direct-prefix findings, safe bounded
-   citations, and explicit truncation counts;
+3. a bounded lookup/research delivery with exact correlation fields,
+   direct-prefix findings, safe bounded citations, and explicit truncation
+   counts;
 4. one pure prompt assembler shared by runtime and tests.
 
 An LLM summarizer, database, cache, semantic rule compression, provider change,

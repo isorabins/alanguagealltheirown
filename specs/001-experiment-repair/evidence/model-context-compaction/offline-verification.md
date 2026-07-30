@@ -20,12 +20,15 @@ Result: **PASS offline**
   models, limits, and the substantive-deliberation validator are unchanged.
 - A lookup/research delivery is deterministically bounded to 3,000 findings
   characters, 800 limitations characters, four safe HTTP citations within a
-  fixed character budget, bounded correlation fields, and explicit
-  original/included/omitted counts. The full canonical row and delivery record
-  remain intact.
+  fixed character budget, exact original correlation fields, and explicit
+  original/included/omitted counts. The projection trims escaped content
+  further when needed to remain within 8,000 serialized characters. The full
+  canonical row and delivery record remain intact.
 - Structural exhaustion still restores the complete pre-delivery collaboration
   state and retains the same actor. The later eligible attempt records one
   canonical delivery and regenerates the same bounded model projection.
+- Projection is completed before any lifecycle mutation. A projection failure
+  leaves the eligible row and canonical delivery log byte-for-byte unchanged.
 
 No model, provider, web, VPS, service, production, or external application was
 called by this implementation or its acceptance regression.
@@ -41,11 +44,13 @@ Ran 1 test
 FAILED (errors=1)
 ```
 
-After implementation, the dedicated file passes all four behavioral claims:
+After implementation and fixed-point review remediation, the dedicated file
+passes all seven behavioral claims, including exact correlation identity,
+hostile JSON escaping, and fail-before-mutation rollback:
 
 ```text
 python3 -m unittest -v tests.python.test_model_context_compaction
-Ran 4 tests in 0.031s
+Ran 7 tests
 OK
 ```
 
@@ -105,7 +110,7 @@ python3 -m unittest -v \
   tests.python.test_research_lifecycle \
   tests.python.test_legislative_protocol
 
-Ran 51 tests
+Ran 54 tests
 OK
 ```
 
@@ -113,7 +118,7 @@ Full Python:
 
 ```text
 python3 -m unittest discover -s tests/python -p 'test_*.py'
-Ran 121 tests
+Ran 124 tests
 OK
 ```
 
@@ -150,7 +155,9 @@ an alphanumeric character, models remain DeepSeek v3.2/Kimi K2.6,
 
 ## Remaining gate
 
-T202 is intentionally open. This worktree is uncommitted and unpushed as
-required by the manager delegation. Fixed-point review, commit/push/PR/merge,
-VPS sync, normal-cadence resume, at-most-`$0.10` provider validation, and the
-natural B/open-`rule-132` receipt remain manager-owned and unverified here.
+T202 is intentionally open. The first offline implementation checkpoint was
+committed as `3773732074e469735ce2adab9bdfb2a619bdfeed`; fixed-point findings,
+their remediation, and current commit/push/PR state are recorded in the
+manager-owned review-and-release evidence. VPS sync, normal-cadence resume,
+at-most-`$0.10` provider validation, and the natural B/open-`rule-132` receipt
+remain manager-owned and unverified here.

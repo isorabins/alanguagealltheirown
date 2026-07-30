@@ -3,6 +3,7 @@ import json
 import unittest
 from unittest import mock
 
+import collaboration
 import loop
 from collaboration import (
     MAX_RESEARCH_DELIVERY_JSON_CHARS,
@@ -315,6 +316,68 @@ class ProjectionUnitTests(unittest.TestCase):
         self.assertEqual(state["research"][0]["citations"], original["citations"])
         self.assertEqual(state["deliveries"][0]["findings"], original["findings"])
         self.assertEqual(state["deliveries"][0]["citations"], original["citations"])
+
+    def test_projection_preserves_exact_correlation_fields(self):
+        delivery = {
+            "kind": "RESEARCH",
+            "id": "lookup-" + ("correlation-" * 20),
+            "question": "Which exact source applies? " + ("context " * 100),
+            "findings": "Direct answer.",
+            "limitations": [],
+            "citations": [],
+            "route": "project-corpus-authoritative",
+        }
+
+        projected = project_research_delivery_for_prompt(delivery)
+
+        for field in ("id", "question", "route"):
+            self.assertEqual(projected[field], delivery[field])
+            self.assertEqual(
+                projected["projection"][f"{field}_omitted_chars"],
+                0,
+            )
+
+    def test_quote_heavy_projection_fits_serialized_cap(self):
+        delivery = {
+            "kind": "RESEARCH",
+            "id": "lookup-hostile-escaping",
+            "question": 'What does the quoted "\\\\" evidence establish?',
+            "findings": ('Direct answer: "\\\\quoted". ' * 500),
+            "limitations": ['"\\\\' * 500],
+            "citations": [
+                {
+                    "title": '"\\\\' * 60,
+                    "url": f"https://example.test/{index}/" + ("%22" * 100),
+                }
+                for index in range(10)
+            ],
+            "route": "project",
+        }
+
+        projected = project_research_delivery_for_prompt(delivery)
+
+        self.assertLessEqual(
+            len(json.dumps(projected, ensure_ascii=False, separators=(",", ":"))),
+            MAX_RESEARCH_DELIVERY_JSON_CHARS,
+        )
+        self.assertTrue(projected["findings"].startswith("Direct answer:"))
+        self.assertTrue(projected["projection"]["truncated"])
+
+    def test_projection_failure_cannot_consume_delivery(self):
+        state = empty_state()
+        row = answered_lookup()
+        state["research"].append(row)
+        before = copy.deepcopy(state)
+
+        with mock.patch.object(
+            collaboration,
+            "project_research_delivery_for_prompt",
+            side_effect=RuntimeError("projection failed"),
+        ):
+            with self.assertRaisesRegex(RuntimeError, "projection failed"):
+                collaboration.deliver_one(state, "RESEARCH", "B", 1210)
+
+        self.assertEqual(state, before)
 
 
 class ProductionShapedPromptTests(unittest.TestCase):
