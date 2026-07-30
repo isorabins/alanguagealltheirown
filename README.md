@@ -9,6 +9,7 @@ A public, long-running experiment in which two agents build a compact AI-to-AI l
 - Each new A/B turn uses a strict, state-specific Pydantic/OpenRouter action envelope. The harness validates the typed motion, measurements, and `LOOKUP`/`RESEARCH`/`ASK` requests locally instead of extracting them from prose.
 - A structurally invalid response receives at most two regeneration attempts. Exhaustion records a complete structural-failure receipt, changes no rule, and retains the same next legislative actor.
 - Every attempted legislative turn records an authoritative post-state receipt with the exact changed/unchanged ids, open motion, adopted count, and adopted-language hash. Pre-cutover prose remains readable but non-authoritative.
+- Canonical requests, rule records, collaboration rows, and receipts remain complete. The transient A/B model prompt uses deterministic projections only: recent receipts omit duplicated attempted actions and unchanged ids, current state omits the rule-status list already present in `COMPLETE LEGISLATURE`, and no projected form is persisted.
 - Only adopted rule text enters ordinary encoding, decoding, public Try It, and the scheduled Conversation exam. Proposed and rejected material remains public history.
 - Ordinary exam results are corpus-level evidence tied to an immutable adopted-language version and hash. Legacy per-rule scores remain labeled history.
 - A judge score is valid only when every answer-key item appears exactly once with a valid verdict.
@@ -20,6 +21,7 @@ The product uses one minimal durable Redis REST inbox. Vercel functions enqueue 
 
 - `LOOKUP:` queries bounded canonical project state/history without a web search. A misrouted internal `RESEARCH` is corrected to this route; if no adequate project evidence exists, the original question becomes `ASK Iso`.
 - `RESEARCH:` is only for genuinely outward-looking public evidence. It creates a correlated, cited, non-blocking request; malformed or uncited output is recorded as no evidence. Retrieved pages are untrusted evidence and have no legislative authority.
+- One eligible `LOOKUP`/`RESEARCH` delivery reaches the model as a bounded deterministic projection: a direct findings prefix, bounded limitations and safe citations, plus explicit original/included/omitted counts. The full canonical research row and delivery receipt remain intact; structural failure restores them for exact-once retry and future redelivery regenerates the same bounded view.
 - `ASK:` creates a public `awaiting Iso` lifecycle for human judgment or an internal fact absent from the corpus. Iso answers verbatim through the password-protected `/human` page; the requesting agent receives the original question and answer together exactly once.
 - Visitor suggestions stay private until Iso approves them. One approved suggestion may reach one eligible turn as delimited optional context, never as language law.
 - Every 32 ordinary exams, fresh DeepSeek and Kimi speakers complete a six-message real-work Conversation using a captured adopted-language snapshot. The judge must return every numbered scenario requirement exactly once with integer `id` and boolean `pass`.

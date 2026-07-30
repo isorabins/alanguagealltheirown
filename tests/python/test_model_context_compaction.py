@@ -1,0 +1,430 @@
+import copy
+import json
+import unittest
+from unittest import mock
+
+import loop
+from collaboration import (
+    MAX_RESEARCH_DELIVERY_JSON_CHARS,
+    deliver_one,
+    empty_state,
+    project_research_delivery_for_prompt,
+    stable_record,
+)
+from legislative_protocol import (
+    build_legislative_request,
+    prompt_receipt_projection,
+    prompt_request_projection,
+)
+from rulebook import language_payload, render_language, render_legislature
+from state_store import snapshot_hash
+
+
+def production_book():
+    rules = []
+    for index in range(1, 127):
+        status = "adopted" if index <= 23 else (
+            "rejected" if index % 4 == 0 else "historical"
+        )
+        rules.append(
+            {
+                "id": f"rule-{index:03d}",
+                "text_en": (
+                    f"Rule {index:03d} preserves one explicit language boundary. "
+                    + ("Deterministic historical context remains inspectable. " * 4)
+                ),
+                "status": status,
+                "history": [
+                    {
+                        "verb": status,
+                        "turn": 1000 + index,
+                        "agent": "A" if index % 2 else "B",
+                    }
+                ],
+            }
+        )
+    rules.append(
+        {
+            "id": "rule-132",
+            "text_en": (
+                "Use one focused boundary marker only after both agents define "
+                "the exact scope it replaces."
+            ),
+            "status": "proposed",
+            "proposed_turn": 1204,
+            "history": [{"verb": "proposed", "turn": 1204, "agent": "A"}],
+        }
+    )
+    return {
+        "version": "0.132",
+        "changes": 132,
+        "next_id": 133,
+        "rules": rules,
+    }
+
+
+def full_receipt(book, turn, actor):
+    language = language_payload(book)
+    return {
+        "authoritative": True,
+        "protocol_version": "structured-legislature-v1",
+        "turn": turn,
+        "actor": actor,
+        "attempted_action": {
+            "deliberation": (
+                "The motion remains open while the auditor checks a focused "
+                "boundary. " * 10
+            ),
+            "motion": {
+                "kind": "REQUEST",
+                "target_rule_id": "rule-132",
+                "focus": "Test the exact boundary against one hostile transfer.",
+            },
+            "measurements": [],
+            "requests": [],
+        },
+        "result": "accepted",
+        "reason": "focused_work_requested",
+        "attempts": 1,
+        "changed_rule_ids": [],
+        "unchanged_rule_ids": [rule["id"] for rule in book["rules"]],
+        "current_open_motion": {
+            "kind": "add",
+            "target_rule_id": "rule-132",
+            "proposed_turn": 1204,
+        },
+        "adopted_count": len(language["rules"]),
+        "adopted_language_hash": language["hash"],
+        "rulebook_version": book["version"],
+        "rulebook_changes": book["changes"],
+        "rulebook_hash": snapshot_hash(book),
+        "next_actor": "B",
+    }
+
+
+def production_window(book):
+    events = []
+    for index in range(15):
+        turn = 1180 + index * 2
+        events.append(
+            {
+                "turn": turn,
+                "agent": "A",
+                "type": "message",
+                "content": (
+                    "I am restating the same attempted action in agent prose while "
+                    "the canonical machine receipt remains authoritative. " * 8
+                ),
+            }
+        )
+        events.append(
+            {
+                "turn": turn,
+                "agent": "harness",
+                "type": "legislature",
+                "post_state_receipt": full_receipt(book, turn, "A"),
+            }
+        )
+    return events
+
+
+def answered_lookup():
+    findings = (
+        "Direct answer: rule-132 is the one open add motion and Agent B must "
+        "settle it or request focused work. "
+    )
+    findings += "CANONICAL_LOOKUP_DETAIL " * (
+        (14_050 - len(findings)) // len("CANONICAL_LOOKUP_DETAIL ") + 1
+    )
+    findings = findings[:14_020] + "UNBOUNDED_TAIL_SENTINEL_1202"
+    row = stable_record(
+        "LOOKUP",
+        "B",
+        "What is the exact current authority boundary for rule-132?",
+        "lookup-1202-b",
+    )
+    row.update(
+        {
+            "status": "answered",
+            "findings": findings,
+            "limitations": [
+                "The project corpus cannot establish private intent.",
+                "Only canonical state and history were inspected.",
+            ],
+            "citations": [
+                {
+                    "title": f"Canonical project source {index}",
+                    "url": (
+                        "https://github.com/isorabins/alanguagealltheirown/"
+                        f"blob/main/evidence/source-{index}.json"
+                    ),
+                }
+                for index in range(10)
+            ],
+            "route": "project",
+            "answer_turn": 1203,
+            "evidence_count": 10,
+            "usage": {
+                "prompt_tokens": 0,
+                "completion_tokens": 0,
+                "web_search_requests": 0,
+            },
+            "cost_usd": 0,
+        }
+    )
+    return row
+
+
+def unprojected_window(events):
+    rendered = []
+    for event in events[-loop.WINDOW :]:
+        if event["type"] == "legislature":
+            rendered.append(
+                f"[turn {event['turn']} — AUTHORITATIVE POST-STATE RECEIPT]\n"
+                + json.dumps(
+                    event["post_state_receipt"],
+                    sort_keys=True,
+                    ensure_ascii=False,
+                )
+            )
+        else:
+            rendered.append(
+                f"[turn {event['turn']} — NON-AUTHORITATIVE AGENT DISCUSSION] "
+                f"AGENT {event['agent']}:\n{event['content']}"
+            )
+    return "\n\n".join(rendered)
+
+
+def unprojected_prompt(events, book, delivery):
+    request = build_legislative_request(
+        role="B",
+        turn=1210,
+        next_live_test_turn=1212,
+        rulebook=book,
+        latest_receipt=events[-1]["post_state_receipt"],
+        collaboration_input=delivery,
+    )
+    constitution = (loop.ROOT / "prompts" / "constitution.md").read_text()
+    role_prompt = (loop.ROOT / "prompts" / "agent_b.md").read_text()
+    system = (
+        f"{constitution}\n\n{role_prompt}\n\n"
+        f"=== ADOPTED LANGUAGE ===\n{render_language(book)}\n\n"
+        f"=== COMPLETE LEGISLATURE ===\n{render_legislature(book)}\n\n"
+        "=== AUTHORITATIVE CURRENT MACHINE STATE AND RECEIPT ===\n"
+        f"{request.model_dump_json(indent=2)}"
+    )
+    user = (
+        "=== RECENT EVENT WINDOW ===\n"
+        + unprojected_window(events)
+        + "\n\nIt is turn 1210. You are Agent B. "
+        "Return only the structured response required by the supplied schema."
+    )
+    return system, user
+
+
+class ProjectionUnitTests(unittest.TestCase):
+    def test_receipt_and_request_projections_are_prompt_only(self):
+        book = production_book()
+        receipt = full_receipt(book, 1209, "A")
+        request = build_legislative_request(
+            role="B",
+            turn=1210,
+            next_live_test_turn=1212,
+            rulebook=book,
+            latest_receipt=receipt,
+            collaboration_input=None,
+        )
+        canonical_json = request.model_dump_json()
+        receipt_projection = prompt_receipt_projection(receipt)
+        request_projection = prompt_request_projection(request)
+
+        self.assertEqual(
+            set(receipt_projection),
+            {
+                "turn",
+                "actor",
+                "result",
+                "reason",
+                "attempts",
+                "changed_rule_ids",
+                "current_open_motion",
+                "adopted_count",
+                "adopted_language_hash",
+                "rulebook_version",
+                "rulebook_hash",
+                "next_actor",
+            },
+        )
+        self.assertNotIn("rule_states", request_projection["current_state"])
+        self.assertIn("rule_states", request.current_state.model_dump())
+        self.assertIn("attempted_action", request.latest_receipt.model_dump())
+        self.assertIn("unchanged_rule_ids", request.latest_receipt.model_dump())
+        self.assertEqual(request.model_dump_json(), canonical_json)
+
+    def test_research_projection_is_bounded_deterministic_and_preserves_full_delivery(self):
+        state = empty_state()
+        row = answered_lookup()
+        state["research"].append(row)
+        original = copy.deepcopy(row)
+        canonical_delivery = {
+            "kind": "RESEARCH",
+            "id": original["id"],
+            "question": original["question"],
+            "findings": original["findings"],
+            "limitations": original["limitations"],
+            "citations": original["citations"],
+            "route": original["route"],
+        }
+        row_hash = snapshot_hash(row)
+        direct_projection = project_research_delivery_for_prompt(
+            canonical_delivery
+        )
+        self.assertEqual(snapshot_hash(row), row_hash)
+
+        delivered = deliver_one(state, "RESEARCH", "B", 1210)
+        repeated = project_research_delivery_for_prompt(
+            {"kind": "RESEARCH", **state["deliveries"][0]}
+        )
+        expected_state = empty_state()
+        expected_row = copy.deepcopy(original)
+        expected_row.update(
+            {
+                "status": "delivered",
+                "delivered_to": "B",
+                "delivery_turn": 1210,
+            }
+        )
+        expected_state["research"].append(expected_row)
+        expected_state["deliveries"].append(canonical_delivery)
+
+        self.assertEqual(delivered, direct_projection)
+        self.assertEqual(delivered, repeated)
+        self.assertEqual(state, expected_state)
+        self.assertLessEqual(
+            len(json.dumps(delivered, ensure_ascii=False)),
+            MAX_RESEARCH_DELIVERY_JSON_CHARS,
+        )
+        self.assertTrue(delivered["projection"]["truncated"])
+        self.assertGreater(delivered["projection"]["findings_omitted_chars"], 0)
+        self.assertEqual(delivered["projection"]["citations_original_count"], 10)
+        self.assertLess(
+            delivered["projection"]["citations_included_count"],
+            delivered["projection"]["citations_original_count"],
+        )
+        self.assertEqual(state["research"][0]["findings"], original["findings"])
+        self.assertEqual(state["research"][0]["citations"], original["citations"])
+        self.assertEqual(state["deliveries"][0]["findings"], original["findings"])
+        self.assertEqual(state["deliveries"][0]["citations"], original["citations"])
+
+
+class ProductionShapedPromptTests(unittest.TestCase):
+    def test_127_rule_30_event_14k_lookup_prompt_is_materially_smaller_and_exact(self):
+        book = production_book()
+        events = production_window(book)
+        state = empty_state()
+        row = answered_lookup()
+        state["research"].append(row)
+        book_hash = snapshot_hash(book)
+        event_hash = snapshot_hash(events)
+        canonical_lookup = copy.deepcopy(row)
+        full_delivery = {
+            "kind": "RESEARCH",
+            "id": row["id"],
+            "question": row["question"],
+            "findings": row["findings"],
+            "limitations": row["limitations"],
+            "citations": row["citations"],
+            "route": row["route"],
+        }
+        legacy_system, legacy_user = unprojected_prompt(
+            events, book, full_delivery
+        )
+
+        with mock.patch.object(loop.requests, "post") as web:
+            delivery = deliver_one(state, "RESEARCH", "B", 1210)
+            assembled = loop.assemble_legislative_prompt(
+                events,
+                book,
+                turn=1210,
+                agent="B",
+                collaboration_input=delivery,
+            )
+        web.assert_not_called()
+
+        compact_chars = len(assembled["system"]) + len(assembled["user"])
+        legacy_chars = len(legacy_system) + len(legacy_user)
+        self.assertLessEqual(compact_chars, int(legacy_chars * 0.70))
+        self.assertEqual(assembled["total_chars"], compact_chars)
+        self.assertEqual(snapshot_hash(book), book_hash)
+        self.assertEqual(snapshot_hash(events), event_hash)
+        self.assertEqual(state["research"][0]["findings"], canonical_lookup["findings"])
+        self.assertEqual(state["research"][0]["citations"], canonical_lookup["citations"])
+        self.assertIn("rule-132 [proposed]", assembled["system"])
+        self.assertNotIn('"rule_states"', assembled["system"])
+        self.assertNotIn('"attempted_action"', assembled["system"])
+        self.assertNotIn('"unchanged_rule_ids"', assembled["system"])
+        schema = json.dumps(assembled["request_options"], sort_keys=True)
+        self.assertIn("rule-132", schema)
+        self.assertNotIn("rule-126", schema)
+        self.assertEqual(
+            assembled["canonical_request"].current_state.rule_states[-1].rule_id,
+            "rule-132",
+        )
+
+    def test_structural_failure_restores_full_state_and_redelivers_bounded_once(self):
+        book = production_book()
+        events = production_window(book)
+        state = empty_state()
+        row = answered_lookup()
+        state["research"].append(row)
+        before = copy.deepcopy(state)
+        meta = {"last_agent": "A", "spend_usd": 0.0}
+        valid = json.dumps(
+            {
+                "deliberation": "The proposal needs one focused boundary test.",
+                "motion": {
+                    "kind": "REQUEST",
+                    "target_rule_id": "rule-132",
+                    "focus": "Test the exact boundary against one hostile transfer.",
+                },
+                "measurements": [],
+                "requests": [],
+            }
+        )
+        outputs = iter(
+            [
+                ("not-json", {}),
+                ("not-json", {}),
+                ("not-json", {}),
+                (valid, {"completion_tokens": 30}),
+            ]
+        )
+        systems = []
+
+        def fake_call(_model, system, _user, **_kwargs):
+            systems.append(system)
+            return next(outputs)
+
+        with mock.patch.object(loop, "call", side_effect=fake_call), mock.patch.object(
+            loop.requests, "post"
+        ) as web:
+            self.assertEqual(
+                loop.agent_turn(events, book, meta, state, 1210),
+                "structural_failure",
+            )
+            self.assertEqual(state, before)
+            self.assertEqual(loop.agent_turn(events, book, meta, state, 1211), "accepted")
+        web.assert_not_called()
+
+        self.assertEqual(len(state["deliveries"]), 1)
+        self.assertEqual(state["research"][0]["findings"], row["findings"])
+        self.assertEqual(state["research"][0]["citations"], row["citations"])
+        self.assertEqual(state["research"][0]["status"], "delivered")
+        for system in systems:
+            self.assertNotIn("UNBOUNDED_TAIL_SENTINEL_1202", system)
+            self.assertIn('"findings_omitted_chars"', system)
+            self.assertNotIn('"unchanged_rule_ids"', system)
+
+
+if __name__ == "__main__":
+    unittest.main()
