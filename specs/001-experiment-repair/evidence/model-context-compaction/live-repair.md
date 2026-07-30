@@ -74,6 +74,39 @@ B/open-`rule-132`; its `deliberation` field retains `minLength=12` and
 No canonical artifact, model, retry count, cadence, provider routing,
 credential, limit, public surface, DNS, or X behavior changes.
 
+## Turn-1211 warning stop and diagnostic
+
+The first repaired normal-cadence canary still failed closed at turn 1211 with
+three `string_too_short at deliberation` results. All three DeepInfra
+generations finished with `stop`; their prompt-token counts were
+17,295 / 17,333 / 17,333 and their exact costs were `$0.012862100`,
+`$0.013423350`, and `$0.002769650`. The timer was immediately paused.
+Canonical rules remained unchanged, and `lookup-1202-b` again restored to
+`answered` with 11,248 findings characters, 10 citations, no delivery turn,
+and zero canonical delivery records.
+
+Authenticated provider usage reached `$8.324153682`, or `$0.080200200` above
+the approved baseline. One non-state-changing, 839-token structured diagnostic
+then tested the model-policy-safe wording “concise public-facing audit summary,
+not private reasoning.” Kimi returned a locally valid action with a
+174-character deliberation on its first response for `$0.000580890`.
+Provider usage is now `$8.324734572`: `$0.080781090` used and `$0.019218910`
+remaining inside the exact `$0.10` envelope.
+
+The final prompt-only correction uses that verified wording in the existing
+`deliberation` property and at the end of the user request. It does not rename
+the field, weaken validation, alter the action envelope, or change any retry,
+model, provider, cadence, state, public, credential, or limit behavior.
+Against the paused turn-1211 state, the resulting projected turn-1213 B request
+is 68,174 characters (53,980 system + 14,194 user), still below SC-037's
+70,000-character ceiling. The intervening normal-cadence turn 1212 remains a
+scheduled test turn; the last comparable turn-1209 test cost `$0.004029361650`.
+Independent Standards and Spec reviews returned **PASS** at
+`17b326bbc2258e5062732993a41082b407271260`. They confirmed the field name,
+strict 12–4,000 character/alphanumeric validator, action envelope, two retries,
+models, provider routing, cadence, limits, and canonical history are unchanged;
+they also independently reconciled the prompt and cost arithmetic above.
+
 ## Fixed-point repair review
 
 The first repair review found two size-bound gaps before publication: one

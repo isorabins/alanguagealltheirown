@@ -571,6 +571,8 @@ def assemble_legislative_prompt(
         "=== RECENT EVENT WINDOW ===\n"
         + render_window(conv)
         + f"\n\nIt is turn {turn}. You are Agent {agent}. "
+        "The required `deliberation` field is a concise public-facing summary "
+        "of your conclusion, not private reasoning; never leave it empty. "
         "Return only the structured response required by the supplied schema."
     )
     return {

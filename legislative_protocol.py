@@ -29,9 +29,10 @@ Deliberation = Annotated[
         max_length=4000,
         pattern=r"[A-Za-z0-9]",
         description=(
-            "Required substantive English deliberation. Write at least 12 "
-            "characters including a letter or digit; never return an empty "
-            "or punctuation-only value."
+            "Required concise public-facing summary, not private reasoning. "
+            "State your conclusion about the current turn in at least 12 "
+            "characters including a letter or digit; never leave this field "
+            "empty or punctuation-only."
         ),
     ),
 ]
