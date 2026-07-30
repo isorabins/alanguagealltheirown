@@ -57,17 +57,38 @@ description that mirrors the unchanged local 12-character/alphanumeric
 deliberation validator. It also removes deterministic model-window duplication:
 
 - full encoded/decoded live-test artifacts remain canonical, while the recent
-  window carries their outcome receipt;
-- project lookup findings include two complete evidence records instead of a
-  mid-record prefix;
+  window carries their size-bounded outcome receipt;
+- project lookup findings include up to two complete evidence records, with
+  explicit included/omitted counts and zero records rather than partial JSON
+  when even one record exceeds the prompt bound;
 - prompt request JSON is compact rather than indented.
 
-The exact paused turn-1211 rehearsal is 68,063 characters: 53,969 system,
-14,094 user, 13,962 recent-window, and 3,172 delivery characters. The delivered
-findings projection is 1,307 of 11,248 characters and retains the complete
+The exact paused turn-1211 rehearsal after fixed-point remediation is 68,040
+characters: 53,980 system, 14,060 user, 13,928 recent-window, and 3,108
+serialized delivery characters. The delivered findings projection is 1,318 of
+11,248 characters and retains the complete
 rule-090 record plus the next matched canonical receipt. The schema remains
 B/open-`rule-132`; its `deliberation` field retains `minLength=12` and
 `pattern=[A-Za-z0-9]` and now states the same substantive requirement.
 
 No canonical artifact, model, retry count, cadence, provider routing,
 credential, limit, public surface, DNS, or X behavior changes.
+
+## Fixed-point repair review
+
+The first repair review found two size-bound gaps before publication: one
+oversized project record could fall back to partial JSON, and audit strings
+were count-limited but not character-limited. The remediation uses one shared
+project-evidence prefix, fits only whole records, reports included and omitted
+counts, bounds each corrupted/missing/invented category, and bounds grader-loss
+text while preserving the complete canonical event.
+
+Post-remediation verification:
+
+- focused protocol/collaboration/compaction suite: 59 passed;
+- full Python: 129 passed;
+- JavaScript: 31 passed;
+- contract coverage: 113 requirements / 206 sequential tasks;
+- compile and `git diff --check`: PASS;
+- exact paused turn-1211 rehearsal: 68,040 characters;
+- model/provider/routing/retries/cadence and canonical state: unchanged.

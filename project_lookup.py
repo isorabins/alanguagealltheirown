@@ -34,6 +34,7 @@ DOC_PATHS = (
     "specs/001-experiment-repair/plan.md",
 )
 MAX_FINDINGS_CHARS = 24_000
+PROJECT_FINDINGS_PREFIX = "Project corpus evidence (not a web result):\n"
 
 
 def is_project_question(question: str) -> bool:
@@ -310,7 +311,7 @@ def project_lookup(root: Path, question: str) -> dict[str, Any]:
             "evidence_count": 0,
         }
     findings = (
-        "Project corpus evidence (not a web result):\n"
+        PROJECT_FINDINGS_PREFIX
         + json.dumps(evidence, ensure_ascii=False, separators=(",", ":"))
     )
     limitations = [

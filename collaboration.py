@@ -11,6 +11,7 @@ from typing import Any
 
 import requests
 
+from project_lookup import PROJECT_FINDINGS_PREFIX
 from state_store import atomic_write_json, load_json
 
 SCHEMA_VERSION = 1
@@ -23,7 +24,6 @@ MAX_RESEARCH_CITATION_CHARS = 1_800
 MAX_RESEARCH_CITATION_TITLE_CHARS = 120
 MAX_RESEARCH_CITATION_URL_CHARS = 450
 MAX_PROJECT_EVIDENCE_RECORDS = 2
-PROJECT_FINDINGS_PREFIX = "Project corpus evidence (not a web result):\n"
 
 
 def empty_state() -> dict[str, Any]:
@@ -189,30 +189,44 @@ def _rendered_json_chars(value: dict[str, Any]) -> int:
     return len(json.dumps(value, ensure_ascii=False, separators=(",", ":")))
 
 
+def _project_evidence_records(source: str) -> list[Any] | None:
+    if not source.startswith(PROJECT_FINDINGS_PREFIX):
+        return None
+    try:
+        records = json.loads(source[len(PROJECT_FINDINGS_PREFIX):])
+    except (TypeError, ValueError, json.JSONDecodeError):
+        return None
+    return records if isinstance(records, list) else None
+
+
+def _project_evidence_note(included: int, total: int) -> str:
+    return (
+        f"\n[bounded projection: {included} of {total} evidence records "
+        f"included; {total - included} omitted]"
+    )
+
+
 def _findings_projection(value: Any, route: str) -> tuple[str, str]:
     source = _text_value(value)
-    if route == "project" and source.startswith(PROJECT_FINDINGS_PREFIX):
-        try:
-            records = json.loads(source[len(PROJECT_FINDINGS_PREFIX):])
-        except (TypeError, ValueError, json.JSONDecodeError):
-            records = None
+    if route == "project":
+        records = _project_evidence_records(source)
         if isinstance(records, list):
-            included = records[:MAX_PROJECT_EVIDENCE_RECORDS]
-            projected = (
-                PROJECT_FINDINGS_PREFIX
-                + json.dumps(
-                    included,
-                    ensure_ascii=False,
-                    separators=(",", ":"),
+            for included_count in range(
+                min(MAX_PROJECT_EVIDENCE_RECORDS, len(records)),
+                -1,
+                -1,
+            ):
+                projected = (
+                    PROJECT_FINDINGS_PREFIX
+                    + json.dumps(
+                        records[:included_count],
+                        ensure_ascii=False,
+                        separators=(",", ":"),
+                    )
+                    + _project_evidence_note(included_count, len(records))
                 )
-            )
-            if len(records) > len(included):
-                projected += (
-                    f"\n[bounded projection: {len(included)} of "
-                    f"{len(records)} evidence records included]"
-                )
-            if len(projected) <= MAX_RESEARCH_FINDINGS_CHARS:
-                return projected, source
+                if len(projected) <= MAX_RESEARCH_FINDINGS_CHARS:
+                    return projected, source
     return _bounded_prefix(source, MAX_RESEARCH_FINDINGS_CHARS), source
 
 
@@ -292,6 +306,15 @@ def project_research_delivery_for_prompt(
         _rendered_json_chars(projection) > MAX_RESEARCH_DELIVERY_JSON_CHARS
         and findings
     ):
+        project_records = _project_evidence_records(findings_source)
+        if route == "project" and project_records is not None:
+            findings = (
+                PROJECT_FINDINGS_PREFIX
+                + "[]"
+                + _project_evidence_note(0, len(project_records))
+            )
+            projection = build_projection()
+            break
         findings = findings[:-1].rstrip()
         projection = build_projection()
     if _rendered_json_chars(projection) > MAX_RESEARCH_DELIVERY_JSON_CHARS:

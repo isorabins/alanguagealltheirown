@@ -7,12 +7,12 @@ import collaboration
 import loop
 from collaboration import (
     MAX_RESEARCH_DELIVERY_JSON_CHARS,
-    PROJECT_FINDINGS_PREFIX,
     deliver_one,
     empty_state,
     project_research_delivery_for_prompt,
     stable_record,
 )
+from project_lookup import PROJECT_FINDINGS_PREFIX
 from legislative_protocol import (
     action_request_options,
     build_legislative_request,
@@ -407,9 +407,47 @@ class ProjectionUnitTests(unittest.TestCase):
 
         self.assertEqual(included, evidence[:2])
         self.assertIn("2 of 5 evidence records included", bounded_note)
+        self.assertIn("3 omitted", bounded_note)
         self.assertGreater(
             projected["projection"]["findings_omitted_chars"],
             0,
+        )
+
+    def test_oversized_project_record_never_becomes_partial_json(self):
+        evidence = [
+            {
+                "source_id": "oversized-source",
+                "data": {"answer": "x" * 5_000},
+            },
+            {"source_id": "small-source", "data": {"answer": "complete"}},
+        ]
+        findings = PROJECT_FINDINGS_PREFIX + json.dumps(
+            evidence,
+            ensure_ascii=False,
+            separators=(",", ":"),
+        )
+        delivery = {
+            "kind": "RESEARCH",
+            "id": "lookup-oversized-record",
+            "question": "Which complete evidence records fit?",
+            "findings": findings,
+            "limitations": [],
+            "citations": [],
+            "route": "project",
+        }
+
+        projected = project_research_delivery_for_prompt(delivery)
+        rendered_records, bounded_note = projected["findings"].split(
+            "\n[bounded projection:", 1
+        )
+        included = json.loads(rendered_records[len(PROJECT_FINDINGS_PREFIX):])
+
+        self.assertEqual(included, [])
+        self.assertIn("0 of 2 evidence records included", bounded_note)
+        self.assertIn("2 omitted", bounded_note)
+        self.assertLessEqual(
+            len(json.dumps(projected, ensure_ascii=False, separators=(",", ":"))),
+            MAX_RESEARCH_DELIVERY_JSON_CHARS,
         )
 
     def test_projection_failure_cannot_consume_delivery(self):
@@ -458,7 +496,38 @@ class ProductionShapedPromptTests(unittest.TestCase):
         self.assertIn("553 tokens -> encoded 322 tokens (-42%)", rendered)
         self.assertIn("decode fidelity 76/100", rendered)
         self.assertIn("binding relationship was ambiguous", rendered)
-        self.assertIn("corrupted: binding relationship", rendered)
+        self.assertIn("corrupted (1/1): binding relationship", rendered)
+        self.assertNotIn("ENCODED_PAYLOAD_SENTINEL", rendered)
+        self.assertNotIn("DECODED_PAYLOAD_SENTINEL", rendered)
+        self.assertEqual(snapshot_hash(event), event_hash)
+
+    def test_live_test_audit_details_are_size_bounded(self):
+        event = {
+            "turn": 1209,
+            "type": "test",
+            "agent": "harness",
+            "payload": "gen-prose-logistics",
+            "orig_tokens": 553,
+            "enc_tokens": 322,
+            "token_delta_pct": -42,
+            "fidelity": 76,
+            "judge_reason": "valid",
+            "lost": "loss " * 30_000,
+            "total": 12,
+            "survived": 3,
+            "corrupted": ["corrupted " * 20_000],
+            "missing": ["missing " * 20_000],
+            "invented": ["invented " * 20_000],
+            "encoded": "ENCODED_PAYLOAD_SENTINEL " * 200,
+            "decoded": "DECODED_PAYLOAD_SENTINEL " * 200,
+        }
+        event_hash = snapshot_hash(event)
+
+        rendered = loop.render_window([event])
+
+        self.assertLess(len(rendered), 2_000)
+        for label in ("corrupted (1/1)", "missing (1/1)", "invented (1/1)"):
+            self.assertIn(label, rendered)
         self.assertNotIn("ENCODED_PAYLOAD_SENTINEL", rendered)
         self.assertNotIn("DECODED_PAYLOAD_SENTINEL", rendered)
         self.assertEqual(snapshot_hash(event), event_hash)
