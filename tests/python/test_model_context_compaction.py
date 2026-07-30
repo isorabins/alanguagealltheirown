@@ -272,7 +272,8 @@ class ProjectionUnitTests(unittest.TestCase):
 
         self.assertEqual(deliberation["minLength"], 12)
         self.assertEqual(deliberation["pattern"], "[A-Za-z0-9]")
-        self.assertIn("never return an empty", deliberation["description"])
+        self.assertIn("public-facing summary", deliberation["description"])
+        self.assertIn("not private reasoning", deliberation["description"])
 
     def test_research_projection_is_bounded_deterministic_and_preserves_full_delivery(self):
         state = empty_state()
@@ -577,6 +578,10 @@ class ProductionShapedPromptTests(unittest.TestCase):
         self.assertNotIn('"rule_states"', assembled["system"])
         self.assertNotIn('"attempted_action"', assembled["system"])
         self.assertNotIn('"unchanged_rule_ids"', assembled["system"])
+        self.assertIn(
+            "public-facing summary of your conclusion, not private reasoning",
+            assembled["user"],
+        )
         schema = json.dumps(assembled["request_options"], sort_keys=True)
         self.assertIn("rule-132", schema)
         self.assertNotIn("rule-126", schema)
