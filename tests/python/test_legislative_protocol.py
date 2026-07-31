@@ -11,6 +11,7 @@ from legislative_protocol import (
     build_post_state_receipt,
     current_open_motion,
     validate_action,
+    validate_action_with_deliberation_fallback,
 )
 
 
@@ -243,6 +244,106 @@ class StateSpecificActionTests(unittest.TestCase):
             open_add_book(),
             action(deliberation="A real audit statement."),
         )
+
+    def test_deliberation_fallback_preserves_valid_typed_action(self):
+        payload = action(
+            {
+                "kind": "REQUEST",
+                "target_rule_id": "rule-003",
+                "focus": "Test the deadline boundary on hostile prose.",
+            },
+            deliberation="I",
+            measurements=[{"text": "one compact line"}],
+            requests=[
+                {"kind": "LOOKUP", "question": "What happened at turn 1163?"}
+            ],
+        )
+
+        parsed, fallback = validate_action_with_deliberation_fallback(
+            payload, "B", open_add_book()
+        )
+
+        self.assertEqual(parsed.motion.model_dump(mode="json"), payload["motion"])
+        self.assertEqual(
+            [item.model_dump(mode="json") for item in parsed.measurements],
+            payload["measurements"],
+        )
+        self.assertEqual(
+            [item.model_dump(mode="json") for item in parsed.requests],
+            payload["requests"],
+        )
+        self.assertEqual(
+            parsed.deliberation,
+            "Public audit: Agent B requested focused work on rule-003.",
+        )
+        self.assertEqual(
+            fallback,
+            {
+                "applied": True,
+                "source": "harness_deterministic_deliberation",
+                "provider_error": "string_too_short at deliberation",
+            },
+        )
+
+    def test_deliberation_fallback_covers_missing_and_punctuation_only(self):
+        proposed = action(
+            {
+                "kind": "PROPOSE",
+                "text": "Use one explicit marker after defining it.",
+            }
+        )
+        proposed.pop("deliberation")
+        parsed, missing = validate_action_with_deliberation_fallback(
+            proposed, "A", empty_book()
+        )
+        self.assertEqual(
+            parsed.deliberation,
+            "Public proposal: Agent A submitted one focused rule for audit.",
+        )
+        self.assertEqual(missing["provider_error"], "missing at deliberation")
+
+        adopted, punctuation = validate_action_with_deliberation_fallback(
+            action(
+                {"kind": "ADOPT", "target_rule_id": "rule-003"},
+                deliberation="------------",
+            ),
+            "B",
+            open_add_book(),
+        )
+        self.assertEqual(
+            adopted.deliberation,
+            (
+                "Public audit: Agent B adopted rule-003 after validating "
+                "the typed motion."
+            ),
+        )
+        self.assertEqual(
+            punctuation["provider_error"],
+            "string_pattern_mismatch at deliberation",
+        )
+
+    def test_deliberation_fallback_never_bypasses_operative_validation(self):
+        invalid_actions = [
+            action(
+                {"kind": "ADOPT", "target_rule_id": "rule-999"},
+                deliberation="I",
+            ),
+            action(
+                {"kind": "ADOPT", "target_rule_id": "rule-003"},
+                deliberation="I",
+                requests=[{"kind": "LOOKUP", "question": ""}],
+            ),
+            action(
+                {"kind": "ADOPT", "target_rule_id": "rule-003"},
+                deliberation=7,
+            ),
+        ]
+        for payload in invalid_actions:
+            with self.subTest(payload=payload):
+                with self.assertRaises(ValidationError):
+                    validate_action_with_deliberation_fallback(
+                        payload, "B", open_add_book()
+                    )
 
     def test_multiple_open_motions_fail_closed(self):
         book = open_add_book()

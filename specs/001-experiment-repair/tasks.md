@@ -589,3 +589,20 @@ research, schema, validator, role, or cadence boundary.
 **Checkpoint**: Offline PASS requires the production-shaped prompt and replay
 oracles plus canonical preservation. Live PASS remains T202 and belongs to the
 manager.
+
+---
+
+## Phase 26: Legislative Event-Replay Removal
+
+**Goal**: Remove the proven production-only event-replay interference while
+preserving the complete legislature, authoritative state, collaboration input,
+canonical history, and every runtime/provider boundary.
+
+- [X] T207 Record the fail-closed turn-1213 receipt, exact recovery approval/cost baseline, restored rule/research state, and production-shaped diagnostic matrix in `evidence/model-context-compaction/event-window-repair.md` (FR-075, FR-076, FR-077; SC-037, SC-038)
+- [X] T208 Add regression assertions proving the legislative prompt leads with the public-output contract, omits prior-event replay, retains complete legislature/current state/collaboration, preserves canonical hashes, and leaves direct canonical event rendering available in `tests/python/test_model_context_compaction.py` (FR-075, FR-076, FR-077; SC-037)
+- [X] T209 Implement only the deterministic legislative prompt assembly in `loop.py` and translate Agent B's stale prose-transport examples to the existing typed object shapes in `prompts/agent_b.md`; update mechanism/contract wording without changing model, routing, schema, validator, retries, temperature, cadence, canonical state/history, UI, DNS, credentials, or X (FR-075, FR-076, FR-077; SC-037)
+- [ ] T210 Run focused/full verification and fixed-point Standards/Spec review, publish/merge through the normal PR path, sync and retest the paused clean VPS, resume normal cadence, require one valid B/open-`rule-132` action with exact-once lookup delivery inside the approved `$1` recovery envelope, and publish final live evidence before leaving the timer active (FR-075, FR-076, FR-077; SC-037, SC-038)
+
+**Checkpoint**: PASS requires three consecutive full-production-context provider
+diagnostics plus one valid normal live B receipt. Any warning keeps the timer
+paused and consumes one of the three approved prompt-only repair cycles.

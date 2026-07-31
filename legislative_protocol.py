@@ -1,6 +1,8 @@
 """Typed legislative transport, state-specific schemas, and authoritative receipts."""
 from __future__ import annotations
 
+import copy
+import json
 from functools import reduce
 from operator import or_
 from typing import Annotated, Any, Literal, Union
@@ -304,6 +306,90 @@ def validate_action(
     if isinstance(payload, (str, bytes)):
         return model.model_validate_json(payload, strict=True)
     return model.model_validate(payload, strict=True)
+
+
+def _deterministic_deliberation(
+    role: Role, action: _ActionEnvelopeBase
+) -> str:
+    """Render a public conclusion from an already-validated typed action."""
+    motion = action.motion
+    if role == "B":
+        if motion is None:
+            return "Public audit: Agent B recorded no legislative motion this turn."
+        target = motion.target_rule_id
+        if motion.kind == "ADOPT":
+            return (
+                f"Public audit: Agent B adopted {target} after validating "
+                "the typed motion."
+            )
+        if motion.kind == "REJECT":
+            return (
+                f"Public audit: Agent B rejected {target} after validating "
+                "the typed motion."
+            )
+        return f"Public audit: Agent B requested focused work on {target}."
+
+    if motion is None:
+        return "Public proposal: Agent A recorded no legislative motion this turn."
+    if motion.kind == "PROPOSE":
+        return "Public proposal: Agent A submitted one focused rule for audit."
+    if motion.kind == "REPEAL":
+        return (
+            f"Public proposal: Agent A proposed repealing "
+            f"{motion.target_rule_id} for audit."
+        )
+    return (
+        f"Public proposal: Agent A revised {motion.target_rule_id} "
+        "for another audit."
+    )
+
+
+def validate_action_with_deliberation_fallback(
+    payload: str | bytes | dict[str, Any],
+    role: Role,
+    rulebook: dict[str, Any],
+) -> tuple[_ActionEnvelopeBase, dict[str, Any] | None]:
+    """Repair only a missing or malformed public deliberation field.
+
+    The provider's motion, measurements, requests, and complete envelope must
+    pass the unchanged state-specific validator before a deterministic public
+    sentence is substituted.
+    """
+    try:
+        return validate_action(payload, role, rulebook), None
+    except ValidationError as original_error:
+        allowed_errors = {
+            "missing",
+            "string_too_short",
+            "string_pattern_mismatch",
+        }
+        errors = original_error.errors(include_url=False)
+        if not errors or any(
+            tuple(error.get("loc", ())) != ("deliberation",)
+            or error.get("type") not in allowed_errors
+            for error in errors
+        ):
+            raise
+
+        if isinstance(payload, (str, bytes)):
+            parsed = json.loads(payload)
+        else:
+            parsed = copy.deepcopy(payload)
+        if not isinstance(parsed, dict):
+            raise original_error
+
+        # Prove every operative field against the strict state-specific schema
+        # before replacing the invalid non-operative public sentence.
+        candidate = copy.deepcopy(parsed)
+        candidate["deliberation"] = "Public validation placeholder."
+        validated = validate_action(candidate, role, rulebook)
+        candidate["deliberation"] = _deterministic_deliberation(role, validated)
+        repaired = validate_action(candidate, role, rulebook)
+        return repaired, {
+            "applied": True,
+            "source": "harness_deterministic_deliberation",
+            "provider_error": validation_reason(original_error),
+        }
 
 
 def action_request_options(role: Role, rulebook: dict[str, Any]) -> dict[str, Any]:

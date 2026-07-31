@@ -14,10 +14,12 @@ class PromptContractTests(unittest.TestCase):
         a = (ROOT / "prompts/agent_a.md").read_text(); b = (ROOT / "prompts/agent_b.md").read_text()
         self.assertIn("Never `ADOPT` or `REJECT`", a)
         self.assertIn("Never `PROPOSE`, `REPEAL`, or `REVISE`", b)
-        for prompt in (a, b):
-            self.assertIn("`LOOKUP:", prompt)
-            self.assertIn("Never use it for a project turn", prompt)
-            self.assertIn("routes the original question to `ASK Iso`", prompt)
+        self.assertIn("`LOOKUP:", a)
+        self.assertIn("Never use it for a project turn", a)
+        self.assertIn("routes the original question to `ASK Iso`", a)
+        self.assertIn('`{"kind":"LOOKUP","question":"..."}`', b)
+        self.assertIn("Use `RESEARCH` only for the outside", b)
+        self.assertIn('`motion` is an object, not a string', b)
         for phrase in (
             "structured action envelope",
             "authoritative current machine state",

@@ -39,3 +39,27 @@ test('public page contains overflow and keyboard-focus safeguards',()=>{
   assert.match(html,/:focus-visible\s*\{[^}]*outline:\s*2px solid var\(--accent\)/s);
   assert.match(html,/body\s*\{[^}]*width:\s*min\(1100px,\s*100%\)/s);
 });
+
+test('stale runtime notice is truthful and self-clearing',()=>{
+  assert.match(html,/id="runtime-status"[^>]*aria-live="polite"/);
+  assert.match(html,/The scheduled loop is not advancing\./);
+  assert.match(html,/public record is preserved at turn/);
+  assert.match(html,/path=state%2Fconversation\.json&per_page=1/);
+  assert.match(html,/runtimeStatus\.classList\.remove\("visible"\)/);
+
+  const source=html.match(/function runtimeView\(when, now, turn\) \{([\s\S]*?)\n\}\n\nfunction loadState/);
+  assert.ok(source,'runtimeView must remain executable as a pure status decision');
+  const runtimeView=Function('when','now','turn',source[1]);
+  const now=Date.parse('2026-07-31T10:00:00Z');
+  const stale=runtimeView('2026-07-31T09:00:00Z',now,1213);
+  assert.equal(stale.visible,true);
+  assert.match(stale.heading,/not advancing/);
+  assert.match(stale.detail,/turn 1213/);
+  const fresh=runtimeView('2026-07-31T09:50:00Z',now,1214);
+  assert.equal(fresh.visible,false);
+  assert.match(fresh.stamp,/live/);
+  const unknown=runtimeView(null,now,1213);
+  assert.equal(unknown.visible,true);
+  assert.match(unknown.heading,/unavailable/);
+  assert.doesNotMatch(unknown.stamp,/\blive$/);
+});

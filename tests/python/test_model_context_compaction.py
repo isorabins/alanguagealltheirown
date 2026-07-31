@@ -578,16 +578,77 @@ class ProductionShapedPromptTests(unittest.TestCase):
         self.assertNotIn('"rule_states"', assembled["system"])
         self.assertNotIn('"attempted_action"', assembled["system"])
         self.assertNotIn('"unchanged_rule_ids"', assembled["system"])
+        self.assertTrue(
+            assembled["system"].startswith(
+                "=== MANDATORY PUBLIC OUTPUT CONTRACT ==="
+            )
+        )
         self.assertIn(
-            "public-facing summary of your conclusion, not private reasoning",
+            'beginning exactly "Public audit:"',
             assembled["user"],
         )
+        self.assertNotIn("RECENT EVENT WINDOW", assembled["user"])
+        self.assertNotIn("AUTHORITATIVE LIVE TEST RECEIPT", assembled["user"])
+        self.assertNotIn("NON-AUTHORITATIVE AGENT DISCUSSION", assembled["user"])
         schema = json.dumps(assembled["request_options"], sort_keys=True)
         self.assertIn("rule-132", schema)
         self.assertNotIn("rule-126", schema)
         self.assertEqual(
             assembled["canonical_request"].current_state.rule_states[-1].rule_id,
             "rule-132",
+        )
+
+    def test_legislative_output_contract_covers_a_open_and_b_no_open(self):
+        book = production_book()
+        events = production_window(book)
+
+        assembled_a = loop.assemble_legislative_prompt(
+            events,
+            book,
+            turn=1214,
+            agent="A",
+            collaboration_input=None,
+        )
+        self.assertTrue(
+            assembled_a["system"].startswith(
+                "=== MANDATORY PUBLIC OUTPUT CONTRACT ==="
+            )
+        )
+        self.assertIn(
+            'beginning exactly "Public proposal:"',
+            assembled_a["user"],
+        )
+        self.assertIn(
+            '"deliberation":"Public proposal: the current idea needs one '
+            'focused revision."',
+            assembled_a["system"],
+        )
+        self.assertIn(
+            '"motion":{"kind":"REVISE","target_rule_id":"rule-132"',
+            assembled_a["system"],
+        )
+
+        book["rules"][-1]["status"] = "rejected"
+        assembled_b = loop.assemble_legislative_prompt(
+            events,
+            book,
+            turn=1215,
+            agent="B",
+            collaboration_input=None,
+        )
+        self.assertIn(
+            "Audit only the authoritative current state",
+            assembled_b["user"],
+        )
+        self.assertIn(
+            '"deliberation":"Public audit: the authoritative current state '
+            'needs a focused verification before adoption."',
+            assembled_b["system"],
+        )
+        self.assertIn('"motion":null', assembled_b["system"])
+        self.assertIn(
+            "Never put legacy prose such as `ADOPT: rule-NNN`",
+            assembled_b["system"],
         )
 
     def test_structural_failure_restores_full_state_and_redelivers_bounded_once(self):
@@ -643,6 +704,70 @@ class ProductionShapedPromptTests(unittest.TestCase):
             self.assertNotIn("UNBOUNDED_TAIL_SENTINEL_1202", system)
             self.assertIn('"findings_omitted_chars"', system)
             self.assertNotIn('"unchanged_rule_ids"', system)
+
+    def test_agent_turn_repairs_only_deliberation_and_records_public_receipt(self):
+        book = production_book()
+        events = production_window(book)
+        state = empty_state()
+        row = answered_lookup()
+        state["research"].append(row)
+        meta = {"last_agent": "A", "spend_usd": 0.0}
+        provider_output = json.dumps(
+            {
+                "deliberation": "I",
+                "motion": {
+                    "kind": "REQUEST",
+                    "target_rule_id": "rule-132",
+                    "focus": "Test the exact boundary against one hostile transfer.",
+                },
+                "measurements": [],
+                "requests": [],
+            }
+        )
+
+        with mock.patch.object(
+            loop,
+            "call",
+            return_value=(provider_output, {"completion_tokens": 17}),
+        ):
+            self.assertEqual(
+                loop.agent_turn(events, book, meta, state, 1214),
+                "accepted",
+            )
+
+        message = next(
+            event
+            for event in reversed(events)
+            if event.get("type") == "message"
+        )
+        receipt = events[-1]["post_state_receipt"]
+        self.assertEqual(
+            message["content"],
+            "Public audit: Agent B requested focused work on rule-132.",
+        )
+        self.assertEqual(
+            message["structured_action"]["motion"],
+            {
+                "kind": "REQUEST",
+                "target_rule_id": "rule-132",
+                "focus": "Test the exact boundary against one hostile transfer.",
+            },
+        )
+        self.assertEqual(
+            message["deliberation_fallback"],
+            {
+                "applied": True,
+                "source": "harness_deterministic_deliberation",
+                "provider_error": "string_too_short at deliberation",
+            },
+        )
+        self.assertEqual(receipt["attempts"], 1)
+        self.assertEqual(
+            receipt["attempted_action"]["deliberation"],
+            message["content"],
+        )
+        self.assertEqual(state["research"][0]["status"], "delivered")
+        self.assertEqual(len(state["deliveries"]), 1)
 
 
 if __name__ == "__main__":
