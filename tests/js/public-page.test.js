@@ -23,7 +23,7 @@ test('public page fetches only the sanitized collaboration snapshot',()=>{
 
 test('public page curates collaboration, judgment, and proposal history',()=>{
   assert.match(html,/id="experiment-status"/);
-  assert.match(html,/stale proposal-state deadlock/);
+  assert.doesNotMatch(html,/stale proposal-state deadlock/);
   assert.match(html,/Lab notebook · research, methods &amp; archive/);
   assert.match(html,/outward web research/);
   assert.match(html,/project lookup/);
@@ -32,6 +32,25 @@ test('public page curates collaboration, judgment, and proposal history',()=>{
   assert.doesNotMatch(html,/<div class="judg"><div class="jhead">concrete-outcome judgment<\/div><pre>/);
   assert.match(html,/id="current-proposal"/);
   assert.match(html,/earlier unresolved record/);
+});
+
+test('operator questions show their actual text without implying the core loop is blocked',()=>{
+  const source=html.match(/function operatorQuestionView\(openAsks\) \{([\s\S]*?)\n\}\n\nvar TURN_MS/);
+  assert.ok(source,'operatorQuestionView must remain executable as a pure status decision');
+  const operatorQuestionView=Function('openAsks',source[1]);
+  const open=[
+    {question:'First question',request_turn:1178},
+    {question:'What happened in turn 1176?',request_turn:1184}
+  ];
+  const current=operatorQuestionView(open);
+  assert.equal(current.summary,'What happened in turn 1176?');
+  assert.match(current.meta,/latest request · turn 1184/);
+  assert.match(current.meta,/2 open questions retained/);
+  assert.match(current.meta,/core experiment continues autonomously/);
+  assert.doesNotMatch(current.summary+current.meta,/deadlock|blocked/i);
+  const empty=operatorQuestionView([]);
+  assert.equal(empty.summary,'No operator question is waiting.');
+  assert.match(empty.meta,/core experiment continues autonomously/);
 });
 
 test('public page contains overflow and keyboard-focus safeguards',()=>{
