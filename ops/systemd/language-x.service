@@ -7,6 +7,7 @@ Wants=network-online.target
 Type=oneshot
 WorkingDirectory=/root/alanguagealltheirown
 Environment=TWEET_ENABLE=1
+Environment=UPLOAD_POST_USER=iso
 Environment=TWEET_STATE_PATH=/var/lib/alanguagealltheirown-x/tweet-state.json
 ExecStartPre=/usr/bin/install -d -m 0700 /var/lib/alanguagealltheirown-x
 ExecStart=/usr/bin/python3 /root/alanguagealltheirown/tweet.py
