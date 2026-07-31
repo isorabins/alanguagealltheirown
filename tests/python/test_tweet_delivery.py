@@ -1,3 +1,5 @@
+import json
+import os
 import tempfile
 import unittest
 from pathlib import Path
@@ -5,6 +7,7 @@ from unittest import mock
 
 import requests
 from state_store import load_json
+import tweet
 from tweet import MAX_LEN, attempt_post, compose, deliver, stable_id
 
 
@@ -100,7 +103,8 @@ class TweetTests(unittest.TestCase):
 
     def test_copy_length_and_stable_identity(self):
         rb={"rules":[{"id":"rule-1","status":"adopted","text_en":"x"*1000}]}; text=compose(rb,rb["rules"][0])
-        self.assertLessEqual(len(text),MAX_LEN); self.assertEqual(stable_id("note","1",text),stable_id("note","1",text))
+        self.assertLessEqual(len(text),MAX_LEN)
+        self.assertEqual(stable_id("note","1",text),stable_id("note","1","changed copy"))
 
     def test_request_identity_is_on_disk_before_network_call(self):
         with tempfile.TemporaryDirectory() as directory:
@@ -120,6 +124,71 @@ class TweetTests(unittest.TestCase):
             with mock.patch("tweet.requests.post",return_value=receipt):
                 later=deliver("note","later","later note",state,path)
             self.assertTrue(later["confirmed"]); self.assertEqual(blocked["status"],"blocked")
+
+
+class PublisherTests(unittest.TestCase):
+    def test_process_environment_overrides_disabled_dotenv(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root=Path(directory); (root/".env").write_text("TWEET_ENABLE=0\n")
+            with mock.patch.object(tweet,"ROOT",root), \
+                 mock.patch.dict(os.environ,{"TWEET_ENABLE":"1"}):
+                self.assertEqual(tweet.env("TWEET_ENABLE"),"1")
+
+    def test_external_state_is_seeded_and_only_one_item_runs(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root=Path(directory); state_dir=root/"state"; state_dir.mkdir()
+            (state_dir/"rulebook.json").write_text(json.dumps({"rules":[
+                {"id":"rule-1","status":"adopted","text_en":"First rule"}
+            ]}))
+            seed={"statuses":{"rule-1":"proposed"},"tweets_sent":0,"deliveries":{},
+                  "notes_posted":[],"blocked_count":0}
+            seed_path=state_dir/"tweet-state.json"; seed_path.write_text(json.dumps(seed))
+            (root/"notes.json").write_text(json.dumps([
+                {"id":"note-1","tweet":"First note"}, {"id":"note-2","tweet":"Second note"}
+            ]))
+            external=root/"publisher"/"state.json"
+            values={"TWEET_STATE_PATH":str(external),"TWEET_ENABLE":"1",
+                    "UPLOAD_POST_API_KEY":"k","UPLOAD_POST_USER":"u"}
+            receipt=Response(data={"success":True,"results":{"x":{
+                "success":True,"url":"https://x.com/example/status/1"}}})
+            with mock.patch.object(tweet,"ROOT",root), mock.patch.object(tweet,"STATE",state_dir), \
+                 mock.patch("tweet.env",side_effect=lambda name:values.get(name,"")), \
+                 mock.patch("tweet.requests.post",return_value=receipt) as post:
+                tweet.main()
+                self.assertEqual(post.call_count,1)
+                tweet.main()
+                self.assertEqual(post.call_count,2)
+                tweet.main()
+                self.assertEqual(post.call_count,2)
+            saved=load_json(external,{})
+            self.assertEqual(saved["posts_day_count"],2)
+            self.assertEqual(saved["statuses"]["rule-1"],"adopted")
+            self.assertEqual(saved["notes_posted"],["note-1"])
+            self.assertEqual(json.loads(seed_path.read_text()),seed)
+
+    def test_blocked_rule_does_not_prevent_a_note(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root=Path(directory); state_dir=root/"state"; state_dir.mkdir()
+            rule={"id":"rule-1","status":"rejected","text_en":"No"}
+            (state_dir/"rulebook.json").write_text(json.dumps({"rules":[rule]}))
+            text=compose({"rules":[rule]},rule)
+            delivery_id=stable_id("rule","rule-1:rejected",text)
+            seed={"statuses":{"rule-1":"proposed"},"tweets_sent":0,"deliveries":{
+                delivery_id:{"id":delivery_id,"kind":"rule","source_id":"rule-1:rejected",
+                             "text":text,"attempts":3,"status":"blocked","confirmed":False}},
+                  "notes_posted":[],"blocked_count":1}
+            external=root/"publisher.json"; external.write_text(json.dumps(seed))
+            (root/"notes.json").write_text(json.dumps([{"id":"note-1","tweet":"A note"}]))
+            values={"TWEET_STATE_PATH":str(external),"TWEET_ENABLE":"1",
+                    "UPLOAD_POST_API_KEY":"k","UPLOAD_POST_USER":"u"}
+            receipt=Response(data={"success":True,"results":{"x":{
+                "success":True,"url":"https://x.com/example/status/2"}}})
+            with mock.patch.object(tweet,"ROOT",root), mock.patch.object(tweet,"STATE",state_dir), \
+                 mock.patch("tweet.env",side_effect=lambda name:values.get(name,"")), \
+                 mock.patch("tweet.requests.post",return_value=receipt) as post:
+                tweet.main()
+            self.assertEqual(post.call_count,1)
+            self.assertEqual(load_json(external,{})["notes_posted"],["note-1"])
 
 
 if __name__ == "__main__": unittest.main()

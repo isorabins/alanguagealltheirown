@@ -18,18 +18,20 @@ STATE = ROOT / "state"
 PAGE = "alanguagealltheirown.com"
 MAX_LEN = 250
 MAX_ATTEMPTS = 3
-NOTES_PER_DAY = 2
+POSTS_PER_DAY = 2
 TWEET_VERBS = ("adopted", "rejected", "reverted")
 REFRAIN = "Two AIs are inventing a language, one tested rule at a time."
 LABEL = {"adopted": "New rule adopted", "rejected": "Rule rejected", "reverted": "Rule un-adopted"}
 
 
 def env(name: str) -> str:
+    if name in os.environ:
+        return os.environ.get(name, "")
     if (ROOT / ".env").exists():
         for line in (ROOT / ".env").read_text().splitlines():
             if line.startswith(name + "="):
                 return line.split("=", 1)[1].strip()
-    return os.environ.get(name, "")
+    return ""
 
 
 def log(message: str) -> None:
@@ -37,7 +39,24 @@ def log(message: str) -> None:
 
 
 def stable_id(kind: str, source_id: str, text: str) -> str:
-    return "x-" + hashlib.sha256(f"{kind}\0{source_id}\0{text}".encode()).hexdigest()[:32]
+    del text
+    return "x-" + hashlib.sha256(f"{kind}\0{source_id}".encode()).hexdigest()[:32]
+
+
+def delivery_state_path() -> Path:
+    configured = env("TWEET_STATE_PATH")
+    return Path(configured) if configured else STATE / "tweet-state.json"
+
+
+def load_delivery_state(path: Path) -> dict[str, Any]:
+    defaults = {"statuses": None, "tweets_sent": 0, "deliveries": {},
+                "notes_posted": [], "blocked_count": 0}
+    if path.exists():
+        return load_json(path, defaults)
+    seed_path = STATE / "tweet-state.json"
+    state = load_json(seed_path, defaults)
+    atomic_write_json(path, state)
+    return state
 
 
 def adopted_count(rulebook: dict[str, Any]) -> int:
@@ -130,7 +149,8 @@ def attempt_post(text: str, delivery: dict[str, Any], state_path: Path) -> dict[
             delivery["status"] = "pending_confirmation"
             return delivery
         if poll_state == "confirmed":
-            delivery.update({"status": "posted", "confirmed": True, "receipt": receipt})
+            delivery.update({"status": "posted", "confirmed": True, "receipt": receipt,
+                             "confirmed_at": datetime.now(timezone.utc).isoformat(timespec="seconds")})
         elif poll_state == "pending":
             delivery["status"] = "pending_confirmation"
         else:
@@ -162,7 +182,8 @@ def attempt_post(text: str, delivery: dict[str, Any], state_path: Path) -> dict[
             data = {}
         receipt = _x_receipt(data) if response.ok else None
         if receipt:
-            delivery.update({"status": "posted", "confirmed": True, "receipt": receipt})
+            delivery.update({"status": "posted", "confirmed": True, "receipt": receipt,
+                             "confirmed_at": datetime.now(timezone.utc).isoformat(timespec="seconds")})
         elif response.ok and _x_pending_id(data):
             delivery.update({"status": "pending_confirmation", "confirmed": False,
                              "request_id": _x_pending_id(data)})
@@ -181,20 +202,46 @@ def attempt_post(text: str, delivery: dict[str, Any], state_path: Path) -> dict[
     return delivery
 
 
+def _find_delivery(state: dict[str, Any], kind: str, source_id: str,
+                   text: str) -> dict[str, Any] | None:
+    existing = [row for row in state.setdefault("deliveries", {}).values()
+                if row.get("kind") == kind and row.get("source_id") == source_id]
+    attempted = [row for row in existing if int(row.get("attempts", 0)) > 0]
+    matching = [row for row in existing if row.get("text") == text]
+    return next(iter(attempted or matching or existing), None)
+
+
 def deliver(kind: str, source_id: str, text: str, state: dict[str, Any], state_path: Path) -> dict[str, Any]:
-    delivery_id = stable_id(kind, source_id, text)
-    delivery = state.setdefault("deliveries", {}).setdefault(delivery_id, {
-        "id": delivery_id, "kind": kind, "source_id": source_id, "text": text,
-        "attempts": 0, "status": "pending", "confirmed": False,
-    })
+    deliveries = state.setdefault("deliveries", {})
+    delivery = _find_delivery(state, kind, source_id, text)
+    if delivery is None:
+        delivery_id = stable_id(kind, source_id, text)
+        delivery = deliveries.setdefault(delivery_id, {
+            "id": delivery_id, "kind": kind, "source_id": source_id, "text": text,
+            "attempts": 0, "status": "pending", "confirmed": False,
+        })
     return attempt_post(text, delivery, state_path)
+
+
+def _mark_confirmed(state: dict[str, Any], kind: str, source_id: str,
+                    result: dict[str, Any]) -> None:
+    if kind == "rule":
+        rule_id, status = source_id.split(":", 1)
+        state.setdefault("statuses", {})[rule_id] = status
+    else:
+        notes_posted = state.setdefault("notes_posted", [])
+        if source_id not in notes_posted:
+            notes_posted.append(source_id)
+    saved = state.setdefault("deliveries", {}).get(result["id"], result)
+    if not saved.get("counted"):
+        saved["counted"] = True
+        state["tweets_sent"] = int(state.get("tweets_sent", 0)) + 1
 
 
 def main() -> None:
     rulebook = load_json(STATE / "rulebook.json", {"rules": []})
-    state_path = STATE / "tweet-state.json"
-    state = load_json(state_path, {"statuses": None, "tweets_sent": 0, "deliveries": {},
-                                   "notes_posted": [], "blocked_count": 0})
+    state_path = delivery_state_path()
+    state = load_delivery_state(state_path)
     current = {rule["id"]: rule["status"] for rule in rulebook.get("rules", [])}
     previous = state.get("statuses")
     if previous is None:
@@ -202,20 +249,19 @@ def main() -> None:
         atomic_write_json(state_path, state)
         log(f"bootstrap: snapshot of {len(current)} rule statuses, nothing posted")
         return
+    today = datetime.now(timezone.utc).strftime("%Y-%m-%d")
+    if state.get("posts_day") != today:
+        state["posts_day"] = today
+        state["posts_day_count"] = sum(
+            row.get("budget_day") == today for row in state.get("deliveries", {}).values()
+        )
+    budget = max(0, POSTS_PER_DAY - int(state.get("posts_day_count", 0)))
     events = [rule for rule in rulebook.get("rules", [])
               if rule.get("status") in TWEET_VERBS and previous.get(rule["id"]) != rule["status"]]
-    for rule in events:
-        text = compose(rulebook, rule)
-        result = deliver("rule", f"{rule['id']}:{rule['status']}", text, state, state_path)
-        if result.get("confirmed"):
-            state["statuses"][rule["id"]] = rule["status"]
-            state["tweets_sent"] = int(state.get("tweets_sent", 0)) + 1
-        log(f"{result['status']} {result['id']}: {text}")
-
-    today = datetime.now(timezone.utc).strftime("%Y-%m-%d")
-    if state.get("notes_day") != today:
-        state["notes_day"], state["notes_day_count"] = today, 0
-    budget = max(0, NOTES_PER_DAY - int(state.get("notes_day_count", 0)))
+    candidates = [
+        ("rule", f"{rule['id']}:{rule['status']}", compose(rulebook, rule))
+        for rule in events
+    ]
     notes = load_json(ROOT / "notes.json", [])
     prior_notes = state.get("notes_posted", [])
     if isinstance(prior_notes, int):
@@ -224,15 +270,42 @@ def main() -> None:
     posted = set(prior_notes)
     for index, note in enumerate(notes):
         note_id = str(note.get("id") or index)
-        if note_id in posted or budget <= 0:
+        if note_id in posted:
             continue
         text = note.get("tweet") or (" ".join(note.get("note", "").split())[: MAX_LEN - len(PAGE) - 2] + " " + PAGE)
-        result = deliver("note", note_id, text[:MAX_LEN], state, state_path)
-        if result.get("confirmed"):
-            state.setdefault("notes_posted", []).append(note_id)
-            state["notes_day_count"] = int(state.get("notes_day_count", 0)) + 1
+        candidates.append(("note", note_id, text[:MAX_LEN]))
+
+    for kind, source_id, text in candidates:
+        deliveries = state.setdefault("deliveries", {})
+        active = _find_delivery(state, kind, source_id, text)
+        if active and active.get("status") == "blocked":
+            continue
+        if active and active.get("status") == "posted" and active.get("confirmed"):
+            _mark_confirmed(state, kind, source_id, active)
+            atomic_write_json(state_path, state)
+            log(f"finalized {active['id']}: {text}")
+            break
+        if budget <= 0:
+            log(f"daily X budget exhausted for {today}")
+            break
+        if active is None or active.get("budget_day") != today:
+            if active is None:
+                delivery_id = stable_id(kind, source_id, text)
+                active = deliveries.setdefault(delivery_id, {
+                    "id": delivery_id, "kind": kind, "source_id": source_id, "text": text,
+                    "attempts": 0, "status": "pending", "confirmed": False,
+                })
+            active["budget_day"] = today
+            state["posts_day_count"] = int(state.get("posts_day_count", 0)) + 1
             budget -= 1
-        # A blocked note never consumes budget and cannot stop later notes.
+            atomic_write_json(state_path, state)
+        result = deliver(kind, source_id, text, state, state_path)
+        state = load_json(state_path, state)
+        if result.get("confirmed"):
+            _mark_confirmed(state, kind, source_id, result)
+        log(f"{result['status']} {result['id']}: {text}")
+        break
+
     state["blocked_count"] = sum(row.get("status") == "blocked" for row in state.get("deliveries", {}).values())
     atomic_write_json(state_path, state)
 
