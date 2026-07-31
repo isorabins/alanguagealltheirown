@@ -258,10 +258,12 @@ def main() -> None:
     budget = max(0, POSTS_PER_DAY - int(state.get("posts_day_count", 0)))
     events = [rule for rule in rulebook.get("rules", [])
               if rule.get("status") in TWEET_VERBS and previous.get(rule["id"]) != rule["status"]]
-    candidates = [
+    rule_candidates = [
         ("rule", f"{rule['id']}:{rule['status']}", compose(rulebook, rule))
         for rule in events
     ]
+    priority_notes: list[tuple[str, str, str]] = []
+    standard_notes: list[tuple[str, str, str]] = []
     notes = load_json(ROOT / "notes.json", [])
     prior_notes = state.get("notes_posted", [])
     if isinstance(prior_notes, int):
@@ -275,7 +277,10 @@ def main() -> None:
         if note_id in posted:
             continue
         text = note.get("tweet") or (" ".join(note.get("note", "").split())[: MAX_LEN - len(PAGE) - 2] + " " + PAGE)
-        candidates.append(("note", note_id, text[:MAX_LEN]))
+        bucket = priority_notes if note.get("x_priority") is True else standard_notes
+        bucket.append(("note", note_id, text[:MAX_LEN]))
+
+    candidates = priority_notes + rule_candidates + standard_notes
 
     for kind, source_id, text in candidates:
         deliveries = state.setdefault("deliveries", {})
