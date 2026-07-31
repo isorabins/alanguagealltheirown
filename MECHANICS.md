@@ -13,7 +13,7 @@ Ordinary exams, Try It, and Conversation use the language view. Agent deliberati
 
 ## Turn sequence
 
-`run_turn.sh` rebases the VPS checkout onto current `main`, gives the collaboration courier a strict eight-second best-effort pull, runs one turn, gives the courier a strict eight-second best-effort push, runs the independent X delivery state machine, then commits and pushes generated state if anything changed. Courier failure is ignored and cannot cancel the turn. The legacy benchmark artifact remains in repository history but is not imported, executed, prompted, measured, or rendered by the active path.
+`run_turn.sh` rebases the VPS checkout onto current `main`, gives the collaboration courier a strict eight-second best-effort pull, runs one turn, gives the courier a strict eight-second best-effort push, then commits and pushes generated state if anything changed. Courier failure is ignored and cannot cancel the turn. X delivery is not invoked by this path. The legacy benchmark artifact remains in repository history but is not imported, executed, prompted, measured, or rendered by the active path.
 
 On a normal turn `loop.py`:
 
@@ -92,7 +92,9 @@ All public model calls require `OPENROUTER_PUBLIC_API_KEY`. There is no fallback
 
 `tweet.py` persists a stable source-derived id and attempt count before each request. It sends only X, `x_title`, and a maximum of 250 characters with the stable idempotency header. State becomes posted only after an explicit X-specific post or job receipt. Dry mode does not attempt or advance anything. Unconfirmed HTTP responses and ambiguous timeouts retain the same identity; attempt three blocks the item, and later field notes continue without consuming blocked-item budget.
 
-Public corrections, the explainer, pin, and each follow remain individual exact approval gates and require real-profile verification.
+The core timer does not call `tweet.py`. Any public correction, explainer, pin, or
+follow remains a standalone exact approval gate and requires real-profile
+verification.
 
 ## Deployment and acceptance
 
