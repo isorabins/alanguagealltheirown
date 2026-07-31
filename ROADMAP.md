@@ -479,3 +479,117 @@ Observed examples:
 - [Current mechanics](MECHANICS.md#legislature) — explicitly states that prior
   events and recent live-test events do not enter fresh legislative requests;
   this section must change only when implementation changes reality.
+
+## P1 — Project conversation-cost savings across 20 exchanges
+
+**Status:** parked until the active fixed-benchmark and Field Notes acceptance
+monitor is terminal; this roadmap entry changes documentation only.
+
+**Outcome:** Add a seventh headline metric to the public viewer with the exact
+short label `projected cost savings · 20 exchanges`. The number is a
+transparent deterministic hypothetical for two Claude Sonnet 4.6 agents using
+the language continuously, retaining their full conversation, and caching the
+current rulebook in both system prompts. It is not current OpenRouter telemetry
+and must be described as projected conversation-cost savings, not total
+API-bill savings.
+
+### Fixed comparison model
+
+- Reference model: Claude Sonnet 4.6.
+- Twenty exchanges means 40 generated messages: Agent A sends and Agent B
+  replies once per exchange.
+- Baseline English message length is 1,000 tokens per generated message.
+- Every invocation carries the full prior transcript. Only the static rulebook
+  prefix is cached.
+- Each agent has its own five-minute cache: two initial cache writes, then 38
+  cache reads.
+- Reference prices per million tokens are `$3` input, `$15` output, `$3.75`
+  five-minute cache write, and `$0.30` cache read.
+- The encoded-message fraction comes from the latest completed B1-B5 cycle:
+  `R = 1 + avgTokenDeltaPct / 100`.
+- The rulebook size is the positive live `rulebook.kernel_tokens` value already
+  supplied to the viewer's `render(S)`.
+- Shared base instructions, tools, reasoning tokens, and unrelated application
+  work are excluded because they are identical or outside the communication
+  layer.
+
+### Deterministic calculation
+
+```text
+N = 40
+M = 1,000
+H = N * (N - 1) / 2 = 780 accumulated-history message copies
+R = 1 + completedCycle.avgTokenDeltaPct / 100
+S = rulebook.kernel_tokens
+
+plain_input_tokens  = H * M
+plain_output_tokens = N * M
+plain_cost = (plain_input_tokens * 3 + plain_output_tokens * 15) / 1,000,000
+
+encoded_input_tokens  = plain_input_tokens * R
+encoded_output_tokens = plain_output_tokens * R
+rulebook_cache_cost = S * (2 * 3.75 + 38 * 0.30) / 1,000,000
+encoded_cost =
+  (encoded_input_tokens * 3 + encoded_output_tokens * 15) / 1,000,000
+  + rulebook_cache_cost
+
+projected_savings_pct =
+  round(100 * (plain_cost - encoded_cost) / plain_cost)
+```
+
+Return no percentage until both a completed benchmark cycle and a positive
+rulebook-token count exist; render `forming` in that state. Do not substitute
+provider receipts or assume automatic caching of growing message history.
+
+### Viewer treatment
+
+Implement the calculation as a small pure helper in `viewer/index.html` near
+`latestCompletedBenchmarkCycle`, using the existing `completedCycle` and
+`rb.kernel_tokens` values. Place the new metric beside the existing savings
+metrics.
+
+Immediately below the metrics/legend, add a restrained expandable explanation
+that names Claude Sonnet 4.6, 40 messages averaging 1,000 English tokens, full
+history retention, the current rulebook cached in two system prompts, and the
+latest completed five-benchmark cycle as the compression source. It must state
+that this is a fixed comparison model, not the experiment's actual API bill;
+the expanded details must expose the two cache writes and 38 reads.
+
+### Acceptance
+
+Focused JavaScript tests must:
+
+1. Extract and execute the pure projection helper.
+2. Pin the 40 messages, 780 accumulated-history copies, two cache writes, 38
+   reads, and Claude Sonnet 4.6 prices.
+3. Prove that `avgTokenDeltaPct: -32` plus `kernel_tokens: 1654` rounds to
+   `31%` projected savings.
+4. Prove missing completed-cycle or positive rulebook-token data produces the
+   `forming` state.
+5. Verify the public projection label and fixed Claude/cache explanation.
+
+Both established Python and JavaScript suites must pass. Local desktop and
+exact 375px inspection must show no crowding or horizontal overflow.
+
+### Delivery boundary
+
+Implementation must start from freshly fetched `origin/main` because generated
+turn commits continue advancing `main`. Produce one coherent viewer-and-test-
+only commit. Do not alter benchmark generation or history, rulebook
+calculation, prompts, state schema, OpenRouter accounting, provider choice,
+`state/`, `viewer/state.js`, Field Notes, X publishing, timers, VPS, Vercel
+production, DNS, credentials, or acceptance-monitor artifacts. Do not make
+provider calls, spend project money, merge, deploy, or claim the metric is live
+under this roadmap item alone.
+
+### Reopen and release gates
+
+Reopen only after the fixed-benchmark and Field Notes acceptance monitor
+reaches `completed` or `blocked`, its evidence is reconciled, and this item is
+selected as the next project gate. Use the existing frontend, quality, and
+human-app-testing workflows for implementation and local responsive proof.
+Production merge/deploy requires separate current approval.
+
+**Current recommendation:** Keep this parked until the active monitor is
+terminal, then build it as a viewer-only change because the fixed model adds
+real-world meaning without contaminating the running experiment.
