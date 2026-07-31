@@ -48,3 +48,15 @@
   1213 and last-update timestamp at desktop and 375px widths without overflow;
   its fresh-state removal path is covered by the JavaScript suite. Current
   totals are 130 Python and 32 JavaScript tests. Production remains unchanged.
+- Iso approved the bounded production repair on 2026-07-31 WITA: deterministic
+  deliberation fallback only for otherwise-valid typed actions, the public
+  stale-runtime notice, one PR/merge/deploy, and one live B turn under a new
+  `$0.30` provider-spend ceiling. Model, routing, cadence, credentials, DNS, and
+  X remain excluded.
+- The fallback now passes the unchanged state-specific validator over the
+  complete operative action before replacing only a missing, too-short, or
+  punctuation-only public deliberation. Canonical history explicitly records
+  when the harness generated that sentence.
+- Pre-deployment verification PASS: 134 Python tests, 32 JavaScript tests, and
+  115-requirement/210-task coverage. Production remains paused at turn 1213
+  pending independent review and the single approved PR.

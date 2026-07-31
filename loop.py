@@ -33,6 +33,7 @@ from legislative_protocol import (
     prompt_receipt_projection,
     prompt_request_projection,
     validate_action,
+    validate_action_with_deliberation_fallback,
     validation_reason,
 )
 from project_lookup import is_project_question, project_lookup
@@ -669,6 +670,7 @@ def agent_turn(conv, rb, meta, collaboration, turn):
     base_user = assembled["user"]
     request_options = assembled["request_options"]
     structured_action = None
+    deliberation_fallback = None
     usage = {}
     last_structural_reason = "unknown structural validation error"
     attempts = 0
@@ -690,7 +692,9 @@ def agent_turn(conv, rb, meta, collaboration, turn):
             request_options=request_options,
         )
         try:
-            structured_action = validate_action(text, agent, rb)
+            structured_action, deliberation_fallback = (
+                validate_action_with_deliberation_fallback(text, agent, rb)
+            )
             break
         except ValidationError as exc:
             last_structural_reason = validation_reason(exc)
@@ -737,16 +741,17 @@ def agent_turn(conv, rb, meta, collaboration, turn):
         return "structural_failure"
 
     before_rulebook = copy.deepcopy(rb)
-    conv.append(
-        {
-            "turn": turn,
-            "agent": agent,
-            "type": "message",
-            "content": structured_action.deliberation,
-            "structured_action": structured_action.model_dump(mode="json"),
-            "tokens": usage.get("completion_tokens", 0),
-        }
-    )
+    message_event = {
+        "turn": turn,
+        "agent": agent,
+        "type": "message",
+        "content": structured_action.deliberation,
+        "structured_action": structured_action.model_dump(mode="json"),
+        "tokens": usage.get("completion_tokens", 0),
+    }
+    if deliberation_fallback is not None:
+        message_event["deliberation_fallback"] = deliberation_fallback
+    conv.append(message_event)
     for measurement in structured_action.measurements:
         probe_text = measurement.text
         n = token_count(probe_text, meta)

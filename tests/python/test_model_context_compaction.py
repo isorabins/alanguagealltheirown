@@ -705,6 +705,70 @@ class ProductionShapedPromptTests(unittest.TestCase):
             self.assertIn('"findings_omitted_chars"', system)
             self.assertNotIn('"unchanged_rule_ids"', system)
 
+    def test_agent_turn_repairs_only_deliberation_and_records_public_receipt(self):
+        book = production_book()
+        events = production_window(book)
+        state = empty_state()
+        row = answered_lookup()
+        state["research"].append(row)
+        meta = {"last_agent": "A", "spend_usd": 0.0}
+        provider_output = json.dumps(
+            {
+                "deliberation": "I",
+                "motion": {
+                    "kind": "REQUEST",
+                    "target_rule_id": "rule-132",
+                    "focus": "Test the exact boundary against one hostile transfer.",
+                },
+                "measurements": [],
+                "requests": [],
+            }
+        )
+
+        with mock.patch.object(
+            loop,
+            "call",
+            return_value=(provider_output, {"completion_tokens": 17}),
+        ):
+            self.assertEqual(
+                loop.agent_turn(events, book, meta, state, 1214),
+                "accepted",
+            )
+
+        message = next(
+            event
+            for event in reversed(events)
+            if event.get("type") == "message"
+        )
+        receipt = events[-1]["post_state_receipt"]
+        self.assertEqual(
+            message["content"],
+            "Public audit: Agent B requested focused work on rule-132.",
+        )
+        self.assertEqual(
+            message["structured_action"]["motion"],
+            {
+                "kind": "REQUEST",
+                "target_rule_id": "rule-132",
+                "focus": "Test the exact boundary against one hostile transfer.",
+            },
+        )
+        self.assertEqual(
+            message["deliberation_fallback"],
+            {
+                "applied": True,
+                "source": "harness_deterministic_deliberation",
+                "provider_error": "string_too_short at deliberation",
+            },
+        )
+        self.assertEqual(receipt["attempts"], 1)
+        self.assertEqual(
+            receipt["attempted_action"]["deliberation"],
+            message["content"],
+        )
+        self.assertEqual(state["research"][0]["status"], "delivered")
+        self.assertEqual(len(state["deliveries"]), 1)
+
 
 if __name__ == "__main__":
     unittest.main()

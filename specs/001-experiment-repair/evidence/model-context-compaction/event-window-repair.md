@@ -175,3 +175,48 @@ model projection is 1,318.
 - contract coverage: 115 requirements / 210 sequential tasks;
 - compile, whitespace, and canonical state/prompt/viewer/provider-boundary
   preservation: PASS.
+
+## Approved deterministic deliberation fallback
+
+Date: 2026-07-31 WITA
+
+Exact approval receipt:
+
+> APPROVE LIVE CHANGE: continue A Language All Their Own from paused turn 1213
+> using branch codex/alato-model-context-compaction and the existing production
+> OpenRouter key; allow the narrowly scoped deterministic deliberation fallback
+> for otherwise valid typed actions, the public stale-runtime notice, one PR
+> and merge to main, production deployment, and one live B turn with up to
+> $0.30 additional provider spend; do not change model, routing, cadence,
+> credentials, DNS, or X; pause on any other validation, state, service, or
+> invariant warning; after one valid B receipt, verify the live site and system
+> and leave the normal timer running
+
+The approved fallback is local and non-operative. It applies only when every
+strict validation error is confined to a missing, shorter-than-minimum, or
+punctuation-only `deliberation` field. Before substitution, the unchanged
+state-specific validator must accept the complete typed `motion`,
+`measurements`, `requests`, and envelope. Any other error still enters the
+unchanged bounded retry path.
+
+The harness derives one fixed public sentence from the already-validated role
+and motion. Canonical history stores that sentence and an explicit
+`deliberation_fallback` receipt containing only the fallback source and bounded
+validation reason; raw invalid provider prose is not persisted.
+
+Pre-deployment verification:
+
+- focused fallback/protocol/compaction/loop suite: 42 passed;
+- full Python: 134 passed;
+- JavaScript: 32 passed;
+- contract coverage: 115 requirements / 210 sequential tasks;
+- whitespace and typed-action preservation: PASS;
+- production timer and service: inactive;
+- production main: `4da2d28287f3412a45c9195cb1dcdc9b89890b42`;
+- canonical turn: 1213, next legislative actor B;
+- rulebook SHA-256:
+  `8bcd8c49d62581f30c5d0bf676451dbc44c6dd8af8fdbf1940b5bc115059fb45`.
+
+No provider call, PR, merge, deployment, timer resume, model/routing/cadence
+change, credential change, DNS action, or X action occurred during this
+pre-deployment implementation and verification.
