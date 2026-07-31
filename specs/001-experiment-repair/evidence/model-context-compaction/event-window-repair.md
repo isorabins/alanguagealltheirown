@@ -7,6 +7,16 @@ Approval: `$1` additional provider spend and up to three prompt-only
 review/PR/deploy/retry cycles
 State: **PAUSED / THREE APPROVED CYCLES EXHAUSTED**
 
+Exact approval receipt:
+
+> APPROVE LIVE CHANGE: resume A Language All Their Own from paused turn 1212
+> using current deployed main and the existing production OpenRouter key; allow
+> up to $1 additional provider spend for turn 1213 and up to three prompt-only
+> repair, PR, deploy, and retry cycles; pause on state, service, or invariant
+> warnings; do not change model, routing, validator, protocol, cadence,
+> credentials, UI, DNS, or X; after one valid B receipt, verify the live system
+> and leave the normal timer running
+
 ## Turn-1213 warning stop
 
 The deployed 68,180-character prompt still exhausted all three Kimi responses
@@ -125,7 +135,7 @@ was deployed, and the timer remains inactive at canonical turn 1213. A further
 provider call, PR, deployment, timer resume, or change to schema, validator,
 protocol, model, routing, or another excluded subsystem requires new approval.
 
-## Cycle-1 decision
+## Current cycle-3 candidate
 
 The fresh legislative call will retain:
 
@@ -140,23 +150,26 @@ canonical persistence and public history. A deterministic leading contract
 requires one public `Public audit:` sentence and provides one non-operative
 complete-object shape example.
 
-Named response receipts in this recovery envelope total `$0.0674344608`.
-Authenticated shared-key usage is `$0.0960859640` above the approval baseline,
-including `$0.0286515032` of concurrent/unattributed key usage. The conservative
-remaining allowance is therefore `$0.9039140360` before the `$1` ceiling. No
-model, routing, schema, validator, retry, temperature, cadence, credential, UI,
-DNS, X, rule, research, or canonical-event mutation occurred during diagnosis.
+Named response receipts in this recovery envelope total `$0.0871353608`.
+The conservative shared-key delta, including cycle 3's returned cost before it
+appeared at the key endpoint, is `$0.1273943440`. The `$0.0402589832`
+difference is shared-key usage not attributable to the named receipts,
+including the cycle-1 exact replay whose process stopped before emitting its
+returned receipt. The conservative remaining allowance is `$0.8726056560`
+before the `$1` ceiling. No model, routing, schema, validator, retry,
+temperature, cadence, credential, UI, DNS, X, rule, research, or canonical-event
+mutation occurred during diagnosis.
 
 ## Offline implementation verification
 
-The exact paused-state turn-1214 rehearsal is 54,585 characters: 54,312 system
+The exact paused-state turn-1214 rehearsal is 54,777 characters: 54,504 system
 and 273 user. It begins with the tested mandatory contract, contains the
 complete B/open-`rule-132` schema, complete legislature, authoritative state,
 and a 3,108-character bounded collaboration delivery, and contains no event
 replay. The full canonical lookup remains 11,248 findings characters while the
 model projection is 1,318.
 
-- focused protocol/compaction suite: 37 passed;
+- focused protocol/collaboration/compaction suite: 60 passed;
 - full Python: 130 passed;
 - JavaScript: 31 passed;
 - contract coverage: 115 requirements / 210 sequential tasks;

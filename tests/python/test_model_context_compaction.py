@@ -598,7 +598,7 @@ class ProductionShapedPromptTests(unittest.TestCase):
             "rule-132",
         )
 
-    def test_legislative_output_contract_covers_a_and_b_without_open_motion(self):
+    def test_legislative_output_contract_covers_a_open_and_b_no_open(self):
         book = production_book()
         events = production_window(book)
 
