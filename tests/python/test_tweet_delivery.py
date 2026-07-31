@@ -144,7 +144,8 @@ class PublisherTests(unittest.TestCase):
                   "notes_posted":[],"blocked_count":0}
             seed_path=state_dir/"tweet-state.json"; seed_path.write_text(json.dumps(seed))
             (root/"notes.json").write_text(json.dumps([
-                {"id":"note-1","tweet":"First note"}, {"id":"note-2","tweet":"Second note"}
+                {"id":"note-1","tweet":"First note","publish_to_x":True},
+                {"id":"note-2","tweet":"Second note","publish_to_x":True}
             ]))
             external=root/"publisher"/"state.json"
             values={"TWEET_STATE_PATH":str(external),"TWEET_ENABLE":"1",
@@ -178,7 +179,9 @@ class PublisherTests(unittest.TestCase):
                              "text":text,"attempts":3,"status":"blocked","confirmed":False}},
                   "notes_posted":[],"blocked_count":1}
             external=root/"publisher.json"; external.write_text(json.dumps(seed))
-            (root/"notes.json").write_text(json.dumps([{"id":"note-1","tweet":"A note"}]))
+            (root/"notes.json").write_text(json.dumps([
+                {"id":"note-1","tweet":"A note","publish_to_x":True}
+            ]))
             values={"TWEET_STATE_PATH":str(external),"TWEET_ENABLE":"1",
                     "UPLOAD_POST_API_KEY":"k","UPLOAD_POST_USER":"u"}
             receipt=Response(data={"success":True,"results":{"x":{
@@ -189,6 +192,39 @@ class PublisherTests(unittest.TestCase):
                 tweet.main()
             self.assertEqual(post.call_count,1)
             self.assertEqual(load_json(external,{})["notes_posted"],["note-1"])
+
+    def test_only_explicitly_eligible_note_enters_the_x_queue(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root=Path(directory); state_dir=root/"state"; state_dir.mkdir()
+            (state_dir/"rulebook.json").write_text(json.dumps({"rules":[]}))
+            external=root/"publisher.json"
+            external.write_text(json.dumps({
+                "statuses":{},"tweets_sent":0,"deliveries":{},"notes_posted":[],
+                "blocked_count":0
+            }))
+            (root/"notes.json").write_text(json.dumps([
+                {"id":"private","tweet":"Do not post","publish_to_x":False},
+                {"id":"approved","tweet":"Approved note","publish_to_x":True}
+            ]))
+            values={"TWEET_STATE_PATH":str(external),"TWEET_ENABLE":"1",
+                    "UPLOAD_POST_API_KEY":"k","UPLOAD_POST_USER":"u"}
+            receipt=Response(data={"success":True,"results":{"x":{
+                "success":True,"url":"https://x.com/example/status/3"}}})
+            with mock.patch.object(tweet,"ROOT",root), mock.patch.object(tweet,"STATE",state_dir), \
+                 mock.patch("tweet.env",side_effect=lambda name:values.get(name,"")), \
+                 mock.patch("tweet.requests.post",return_value=receipt) as post:
+                tweet.main()
+            self.assertEqual(post.call_count,1)
+            self.assertEqual(post.call_args.kwargs["data"]["title"],"Approved note")
+            self.assertEqual(load_json(external,{})["notes_posted"],["approved"])
+
+    def test_repository_field_notes_are_explicit_and_fit_x(self):
+        notes=json.loads((Path(__file__).parents[2]/"notes.json").read_text())
+        self.assertEqual(len(notes),22)
+        self.assertTrue(all(note.get("publish_to_x") is True for note in notes))
+        new_notes=[note for note in notes if note.get("id")]
+        self.assertEqual(len(new_notes),8)
+        self.assertTrue(all(len(note["tweet"]) <= MAX_LEN for note in new_notes))
 
 
 if __name__ == "__main__": unittest.main()

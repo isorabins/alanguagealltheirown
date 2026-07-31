@@ -434,12 +434,27 @@ def render_window(conv):
                     grader_loss[:MAX_TEST_GRADER_LOSS_CHARS].rstrip()
                     + "…"
                 )
+            comparison = ""
+            if e.get("benchmark_id") and e.get("prior_turn") is not None:
+                if e.get("fidelity_delta") is None:
+                    comparison = (
+                        f"\n{e['benchmark_id']} baseline remains turn "
+                        f"{e['prior_turn']} because this result is invalid"
+                    )
+                else:
+                    comparison = (
+                        f"\nprevious same benchmark: turn {e['prior_turn']} | "
+                        f"fidelity {e['prior_fidelity']} -> {e['fidelity']} "
+                        f"({e['fidelity_delta']:+d}) | savings "
+                        f"{-e['prior_token_delta_pct']}% -> {-e['token_delta_pct']}% "
+                        f"({e['savings_delta_pct']:+d} points)"
+                    )
             out.append(
                 f"[turn {e['turn']} — AUTHORITATIVE LIVE TEST RECEIPT | "
                 f"payload: {e['payload']}]\n"
                 f"original {e['orig_tokens']} tokens -> encoded {e['enc_tokens']} tokens "
                 f"({e['token_delta_pct']:+d}%) | {score}\n"
-                f"grader: {grader_loss}" + audit)
+                f"grader: {grader_loss}" + comparison + audit)
         else:
             out.append(
                 f"[turn {e['turn']} — NON-AUTHORITATIVE AGENT DISCUSSION] "
@@ -815,31 +830,65 @@ def agent_turn(conv, rb, meta, collaboration, turn):
     return result
 
 
-DOMAINS = ["logistics", "software operations", "event planning", "food service", "travel",
-           "equipment maintenance", "publishing", "customer support", "farming",
-           "construction", "lab work", "retail"]
+BENCHMARK_PATH = ROOT / "benchmarks" / "v1.json"
+BENCHMARK_IDS = ("B1", "B2", "B3", "B4", "B5")
 
 
-def gen_payload(meta):
-    """A fresh, never-seen test message — written blind: the generator sees neither the
-    rulebook nor the conversation, so the exam can't be taught to (payloads were a fixed
-    set of 13 files until test #24; those files are now the transfer-test battery)."""
-    n = meta.get("tests_run", 0)
-    kind = ("prose", "task", "data")[n % 3]
-    domain = DOMAINS[(n // 3) % len(DOMAINS)]
-    prompt = ((ROOT / "prompts" / "payloadgen.md").read_text()
-              .replace("{CATEGORY}", kind).replace("{DOMAIN}", domain))
-    for _ in range(2):
-        raw, _ = call(MODEL_A, prompt, "Write the message now.",
-                      max_tokens=2000, temperature=1.0, meta=meta)
-        text, _, keyblock = raw.strip().strip('"').partition("===KEY===")
-        text = text.strip().strip('"').strip()
-        # the answer key is born with the exam, blind to everything downstream —
-        # grading checks receipts against it instead of forming one holistic opinion
-        key = normalize_answer_key(keyblock)
-        if 200 <= len(text) <= 5000 and len(key) >= 6:
-            return f"gen-{kind}-{domain.split()[0]}", text, key
-    return None, None, None
+def load_benchmark_suite(path=BENCHMARK_PATH):
+    """Load and validate the frozen benchmark registry before touching model spend."""
+    suite = load_json(Path(path), {})
+    rows = suite.get("benchmarks", [])
+    ids = tuple(row.get("id") for row in rows if isinstance(row, dict))
+    if suite.get("version") != "v1" or ids != BENCHMARK_IDS:
+        raise ValueError("benchmark_v1_registry_invalid")
+    for row in rows:
+        baseline = row.get("baseline", {})
+        if (
+            not str(row.get("name", "")).strip()
+            or not str(row.get("original", "")).strip()
+            or len(row.get("answer_key", [])) < 6
+            or baseline.get("fidelity") is None
+            or baseline.get("token_delta_pct") is None
+        ):
+            raise ValueError(f"benchmark_v1_row_invalid:{row.get('id')}")
+    return suite
+
+
+def select_benchmark(meta, suite=None):
+    """Return the next benchmark without advancing its durable cursor."""
+    suite = suite or load_benchmark_suite()
+    state = meta.get("benchmark_suite")
+    if state is None:
+        state = {"version": suite["version"], "next_index": 0, "cycle": 1}
+        meta["benchmark_suite"] = state
+    if state.get("version") != suite["version"]:
+        raise ValueError("benchmark_version_mismatch")
+    index = state.get("next_index")
+    cycle = state.get("cycle")
+    if not isinstance(index, int) or not 0 <= index < len(suite["benchmarks"]):
+        raise ValueError("benchmark_cursor_invalid")
+    if not isinstance(cycle, int) or cycle < 1:
+        raise ValueError("benchmark_cycle_invalid")
+    return copy.deepcopy(suite["benchmarks"][index]), cycle
+
+
+def advance_benchmark(meta, benchmark, suite=None):
+    """Advance exactly once after an exam receipt has been constructed."""
+    suite = suite or load_benchmark_suite()
+    state = meta["benchmark_suite"]
+    index = state["next_index"]
+    if suite["benchmarks"][index]["id"] != benchmark["id"]:
+        raise ValueError("benchmark_cursor_drift")
+    next_index = (index + 1) % len(suite["benchmarks"])
+    state["next_index"] = next_index
+    if next_index == 0:
+        state["cycle"] += 1
+
+
+def previous_benchmark_result(meta, benchmark):
+    """Use the previous valid live result, or the frozen historical baseline."""
+    previous = meta.get("benchmark_results", {}).get(benchmark["id"])
+    return copy.deepcopy(previous or benchmark["baseline"])
 
 
 def normalize_answer_key(raw):
@@ -849,33 +898,13 @@ def normalize_answer_key(raw):
             if re.sub(r"^\s*(?:[-*•]|\d+[.)])\s*", "", str(line)).strip()]
 
 
-def extract_answer_key(payload, meta):
-    """Create the fixed exam key before encoding; failure makes the score invalid."""
-    prompt = (ROOT / "prompts" / "answer_key.md").read_text()
-    raw, _ = call(MODEL_GRADER, prompt, payload, max_tokens=1200, temperature=0, meta=meta)
-    match = re.search(r"\[.*\]", raw, re.S)
-    if match:
-        try:
-            parsed = json.loads(match.group(0))
-            if isinstance(parsed, list):
-                return normalize_answer_key(parsed)
-        except json.JSONDecodeError:
-            pass
-    return []
-
-
 def test_turn(conv, rb, meta, turn):
-    pname, payload, key = gen_payload(meta)
-    if payload is None:  # generator failed twice — key the fixed payload before either agent sees it
-        by_kind = {}
-        for f in sorted((ROOT / "payloads").glob("*.txt")):
-            by_kind.setdefault(f.name.split("-")[0], []).append(f)
-        kinds = sorted(by_kind)  # interleave prose/task/data so no type dominates
-        payloads = [ks[i] for i in range(max(len(v) for v in by_kind.values()))
-                    for ks in (by_kind[k] for k in kinds) if i < len(ks)]
-        p = payloads[meta.get("tests_run", 0) % len(payloads)]
-        pname, payload = p.name, p.read_text().strip()
-        key = extract_answer_key(payload, meta)
+    suite = load_benchmark_suite()
+    benchmark, benchmark_cycle = select_benchmark(meta, suite)
+    pname = f"{benchmark['id']} · {benchmark['name']}"
+    payload = benchmark["original"]
+    key = normalize_answer_key(benchmark["answer_key"])
+    previous = previous_benchmark_result(meta, benchmark)
     captured = language_payload(rb)
     rbook = render_language(rb)
     enc_sys = ("You are the encoder. Encode the message below into the project language "
@@ -919,20 +948,43 @@ def test_turn(conv, rb, meta, turn):
     orig_t = token_count(payload, meta)
     enc_t = token_count(encoded.strip(), meta)
     delta = round((enc_t - orig_t) / orig_t * 100)
+    fidelity_delta = fidelity - previous["fidelity"] if fidelity is not None else None
+    savings_delta = (
+        previous["token_delta_pct"] - delta if fidelity is not None else None
+    )
     meta["tests_run"] = meta.get("tests_run", 0) + 1
     event = {"turn": turn, "agent": "harness", "type": "test", "payload": pname,
              "original": payload, "orig_tokens": orig_t, "enc_tokens": enc_t,
              "token_delta_pct": delta, "fidelity": fidelity, "lost": lost,
              "encoded": encoded.strip(), "decoded": decoded.strip(), "tokens": enc_t,
              "decoder_model": MODEL_DECODER, "language_version": captured["version"],
-             "language_hash": captured["hash"]}
+             "language_hash": captured["hash"], "era": "benchmark-v1",
+             "benchmark_id": benchmark["id"], "benchmark_name": benchmark["name"],
+             "benchmark_version": suite["version"], "benchmark_cycle": benchmark_cycle,
+             "benchmark_source_turn": benchmark["source_turn"],
+             "prior_turn": previous["turn"], "prior_fidelity": previous["fidelity"],
+             "prior_token_delta_pct": previous["token_delta_pct"],
+             "fidelity_delta": fidelity_delta, "savings_delta_pct": savings_delta}
     event.update(audit)
     conv.append(event)
     exams = meta.setdefault("corpus_exams", [])
     exams.append({"turn": turn, "language_version": captured["version"],
                   "language_hash": captured["hash"], "fidelity": fidelity,
-                  "token_delta_pct": delta, "valid": fidelity is not None})
+                  "token_delta_pct": delta, "valid": fidelity is not None,
+                  "era": "benchmark-v1", "benchmark_id": benchmark["id"],
+                  "benchmark_name": benchmark["name"],
+                  "benchmark_version": suite["version"],
+                  "benchmark_cycle": benchmark_cycle,
+                  "prior_turn": previous["turn"],
+                  "fidelity_delta": fidelity_delta,
+                  "savings_delta_pct": savings_delta})
     meta["corpus_exams"] = exams[-500:]
+    if fidelity is not None:
+        meta.setdefault("benchmark_results", {})[benchmark["id"]] = {
+            "turn": turn, "fidelity": fidelity, "token_delta_pct": delta,
+            "language_version": captured["version"], "language_hash": captured["hash"],
+        }
+    advance_benchmark(meta, benchmark, suite)
     print(f"[t{turn} TEST] {pname}  {orig_t}->{enc_t}tok ({delta:+d}%)  fid {fidelity}  "
           f"${meta['spend_usd']:.3f}", flush=True)
 

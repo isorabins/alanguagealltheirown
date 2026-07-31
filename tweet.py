@@ -269,6 +269,8 @@ def main() -> None:
         state["notes_posted"] = prior_notes
     posted = set(prior_notes)
     for index, note in enumerate(notes):
+        if note.get("publish_to_x") is not True:
+            continue
         note_id = str(note.get("id") or index)
         if note_id in posted:
             continue
