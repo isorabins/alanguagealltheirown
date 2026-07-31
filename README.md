@@ -12,7 +12,8 @@ A public, long-running experiment in which two agents build a compact AI-to-AI l
 - Canonical requests, rule records, collaboration rows, receipts, and event history remain complete. The transient A/B legislative prompt does not replay prior events: the authoritative current state/latest receipt, `COMPLETE LEGISLATURE`, and bounded collaboration input are the complete model-facing basis for the next action. No projected form is persisted.
 - Full live-test encoded/decoded artifacts and outcome receipts also remain canonical and directly renderable in public history, but no prior live-test event enters a fresh legislative prompt. The structured schema describes the same substantive-deliberation boundary enforced locally.
 - Only adopted rule text enters ordinary encoding, decoding, public Try It, and the scheduled Conversation exam. Proposed and rejected material remains public history.
-- Ordinary exam results are corpus-level evidence tied to an immutable adopted-language version and hash. Legacy per-rule scores remain labeled history.
+- Scheduled exams rotate persistently through Benchmark Set v1: five frozen historical messages and answer keys. Every result compares only with that benchmark's previous valid result; invalid runs do not replace its baseline.
+- Ordinary exam results are corpus-level evidence tied to an immutable adopted-language version and hash. Pre-benchmark results remain labeled as the fresh-payload era, and the separate transfer battery remains the generalization check.
 - A judge score is valid only when every answer-key item appears exactly once with a valid verdict.
 - The `$25` private-loop tripwire retains the pre-cutover total as a labeled historical estimate and adds OpenRouter's returned `usage.cost` exactly once for every successful call from cutover forward. Production records response-id/cost receipts atomically in a gitignored local ledger so a crash cannot lose or double-count a charged response.
 
@@ -35,7 +36,7 @@ The core experiment timer never invokes X delivery. The separate `language-x.tim
 runs `tweet.py` hourly, attempts at most one deterministic rule update or queued field
 note per run, and reserves at most two delivery slots per UTC day. Its mutable state
 lives outside the Git checkout. It uses one `x_title` post of at most 250 characters,
-a stable source identity, and an explicit X receipt.
+a stable source identity, explicit per-note X eligibility, and an explicit X receipt.
 
 ## Operations and status
 

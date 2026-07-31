@@ -8,6 +8,52 @@ test('public page has mobile disclosure and suggestion placement',()=>{
   assert.match(html,/<details class="sect">/); assert.match(html,/Full transcript/);
 });
 
+test('public page explains fixed benchmarks and labels the earlier era honestly',()=>{
+  assert.match(html,/Five fixed benchmark messages now repeat/);
+  assert.match(html,/fresh-payload era/);
+  assert.match(html,/separate transfer test still checks/);
+  assert.doesNotMatch(html,/Every exam is new/);
+  assert.doesNotMatch(html,/avg savings · last 10 passing/);
+  assert.doesNotMatch(html,/avg fidelity · last 10 exams/);
+});
+
+test('benchmark cycle metrics require five valid benchmark ids',()=>{
+  const source=html.match(/function latestCompletedBenchmarkCycle\(tests\) \{([\s\S]*?)\n\}\n\nfunction benchmarkComparisonView/);
+  assert.ok(source,'latestCompletedBenchmarkCycle must remain independently testable');
+  const latestCompletedBenchmarkCycle=Function('tests',source[1]);
+  const cycle1=['B1','B2','B3','B4','B5'].map((id,index)=>({
+    benchmark_version:'v1',benchmark_id:id,benchmark_cycle:1,
+    fidelity:80+index,token_delta_pct:-10*(index+1)
+  }));
+  const complete=latestCompletedBenchmarkCycle(cycle1);
+  assert.equal(complete.cycle,1);
+  assert.equal(complete.avgTokenDeltaPct,-30);
+  assert.equal(complete.avgFidelity,82);
+  assert.equal(latestCompletedBenchmarkCycle(cycle1.concat([{
+    benchmark_version:'v1',benchmark_id:'B1',benchmark_cycle:2,
+    fidelity:100,token_delta_pct:-90
+  }])).cycle,1);
+  assert.equal(latestCompletedBenchmarkCycle([]),null);
+});
+
+test('benchmark comparison uses the recorded same-message baseline',()=>{
+  const source=html.match(/function benchmarkComparisonView\(t\) \{([\s\S]*?)\n\}\n\nfunction render/);
+  assert.ok(source,'benchmarkComparisonView must remain independently testable');
+  const benchmarkComparisonView=Function('t',source[1]);
+  const view=benchmarkComparisonView({
+    benchmark_id:'B3',prior_turn:1179,prior_fidelity:68,fidelity:91,
+    fidelity_delta:23,prior_token_delta_pct:-29,token_delta_pct:-34,
+    savings_delta_pct:5
+  });
+  assert.deepEqual(view,{
+    valid:true,id:'B3',priorTurn:1179,priorFidelity:68,fidelity:91,
+    fidelityDelta:23,priorSavings:29,savings:34,savingsDelta:5
+  });
+  assert.deepEqual(benchmarkComparisonView({
+    benchmark_id:'B3',prior_turn:1179,fidelity_delta:null
+  }),{valid:false,id:'B3',priorTurn:1179});
+});
+
 test('stale active claims and Composition are absent',()=>{
   for(const phrase of ['dumb script','mindless script','gigawatt','power-grid','Composition','Slack ASK',':online']) assert.doesNotMatch(html,new RegExp(phrase,'i'));
 });

@@ -124,6 +124,8 @@
   .tx { border: 1px solid var(--hairline); padding: 1.2rem 1.4rem; }
   .tx-head { font-family: var(--mono); font-size: 0.64rem; color: var(--ink-faint); letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 0.2rem; text-align: center; }
   .tx-head .ok { color: var(--accent); } .tx-head .low { color: var(--bad); }
+  .benchmark-compare { margin: 0.8rem auto 0; max-width: 760px; padding: 0.75rem 0.9rem; border: 1px solid var(--hairline); font-family: var(--mono); font-size: 0.68rem; color: var(--ink-soft); }
+  .benchmark-compare b { color: var(--accent); font-weight: 600; }
   .tx-cols { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1.4rem; }
   .tx-col .lab { font-family: var(--mono); font-size: 0.6rem; letter-spacing: 0.18em; text-transform: uppercase; color: var(--ink-faint); margin-bottom: 0.4rem; }
   .tx-col pre { font-family: var(--mono); font-size: 0.7rem; line-height: 1.6; white-space: pre-wrap; word-wrap: break-word; color: var(--ink); }
@@ -329,7 +331,7 @@
   <div><span class="tval" id="t-turn">--:--</span><span class="tlab">next turn</span></div>
   <div><span class="tval" id="t-test">--:--</span><span class="tlab">next exam</span></div>
 </div>
-<p class="timers-cap">The agents normally take one turn every 15 minutes, around the clock. Every third turn, a message they have never seen must survive the round trip through their language.</p>
+<p class="timers-cap">The agents normally take one turn every 15 minutes, around the clock. Every third turn, the next fixed benchmark must survive the round trip through their current language.</p>
 <aside class="runtime-status" id="runtime-status" aria-live="polite">
   <strong id="runtime-status-heading">The scheduled loop is not advancing.</strong>
   <span id="runtime-status-detail"></span>
@@ -381,17 +383,17 @@
 <div class="tx" id="conversation-exam"></div>
 
 <h2>The Latest Exam</h2>
-<p class="how">Every exam ships with an answer key — the numbered facts the message must carry. The judge marks each one survived, corrupted, or missing in what the stranger produced; the score is a checklist, not an impression. The encoded version is allowed to look nothing like the original: it can reorder, restructure, and drop every word that isn't carrying meaning.</p>
+<p class="how">Five fixed benchmark messages now repeat in a balanced cycle. Each result is compared only with the previous valid result for that same message, so changes in the language are not confused with changes in the exam. Every benchmark has a frozen answer key, and the separate transfer test still checks whether the language generalizes beyond this panel.</p>
 <div class="tx" id="tx"></div>
 
 <h2>Exam History</h2>
-<p class="how">The last fifteen exams, newest first. Open any row for the judge's full audit and all three texts — original, encoded, decoded.</p>
+<p class="how">The last fifteen exams, newest first. Results before Benchmark Set v1 remain intact and are labeled as the fresh-payload era. Open any row for the judge's full audit and all three texts — original, encoded, decoded.</p>
 <div class="exrows" id="exams"></div>
 
 <div id="tryit">
 <h2>Try It Yourself</h2>
 <p class="how">Paste a paragraph — a real message, the kind where the details matter. It takes the
-same exam the agents face every third turn: encoded into their language by the compression agent,
+same encode, decode, and fact-audit path used by the scheduled benchmarks: encoded into their language by the compression agent,
 decoded by a stranger model that has only the rulebook, then audited fact by fact. Nothing is
 canned — you are watching the live pipeline run on your words.</p>
 <div class="ti-cap">your message · max 700 characters</div>
@@ -455,7 +457,7 @@ canned — you are watching the live pipeline run on your words.</p>
 <p class="how">Distinct roles with one enforced boundary: only the agents can legislate, and only adopted rules are language law.</p>
 <div id="cast">
   <div class="note"><span class="nd">the legislature</span>DeepSeek A invents, revises, or proposes repeal of one rule at a time. Kimi B audits that focused add or repeal motion and alone may adopt or reject it. A repealed rule leaves the language but keeps its full public history. Invalid motions are visible no-ops.</div>
-  <div class="note"><span class="nd">the exam writer</span>Every third turn, a separate AI invents a realistic message neither negotiator has ever seen — a deploy request, an apology, a recall notice with lot numbers. Every exam is new, so the agents can never tune their language to a known exam.</div>
+  <div class="note"><span class="nd">the benchmark panel</span>Every third turn, the harness selects the next of five frozen messages: event prose, an equipment procedure, farming data, retail prose, and a software task. A message is compared only with its own previous valid result. Repetition gives the experiment a stable ruler; the separate transfer battery remains the check against overfitting.</div>
   <div class="note"><span class="nd">the encoder</span>Another AI translates that message into the invented language, using nothing but the current rulebook.</div>
   <div class="note"><span class="nd">the stranger</span>A completely fresh AI — no memory of the conversation, no context at all — receives only the rulebook and the encoded message, and must turn it back into plain English. Since turn 246 the stranger is also a different model family from the negotiators, so it can't lean on shared habits: it decodes what the encoding actually says. If the language only works for the two agents who invented it, it fails here. This is the whole test.</div>
   <div class="note"><span class="nd">the judge</span>Every exam begins with a numbered answer key. A score is published only if the judge returns exactly one valid verdict for every key item—no gaps, duplicates, nonnumeric ids, or out-of-range ids. Corpus results describe the captured adopted language as a whole.</div>
@@ -487,6 +489,44 @@ canned — you are watching the live pipeline run on your words.</p>
 
 <script src="state.js"></script>
 <script>
+function latestCompletedBenchmarkCycle(tests) {
+  var groups = {};
+  (tests || []).forEach(function (t) {
+    if (!t.benchmark_version || !t.benchmark_id || !Number.isInteger(t.benchmark_cycle)) return;
+    var key = t.benchmark_version + ":" + t.benchmark_cycle;
+    var group = groups[key] || {version:t.benchmark_version, cycle:t.benchmark_cycle, rows:{}};
+    group.rows[t.benchmark_id] = t;
+    groups[key] = group;
+  });
+  var complete = Object.keys(groups).map(function (key) {
+    var group = groups[key], ids = ["B1","B2","B3","B4","B5"];
+    var rows = ids.map(function (id) { return group.rows[id]; });
+    if (rows.some(function (row) { return !row || row.fidelity == null || row.fidelity < 0; })) return null;
+    var delta = rows.reduce(function (sum, row) { return sum + row.token_delta_pct; }, 0);
+    var fidelity = rows.reduce(function (sum, row) { return sum + row.fidelity; }, 0);
+    return {version:group.version, cycle:group.cycle,
+            avgTokenDeltaPct:Math.round(delta / rows.length),
+            avgFidelity:Math.round(fidelity / rows.length)};
+  }).filter(Boolean);
+  complete.sort(function (a, b) { return a.cycle - b.cycle; });
+  return complete[complete.length - 1] || null;
+}
+
+function benchmarkComparisonView(t) {
+  if (!t || !t.benchmark_id || t.prior_turn == null) return null;
+  if (t.fidelity_delta == null) {
+    return {valid:false, id:t.benchmark_id, priorTurn:t.prior_turn};
+  }
+  return {
+    valid:true, id:t.benchmark_id, priorTurn:t.prior_turn,
+    priorFidelity:t.prior_fidelity, fidelity:t.fidelity,
+    fidelityDelta:t.fidelity_delta,
+    priorSavings:-(t.prior_token_delta_pct || 0),
+    savings:-(t.token_delta_pct || 0),
+    savingsDelta:t.savings_delta_pct
+  };
+}
+
 function render(S) {
   var conv = S.conversation || [], rb = S.rulebook || {rules: []};
   var esc = function (s) {
@@ -514,31 +554,24 @@ function render(S) {
   var rejected = rb.rules.filter(function (r) { return ["rejected","reverted","repealed","historical","superseded"].indexOf(r.status) >= 0; });
   var proposed = rb.rules.filter(function (r) { return r.status === "proposed"; });
   var pendingRepeals = rb.rules.filter(function (r) { return r.pending_repeal; });
+  var examLabel = function (t) {
+    return t.benchmark_id
+      ? t.benchmark_id + " · " + (t.benchmark_name || t.payload || "benchmark")
+      : "fresh-payload era · " + (t.payload || "exam");
+  };
 
   var best = null;
   var passing = tests.filter(function (t) { return t.fidelity >= 90; });
   passing.forEach(function (t) { if (best === null || t.token_delta_pct < best) best = t.token_delta_pct; });
-  var p10 = passing.slice(-10);
-  var avgSave = null;
-  if (p10.length) {
-    var sSum = 0; p10.forEach(function (t) { sSum += t.token_delta_pct; });
-    avgSave = Math.round(sSum / p10.length);
-  }
-  // fidelity -1 is the "grader output unparseable" sentinel, not a score — never average it in
-  var f10 = tests.slice(-10).filter(function (t) { return t.fidelity >= 0; });
-  var avgFid = null;
-  if (f10.length) {
-    var fSum = 0; f10.forEach(function (t) { fSum += t.fidelity; });
-    avgFid = Math.round(fSum / f10.length);
-  }
+  var completedCycle = latestCompletedBenchmarkCycle(tests);
   var revisions = String(rb.version == null ? "0.0" : rb.version).split(".")[1] || "0";
   var m = [
     ["rulebook revisions", revisions],
     ["turns", conv.length ? conv[conv.length - 1].turn : 0],
     ["rules adopted", adopted.length],
     ["best savings", best === null ? "—" : savings(best)],
-    ["avg savings · last 10 passing", avgSave === null ? "—" : savings(avgSave)],
-    ["avg fidelity · last 10 exams", avgFid === null ? "—" : avgFid + "/100"]
+    ["avg savings · benchmark cycle", completedCycle ? savings(completedCycle.avgTokenDeltaPct) : "forming"],
+    ["avg fidelity · benchmark cycle", completedCycle ? completedCycle.avgFidelity + "/100" : "forming"]
   ];
   document.getElementById("metrics").innerHTML = m.map(function (x) {
     return "<span>" + x[0] + "<b>" + x[1] + "</b></span>";
@@ -561,7 +594,7 @@ function render(S) {
         '<span class="' + (receipt.accepted ? "ok" : "low") + '">' + esc(receipt.reason || "no receipt") + '</span></div>';
     }
     var cls = e.fidelity >= 80 ? "ok" : "low";
-    return '<div class="tick">exam · ' + esc(e.payload) + " · " + pct(e.token_delta_pct || 0) +
+    return '<div class="tick">exam · ' + esc(examLabel(e)) + " · " + pct(e.token_delta_pct || 0) +
       ' tokens · fidelity <span class="' + cls + '">' + fidTxt(e.fidelity) + "</span></div>";
   }
 
@@ -638,14 +671,25 @@ function render(S) {
   }
   function sumLine(t, prefix) {
     var cls = t.fidelity >= 80 ? "ok" : "low";
-    return prefix + t.turn + " · " + esc(t.payload) + " · " + (t.orig_tokens == null ? "?" : t.orig_tokens) +
+    return prefix + t.turn + " · " + esc(examLabel(t)) + " · " + (t.orig_tokens == null ? "?" : t.orig_tokens) +
       " → " + (t.enc_tokens == null ? "?" : t.enc_tokens) + " tok · savings " + savings(t.token_delta_pct) +
       ' · fidelity <span class="' + cls + '">' + fidTxt(t.fidelity) + "</span>";
+  }
+  function comparisonHtml(t) {
+    var view = benchmarkComparisonView(t);
+    if (!view) return '<div class="benchmark-compare">Historical result from the fresh-payload era; no same-message comparison is claimed.</div>';
+    if (!view.valid) {
+      return '<div class="benchmark-compare"><b>' + esc(view.id) + '</b> produced no valid score. Its baseline remains turn ' + view.priorTurn + '.</div>';
+    }
+    return '<div class="benchmark-compare"><b>' + esc(view.id) + ' versus its previous valid run, turn ' + view.priorTurn + '</b><br>' +
+      'fidelity ' + view.priorFidelity + ' → ' + view.fidelity + ' (' + pct(view.fidelityDelta) + ') · ' +
+      'savings ' + pct(view.priorSavings) + ' → ' + pct(view.savings) + ' (' + pct(view.savingsDelta) + ' points)</div>';
   }
 
   if (last) {
     document.getElementById("tx").innerHTML =
       '<div class="tx-head">' + sumLine(last, "turn ") + "</div>" +
+      comparisonHtml(last) +
       judgeHtml(last) +
       '<details class="inline"><summary>read the full exam — original · encoded · decoded</summary>' +
       colsHtml(last) + "</details>";
@@ -656,11 +700,11 @@ function render(S) {
   var rows = tests.slice(-15).reverse();
   document.getElementById("exams").innerHTML = rows.length ? rows.map(function (t) {
     var fcls = t.fidelity >= 80 ? "" : "bad-f";
-    return '<details class="exrow"><summary>t' + t.turn + " · " + esc(t.payload) + " · " +
+    return '<details class="exrow"><summary>t' + t.turn + " · " + esc(examLabel(t)) + " · " +
       (t.orig_tokens == null ? "?" : t.orig_tokens) + "→" + (t.enc_tokens == null ? "?" : t.enc_tokens) +
       " tok · savings " + savings(t.token_delta_pct) +
       ' · <span class="' + fcls + '">fidelity ' + (t.fidelity == null || t.fidelity < 0 ? "unparseable" : t.fidelity) + "</span></summary>" +
-      '<div class="exrow-body">' + judgeHtml(t) + colsHtml(t) + "</div></details>";
+      '<div class="exrow-body">' + comparisonHtml(t) + judgeHtml(t) + colsHtml(t) + "</div></details>";
   }).join("") : '<p class="empty">No exams yet.</p>';
 
   document.getElementById("lang-sum").textContent =
@@ -931,7 +975,7 @@ setInterval(function () {
   var files = [
     ["agent_a.md", "agent A — the one that argues for compression"],
     ["agent_b.md", "agent B — the one that argues for accuracy"],
-    ["payloadgen.md", "the exam writer — how exams get written"],
+    ["payloadgen.md", "historical fresh-payload writer — retired when Benchmark Set v1 began"],
     ["grader.md", "the judge — how fidelity gets scored"]
   ];
   var esc = function (s) { return String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;"); };

@@ -13,7 +13,7 @@ Ordinary exams, Try It, and Conversation use the language view. Agent deliberati
 
 ## Turn sequence
 
-`run_turn.sh` rebases the VPS checkout onto current `main`, gives the collaboration courier a strict eight-second best-effort pull, runs one turn, gives the courier a strict eight-second best-effort push, then commits and pushes generated state if anything changed. Courier failure is ignored and cannot cancel the turn. X delivery is not invoked by this path. The legacy benchmark artifact remains in repository history but is not imported, executed, prompted, measured, or rendered by the active path.
+`run_turn.sh` rebases the VPS checkout onto current `main`, gives the collaboration courier a strict eight-second best-effort pull, runs one turn, gives the courier a strict eight-second best-effort push, then commits and pushes generated state if anything changed. Courier failure is ignored and cannot cancel the turn. X delivery is not invoked by this path. The separate 19-payload transfer battery remains off the scheduled path; it is not imported, executed, prompted, measured, or rendered by an ordinary turn.
 
 On a normal turn `loop.py`:
 
@@ -48,11 +48,11 @@ Production `run()` also binds the gitignored VPS-local `state/cost-receipts.loca
 
 ## Ordinary exam and judge
 
-The existing cadence and payload generator remain. Encoder and foreign Kimi decoder both receive the same captured adopted-language text. Each exam records its language version/hash, original, encoding, decode, token counts, and corpus judgment.
+Every third turn selects the next row from the versioned five-message registry in `benchmarks/v1.json`. The durable cursor starts at B1, advances B1 through B5, increments a cycle only after B5, and survives process or host restarts. Each frozen row contains its exact historical message, answer key, source turn, and original valid result. The encoder and foreign Kimi decoder both receive the same captured adopted-language text.
 
-For keyed exams, `rulebook.score_judgment` requires a one-to-one set of item ids `1..N`, each exactly once and each with a valid verdict. Missing, duplicate, nonnumeric, out-of-range, or invalid verdict output produces an invalid exam shown to agents as `no valid score` with the reason. New corpus results retain the latest 500 entries in `meta.corpus_exams`; they do not stamp one result onto every rule. The existing last-ten passing-exam calculation reads historical exam events and is not reset or forked. A historical hypothetical cached-cost scenario remains archival rather than a current measured claim.
+Each new receipt records benchmark id/name/version/cycle, language version/hash, original, encoding, decode, token counts, corpus judgment, and the previous valid result for that benchmark only. Fidelity change is current minus previous fidelity; savings change is current savings minus previous savings. An invalid judgment remains public evidence but does not replace that benchmark's valid baseline. The first live result for each benchmark compares with the frozen source result. Historical events without benchmark ids remain the fresh-payload era and are never rewritten.
 
-If fresh payload generation fails, the fixed fallback payload receives an answer key before encoding. If key extraction also fails, the round trip is preserved as an invalid/no-score artifact; the old holistic fallback can no longer publish fidelity.
+For keyed exams, `rulebook.score_judgment` requires a one-to-one set of item ids `1..N`, each exactly once and each with a valid verdict. Missing, duplicate, nonnumeric, out-of-range, or invalid verdict output produces an invalid exam shown to agents as `no valid score` with the reason. New corpus results retain the latest 500 entries in `meta.corpus_exams`; they do not stamp one result onto every rule. Public cycle averages appear only after B1 through B5 all have valid results in one cycle. The separate transfer battery remains the generalization check for the known overfitting trade-off.
 
 ## Cleanup
 
