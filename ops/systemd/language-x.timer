@@ -2,7 +2,8 @@
 Description=Publish at most one A Language All Their Own X update hourly
 
 [Timer]
-OnUnitActiveSec=1h
+OnActiveSec=1h
+OnUnitInactiveSec=1h
 AccuracySec=1min
 
 [Install]
