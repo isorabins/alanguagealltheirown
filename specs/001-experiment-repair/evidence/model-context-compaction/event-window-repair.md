@@ -5,7 +5,7 @@ Fixed point: `4da2d28287f3412a45c9195cb1dcdc9b89890b42`
 Approval baseline: OpenRouter key usage `$8.328790335`
 Approval: `$1` additional provider spend and up to three prompt-only
 review/PR/deploy/retry cycles
-State: **PAUSED / CYCLE 3 IN REVIEW**
+State: **PAUSED / THREE APPROVED CYCLES EXHAUSTED**
 
 ## Turn-1213 warning stop
 
@@ -92,6 +92,38 @@ schema, validator, and leading contract required typed objects. Cycle 3 removes
 that contradictory transport wording from Agent B's prompt and states the
 already-canonical object shapes; no schema, validator, protocol, model, routing,
 retry, temperature, or state behavior changes.
+
+## Cycle-3 exact-replay stop
+
+The first exact request at implementation commit `5cd0169` used a
+54,777-character prompt. OpenRouter response
+`gen-1785458855-mTBirmpTCa5XVoYRU8Dn` cost `$0.009867800` and returned the
+single letter `I` in `deliberation`. Local validation again stopped the cycle
+with `string_too_short at deliberation`; the remaining two calls were not made.
+
+Immutable request fingerprint:
+
+- system SHA-256:
+  `d607f3e31d844ea6e6a6767f1ea7011bb6b6a424f04f288feb0752fe22aeba0a`;
+- user SHA-256:
+  `787212787499c76a125edc4804700d621dc67849261b965663abc3f6afd7310b`;
+- request-options SHA-256:
+  `9cd8b5e2122a89e9cdfd13c69cff8ec562668be00ae4abad38f21ddd662cfbf8`;
+- complete request-body SHA-256:
+  `912264bf87931f0f5c31611a7bb702fac1727ce0a695a67b26e0cabfde368cee`.
+
+The pre-call authenticated total was `$8.446316879`; the call's returned cost
+was `$0.009867800`. The immediate post-call key endpoint had not yet reflected
+that receipt, so the conservative approval delta is `$0.127394344` when the
+returned cost is added to the authenticated `$0.117526544` delta. That leaves
+at least `$0.872605656` below the approved `$1` ceiling. The worst-case guard
+reserved `$0.478927200` before the call for all remaining diagnostic and live
+attempts and therefore passed without approaching the ceiling.
+
+All three approved prompt-only cycles are exhausted. No PR was opened, nothing
+was deployed, and the timer remains inactive at canonical turn 1213. A further
+provider call, PR, deployment, timer resume, or change to schema, validator,
+protocol, model, routing, or another excluded subsystem requires new approval.
 
 ## Cycle-1 decision
 
