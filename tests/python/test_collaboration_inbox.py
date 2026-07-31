@@ -154,11 +154,12 @@ class CollaborationTests(unittest.TestCase):
             published=json.loads(redis.values["test:private-state"])
             self.assertEqual(published["asks"][0]["id"],"ask-publish")
 
-    def test_run_turn_bounds_courier_and_continues_on_failure(self):
+    def test_run_turn_bounds_courier_omits_x_and_continues_on_failure(self):
         script=(Path(__file__).parents[2]/"run_turn.sh").read_text()
         self.assertIn("timeout 8s python3 collab_sync.py pull",script)
         self.assertIn("timeout 8s python3 collab_sync.py push",script)
         self.assertRegex(script,r"collab_sync\.py pull.*\|\| true[\s\S]*python3 loop\.py")
+        self.assertNotIn("tweet.py",script)
 
     def test_research_returns_question_and_result_only_to_requester_once(self):
         state=empty_state(); research=stable_record("RESEARCH","B","What evidence?","research-1")
