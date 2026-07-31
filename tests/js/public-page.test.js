@@ -101,6 +101,7 @@ test('operator questions show their actual text without implying the core loop i
 
 test('public page contains overflow and keyboard-focus safeguards',()=>{
   assert.match(html,/pre\s*\{[^}]*max-width:\s*100%[^}]*white-space:\s*pre-wrap[^}]*overflow-wrap:\s*anywhere/s);
+  assert.match(html,/\.archive-list summary\s*\{[^}]*overflow-wrap:\s*anywhere/s);
   assert.match(html,/:focus-visible\s*\{[^}]*outline:\s*2px solid var\(--accent\)/s);
   assert.match(html,/body\s*\{[^}]*width:\s*min\(1100px,\s*100%\)/s);
 });
