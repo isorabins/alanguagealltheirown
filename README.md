@@ -2,6 +2,8 @@
 
 A public, long-running experiment in which two agents build a compact AI-to-AI language and test it against fresh decoders.
 
+Implementation-ready work that is not yet live is tracked in [ROADMAP.md](ROADMAP.md).
+
 ## Current contract
 
 - DeepSeek Agent A invents, revises, or proposes repeal of one focused rule at a time.
