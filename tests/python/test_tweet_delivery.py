@@ -193,6 +193,35 @@ class PublisherTests(unittest.TestCase):
             self.assertEqual(post.call_count,1)
             self.assertEqual(load_json(external,{})["notes_posted"],["note-1"])
 
+    def test_priority_field_note_precedes_rule_status_backlog(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root=Path(directory); state_dir=root/"state"; state_dir.mkdir()
+            rule={"id":"rule-1","status":"adopted","text_en":"A newly adopted rule"}
+            (state_dir/"rulebook.json").write_text(json.dumps({"rules":[rule]}))
+            external=root/"publisher.json"
+            external.write_text(json.dumps({
+                "statuses":{"rule-1":"proposed"},"tweets_sent":0,"deliveries":{},
+                "notes_posted":[],"blocked_count":0
+            }))
+            (root/"notes.json").write_text(json.dumps([
+                {"id":"catch-up","tweet":"Approved catch-up note",
+                 "publish_to_x":True,"x_priority":True},
+                {"id":"ordinary","tweet":"Ordinary note","publish_to_x":True}
+            ]))
+            values={"TWEET_STATE_PATH":str(external),"TWEET_ENABLE":"1",
+                    "UPLOAD_POST_API_KEY":"k","UPLOAD_POST_USER":"u"}
+            receipt=Response(data={"success":True,"results":{"x":{
+                "success":True,"url":"https://x.com/example/status/4"}}})
+            with mock.patch.object(tweet,"ROOT",root), mock.patch.object(tweet,"STATE",state_dir), \
+                 mock.patch("tweet.env",side_effect=lambda name:values.get(name,"")), \
+                 mock.patch("tweet.requests.post",return_value=receipt) as post:
+                tweet.main()
+            self.assertEqual(post.call_count,1)
+            self.assertEqual(post.call_args.kwargs["data"]["title"],"Approved catch-up note")
+            saved=load_json(external,{})
+            self.assertEqual(saved["notes_posted"],["catch-up"])
+            self.assertEqual(saved["statuses"]["rule-1"],"proposed")
+
     def test_only_explicitly_eligible_note_enters_the_x_queue(self):
         with tempfile.TemporaryDirectory() as directory:
             root=Path(directory); state_dir=root/"state"; state_dir.mkdir()
@@ -225,6 +254,7 @@ class PublisherTests(unittest.TestCase):
         new_notes=[note for note in notes if note.get("id")]
         self.assertEqual(len(new_notes),8)
         self.assertTrue(all(len(note["tweet"]) <= MAX_LEN for note in new_notes))
+        self.assertTrue(all(note.get("x_priority") is True for note in new_notes))
 
 
 if __name__ == "__main__": unittest.main()

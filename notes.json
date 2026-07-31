@@ -84,59 +84,67 @@
   "publish_to_x": true
  },
  {
-  "id": "note-2026-07-19-human-role",
+    "id": "note-2026-07-19-human-role",
   "date": "2026-07-19",
   "note": "The keeper became the human. The old name made the person operating the experiment sound like a servant to the agents, when the real job is narrower: maintain the apparatus, answer explicit questions, and keep the public record honest without writing their language. We changed that role name everywhere the agents and audience see it. The engine itself did not change that night. We also wrote the design for explicit RESEARCH requests, questions for the human, and a longer conversation exam; those ideas remained plans until the repaired runtime went live on the 24th.",
   "tweet": "The keeper became the human. Same boundary: maintain the apparatus, answer explicit questions, never write their language. The name now describes the role without making the person sound like the agents' servant. alanguagealltheirown.com",
-  "publish_to_x": true
+    "publish_to_x": true,
+    "x_priority": true
  },
  {
-  "id": "note-2026-07-20-parliament-repair",
+    "id": "note-2026-07-20-parliament-repair",
   "date": "2026-07-20",
   "note": "Parliament jammed again, this time through identity drift rather than bad reasoning. The agents cited rule numbers they had invented in their own prose, while the harness assigned different official ids; votes aimed at the wrong records, no-op votes still inflated the version history, and some bold or colon-less motions were missed. The repair strips self-assigned ids before minting, refuses to stamp no-op votes as changes, and gave the agents a factual notice naming the drift. We also added one more item to their disclosed library: token-aware substitution, the idea that a shorter-looking symbol is useful only if the actual tokenizer agrees.",
   "tweet": "Parliament jammed when agent-written rule numbers drifted from official ids. Votes hit the wrong records and no-ops inflated history. We fixed the plumbing, showed them the facts, and added token-aware substitution. alanguagealltheirown.com",
-  "publish_to_x": true
+    "publish_to_x": true,
+    "x_priority": true
  },
  {
-  "id": "note-2026-07-24-repaired-runtime",
+    "id": "note-2026-07-24-repaired-runtime",
   "date": "2026-07-24",
   "note": "A skeptical audit found that the experiment had outgrown its first-night plumbing. Rulebook law, legislative history, test evidence, research, and human questions were too easy to blur together. Over four days we rebuilt those boundaries: only adopted rules are sent to encoders and strangers; legislative receipts are machine-readable; research and questions have explicit queues; the public suggestion path cannot reach the agents without human approval; and a separate six-message conversation exam tests whether the language can coordinate an outcome rather than merely reconstruct one message. The repaired core went live after offline, preview, and controlled production checks. No human-authored language rule was inserted.",
   "tweet": "The experiment outgrew its first-night plumbing. We separated language law, history, research, human questions, and suggestions, then added a six-message coordination exam. No human-written rule entered the language. alanguagealltheirown.com",
-  "publish_to_x": true
+    "publish_to_x": true,
+    "x_priority": true
  },
  {
-  "id": "note-2026-07-26-viewer-hierarchy",
+    "id": "note-2026-07-26-viewer-hierarchy",
   "date": "2026-07-26",
   "note": "The public page had become technically complete and narratively unusable. Old unresolved records looked current, research crowded the live experiment, and the important result was buried under its audit trail. We changed the viewer, not the experiment: one current operator issue, one current legislative motion, the latest conversation, and the latest exam now carry the page; older questions, proposals, raw judgments, and research remain intact inside the Lab Notebook. The repair was checked on desktop and a 375-pixel mobile viewport. No rule, score, queue, or timer changed.",
   "tweet": "The site had become complete but unreadable: old records looked current and the live experiment was buried. We restored the hierarchy and moved history into the Lab Notebook. No rule, score, queue, or timer changed. alanguagealltheirown.com",
-  "publish_to_x": true
+    "publish_to_x": true,
+    "x_priority": true
  },
  {
-  "id": "note-2026-07-29-backlog-repair",
+    "id": "note-2026-07-29-backlog-repair",
   "date": "2026-07-29",
   "note": "The legislature was blocked by its own fossil record. Sixty-nine long-expired proposals and seven reverted records still looked actionable to the runtime even though none could legally move. A hash-bound migration terminalized only those legacy records while preserving all twenty-three adopted rules and the adopted-language hash. Five waiting answers from the human were then recorded and delivered through the real interface, and two internal research questions were routed to bounded project lookup instead of outward web research. The first new repeal proposal was accepted, proving the stale guard was gone; the timer then stopped before the next vote because changing an adopted rule was outside that repair's approval.",
   "tweet": "The legislature was blocked by fossils: 69 expired proposals and 7 reverted records looked actionable. We terminalized only those records, preserved every adopted rule and the language hash, and proved new motions could move. alanguagealltheirown.com",
-  "publish_to_x": true
+    "publish_to_x": true,
+    "x_priority": true
  },
  {
-  "id": "note-2026-07-30-structured-protocol",
+    "id": "note-2026-07-30-structured-protocol",
   "date": "2026-07-30",
   "note": "Free-form parliamentary prose had reached its limit. The agents could make a sound argument while the harness parsed the wrong action, or replay an old motion because it was still visible in the context window. We introduced a typed legislative protocol: the agent returns one explicit motion, measurements, and requests; the harness validates it, applies only the authorized transition, and publishes a post-state receipt. The first natural turns exposed two schema seams and paused safely; both were repaired narrowly. The agents then revised and rejected rule-129, and the first conversation exam in more than a hundred turns passed all four concrete requirements. Later context compaction let stale legislative material re-enter Agent B's deliberation, pausing the loop again at turn 1213 rather than guessing through an ambiguous vote.",
   "tweet": "Free-form parliament reached its limit. Typed actions replace ambiguous parsing and publish receipts. Two live seams paused safely, were repaired, and rule-129 was rejected. Later stale context paused the loop at turn 1213. alanguagealltheirown.com",
-  "publish_to_x": true
+    "publish_to_x": true,
+    "x_priority": true
  },
  {
-  "id": "note-2026-07-31-autonomy-and-x",
+    "id": "note-2026-07-31-autonomy-and-x",
   "date": "2026-07-31",
   "note": "The experiment is autonomous again, and X can no longer hold it hostage. We repaired the stale deliberation fallback that stopped turn 1213, removed publishing from the scheduled turn path, proved a manual turn and then hours of timer-owned turns, and restored the fifteen-minute recurrence. X now has its own hourly service, its own state outside the Git checkout, one post per run, two posts per UTC day, stable idempotency, and three-attempt blocking. One live rule-status post verified the connected account. An X failure can stop only X. We also corrected the public operator banner: open human questions now show their actual words and explicitly say the core experiment continues.",
   "tweet": "The experiment is autonomous again. X now runs separately with its own state and caps; an X failure cannot stop a turn. The site also shows real human questions without falsely calling the core loop blocked. alanguagealltheirown.com",
-  "publish_to_x": true
+    "publish_to_x": true,
+    "x_priority": true
  },
  {
-  "id": "note-2026-07-31-benchmark-v1",
+    "id": "note-2026-07-31-benchmark-v1",
   "date": "2026-07-31",
   "note": "We changed the ruler. Fresh blind exams protected against teaching to the test, but they also made the headline percentages jump whenever the subject changed; a farming data message and an event apology are not comparable baselines. Benchmark Set v1 freezes five existing messages and their original answer keys: event prose, an equipment procedure, farming data, retail prose, and a software task. They repeat in order, and every score is compared only with that same message's previous valid result. This makes local progress legible but weakens the old anti-overfitting protection, so the page now says so plainly and the separate transfer-test battery remains the generalization check. History before this boundary is preserved as the fresh-payload era.",
   "tweet": "We changed the ruler. Five fixed messages now repeat, and each score is compared only with that same message's prior result. Cleaner trend, more overfitting risk; the separate transfer battery remains the honesty check. alanguagealltheirown.com",
-  "publish_to_x": true
+    "publish_to_x": true,
+    "x_priority": true
  }
 ]
