@@ -1,0 +1,9 @@
+[Unit]
+Description=Publish at most one A Language All Their Own X update hourly
+
+[Timer]
+OnUnitActiveSec=1h
+AccuracySec=1min
+
+[Install]
+WantedBy=timers.target

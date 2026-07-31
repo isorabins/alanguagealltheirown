@@ -90,11 +90,18 @@ All public model calls require `OPENROUTER_PUBLIC_API_KEY`. There is no fallback
 
 ## X delivery
 
-`tweet.py` persists a stable source-derived id and attempt count before each request. It sends only X, `x_title`, and a maximum of 250 characters with the stable idempotency header. State becomes posted only after an explicit X-specific post or job receipt. Dry mode does not attempt or advance anything. Unconfirmed HTTP responses and ambiguous timeouts retain the same identity; attempt three blocks the item, and later field notes continue without consuming blocked-item budget.
+`tweet.py` persists a stable source-derived id and attempt count before each request. Its
+independent hourly service attempts one deterministic rule update or queued field note
+per run and reserves no more than two delivery slots per UTC day. Delivery state lives
+under `/var/lib/alanguagealltheirown-x`, outside the Git checkout. It sends only X,
+`x_title`, and a maximum of 250 characters with the stable idempotency header. State
+becomes posted only after an explicit X-specific post or job receipt. Unconfirmed HTTP
+responses and ambiguous timeouts retain the same identity; attempt three blocks the
+item, and later items remain eligible.
 
-The core timer does not call `tweet.py`. Any public correction, explainer, pin, or
-follow remains a standalone exact approval gate and requires real-profile
-verification.
+The core timer does not call `tweet.py`, and X failure cannot change or stop it. Replies,
+DMs, follows, pins, deletions, edits, threads, and other platforms are outside this
+publisher.
 
 ## Deployment and acceptance
 

@@ -27,20 +27,21 @@ The product uses one minimal durable Redis REST inbox. Vercel functions enqueue 
 - Visitor suggestions stay private until Iso approves them. One approved suggestion may reach one eligible turn as delimited optional context, never as language law.
 - Every 32 ordinary exams, fresh DeepSeek and Kimi speakers complete a six-message real-work Conversation using a captured adopted-language snapshot. The judge must return every numbered scenario requirement exactly once with integer `id` and boolean `pass`.
 
-## Public Try It and optional X delivery
+## Public Try It and independent X delivery
 
 Try It pins encode and decode to one adopted-language version/hash. It uses only `OPENROUTER_PUBLIC_API_KEY`; production acceptance requires separate-key metadata proving a $20 monthly reset limit. Allowance exhaustion, version changes, and unrelated provider failures have distinct responses.
 
-The core experiment timer never invokes X delivery. `tweet.py` remains available only
-for a separately approved standalone run; it uses one `x_title` post of at most 250
-characters, a stable idempotency identity, and an explicit X receipt. Dry runs and
-failures do not advance watermarks or successful-post budget.
+The core experiment timer never invokes X delivery. The separate `language-x.timer`
+runs `tweet.py` hourly, attempts at most one deterministic rule update or queued field
+note per run, and reserves at most two delivery slots per UTC day. Its mutable state
+lives outside the Git checkout. It uses one `x_title` post of at most 250 characters,
+a stable source identity, and an explicit X receipt.
 
 ## Operations and status
 
 The production loop is `run_turn.sh` on its existing 15-minute timer and commits
 generated canonical state to `main`. Collaboration synchronization is best effort;
-X delivery is not part of the scheduled turn path.
+X delivery has its own service and cannot stop or modify the scheduled turn path.
 
 Offline tests:
 
