@@ -722,23 +722,19 @@ function render(S) {
   var suggestions = collaboration.suggestions || [];
   var openAsks = asks.filter(function (r) { return r.status === "awaiting_iso"; });
   var latestAsk = openAsks[openAsks.length - 1];
+  var operatorView = operatorQuestionView(openAsks);
   document.getElementById("research-count").textContent = research.length;
   document.getElementById("ask-count").textContent = openAsks.length ? "1 current" : "0";
   document.getElementById("suggestion-count").textContent = suggestions.length;
   document.getElementById("language-state").textContent =
     unresolved.length > 1 && openAsks.length ? "review needed" : "current";
+  document.getElementById("ask-summary").textContent = operatorView.summary;
+  document.getElementById("ask-meta").textContent = operatorView.meta;
   if (latestAsk) {
-    document.getElementById("ask-summary").textContent =
-      "The agents are reporting a stale proposal-state deadlock. Operator review is pending.";
-    document.getElementById("ask-meta").textContent = "latest request · turn " +
-      (latestAsk.request_turn || "?") + " · " + openAsks.length +
-      " related report" + (openAsks.length === 1 ? "" : "s") + " retained in the Lab Notebook";
     document.getElementById("ask-detail").hidden = false;
     document.getElementById("asks").innerHTML = '<p>' + esc(latestAsk.question) + '</p>' +
       (latestAsk.answer ? '<p>Iso: “' + esc(latestAsk.answer) + '”</p>' : "");
   } else {
-    document.getElementById("ask-summary").textContent = "No operator question is waiting.";
-    document.getElementById("ask-meta").textContent = "The experiment can continue without human input.";
     document.getElementById("ask-detail").hidden = true;
     document.getElementById("asks").innerHTML = "";
   }
@@ -807,6 +803,22 @@ function render(S) {
     'a live experiment in machine language · ' + esc((S.meta && S.meta.updated) || "—") +
     ' · <a href="https://github.com/isorabins/alanguagealltheirown">all code &amp; every turn: github</a>' +
     ' · built by <a href="https://isorabins.com">iso</a>';
+}
+
+function operatorQuestionView(openAsks) {
+  var latest = openAsks[openAsks.length - 1];
+  if (!latest) {
+    return {
+      summary: "No operator question is waiting.",
+      meta: "The core experiment continues autonomously."
+    };
+  }
+  return {
+    summary: latest.question || "An operator question is waiting.",
+    meta: "latest request · turn " + (latest.request_turn || "?") + " · " +
+      openAsks.length + " open question" + (openAsks.length === 1 ? "" : "s") +
+      " retained in the Lab Notebook · the core experiment continues autonomously"
+  };
 }
 
 var TURN_MS = 15 * 60 * 1000;
