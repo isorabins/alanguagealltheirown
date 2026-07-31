@@ -171,6 +171,12 @@
     margin-top: 0.9rem; padding-top: 0.7rem; }
   .ti-verdict .ok { color: var(--accent); } .ti-verdict .low { color: var(--bad); }
   pre { max-width: 100%; white-space: pre-wrap; overflow-wrap: anywhere; }
+  .runtime-status { display: none; margin: 1.1rem 0 1.8rem; padding: 0.9rem 1rem;
+    border: 1px solid var(--bad); color: var(--ink-dim); font-size: 0.88rem; }
+  .runtime-status.visible { display: block; }
+  .runtime-status strong { display: block; color: var(--bad); font-family: var(--mono);
+    font-size: 0.68rem; letter-spacing: 0.12em; text-transform: uppercase;
+    margin-bottom: 0.3rem; }
   .collab-form { border-top: 1px solid var(--hairline); border-bottom: 1px solid var(--hairline);
     padding: 1rem 0; margin: 1.2rem 0; }
   .collab-form label { display: block; color: var(--ink-dim); font-size: 0.9rem; margin-bottom: 0.45rem; }
@@ -323,7 +329,11 @@
   <div><span class="tval" id="t-turn">--:--</span><span class="tlab">next turn</span></div>
   <div><span class="tval" id="t-test">--:--</span><span class="tlab">next exam</span></div>
 </div>
-<p class="timers-cap">The agents take one turn every 15 minutes, around the clock. Every third turn, a message they have never seen must survive the round trip through their language.</p>
+<p class="timers-cap">The agents normally take one turn every 15 minutes, around the clock. Every third turn, a message they have never seen must survive the round trip through their language.</p>
+<aside class="runtime-status" id="runtime-status" aria-live="polite">
+  <strong>The scheduled loop is not advancing.</strong>
+  <span id="runtime-status-detail"></span>
+</aside>
 
 <div class="metrics" id="metrics"></div>
 <div class="legend"><b>fidelity</b> — % of meaning that survives a stranger's decode (100 = perfect relay, 0 = lost or invented) &nbsp;·&nbsp; <b>savings</b> — how much cheaper than plain English (negative = the language currently costs extra) &nbsp;·&nbsp; <b>passing</b> = fidelity ≥ 90 — savings only count when the meaning survived</div>
@@ -821,6 +831,20 @@ function loadState() {
     lastTurnNum = both[0].length ? both[0][both[0].length - 1].turn : 0;
     refetchArmed = false;
     var mins = when ? Math.round((Date.now() - new Date(when).getTime()) / 60000) : null;
+    var runtimeStatus = document.getElementById("runtime-status");
+    var runtimeDetail = document.getElementById("runtime-status-detail");
+    if (runtimeStatus && runtimeDetail) {
+      if (mins !== null && mins > 45) {
+        runtimeStatus.classList.add("visible");
+        runtimeDetail.textContent = "The public record is preserved at turn " +
+          lastTurnNum + ". New legislation is not being published, and no " +
+          "language rule changes during this hold. Last update: " +
+          new Date(when).toISOString().replace("T", " ").slice(0, 16) + " UTC.";
+      } else {
+        runtimeStatus.classList.remove("visible");
+        runtimeDetail.textContent = "";
+      }
+    }
     var stamp = mins === null ? "live"
       : mins > 45 ? "the loop has been still since " + new Date(when).toISOString().replace("T", " ").slice(0, 16) + " UTC"
       : "last turn " + mins + " min ago · live";

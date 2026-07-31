@@ -39,3 +39,11 @@ test('public page contains overflow and keyboard-focus safeguards',()=>{
   assert.match(html,/:focus-visible\s*\{[^}]*outline:\s*2px solid var\(--accent\)/s);
   assert.match(html,/body\s*\{[^}]*width:\s*min\(1100px,\s*100%\)/s);
 });
+
+test('stale runtime notice is truthful and self-clearing',()=>{
+  assert.match(html,/id="runtime-status"[^>]*aria-live="polite"/);
+  assert.match(html,/The scheduled loop is not advancing\./);
+  assert.match(html,/public record is preserved at turn/);
+  assert.match(html,/mins !== null && mins > 45/);
+  assert.match(html,/runtimeStatus\.classList\.remove\("visible"\)/);
+});
