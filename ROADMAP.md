@@ -573,14 +573,25 @@ exact 375px inspection must show no crowding or horizontal overflow.
 
 ### Delivery boundary
 
-Implementation must start from freshly fetched `origin/main` because generated
-turn commits continue advancing `main`. Produce one coherent viewer-and-test-
-only commit. Do not alter benchmark generation or history, rulebook
-calculation, prompts, state schema, OpenRouter accounting, provider choice,
-`state/`, `viewer/state.js`, Field Notes, X publishing, timers, VPS, Vercel
-production, DNS, credentials, or acceptance-monitor artifacts. Do not make
-provider calls, spend project money, merge, deploy, or claim the metric is live
-under this roadmap item alone.
+Before implementation, run a focused `grilling` session with Iso. Resolve the
+decision tree one question at a time, with a recommended answer for each
+decision and current project facts researched instead of asked. Explicitly
+settle whether this hypothetical belongs as a headline public metric, the
+20-exchange and 40-message model, the 1,000-token baseline, full-history and
+cache assumptions, the fixed Claude Sonnet 4.6 pricing reference, what the
+percentage may and may not claim, the `forming` state, viewer explanation,
+acceptance evidence, and the exact viewer-only/no-live boundary. Record the
+agreed answers here or in a linked durable contract. Do not create the feature
+branch or change code until Iso confirms shared understanding.
+
+Implementation must then start in a fresh worktree and feature branch from
+freshly fetched `origin/main` because generated turn commits continue advancing
+`main`. Produce one coherent viewer-and-test-only commit. Do not alter benchmark
+generation or history, rulebook calculation, prompts, state schema, OpenRouter
+accounting, provider choice, `state/`, `viewer/state.js`, Field Notes, X
+publishing, timers, VPS, Vercel production, DNS, credentials, or
+acceptance-monitor artifacts. Do not make provider calls, spend project money,
+merge, deploy, or claim the metric is live under this roadmap item alone.
 
 ### Reopen and release gates
 
