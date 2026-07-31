@@ -1,7 +1,8 @@
 # Roadmap — A Language All Their Own
 
-This file holds implementation-ready work that is not yet part of the live
-contract. Current behavior remains documented in [README.md](README.md) and
+This file holds planned work that is not yet part of the live contract. Each
+item states whether it is implementation-ready or still needs design. Current
+behavior remains documented in [README.md](README.md) and
 [MECHANICS.md](MECHANICS.md).
 
 ## P0 — Restore the agents' bounded feedback loop
@@ -479,3 +480,32 @@ Observed examples:
 - [Current mechanics](MECHANICS.md#legislature) — explicitly states that prior
   events and recent live-test events do not enter fresh legislative requests;
   this section must change only when implementation changes reality.
+
+## Future design — Make B1–B5 measure rulebook performance
+
+**Status:** diagnosis captured; detailed design not yet approved.
+
+The frozen B1–B5 messages are useful regression fixtures, but their current
+scores are not yet a trustworthy measure of rulebook performance. An audit of
+the turn-1257 snapshot found incomplete and bundled answer-key items, incorrect
+judge verdicts in B1 and B5, and an equal-weight percentage that makes B2's
+tenfold pressure corruptions look like ordinary checklist misses. Repeated
+feedback also makes these five messages familiar development material, so they
+cannot alone establish that the rulebook generalizes or adds value beyond
+ordinary compressed English.
+
+The working direction is a bounded correction to the existing experiment, not
+a general evaluation platform: preserve B1–B5 as corrected regression tests;
+make required meanings atomic, source-faithful, and auditable; distinguish
+action-changing critical failures from ordinary coverage; retain evidence for
+judge verdicts; compare rulebook encoding with an equivalent ordinary-English
+control; and occasionally use unseen material to check generalization.
+Message-body compression and total rulebook-assisted communication cost must
+remain separate claims.
+
+The exact findings, reasoning, and unresolved design choices are recorded in
+[BENCHMARK-FIDELITY-DIAGNOSIS.md](BENCHMARK-FIDELITY-DIAGNOSIS.md). Before any
+implementation, review that note with Iso and agree on the benchmark schema,
+critical-failure rule, control contract, unseen-test boundary, and public
+reporting language. This roadmap entry does not authorize benchmark, prompt,
+scoring, state, provider, viewer, timer, deployment, or live-loop changes.
