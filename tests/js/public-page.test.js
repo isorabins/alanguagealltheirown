@@ -25,6 +25,24 @@ test('public page explains Scoring V2 and labels immutable history honestly',()=
   assert.doesNotMatch(html,/avg fidelity · benchmark cycle/);
 });
 
+test('public exact-wiring copy identifies the active V2 judge and legacy V1 prompt',()=>{
+  const howStart=html.indexOf('<h2>How This Works</h2>');
+  const promptsStart=html.indexOf('<h2>The Prompts</h2>',howStart);
+  const how=html.slice(howStart,promptsStart);
+  const filesStart=html.indexOf('var files = [');
+  const filesEnd=html.indexOf('];',filesStart);
+  const promptFiles=html.slice(filesStart,filesEnd+2);
+
+  assert.match(how,/Scoring V2/);
+  assert.match(how,/SURVIVED, CORRUPTED, or MISSING/);
+  assert.match(how,/decoded evidence/);
+  assert.match(how,/deterministic literal/i);
+  assert.match(how,/INVALID JUDGE RESULT/);
+  assert.match(promptFiles,/\["grader_v2\.md",\s*"active Scoring V2 judge/);
+  assert.match(promptFiles,/\["grader\.md",\s*"legacy V1 judge/);
+  assert.doesNotMatch(promptFiles,/\["grader\.md",\s*"the judge/);
+});
+
 test('viewer selects only the latest valid Scoring V2 result as current',()=>{
   const source=html.match(/function latestValidScoringV2\(tests\) \{([\s\S]*?)\n\}/);
   assert.ok(source,'latestValidScoringV2 must remain independently testable');

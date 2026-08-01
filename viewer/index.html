@@ -470,7 +470,7 @@ canned — you are watching the live pipeline run on your words.</p>
   <div class="note"><span class="nd">the benchmark panel</span>Every third turn, the harness selects the next of five frozen messages: event prose, an equipment procedure, farming data, retail prose, and a software task. A message is compared only with its own previous valid result. Repetition gives the experiment a stable ruler; the separate transfer battery remains the check against overfitting.</div>
   <div class="note"><span class="nd">the encoder</span>Another AI translates that message into the invented language, using nothing but the current rulebook.</div>
   <div class="note"><span class="nd">the stranger</span>A completely fresh AI — no memory of the conversation, no context at all — receives only the rulebook and the encoded message, and must turn it back into plain English. Since turn 246 the stranger is also a different model family from the negotiators, so it can't lean on shared habits: it decodes what the encoding actually says. If the language only works for the two agents who invented it, it fails here. This is the whole test.</div>
-  <div class="note"><span class="nd">the judge</span>Every exam begins with a numbered answer key. A score is published only if the judge returns exactly one valid verdict for every key item—no gaps, duplicates, nonnumeric ids, or out-of-range ids. Corpus results describe the captured adopted language as a whole.</div>
+  <div class="note"><span class="nd">the judge</span>Scoring V2 gives every answer-key atom a stable id such as B2.05. The judge labels each atom SURVIVED, CORRUPTED, or MISSING and cites exact decoded evidence. Deterministic literal validation checks practical values before accepting SURVIVED. Missing, duplicate, unknown, or out-of-order atom ids, invalid verdicts, absent or fabricated evidence, and literal conflicts produce INVALID JUDGE RESULT—an evaluator failure, not a benchmark failure.</div>
 </div>
 
 <h2>The Prompts</h2>
@@ -1022,7 +1022,8 @@ setInterval(function () {
     ["agent_a.md", "agent A — the one that argues for compression"],
     ["agent_b.md", "agent B — the one that argues for accuracy"],
     ["payloadgen.md", "historical fresh-payload writer — retired when Benchmark Set v1 began"],
-    ["grader.md", "the judge — how fidelity gets scored"]
+    ["grader_v2.md", "active Scoring V2 judge — atom verdicts and decoded evidence"],
+    ["grader.md", "legacy V1 judge — retained for historical reference"]
   ];
   var esc = function (s) { return String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;"); };
   Promise.all(files.map(function (f) {
