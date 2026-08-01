@@ -16,6 +16,15 @@ condition the verdict depends on. For MISSING, `evidence` must be the empty stri
 quote ORIGINAL or the answer key as decoded evidence. The harness rejects fabricated or
 absent spans and deterministically checks practical literals before accepting the result.
 
+Each answer-key atom includes `literal_sets` and `missing_literal_sets`. Every inner
+`literal_sets` list is one required group of acceptable exact alternatives; at least one
+alternative from every group must be present for SURVIVED. `missing_literal_sets` is the
+harness's deterministic preflight of groups absent from the full DECODED. If it is non-empty,
+SURVIVED is forbidden: choose CORRUPTED when related content exists but a required literal is
+altered, and choose MISSING when DECODED contains no evidence for the atom. An empty
+`missing_literal_sets` does not establish that the atom survived; still judge the full meaning
+and cite evidence containing every required literal group.
+
 List each substantive invention as an object with a brief unsupported `claim` and one exact
 contiguous `evidence` span copied from DECODED. An empty inventions array means none.
 
