@@ -4,7 +4,7 @@
 
 - Fixed pre-run base: `0ef2bab60f95c8e41d0ee81b9ca7beeeb06e7353`.
 - Retained authored roadmap commits: `6cba726` for [Restore active legislative feedback in real prompts](https://github.com/isorabins/alanguagealltheirown/issues/36), `44e650f` for [Ship Scoring V2 development-exam evidence](https://github.com/isorabins/alanguagealltheirown/issues/37), and `e7b1c93` for [Feed valid Scoring V2 failures back to both legislators](https://github.com/isorabins/alanguagealltheirown/issues/38). The English-control work from `4080022` for [Show frozen-English comparison and 20-exchange projection](https://github.com/isorabins/alanguagealltheirown/issues/39) was removed by Iso's scope reduction.
-- Current-main reconciliation: fresh-fetched `origin/main` at `bd91736` for review, then re-fetched and merged final tip `874585b` before push. This preserves the already-pushed sequential ticket history while adopting turns 1317–1335 exactly.
+- Current-main reconciliation: after the earlier review-time reconciliation, the branch was re-fetched and reconciled through canonical generated turn 1347 at `55bad8323991a10bd5788791e7b03db87f0d7d90` immediately before release preparation. Generated state remains excluded from authored review scope; any later generated base commit incorporated by GitHub's normal PR merge path does not alter that authored review boundary.
 - Generated-only exclusions: `state/conversation.json`, `state/meta.json`, `state/public-collaboration.json`, `state/rulebook.json`, and `viewer/state.js`. They enter the branch only through the current-main merge.
 - Immutable V1 proof: `benchmarks/v1.json` is byte-identical to the fixed base, SHA-256 `18ae4224645fef79dd1b14e3f9741ff5023725299ae94fe93c7f370b29d60d62`.
 
