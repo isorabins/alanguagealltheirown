@@ -17,3 +17,4 @@ state/collaboration.json
 state/collaboration-inbox.json
 state/collaboration-outbox.json
 state/**/cost-receipts.local.json
+baselines/*.local.json

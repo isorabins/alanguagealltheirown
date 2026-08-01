@@ -1,6 +1,7 @@
 import copy
 import hashlib
 import json
+import tempfile
 import unittest
 from pathlib import Path
 from unittest import mock
@@ -59,6 +60,18 @@ class FrozenEnglishTests(unittest.TestCase):
             "message_body_savings_pct": savings,
         }
 
+    def _valid_grade(self, benchmark):
+        return {"mode": "RELAY", "items": [
+            {"id": atom["id"], "verdict": "SURVIVED", "evidence": atom["meaning"]}
+            for atom in benchmark["answer_key"]
+        ], "inventions": []}
+
+    @staticmethod
+    def _charge(meta, amount):
+        exact = round(meta["spend_usd_provider_exact_since_cutover"] + amount, 12)
+        meta["spend_usd_provider_exact_since_cutover"] = exact
+        meta["spend_usd"] = exact
+
     def test_checked_contract_pins_all_five_messages_and_execution_inputs(self):
         self.assertEqual([row["id"] for row in self.contract["benchmarks"]], list(frozen.BENCHMARK_IDS))
         inputs = self.contract["execution_inputs"]
@@ -110,9 +123,12 @@ class FrozenEnglishTests(unittest.TestCase):
             (decoded, {}),
             (json.dumps(grade), {}),
         ])
-        record = frozen.run_one_baseline(
+        sample = frozen.capture_control_sample(
             benchmark, self.contract, call_fn=calls,
             token_count_fn=mock.Mock(side_effect=[100, 70]), meta={},
+        )
+        record = frozen.judge_preserved_sample(
+            sample, benchmark, self.contract, call_fn=calls, meta={}
         )
         self.assertEqual(calls.call_count, 3)
         expected = [
@@ -190,6 +206,117 @@ class FrozenEnglishTests(unittest.TestCase):
             {"events": events, "registry": registry}, sort_keys=True
         ).encode()).hexdigest()
         self.assertEqual(before, after)
+
+    def test_invalid_sample_is_preserved_and_rejudge_calls_only_the_judge(self):
+        benchmark = self.suite["benchmarks"][0]
+        decoded = "\n".join(atom["meaning"] for atom in benchmark["answer_key"])
+        responses = iter(["same compressed sample", decoded, "{}"])
+        first_models = []
+
+        def first_call(model, _system, _user, *, meta, **_kwargs):
+            first_models.append(model); self._charge(meta, 0.01)
+            return next(responses), {}
+
+        def count(_text, meta):
+            self._charge(meta, 0.001)
+            return 100 if meta["spend_usd"] < 0.022 else 70
+
+        with tempfile.TemporaryDirectory() as tmp:
+            registry = Path(tmp) / "registry.json"
+            progress = Path(tmp) / "progress.json"
+            with self.assertRaisesRegex(
+                frozen.FrozenEnglishError,
+                r"invalid_english_control_judge:B1:items_not_array",
+            ):
+                frozen.run_live_controls(
+                    self.suite, self.contract, registry_path=registry,
+                    progress_path=progress, call_fn=first_call,
+                    token_count_fn=count, max_spend_usd=0.25,
+                )
+            saved = json.loads(progress.read_text())
+            sample = saved["sample"]
+            self.assertEqual(sample["compressed_english"], "same compressed sample")
+            self.assertEqual(sample["decoded"], decoded)
+            self.assertEqual(sample["judge_reason"], "items_not_array")
+            self.assertEqual(sample["judge_attempts"][0]["status"], "INVALID JUDGE RESULT")
+            self.assertAlmostEqual(saved["provider_spend_usd"], 0.032)
+            public = json.loads(registry.read_text())
+            self.assertEqual(public["records"], [])
+            self.assertAlmostEqual(public["provider_spend_usd"], 0.032)
+
+            rejudge_models = []
+            def rejudge_call(model, _system, _user, *, meta, **_kwargs):
+                rejudge_models.append(model); self._charge(meta, 0.01)
+                return json.dumps(self._valid_grade(benchmark)), {}
+
+            frozen.run_live_controls(
+                self.suite, self.contract, registry_path=registry,
+                progress_path=progress, call_fn=rejudge_call,
+                token_count_fn=mock.Mock(side_effect=AssertionError("must not retokenize")),
+                max_spend_usd=0.25, rejudge_id="B1",
+            )
+            self.assertEqual(rejudge_models, [loop.MODEL_GRADER])
+            promoted = json.loads(registry.read_text())["records"][0]
+            self.assertEqual(promoted["compressed_english"], "same compressed sample")
+            self.assertEqual(promoted["decoded"], decoded)
+            self.assertEqual(len(promoted["judge_attempts"]), 2)
+            self.assertTrue(promoted["judge_valid"])
+            self.assertAlmostEqual(promoted["provider_spend_usd"], 0.042)
+            self.assertIsNone(json.loads(progress.read_text())["sample"])
+
+    def test_each_valid_record_is_checkpointed_and_restart_skips_paid_controls(self):
+        responses = []
+        for benchmark in self.suite["benchmarks"]:
+            decoded = "\n".join(atom["meaning"] for atom in benchmark["answer_key"])
+            responses.extend(["compressed " + benchmark["id"], decoded,
+                              json.dumps(self._valid_grade(benchmark))])
+        calls = mock.Mock(side_effect=[(text, {}) for text in responses])
+        counts = mock.Mock(side_effect=[value for _ in frozen.BENCHMARK_IDS for value in (100, 70)])
+        with tempfile.TemporaryDirectory() as tmp:
+            registry = Path(tmp) / "registry.json"
+            progress = Path(tmp) / "progress.json"
+            real_write = frozen.atomic_write_json
+            sizes = []
+            def observed_write(path, value):
+                real_write(path, value)
+                if Path(path) == registry and value.get("records"):
+                    sizes.append(len(value["records"]))
+            valid_score = {
+                "valid": True, "status": "VALID", "reason": "valid", "items": [],
+                "meaning_pass": True, "compression_success": True,
+                "semantic_coverage_pct": 100, "critical_failures": [], "inventions": [],
+            }
+            with mock.patch("frozen_english.atomic_write_json", side_effect=observed_write), \
+                 mock.patch("frozen_english.score_judgment_v2", return_value=valid_score):
+                result = frozen.run_live_controls(
+                    self.suite, self.contract, registry_path=registry,
+                    progress_path=progress, call_fn=calls,
+                    token_count_fn=counts, max_spend_usd=0.25,
+                )
+            self.assertEqual(result["records"], 5)
+            self.assertEqual(sizes, [1, 2, 3, 4, 5])
+            no_call = mock.Mock(side_effect=AssertionError("must skip current controls"))
+            resumed = frozen.run_live_controls(
+                self.suite, self.contract, registry_path=registry,
+                progress_path=progress, call_fn=no_call,
+                token_count_fn=no_call, max_spend_usd=0.25,
+            )
+            self.assertEqual(resumed["records"], 5)
+            no_call.assert_not_called()
+
+    def test_original_judge_plus_one_rejudge_is_the_hard_attempt_cap(self):
+        benchmark = self.suite["benchmarks"][0]
+        sample = self._record("B1") | {
+            "benchmark_name": benchmark["name"], "compressed_english": "compressed",
+            "decoded": "decoded", "original_tokens": 10, "compressed_tokens": 8,
+            "judge_attempts": [{"attempt": 1}, {"attempt": 2}],
+        }
+        no_call = mock.Mock(side_effect=AssertionError("third judge call forbidden"))
+        with self.assertRaisesRegex(frozen.FrozenEnglishError, "judge_attempt_cap:B1"):
+            frozen.judge_preserved_sample(
+                sample, benchmark, self.contract, call_fn=no_call, meta={}
+            )
+        no_call.assert_not_called()
 
 
 if __name__ == "__main__":

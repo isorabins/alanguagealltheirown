@@ -62,6 +62,6 @@ The separately approved one-time control runner is preview-only by default:
 python3 frozen_english.py
 ```
 
-An operator may use `--live --max-spend-usd <approved-cap>` only outside CI and only under a release approval. The runner accepts no cap above `$0.25`, preserves current matching records, and writes the five-record registry atomically only after the bounded run succeeds.
+An operator may use `--live --max-spend-usd <approved-cap>` only outside CI and only under a release approval. The runner accepts no cap above `$0.25`, preserves current matching records, and atomically checkpoints each valid control and cumulative spend. Before judging, it saves the exact compressed/decoded sample to the gitignored `baselines/frozen-english-progress.local.json`. An invalid judge stops nonzero with that sample and reason intact; `--live --rejudge B1 --max-spend-usd <remaining-cap>` reuses it and calls only the pinned judge. One rejudge is the hard limit.
 
 Passing these tests is not production acceptance. The required deployed run includes visible desktop and 375px journeys, the full `/human` session lifecycle, cross-turn restart/exact-once behavior, hostile/failure cases, numbered screenshots, one continuous video, independent receipts, and cleanup with one PASS/FAIL/BLOCKED result per row.

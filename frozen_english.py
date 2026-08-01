@@ -23,10 +23,13 @@ from state_store import atomic_write_json, load_json
 ROOT = Path(__file__).resolve().parent
 CONTRACT_PATH = ROOT / "baselines" / "frozen-english-contract-v2.json"
 REGISTRY_PATH = ROOT / "baselines" / "frozen-english-v2.json"
+PROGRESS_PATH = ROOT / "baselines" / "frozen-english-progress.local.json"
 BENCHMARK_IDS = ("B1", "B2", "B3", "B4", "B5")
 BASELINE_VERSION = "frozen-english-v2"
 SCHEMA_VERSION = 1
 MAX_APPROVED_SPEND_USD = 0.25
+CONTROL_ARTIFACT_MAX_CHARS = 128_000
+MAX_JUDGE_ATTEMPTS = 2
 
 MODEL_ENCODER = "deepseek/deepseek-v3.2"
 MODEL_DECODER = "moonshotai/kimi-k2.6"
@@ -281,58 +284,7 @@ def _parse_judgment(raw: str) -> dict[str, Any]:
         return {}
 
 
-def run_one_baseline(
-    benchmark: dict[str, Any],
-    contract: dict[str, Any],
-    *,
-    call_fn: Callable[..., tuple[str, dict[str, Any]]],
-    token_count_fn: Callable[[str, dict[str, Any]], int],
-    meta: dict[str, Any],
-) -> dict[str, Any]:
-    compressed, _ = call_fn(
-        MODEL_ENCODER,
-        ENGLISH_PROMPT_PATH.read_text(),
-        benchmark["original"],
-        max_tokens=MAX_TOKENS,
-        temperature=ENCODER_TEMPERATURE,
-        meta=meta,
-    )
-    decoded, _ = call_fn(
-        MODEL_DECODER,
-        DECODER_PROMPT_PATH.read_text(),
-        compressed.strip(),
-        max_tokens=MAX_TOKENS,
-        temperature=DECODER_TEMPERATURE,
-        meta=meta,
-    )
-    original_tokens = token_count_fn(benchmark["original"], meta)
-    compressed_tokens = token_count_fn(compressed.strip(), meta)
-    savings_pct = -round(
-        (compressed_tokens - original_tokens) / original_tokens * 100
-    )
-    key_text = json.dumps(
-        [{"id": atom["id"], "meaning": atom["meaning"]} for atom in benchmark["answer_key"]],
-        ensure_ascii=False,
-    )
-    grade_user = (
-        f"ORIGINAL:\n{benchmark['original']}\n\nATOMIC ANSWER KEY:\n{key_text}"
-        f"\n\nDECODED:\n{decoded.strip()}"
-    )
-    graded, _ = call_fn(
-        MODEL_JUDGE,
-        GRADER_PROMPT_PATH.read_text(),
-        grade_user,
-        max_tokens=MAX_TOKENS,
-        temperature=JUDGE_TEMPERATURE,
-        meta=meta,
-    )
-    scored = score_judgment_v2(
-        benchmark["answer_key"], _parse_judgment(graded), decoded.strip(), savings_pct
-    )
-    if not scored["valid"]:
-        raise FrozenEnglishError(
-            f"invalid_english_control_judge:{benchmark['id']}:{scored['reason']}"
-        )
+def _sample_identity(benchmark: dict[str, Any], contract: dict[str, Any]) -> dict[str, Any]:
     digest = next(
         row["benchmark_digest"]
         for row in contract["benchmarks"]
@@ -344,35 +296,318 @@ def run_one_baseline(
         "benchmark_version": contract["benchmark_version"],
         "benchmark_digest": digest,
         "execution_inputs": copy.deepcopy(contract["execution_inputs"]),
-        "original_tokens": original_tokens,
-        "compressed_tokens": compressed_tokens,
-        "message_body_savings_pct": savings_pct,
-        "compressed_english": compressed.strip(),
-        "decoded": decoded.strip(),
+    }
+
+
+def _check_sample(sample: dict[str, Any], benchmark: dict[str, Any], contract: dict[str, Any]) -> None:
+    expected = _sample_identity(benchmark, contract)
+    for field in expected:
+        if sample.get(field) != expected[field]:
+            raise FrozenEnglishError(f"preserved_control_stale:{benchmark['id']}:{field}")
+    for field in ("compressed_english", "decoded"):
+        value = sample.get(field)
+        if not isinstance(value, str) or not value or len(value) > CONTROL_ARTIFACT_MAX_CHARS:
+            raise FrozenEnglishError(f"preserved_control_artifact_invalid:{benchmark['id']}:{field}")
+
+
+def capture_control_sample(
+    benchmark: dict[str, Any],
+    contract: dict[str, Any],
+    *,
+    call_fn: Callable[..., tuple[str, dict[str, Any]]],
+    token_count_fn: Callable[[str, dict[str, Any]], int],
+    meta: dict[str, Any],
+) -> dict[str, Any]:
+    compressed, _ = call_fn(
+        MODEL_ENCODER, ENGLISH_PROMPT_PATH.read_text(), benchmark["original"],
+        max_tokens=MAX_TOKENS, temperature=ENCODER_TEMPERATURE, meta=meta,
+    )
+    decoded, _ = call_fn(
+        MODEL_DECODER, DECODER_PROMPT_PATH.read_text(), compressed.strip(),
+        max_tokens=MAX_TOKENS, temperature=DECODER_TEMPERATURE, meta=meta,
+    )
+    original_tokens = token_count_fn(benchmark["original"], meta)
+    compressed_tokens = token_count_fn(compressed.strip(), meta)
+    sample = _sample_identity(benchmark, contract) | {
+        "compressed_english": compressed.strip(), "decoded": decoded.strip(),
+        "original_tokens": original_tokens, "compressed_tokens": compressed_tokens,
+        "message_body_savings_pct": -round(
+            (compressed_tokens - original_tokens) / original_tokens * 100
+        ),
+        "judge_attempts": [],
+    }
+    _check_sample(sample, benchmark, contract)
+    return sample
+
+
+def judge_preserved_sample(
+    sample: dict[str, Any],
+    benchmark: dict[str, Any],
+    contract: dict[str, Any],
+    *,
+    call_fn: Callable[..., tuple[str, dict[str, Any]]],
+    meta: dict[str, Any],
+) -> dict[str, Any]:
+    _check_sample(sample, benchmark, contract)
+    attempts = copy.deepcopy(sample.get("judge_attempts", []))
+    if len(attempts) >= MAX_JUDGE_ATTEMPTS:
+        raise FrozenEnglishError(f"preserved_control_judge_attempt_cap:{benchmark['id']}")
+    key_text = json.dumps(
+        [{"id": atom["id"], "meaning": atom["meaning"]} for atom in benchmark["answer_key"]],
+        ensure_ascii=False,
+    )
+    grade_user = (
+        f"ORIGINAL:\n{benchmark['original']}\n\nATOMIC ANSWER KEY:\n{key_text}"
+        f"\n\nDECODED:\n{sample['decoded']}"
+    )
+    graded, _ = call_fn(
+        MODEL_JUDGE,
+        GRADER_PROMPT_PATH.read_text(),
+        grade_user,
+        max_tokens=MAX_TOKENS,
+        temperature=JUDGE_TEMPERATURE,
+        meta=meta,
+    )
+    scored = score_judgment_v2(
+        benchmark["answer_key"], _parse_judgment(graded), sample["decoded"],
+        sample["message_body_savings_pct"]
+    )
+    result = copy.deepcopy(sample)
+    result["provider_spend_usd"] = meta.get("spend_usd", 0.0)
+    attempts.append({
+        "attempt": len(attempts) + 1,
+        "status": scored["status"],
+        "reason": scored["reason"],
+        "provider_spend_usd": meta.get("spend_usd", 0.0),
+    })
+    result["judge_attempts"] = attempts
+    if not scored["valid"]:
+        result.update({
+            "judge_valid": False,
+            "judge_status": scored["status"],
+            "judge_reason": scored["reason"],
+            "atom_results": scored.get("items", []),
+        })
+        return result
+    result.update({
         "judge_valid": True,
         "judge_status": scored["status"],
+        "judge_reason": scored["reason"],
         "meaning_pass": scored["meaning_pass"],
         "compression_success": scored["compression_success"],
         "semantic_coverage_pct": scored["semantic_coverage_pct"],
         "critical_failures": scored["critical_failures"],
         "inventions": scored["inventions"],
         "atom_results": scored["items"],
-    }
+    })
+    return result
 
 
 def _utc_now() -> str:
     return datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
 
 
-def preview_plan(contract: dict[str, Any], registry: dict[str, Any]) -> dict[str, Any]:
+def _empty_registry() -> dict[str, Any]:
+    return {"schema_version": SCHEMA_VERSION, "baseline_version": BASELINE_VERSION,
+            "provider_spend_usd": 0.0, "records": []}
+
+
+def _empty_progress(spend_usd: float = 0.0) -> dict[str, Any]:
+    return {"schema_version": SCHEMA_VERSION, "baseline_version": BASELINE_VERSION,
+            "provider_spend_usd": spend_usd, "sample": None}
+
+
+def _spend(value: Any) -> float:
+    if (
+        isinstance(value, bool)
+        or not isinstance(value, (int, float))
+        or not math.isfinite(value)
+        or value < 0
+    ):
+        raise FrozenEnglishError("invalid_provider_spend_receipt")
+    return round(float(value), 12)
+
+
+def _load_progress(path: Path, registry: dict[str, Any]) -> dict[str, Any]:
+    registry_spend = _spend(registry.get("provider_spend_usd", 0.0))
+    progress = load_json(path, _empty_progress(registry_spend))
+    if (
+        not isinstance(progress, dict)
+        or progress.get("schema_version") != SCHEMA_VERSION
+        or progress.get("baseline_version") != BASELINE_VERSION
+        or (progress.get("sample") is not None
+            and not isinstance(progress.get("sample"), dict))
+    ):
+        raise FrozenEnglishError("frozen_english_progress_invalid")
+    progress["provider_spend_usd"] = max(
+        registry_spend, _spend(progress.get("provider_spend_usd")))
+    return progress
+
+
+def _registry_checkpoint(registry: dict[str, Any], records: dict[str, dict[str, Any]],
+                         spend_usd: float) -> dict[str, Any]:
+    return {
+        "schema_version": SCHEMA_VERSION,
+        "baseline_version": BASELINE_VERSION,
+        "created_at": registry.get("created_at", _utc_now()),
+        "updated_at": _utc_now(),
+        "provider_spend_usd": _spend(spend_usd),
+        "records": [
+            copy.deepcopy(records[benchmark_id])
+            for benchmark_id in BENCHMARK_IDS
+            if benchmark_id in records
+        ],
+    }
+
+
+def preview_plan(
+    contract: dict[str, Any], registry: dict[str, Any],
+    progress: dict[str, Any] | None = None,
+) -> dict[str, Any]:
     statuses = baseline_status(registry, contract)
+    pending = (progress or {}).get("sample")
     return {
         "mode": "preview_no_provider_calls",
         "baseline_version": BASELINE_VERSION,
         "current": [key for key, value in statuses.items() if value["state"] == "current"],
         "to_run": [key for key, value in statuses.items() if value["state"] != "current"],
+        "preserved_sample": pending.get("benchmark_id") if pending else None,
+        "rejudge_required": bool(pending),
         "max_controls": len(BENCHMARK_IDS),
         "scheduled_turn_path_changed": False,
+    }
+
+
+def run_live_controls(
+    suite: dict[str, Any],
+    contract: dict[str, Any],
+    *,
+    registry_path: Path,
+    progress_path: Path,
+    call_fn: Callable[..., tuple[str, dict[str, Any]]],
+    token_count_fn: Callable[[str, dict[str, Any]], int],
+    max_spend_usd: float,
+    rejudge_id: str | None = None,
+) -> dict[str, Any]:
+    """Run the five controls, preserving one sample for judge-only retry."""
+    cap = _spend(max_spend_usd)
+    if cap <= 0 or cap > MAX_APPROVED_SPEND_USD:
+        raise FrozenEnglishError(
+            "live_run_requires_max_spend_usd_at_or_below_0.25"
+        )
+    registry = load_json(registry_path, _empty_registry())
+    progress = _load_progress(progress_path, registry)
+    records = {
+        row.get("benchmark_id"): row
+        for row in registry.get("records", [])
+        if isinstance(row, dict) and row.get("judge_valid") is True
+    }
+    starting_spend = progress["provider_spend_usd"]
+    if starting_spend >= cap:
+        raise FrozenEnglishError("frozen_english_spend_cap_reached")
+    meta = {
+        "spend_usd": starting_spend,
+        "spend_usd_historical_estimate": 0.0,
+        "spend_usd_provider_exact_since_cutover": starting_spend,
+    }
+
+    def write_progress(sample: dict[str, Any] | None) -> None:
+        progress["sample"] = copy.deepcopy(sample)
+        progress["provider_spend_usd"] = _spend(meta["spend_usd"])
+        atomic_write_json(progress_path, progress)
+
+    def write_registry() -> None:
+        nonlocal registry
+        registry = _registry_checkpoint(registry, records, meta["spend_usd"])
+        atomic_write_json(registry_path, registry)
+
+    def capped_call(*call_args: Any, **call_kwargs: Any) -> tuple[str, dict[str, Any]]:
+        if meta["spend_usd"] >= cap:
+            raise FrozenEnglishError("frozen_english_spend_cap_reached")
+        result = call_fn(*call_args, **call_kwargs)
+        _spend(meta["spend_usd"])
+        write_progress(progress.get("sample"))
+        if meta["spend_usd"] > cap:
+            write_registry()
+            raise FrozenEnglishError("frozen_english_spend_cap_exceeded")
+        return result
+
+    rows_by_id = {row["id"]: row for row in suite["benchmarks"]}
+    pending = progress.get("sample")
+    statuses = baseline_status(registry, contract)
+
+    if pending and statuses.get(pending.get("benchmark_id"), {}).get("state") == "current":
+        write_progress(None)
+        pending = None
+    elif pending and pending.get("judge_valid") is True:
+        records[pending["benchmark_id"]] = pending
+        write_registry()
+        write_progress(None)
+        pending = None
+
+    if rejudge_id is not None:
+        if rejudge_id not in BENCHMARK_IDS:
+            raise FrozenEnglishError("rejudge_benchmark_invalid")
+        if not pending or pending.get("benchmark_id") != rejudge_id:
+            raise FrozenEnglishError(
+                f"no_preserved_control_for_rejudge:{rejudge_id}"
+            )
+        benchmark = rows_by_id[rejudge_id]
+        _check_sample(pending, benchmark, contract)
+        result = judge_preserved_sample(
+            pending, benchmark, contract, call_fn=capped_call, meta=meta
+        )
+        write_progress(result)
+        write_registry()
+        if not result["judge_valid"]:
+            raise FrozenEnglishError(
+                f"invalid_english_control_judge:{rejudge_id}:{result['judge_reason']}"
+            )
+        records[rejudge_id] = result
+        write_registry()
+        write_progress(None)
+        return {
+            "result": "frozen_english_rejudge_promoted",
+            "benchmark_id": rejudge_id,
+            "records": len(records),
+            "provider_spend_usd": meta["spend_usd"],
+        }
+
+    if pending:
+        raise FrozenEnglishError(
+            f"preserved_control_requires_rejudge:{pending['benchmark_id']}"
+        )
+
+    for benchmark_id in BENCHMARK_IDS:
+        statuses = baseline_status(registry, contract)
+        if statuses[benchmark_id]["state"] == "current":
+            continue
+        benchmark = rows_by_id[benchmark_id]
+        sample = capture_control_sample(
+            benchmark, contract, call_fn=capped_call,
+            token_count_fn=token_count_fn, meta=meta,
+        )
+        pending = sample
+        write_progress(sample)
+        result = judge_preserved_sample(
+            sample, benchmark, contract, call_fn=capped_call, meta=meta
+        )
+        pending = result
+        write_progress(result)
+        if not result["judge_valid"]:
+            write_registry()
+            raise FrozenEnglishError(
+                f"invalid_english_control_judge:{benchmark_id}:{result['judge_reason']}"
+            )
+        records[benchmark_id] = result
+        write_registry()
+        pending = None
+        write_progress(None)
+
+    return {
+        "result": "frozen_english_controls_written",
+        "records": len(records),
+        "provider_spend_usd": meta["spend_usd"],
     }
 
 
@@ -381,19 +616,20 @@ def main() -> int:
     parser.add_argument("--live", action="store_true", help="perform the one-time provider controls")
     parser.add_argument("--max-spend-usd", type=float)
     parser.add_argument("--output", type=Path, default=REGISTRY_PATH)
+    parser.add_argument("--progress", type=Path, default=PROGRESS_PATH)
+    parser.add_argument("--rejudge", choices=BENCHMARK_IDS)
     args = parser.parse_args()
 
     from loop import call, load_benchmark_suite, token_count
 
     suite = load_benchmark_suite()
     contract = load_checked_contract(suite)
-    registry = load_json(args.output, {
-        "schema_version": SCHEMA_VERSION,
-        "baseline_version": BASELINE_VERSION,
-        "records": [],
-    })
-    plan = preview_plan(contract, registry)
+    registry = load_json(args.output, _empty_registry())
+    progress = _load_progress(args.progress, registry)
+    plan = preview_plan(contract, registry, progress)
     if not args.live:
+        if args.rejudge:
+            raise FrozenEnglishError("rejudge_requires_live_flag")
         print(json.dumps(plan, indent=2, sort_keys=True))
         return 0
     if (
@@ -404,50 +640,14 @@ def main() -> int:
     ):
         raise FrozenEnglishError("live_run_requires_max_spend_usd_at_or_below_0.25")
 
-    meta = {
-        "spend_usd": 0.0,
-        "spend_usd_historical_estimate": 0.0,
-        "spend_usd_provider_exact_since_cutover": 0.0,
-    }
-
-    def capped_call(*call_args: Any, **call_kwargs: Any) -> tuple[str, dict[str, Any]]:
-        if meta["spend_usd"] >= args.max_spend_usd:
-            raise FrozenEnglishError("frozen_english_spend_cap_reached")
-        result = call(*call_args, **call_kwargs)
-        if meta["spend_usd"] > args.max_spend_usd:
-            raise FrozenEnglishError("frozen_english_spend_cap_exceeded")
-        return result
-
-    rows_by_id = {row["id"]: row for row in suite["benchmarks"]}
-    existing = {
-        row.get("benchmark_id"): row
-        for row in registry.get("records", [])
-        if isinstance(row, dict)
-    }
-    statuses = baseline_status(registry, contract)
-    records = []
-    for benchmark_id in BENCHMARK_IDS:
-        if statuses[benchmark_id]["state"] == "current":
-            records.append(existing[benchmark_id])
-            continue
-        records.append(run_one_baseline(
-            rows_by_id[benchmark_id], contract, call_fn=capped_call,
-            token_count_fn=token_count, meta=meta,
-        ))
-    output = {
-        "schema_version": SCHEMA_VERSION,
-        "baseline_version": BASELINE_VERSION,
-        "created_at": _utc_now(),
-        "provider_spend_usd": meta["spend_usd"],
-        "records": records,
-    }
-    atomic_write_json(args.output, output)
-    print(json.dumps({
-        "result": "frozen_english_controls_written",
-        "output": str(args.output.resolve()),
-        "records": len(records),
-        "provider_spend_usd": meta["spend_usd"],
-    }, indent=2, sort_keys=True))
+    result = run_live_controls(
+        suite, contract, registry_path=args.output, progress_path=args.progress,
+        call_fn=call, token_count_fn=token_count,
+        max_spend_usd=args.max_spend_usd, rejudge_id=args.rejudge,
+    )
+    result["output"] = str(args.output.resolve())
+    result["progress"] = str(args.progress.resolve())
+    print(json.dumps(result, indent=2, sort_keys=True))
     return 0
 
 
