@@ -212,25 +212,18 @@ Iso confirmed all six recommended decisions on 2026-08-01 WITA:
    claim.
 6. Confirm the ten-point regression contract and release boundaries.
 
-## Remaining human decision
+## Completed Scoring V2 decision
 
-Only [Review one concrete corrected B1-B5 evidence contract](https://github.com/isorabins/alanguagealltheirown/issues/31)
-remains open. The agent must prepare the full corrected contract and recommended
-defaults before the session. Iso only approves or corrects material disputes,
-with the review capped at 30 minutes.
+Iso approved [Review one concrete corrected B1-B5 evidence contract](https://github.com/isorabins/alanguagealltheirown/issues/31)
+on 2026-08-01 WITA. Its resolution is the authoritative Scoring V2 contract:
+corrected atomic meanings, evidence-backed verdicts, invalid-judge handling,
+V1/V2 history, matched frozen English baselines, and the manual unseen-test
+boundary. The decision ticket and parent map are closed with no remaining fog.
 
 The receipt, comparative viewer, and regression-policy tickets were closed as
 mis-scoped Wayfinder work because Iso already settled their product decisions.
-Their exact schemas, tests, and execution waves will be synthesized through
-`$to-spec` and `$to-tickets` after the B1-B5 contract is approved.
-
-## Remaining fog
-
-- Exact critical meanings and corrected atomic answer keys for B1-B5.
-- The exact matched compression instruction and budget for the frozen English
-  baselines.
-- Whether the existing single fidelity percentage remains visible after the
-  corrected result model is introduced.
+Their exact schemas, tests, and execution waves now belong in `$to-spec` and
+`$to-tickets`; the Wayfinder map authorizes no implementation or live change.
 
 ## Out of scope
 
