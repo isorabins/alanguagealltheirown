@@ -51,7 +51,7 @@
         {"id":"B2.02","meaning":"This is a secondary hydrostatic test.","critical":false,"literal_sets":[]},
         {"id":"B2.03","meaning":"At approximately 10:47 local, the test reached a 22.5 MPa hold pressure.","critical":true,"literal_sets":[["10:47"],["22.5"],["MPa"]]},
         {"id":"B2.04","meaning":"The persistent pressure decay was 0.08 MPa per minute.","critical":true,"literal_sets":[["0.08"],["MPa"],["minute"]]},
-        {"id":"B2.05","meaning":"The pressure decay was observed over five minutes.","critical":true,"literal_sets":[["five-minute","five minute","5-minute","5 minute"]]},
+        {"id":"B2.05","meaning":"The pressure decay was observed over five minutes.","critical":true,"literal_sets":[["five-minute","five minute","5-minute","5 minute","five minutes","5 minutes"]]},
         {"id":"B2.06","meaning":"Procedure MNT-VSL-7 sets the acceptable decay threshold at 0.02 MPa per minute.","critical":true,"literal_sets":[["MNT-VSL-7"],["0.02"],["MPa"],["minute"]]},
         {"id":"B2.07","meaning":"The test medium is potable water at 15°C.","critical":true,"literal_sets":[["15°C","15 °C","15 degrees Celsius"]]},
         {"id":"B2.08","meaning":"The test was suspended at 10:52.","critical":true,"literal_sets":[["10:52"]]},

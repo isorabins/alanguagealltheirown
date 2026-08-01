@@ -112,5 +112,24 @@ class JudgeTests(unittest.TestCase):
         }
         self.assertTrue(score_judgment_v2(key, grade, exact, 10)["valid"])
 
+    def test_b2_five_minutes_plural_survives_deterministic_validation(self):
+        benchmarks = json.loads((ROOT / "benchmarks/v2.json").read_text())
+        b2 = next(item for item in benchmarks["benchmarks"] if item["id"] == "B2")
+        atom = next(item for item in b2["answer_key"] if item["id"] == "B2.05")
+
+        for wording in ("five minutes", "5 minutes"):
+            with self.subTest(wording=wording):
+                decoded = f"The pressure decay was observed over {wording}."
+                grade = {
+                    "mode": "RELAY",
+                    "items": [{
+                        "id": "B2.05",
+                        "verdict": "SURVIVED",
+                        "evidence": decoded,
+                    }],
+                    "inventions": [],
+                }
+                self.assertTrue(score_judgment_v2([atom], grade, decoded, 10)["valid"])
+
 
 if __name__ == "__main__": unittest.main()
