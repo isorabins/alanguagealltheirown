@@ -14,6 +14,8 @@
 
 The fresh fixed-base post-removal review found three hard documentation problems directly related to the scope reduction: the field note did not name its verification sources, `CONTEXT.md` still defined the removed control concepts as active glossary terms, and this receipt still claimed that the superseded review had no remaining gap. This documentation pass repaired all three and replaced bare issue references with linked titles.
 
+The final Standards review also found two hard documentation defects outside the approved B2.05 correction: `MECHANICS.md` still describes the retired V1 judging flow, and the viewer's exact-wiring explanation and prompt list still describe V1 while omitting the active `grader_v2` prompt. Both remain unmodified pending explicit Iso approval; this receipt does not claim a Standards pass.
+
 The review also noted judgment-call smells, not documented-standard violations: possible Data Clumps/Shotgun Surgery in the Scoring V2 result fields and possible Duplicated Code in viewer helpers and status construction. They are not release findings from the English-control removal and were not changed.
 
 ### Spec
@@ -23,7 +25,7 @@ Two hard findings were repaired:
 1. Deterministic literal checks accepted a required literal as a substring of a larger value or identifier (`15` in `150`, `$48` in `$480`). The matcher now enforces alphanumeric/underscore token boundaries and regression tests cover valid and invalid boundaries.
 2. Active feedback keyed only on rule id, so an old request could resurface after settlement when a later independent repeal targeted the same rule. Derivation now respects motion kind and stops at the current PROPOSE/REPEAL creation boundary while preserving feedback across revision, structural failure, and reconstruction.
 
-One hard retained-scope finding remains: B2.05's deterministic alternatives reject the semantically correct plural phrase “five minutes”, so a correct scheduled B2 decode can be quarantined as an invalid judge result. This was not fixed because changing the shared Scoring V2 benchmark is outside the authorized English-control removal.
+After explicit Iso approval, commit `446ba54` added the exact B2.05 alternatives `five minutes` and `5 minutes` plus one regression test. The final Spec re-review confirmed that correction, with no remaining behavioral Spec defect or scope drift.
 
 No replacement control, metric, evaluator, or experiment was added. The retained scope remains [Ship the ALATO roadmap with Scoring V2 regression protection](https://github.com/isorabins/alanguagealltheirown/issues/35), excluding the removed English-control feature.
 
