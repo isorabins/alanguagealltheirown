@@ -225,6 +225,17 @@ mis-scoped Wayfinder work because Iso already settled their product decisions.
 Their exact schemas, tests, and execution waves now belong in `$to-spec` and
 `$to-tickets`; the Wayfinder map authorizes no implementation or live change.
 
+## Ticket 38 prompt-feedback contract
+
+The legislative prompt may derive one current-language valid Scoring V2 atom
+failure from canonical exam events. Its bounded receipt carries only the exam
+turn and benchmark identity, benchmark/scoring and adopted-language versions,
+the failed atom, `MISSING` or `CORRUPTED` classification, expected meaning, and
+decoded evidence (or an empty value for missing evidence). Invalid judges,
+legacy V1 events, and events for another adopted-language hash remain excluded.
+This projection is separate from active legislative feedback and never changes
+canonical event or language state.
+
 ## Out of scope
 
 - A general evaluation platform or large benchmark corpus.

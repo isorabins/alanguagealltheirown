@@ -14,6 +14,7 @@ from pydantic import (
     ValidationError,
     create_model,
     field_validator,
+    model_validator,
 )
 
 from rulebook import language_payload
@@ -21,6 +22,7 @@ from state_store import snapshot_hash
 
 PROTOCOL_VERSION = "structured-legislature-v1"
 MAX_STRUCTURAL_RETRIES = 2
+MAX_SCORING_V2_FEEDBACK_EVIDENCE_CHARS = 500
 
 Role = Literal["A", "B"]
 ActionResultKind = Literal["accepted", "rejected", "structural_failure", "cutover"]
@@ -140,6 +142,28 @@ class ActiveLegislativeFeedback(StrictModel):
     request_turn: int = Field(ge=0)
 
 
+class ScoringV2FailureFeedback(StrictModel):
+    """One bounded, current-language Scoring V2 failure for legislators."""
+
+    exam_turn: int = Field(ge=0)
+    benchmark_id: str = Field(min_length=1, max_length=32)
+    benchmark_version: Literal["v2"]
+    scoring_version: Literal["v2"]
+    language_version: str = Field(min_length=1, max_length=80)
+    failed_atom_id: str = Field(min_length=1, max_length=80)
+    classification: Literal["MISSING", "CORRUPTED"]
+    expected_meaning: str = Field(min_length=1, max_length=500)
+    decoded_evidence: str = Field(max_length=MAX_SCORING_V2_FEEDBACK_EVIDENCE_CHARS)
+
+    @model_validator(mode="after")
+    def evidence_matches_classification(self) -> "ScoringV2FailureFeedback":
+        if self.classification == "MISSING" and self.decoded_evidence:
+            raise ValueError("missing feedback cannot carry decoded evidence")
+        if self.classification == "CORRUPTED" and not self.decoded_evidence:
+            raise ValueError("corrupted feedback requires decoded evidence")
+        return self
+
+
 class RuleState(StrictModel):
     rule_id: str
     status: str
@@ -195,6 +219,7 @@ class LegislativeRequest(StrictModel):
     current_state: CanonicalLegislativeState
     latest_receipt: PostStateReceipt | None
     active_legislative_feedback: ActiveLegislativeFeedback | None
+    scoring_v2_failure_feedback: ScoringV2FailureFeedback | None
     collaboration_input: dict[str, Any] | None
 
 
@@ -493,6 +518,11 @@ def prompt_request_projection(request: LegislativeRequest) -> dict[str, Any]:
             if request.active_legislative_feedback is not None
             else None
         ),
+        "scoring_v2_failure_feedback": (
+            request.scoring_v2_failure_feedback.model_dump(mode="json")
+            if request.scoring_v2_failure_feedback is not None
+            else None
+        ),
         "collaboration_input": request.collaboration_input,
     }
 
@@ -579,6 +609,7 @@ def build_legislative_request(
     latest_receipt: PostStateReceipt | dict[str, Any] | None,
     collaboration_input: dict[str, Any] | None,
     active_legislative_feedback: ActiveLegislativeFeedback | dict[str, Any] | None = None,
+    scoring_v2_failure_feedback: ScoringV2FailureFeedback | dict[str, Any] | None = None,
 ) -> LegislativeRequest:
     receipt = (
         latest_receipt
@@ -600,6 +631,15 @@ def build_legislative_request(
                 active_legislative_feedback, strict=True
             )
             if active_legislative_feedback is not None
+            else None
+        ),
+        scoring_v2_failure_feedback=(
+            scoring_v2_failure_feedback
+            if isinstance(scoring_v2_failure_feedback, ScoringV2FailureFeedback)
+            else ScoringV2FailureFeedback.model_validate(
+                scoring_v2_failure_feedback, strict=True
+            )
+            if scoring_v2_failure_feedback is not None
             else None
         ),
         collaboration_input=collaboration_input,
@@ -638,6 +678,73 @@ def derive_active_legislative_feedback(
                 request_turn=receipt.turn,
             )
     return None
+
+
+def derive_scoring_v2_failure_feedback(
+    events: list[dict[str, Any]], *, language_version: str, language_hash: str
+) -> ScoringV2FailureFeedback | None:
+    """Project the latest inspectable current-language Scoring V2 atom failure.
+
+    Exam events remain canonical and may retain the full benchmark artifact. This
+    reader emits only a single bounded failure receipt for the prompt and fails
+    closed when an event does not prove every required correlation or field.
+    """
+    for event in reversed(events):
+        if not (
+            event.get("type") == "test"
+            and event.get("era") == "benchmark-v2"
+            and event.get("benchmark_id") in {"B1", "B2", "B3", "B4", "B5"}
+            and event.get("benchmark_version") == "v2"
+            and event.get("scoring_version") == "v2"
+            and event.get("judge_valid") is True
+            and event.get("judge_status") == "VALID"
+            and event.get("meaning_pass") is False
+            and event.get("language_version") == language_version
+            and event.get("language_hash") == language_hash
+        ):
+            continue
+        answer_key = event.get("answer_key")
+        atom_results = event.get("atom_results")
+        if not isinstance(answer_key, list) or not isinstance(atom_results, list):
+            continue
+        meanings = {
+            atom.get("id"): atom.get("meaning")
+            for atom in answer_key
+            if isinstance(atom, dict)
+            and isinstance(atom.get("id"), str)
+            and isinstance(atom.get("meaning"), str)
+        }
+        for item in atom_results:
+            if not isinstance(item, dict) or item.get("verdict") not in {"MISSING", "CORRUPTED"}:
+                continue
+            atom_id = item.get("id")
+            evidence = item.get("evidence")
+            expected_meaning = meanings.get(atom_id)
+            if not isinstance(atom_id, str) or not isinstance(evidence, str) or not expected_meaning:
+                continue
+            try:
+                return ScoringV2FailureFeedback(
+                    exam_turn=event.get("turn"),
+                    benchmark_id=event.get("benchmark_id"),
+                    benchmark_version=event.get("benchmark_version"),
+                    scoring_version=event.get("scoring_version"),
+                    language_version=event.get("language_version"),
+                    failed_atom_id=atom_id,
+                    classification=item["verdict"],
+                    expected_meaning=expected_meaning,
+                    decoded_evidence=_bounded_scoring_v2_evidence(evidence),
+                )
+            except ValidationError:
+                continue
+    return None
+
+
+def _bounded_scoring_v2_evidence(evidence: str) -> str:
+    """Keep an inspectable decoded span without replaying a whole decode."""
+    if len(evidence) <= MAX_SCORING_V2_FEEDBACK_EVIDENCE_CHARS:
+        return evidence
+    suffix = "… [truncated]"
+    return evidence[:MAX_SCORING_V2_FEEDBACK_EVIDENCE_CHARS - len(suffix)] + suffix
 
 
 def validation_reason(error: ValidationError | ValueError) -> str:

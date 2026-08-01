@@ -265,6 +265,7 @@ class ProjectionUnitTests(unittest.TestCase):
         self.assertIn("unchanged_rule_ids", request.latest_receipt.model_dump())
         self.assertEqual(request.model_dump_json(), canonical_json)
         self.assertIsNone(request_projection["active_legislative_feedback"])
+        self.assertIsNone(request_projection["scoring_v2_failure_feedback"])
 
     def test_schema_describes_the_unchanged_substantive_deliberation_boundary(self):
         schema = action_request_options("B", production_book())["response_format"][
@@ -569,6 +570,168 @@ class ActiveLegislativeFeedbackPromptTests(unittest.TestCase):
         assembled = self._assemble(events, book, "A")
         self.assertEqual(assembled["prompt_request"]["active_legislative_feedback"]["focus"], focus)
         self.assertNotIn("Test an unrelated target boundary.", assembled["system"])
+
+
+class ScoringV2FailureFeedbackPromptTests(unittest.TestCase):
+    def _failure_event(
+        self,
+        book,
+        turn,
+        *,
+        benchmark_id="B2",
+        atom_id="B2.01",
+        verdict="CORRUPTED",
+        evidence="Pressure is 225 MPa.",
+        language_version=None,
+        language_hash=None,
+    ):
+        language = language_payload(book)
+        return {
+            "turn": turn,
+            "agent": "harness",
+            "type": "test",
+            "era": "benchmark-v2",
+            "benchmark_id": benchmark_id,
+            "benchmark_version": "v2",
+            "scoring_version": "v2",
+            "language_version": language_version or language["version"],
+            "language_hash": language_hash or language["hash"],
+            "judge_valid": True,
+            "judge_status": "VALID",
+            "meaning_pass": False,
+            "answer_key": [
+                {
+                    "id": atom_id,
+                    "meaning": "Pressure must remain exactly 22.5 MPa.",
+                    "critical": True,
+                },
+                {
+                    "id": f"{benchmark_id}.02",
+                    "meaning": "A separate source meaning must never reach the prompt.",
+                    "critical": False,
+                },
+            ],
+            "atom_results": [
+                {"id": atom_id, "verdict": verdict, "evidence": evidence},
+                {
+                    "id": f"{benchmark_id}.02",
+                    "verdict": "SURVIVED",
+                    "evidence": "A separate source meaning must never reach the prompt.",
+                },
+            ],
+            "original": "RAW_BENCHMARK_SENTINEL " * 100,
+            "encoded": "RAW_ENCODED_SENTINEL " * 100,
+            "decoded": "RAW_DECODED_SENTINEL " * 100,
+            "grader_prompt": "RAW_GRADER_PROMPT_SENTINEL " * 100,
+            "grader_deliberation": "RAW_GRADER_DELIBERATION_SENTINEL " * 100,
+        }
+
+    def _assemble(self, events, book, agent):
+        return loop.assemble_legislative_prompt(
+            events, book, turn=1220, agent=agent, collaboration_input=None
+        )
+
+    def test_valid_current_failure_reaches_both_roles_as_one_bounded_receipt(self):
+        book = production_book()
+        request = ActiveLegislativeFeedbackPromptTests()._request_receipt(
+            book, 1209, "Test the exact boundary against one hostile transfer."
+        )
+        failure = self._failure_event(book, 1212)
+        events = [request, failure]
+        book_hash, events_hash = snapshot_hash(book), snapshot_hash(events)
+
+        assembled_a = self._assemble(events, book, "A")
+        assembled_b = self._assemble(json.loads(json.dumps(events)), book, "B")
+        expected = {
+            "exam_turn": 1212,
+            "benchmark_id": "B2",
+            "benchmark_version": "v2",
+            "scoring_version": "v2",
+            "language_version": language_payload(book)["version"],
+            "failed_atom_id": "B2.01",
+            "classification": "CORRUPTED",
+            "expected_meaning": "Pressure must remain exactly 22.5 MPa.",
+            "decoded_evidence": "Pressure is 225 MPa.",
+        }
+        for assembled in (assembled_a, assembled_b):
+            projection = assembled["prompt_request"]
+            self.assertEqual(projection["scoring_v2_failure_feedback"], expected)
+            self.assertEqual(
+                projection["active_legislative_feedback"]["focus"],
+                "Test the exact boundary against one hostile transfer.",
+            )
+            self.assertIn(expected["expected_meaning"], assembled["system"])
+            self.assertIn(expected["decoded_evidence"], assembled["system"])
+            self.assertLess(
+                len(json.dumps(projection["scoring_v2_failure_feedback"])), 600
+            )
+            for sentinel in (
+                "RAW_BENCHMARK_SENTINEL",
+                "RAW_ENCODED_SENTINEL",
+                "RAW_DECODED_SENTINEL",
+                "RAW_GRADER_PROMPT_SENTINEL",
+                "RAW_GRADER_DELIBERATION_SENTINEL",
+                "A separate source meaning must never reach the prompt.",
+            ):
+                self.assertNotIn(sentinel, assembled["system"])
+        self.assertEqual(snapshot_hash(book), book_hash)
+        self.assertEqual(snapshot_hash(events), events_hash)
+
+    def test_only_the_latest_qualifying_current_failure_replaces_feedback(self):
+        book = production_book()
+        older = self._failure_event(book, 1208, benchmark_id="B1", atom_id="B1.01")
+        invalid = self._failure_event(book, 1210)
+        invalid.update({"judge_valid": False, "judge_status": "INVALID JUDGE RESULT"})
+        legacy = self._failure_event(book, 1211)
+        legacy.update({"era": "benchmark-v1", "benchmark_version": "v1", "scoring_version": "v1"})
+        mismatched = self._failure_event(book, 1212, language_version="0.older", language_hash="f" * 64)
+
+        retained = self._assemble([older, invalid, legacy, mismatched], book, "A")
+        self.assertEqual(
+            retained["prompt_request"]["scoring_v2_failure_feedback"]["exam_turn"], 1208
+        )
+
+        newer = self._failure_event(
+            book,
+            1213,
+            benchmark_id="B3",
+            atom_id="B3.04",
+            verdict="MISSING",
+            evidence="",
+        )
+        replaced = self._assemble([older, invalid, legacy, mismatched, newer], book, "B")
+        feedback = replaced["prompt_request"]["scoring_v2_failure_feedback"]
+        self.assertEqual(feedback["exam_turn"], 1213)
+        self.assertEqual(feedback["failed_atom_id"], "B3.04")
+        self.assertEqual(feedback["classification"], "MISSING")
+        self.assertEqual(feedback["decoded_evidence"], "")
+
+    def test_invalid_legacy_or_mismatched_evidence_never_becomes_current_feedback(self):
+        book = production_book()
+        invalid = self._failure_event(book, 1210)
+        invalid.update({"judge_valid": False, "judge_status": "INVALID JUDGE RESULT"})
+        legacy = self._failure_event(book, 1211)
+        legacy.update({"era": "benchmark-v1", "benchmark_version": "v1", "scoring_version": "v1"})
+        mismatched = self._failure_event(book, 1212, language_version="0.older", language_hash="e" * 64)
+
+        assembled = self._assemble([invalid, legacy, mismatched], book, "A")
+
+        self.assertIsNone(assembled["prompt_request"]["scoring_v2_failure_feedback"])
+        self.assertNotIn("INVALID JUDGE RESULT", assembled["system"])
+        self.assertNotIn("RAW_BENCHMARK_SENTINEL", assembled["system"])
+
+    def test_hostile_decoded_evidence_is_bounded_without_replaying_the_decode(self):
+        book = production_book()
+        evidence = "Evidence begins with the corrupted pressure value. " + (
+            "RAW_DECODED_TAIL_SENTINEL " * 100
+        )
+        assembled = self._assemble([self._failure_event(book, 1212, evidence=evidence)], book, "A")
+
+        feedback = assembled["prompt_request"]["scoring_v2_failure_feedback"]
+        self.assertLessEqual(len(feedback["decoded_evidence"]), 500)
+        self.assertTrue(feedback["decoded_evidence"].startswith("Evidence begins"))
+        self.assertTrue(feedback["decoded_evidence"].endswith("… [truncated]"))
+        self.assertNotIn("RAW_DECODED_TAIL_SENTINEL " * 100, assembled["system"])
 
 
 class ProductionShapedPromptTests(unittest.TestCase):

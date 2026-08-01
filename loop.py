@@ -32,6 +32,7 @@ from legislative_protocol import (
     build_post_state_receipt,
     current_open_motion,
     derive_active_legislative_feedback,
+    derive_scoring_v2_failure_feedback,
     prompt_receipt_projection,
     prompt_request_projection,
     validate_action,
@@ -592,6 +593,12 @@ def assemble_legislative_prompt(
     active_feedback = derive_active_legislative_feedback(
         conv, current_open_motion(rb)
     )
+    language = language_payload(rb)
+    scoring_v2_feedback = derive_scoring_v2_failure_feedback(
+        conv,
+        language_version=language["version"],
+        language_hash=language["hash"],
+    )
     request = build_legislative_request(
         role=agent,
         turn=turn,
@@ -599,6 +606,7 @@ def assemble_legislative_prompt(
         rulebook=rb,
         latest_receipt=latest_post_state_receipt(conv),
         active_legislative_feedback=active_feedback,
+        scoring_v2_failure_feedback=scoring_v2_feedback,
         collaboration_input=collaboration_input,
     )
     open_motion = request.current_state.open_motion
