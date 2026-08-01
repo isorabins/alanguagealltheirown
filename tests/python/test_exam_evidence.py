@@ -11,6 +11,14 @@ ROOT = Path(__file__).parents[2]
 
 
 class EvidenceTests(unittest.TestCase):
+    def _valid_grade(self, benchmark):
+        decoded = "\n".join(atom["meaning"] for atom in benchmark["answer_key"])
+        grade = {"mode": "RELAY", "items": [
+            {"id": atom["id"], "verdict": "SURVIVED", "evidence": atom["meaning"]}
+            for atom in benchmark["answer_key"]
+        ], "inventions": []}
+        return decoded, grade
+
     def test_corpus_receipt_does_not_mutate_legacy_rule_scores(self):
         rb = json.loads((ROOT / "tests/fixtures/mixed-rulebook.json").read_text())
         before = json.dumps(rb, sort_keys=True)
@@ -27,7 +35,7 @@ class EvidenceTests(unittest.TestCase):
              mock.patch("loop.token_count",side_effect=lambda text, meta: max(1,len(text.split()))):
             loop.test_turn(conv,rb,meta,3)
         self.assertEqual(call.call_count,3)
-        self.assertIsNone(conv[-1]["fidelity"])
+        self.assertEqual(conv[-1]["judge_status"], "INVALID JUDGE RESULT")
         self.assertFalse(conv[-1]["judge_valid"])
         self.assertEqual(conv[-1]["judge_reason"],"items_not_array")
         self.assertFalse(meta["corpus_exams"][-1]["valid"])
@@ -35,11 +43,12 @@ class EvidenceTests(unittest.TestCase):
         self.assertEqual(meta["corpus_exams"][0]["turn"],1)
         self.assertEqual(conv[-1]["benchmark_id"],"B1")
         self.assertEqual(meta["benchmark_suite"]["next_index"],1)
-        self.assertNotIn("benchmark_results",meta)
+        self.assertNotIn("benchmark_results_v2",meta)
 
-    def test_benchmark_registry_is_frozen_and_versioned(self):
+    def test_legacy_v1_is_immutable_and_v2_is_a_distinct_corrected_contract(self):
         suite=loop.load_benchmark_suite()
-        self.assertEqual(suite["version"],"v1")
+        self.assertEqual(suite["version"],"v2")
+        self.assertEqual(suite["source_version"],"v1")
         self.assertEqual([row["id"] for row in suite["benchmarks"]],
                          ["B1","B2","B3","B4","B5"])
         self.assertEqual([row["source_turn"] for row in suite["benchmarks"]],
@@ -51,10 +60,19 @@ class EvidenceTests(unittest.TestCase):
             "B4":"c39e3227c48fc6e22cc487d345eae4fee3e31a42a56f3ce9ecd21d35450fb78d",
             "B5":"c40691a111abd785e4f9414063ca3d03e2e98e4f493be6efaf73ecd3a9df8b8d",
         }
-        for row in suite["benchmarks"]:
+        legacy=json.loads((ROOT/"benchmarks/v1.json").read_text())
+        for row in legacy["benchmarks"]:
             frozen=json.dumps({"original":row["original"],"answer_key":row["answer_key"]},
                               sort_keys=True,separators=(",",":"),ensure_ascii=False).encode()
             self.assertEqual(hashlib.sha256(frozen).hexdigest(),expected[row["id"]])
+        b5=next(row for row in suite["benchmarks"] if row["id"]=="B5")
+        meanings=[atom["meaning"] for atom in b5["answer_key"]]
+        self.assertTrue(any("last two digits" in meaning for meaning in meanings))
+        self.assertTrue(any("350 gigs" in meaning for meaning in meanings))
+        self.assertTrue(any("pre-check succeeds" in meaning and "live 03:45 verification then fails" in meaning
+                            for meaning in meanings))
+        self.assertTrue(all(len({atom["id"] for atom in row["answer_key"]}) == len(row["answer_key"])
+                            for row in suite["benchmarks"]))
 
     def test_round_robin_cursor_survives_serialized_restart(self):
         meta={}
@@ -70,42 +88,67 @@ class EvidenceTests(unittest.TestCase):
             loop.advance_benchmark(restarted,benchmark)
         self.assertEqual(seen,[("B1",1),("B2",1),("B3",1),("B4",1),("B5",1),("B1",2)])
         self.assertEqual(restarted["benchmark_suite"],
-                         {"version":"v1","next_index":1,"cycle":2})
+                         {"version":"v2","next_index":1,"cycle":2})
+
+    def test_v1_cursor_starts_a_fresh_v2_cycle(self):
+        meta={"benchmark_suite":{"version":"v1","next_index":4,"cycle":9}}
+        benchmark,cycle=loop.select_benchmark(meta)
+        self.assertEqual((benchmark["id"],cycle),("B1",1))
+        self.assertEqual(meta["benchmark_suite"],{"version":"v2","next_index":0,"cycle":1})
 
     def test_previous_valid_result_is_same_benchmark_only(self):
         suite=loop.load_benchmark_suite()
         b1=suite["benchmarks"][0]
-        meta={"benchmark_results":{
-            "B1":{"turn":1300,"fidelity":94,"token_delta_pct":-40,
+        meta={"benchmark_results_v2":{
+            "B1":{"turn":1300,"meaning_pass":False,"semantic_coverage_pct":94,
                   "language_version":"v","language_hash":"h"},
-            "B2":{"turn":1301,"fidelity":10,"token_delta_pct":99,
+            "B2":{"turn":1301,"meaning_pass":False,"semantic_coverage_pct":10,
                   "language_version":"other","language_hash":"other"},
         }}
         self.assertEqual(loop.previous_benchmark_result(meta,b1)["turn"],1300)
-        self.assertEqual(loop.previous_benchmark_result({},b1)["turn"],1119)
+        self.assertIsNone(loop.previous_benchmark_result({},b1))
 
-    def test_live_receipt_compares_only_with_same_benchmark_baseline(self):
+    def test_valid_v2_receipt_reports_separate_results_without_v1_comparison(self):
         rb=json.loads((ROOT/"tests/fixtures/mixed-rulebook.json").read_text())
-        key=loop.load_benchmark_suite()["benchmarks"][0]["answer_key"]
-        grade={"mode":"RELAY","items":[
-            {"n":index+1,"verdict":"SURVIVED"} for index in range(len(key))
-        ],"invented":[],"lost":"nothing material"}
+        benchmark=loop.load_benchmark_suite()["benchmarks"][0]
+        decoded,grade=self._valid_grade(benchmark)
         meta={"tests_run":406,"spend_usd":0.0}
         conv=[]
         with mock.patch("loop.call",side_effect=[
-                 ("ENCODED",{}),("DECODED",{}),(json.dumps(grade),{})
+                 ("ENCODED",{}),(decoded,{}),(json.dumps(grade),{})
              ]), mock.patch("loop.token_count",side_effect=[100,50]):
             loop.test_turn(conv,rb,meta,1242)
         event=conv[-1]
         self.assertEqual(event["benchmark_id"],"B1")
-        self.assertEqual(event["prior_turn"],1119)
-        self.assertEqual(event["fidelity_delta"],17)
-        self.assertEqual(event["savings_delta_pct"],-9)
-        self.assertEqual(meta["benchmark_results"]["B1"]["turn"],1242)
+        self.assertEqual(event["scoring_version"],"v2")
+        self.assertTrue(event["meaning_pass"])
+        self.assertTrue(event["compression_success"])
+        self.assertEqual(event["semantic_coverage_pct"],100)
+        self.assertEqual(event["critical_failures"],[])
+        self.assertEqual(event["inventions"],[])
+        self.assertEqual(event["message_body_savings_pct"],50)
+        self.assertNotIn("fidelity",event)
+        self.assertNotIn("fidelity_delta",event)
+        self.assertIsNone(event["prior_valid_v2_turn"])
+        self.assertEqual(meta["benchmark_results_v2"]["B1"]["turn"],1242)
         self.assertEqual(meta["benchmark_suite"]["next_index"],1)
         rendered=loop.render_window(conv)
-        self.assertIn("previous same benchmark: turn 1119",rendered)
-        self.assertIn("fidelity 83 -> 100 (+17)",rendered)
+        self.assertIn("SCORING V2 DEVELOPMENT BENCHMARK",rendered)
+        self.assertIn("meaning PASS",rendered)
+        self.assertNotIn("fidelity",rendered)
+
+    def test_invalid_v2_judge_does_not_replace_prior_valid_v2_result(self):
+        rb=json.loads((ROOT/"tests/fixtures/mixed-rulebook.json").read_text())
+        baseline={"turn":1230,"meaning_pass":True,"semantic_coverage_pct":100,
+                  "language_version":"v","language_hash":"h"}
+        meta={"tests_run":0,"spend_usd":0.0,"benchmark_results_v2":{"B1":baseline.copy()}}
+        conv=[]
+        with mock.patch("loop.call",side_effect=[("ENC",{}),("DEC",{}),("{}",{})]), \
+             mock.patch("loop.token_count",side_effect=[10,8]):
+            loop.test_turn(conv,rb,meta,1242)
+        self.assertEqual(conv[-1]["judge_status"],"INVALID JUDGE RESULT")
+        self.assertEqual(conv[-1]["prior_valid_v2_turn"],1230)
+        self.assertEqual(meta["benchmark_results_v2"]["B1"],baseline)
 
     def test_invalid_exam_window_never_renders_none_as_score(self):
         event={"turn":3,"agent":"harness","type":"test","payload":"fixture",

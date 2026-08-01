@@ -143,6 +143,15 @@
   .judg .k-inv { font-family: var(--mono); font-size: 0.7rem; line-height: 1.6; color: var(--bad); margin-top: 0.6rem; }
   .judg .jdec { font-family: var(--mono); font-size: 0.62rem; color: var(--ink-faint); margin-top: 0.7rem; }
   .judg .jhold { font-family: var(--mono); font-size: 0.7rem; color: var(--ink-dim); line-height: 1.6; }
+  .v2-results { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0.55rem;
+    margin: 0.8rem 0; }
+  .v2-results span { border: 1px solid var(--hairline); padding: 0.55rem; font-family: var(--mono);
+    font-size: 0.62rem; color: var(--ink-faint); }
+  .v2-results b { display: block; margin-top: 0.18rem; color: var(--ink); font-size: 0.72rem;
+    font-weight: 400; }
+  .invalid-judge { border: 1px solid var(--bad); padding: 0.8rem; color: var(--bad);
+    font-family: var(--mono); font-size: 0.68rem; line-height: 1.55; }
+  .atom-evidence { display: block; color: var(--ink-dim); padding-left: 0.8rem; }
 
   .ti-cap { text-align: center; font-family: var(--mono); font-size: 0.62rem; letter-spacing: 0.1em;
     text-transform: uppercase; color: var(--ink-faint); margin-bottom: 0.6rem; }
@@ -299,7 +308,7 @@
   @media (max-width: 760px) {
     body { padding: 2.4rem 1rem 4rem; }
     h1 { font-size: 1.42rem; letter-spacing: 0.16em; }
-    .panes, .decisions, .tx-cols, .status-main { grid-template-columns: 1fr; }
+    .panes, .decisions, .tx-cols, .status-main, .v2-results { grid-template-columns: 1fr; }
     .pane { height: 340px; }
     .timers { gap: 2rem; }
     .metrics { gap: 1.2rem 1.8rem; }
@@ -339,7 +348,7 @@
 </aside>
 
 <div class="metrics" id="metrics"></div>
-<div class="legend"><b>fidelity</b> — % of meaning that survives a stranger's decode (100 = perfect relay, 0 = lost or invented) &nbsp;·&nbsp; <b>savings</b> — how much cheaper than plain English (negative = the language currently costs extra) &nbsp;·&nbsp; <b>passing</b> = fidelity ≥ 90 — savings only count when the meaning survived</div>
+<div class="legend"><b>Scoring V2</b> keeps meaning pass, semantic coverage, critical failures, inventions, and message-body savings separate. Compression succeeds only when every meaning survives, nothing is invented, and the encoded body is smaller. Historical fidelity percentages are labelled legacy V1 and are never compared with V2.</div>
 
 <h2>The Negotiation, Live</h2>
 <p class="how">DeepSeek Agent A invents or revises one focused idea. Kimi Agent B audits that idea and alone may adopt or reject it. The harness blocks role violations and malformed or repeated motions.</p>
@@ -384,11 +393,11 @@
 <div class="tx" id="conversation-exam"></div>
 
 <h2>The Latest Exam</h2>
-<p class="how">Five fixed benchmark messages now repeat in a balanced cycle. Each result is compared only with the previous valid result for that same message, so changes in the language are not confused with changes in the exam. Every benchmark has a frozen answer key, and the separate transfer test still checks whether the language generalizes beyond this panel.</p>
+<p class="how">Five corrected development benchmarks repeat in a balanced cycle. Scoring V2 audits one source meaning per atom and keeps exact decoded evidence beside every verdict. Invalid judge output is shown as evaluator failure and cannot replace the previous valid V2 result.</p>
 <div class="tx" id="tx"></div>
 
 <h2>Exam History</h2>
-<p class="how">The last fifteen exams, newest first. Results before Benchmark Set v1 remain intact and are labeled as the fresh-payload era. Open any row for the judge's full audit and all three texts — original, encoded, decoded.</p>
+<p class="how">The last fifteen exams, newest first. Scoring V2 is the current contract; historical results remain intact as legacy V1 or pre-V1 history. Open any row for the evidence and all three texts — original, encoded, decoded.</p>
 <div class="exrows" id="exams"></div>
 
 <div id="tryit">
@@ -461,7 +470,7 @@ canned — you are watching the live pipeline run on your words.</p>
   <div class="note"><span class="nd">the benchmark panel</span>Every third turn, the harness selects the next of five frozen messages: event prose, an equipment procedure, farming data, retail prose, and a software task. A message is compared only with its own previous valid result. Repetition gives the experiment a stable ruler; the separate transfer battery remains the check against overfitting.</div>
   <div class="note"><span class="nd">the encoder</span>Another AI translates that message into the invented language, using nothing but the current rulebook.</div>
   <div class="note"><span class="nd">the stranger</span>A completely fresh AI — no memory of the conversation, no context at all — receives only the rulebook and the encoded message, and must turn it back into plain English. Since turn 246 the stranger is also a different model family from the negotiators, so it can't lean on shared habits: it decodes what the encoding actually says. If the language only works for the two agents who invented it, it fails here. This is the whole test.</div>
-  <div class="note"><span class="nd">the judge</span>Every exam begins with a numbered answer key. A score is published only if the judge returns exactly one valid verdict for every key item—no gaps, duplicates, nonnumeric ids, or out-of-range ids. Corpus results describe the captured adopted language as a whole.</div>
+  <div class="note"><span class="nd">the judge</span>Scoring V2 gives every answer-key atom a stable id such as B2.05. The judge labels each atom SURVIVED, CORRUPTED, or MISSING and cites exact decoded evidence. Deterministic literal validation checks practical values before accepting SURVIVED. Missing, duplicate, unknown, or out-of-order atom ids, invalid verdicts, absent or fabricated evidence, and literal conflicts produce INVALID JUDGE RESULT—an evaluator failure, not a benchmark failure.</div>
 </div>
 
 <h2>The Prompts</h2>
@@ -490,42 +499,52 @@ canned — you are watching the live pipeline run on your words.</p>
 
 <script src="state.js"></script>
 <script>
-function latestCompletedBenchmarkCycle(tests) {
-  var groups = {};
-  (tests || []).forEach(function (t) {
-    if (!t.benchmark_version || !t.benchmark_id || !Number.isInteger(t.benchmark_cycle)) return;
-    var key = t.benchmark_version + ":" + t.benchmark_cycle;
-    var group = groups[key] || {version:t.benchmark_version, cycle:t.benchmark_cycle, rows:{}};
-    group.rows[t.benchmark_id] = t;
-    groups[key] = group;
-  });
-  var complete = Object.keys(groups).map(function (key) {
-    var group = groups[key], ids = ["B1","B2","B3","B4","B5"];
-    var rows = ids.map(function (id) { return group.rows[id]; });
-    if (rows.some(function (row) { return !row || row.fidelity == null || row.fidelity < 0; })) return null;
-    var delta = rows.reduce(function (sum, row) { return sum + row.token_delta_pct; }, 0);
-    var fidelity = rows.reduce(function (sum, row) { return sum + row.fidelity; }, 0);
-    return {version:group.version, cycle:group.cycle,
-            avgTokenDeltaPct:Math.round(delta / rows.length),
-            avgFidelity:Math.round(fidelity / rows.length)};
-  }).filter(Boolean);
-  complete.sort(function (a, b) { return a.cycle - b.cycle; });
-  return complete[complete.length - 1] || null;
+function scoringLabel(t) {
+  if (t && t.scoring_version === "v2") return "Scoring V2";
+  if (t && (t.benchmark_version === "v1" || t.era === "benchmark-v1")) return "legacy V1";
+  return "pre-V1 legacy";
 }
 
-function benchmarkComparisonView(t) {
-  if (!t || !t.benchmark_id || t.prior_turn == null) return null;
-  if (t.fidelity_delta == null) {
-    return {valid:false, id:t.benchmark_id, priorTurn:t.prior_turn};
-  }
-  return {
-    valid:true, id:t.benchmark_id, priorTurn:t.prior_turn,
-    priorFidelity:t.prior_fidelity, fidelity:t.fidelity,
-    fidelityDelta:t.fidelity_delta,
-    priorSavings:-(t.prior_token_delta_pct || 0),
-    savings:-(t.token_delta_pct || 0),
-    savingsDelta:t.savings_delta_pct
+function latestValidScoringV2(tests) {
+  return (tests || []).slice().reverse().find(function (t) {
+    return t.scoring_version === "v2" && t.judge_valid === true;
+  }) || null;
+}
+
+function scoringV2EvidenceHtml(t) {
+  var esc = function (s) {
+    return String(s == null ? "" : s).replace(/[&<>"]/g, function (c) {
+      return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c];
+    });
   };
+  var pct = function (n) { return (n > 0 ? "+" : "") + n + "%"; };
+  var dec = t.decoder_model ? '<div class="jdec">decoder: ' + esc(t.decoder_model) + "</div>" : "";
+  if (!t.judge_valid) {
+    return '<div class="judg"><div class="jhead">Scoring V2</div><div class="invalid-judge"><b>INVALID JUDGE RESULT</b><br>' +
+      esc(t.judge_reason || "invalid evidence") +
+      '<br>This is evaluator failure, not a benchmark failure. It cannot replace the prior valid V2 result.</div>' + dec + '</div>';
+  }
+  var atoms = {};
+  (t.answer_key || []).forEach(function (atom) { atoms[atom.id] = atom; });
+  var verdicts = (t.atom_results || []).map(function (item) {
+    var atom = atoms[item.id] || {meaning:item.id, critical:false};
+    var bad = item.verdict !== "SURVIVED";
+    return '<li class="' + (bad ? "hit" : "") + '"><b>' + esc(item.id) + ' · ' + esc(item.verdict) +
+      (atom.critical ? ' · critical' : '') + '</b> — ' + esc(atom.meaning) +
+      '<span class="atom-evidence">decoded evidence: ' + (item.evidence ? '“' + esc(item.evidence) + '”' : 'none') + '</span></li>';
+  }).join("");
+  var inventionHtml = (t.inventions || []).length
+    ? '<div class="k-inv">inventions: ' + t.inventions.map(function (i) {
+        return esc(i.claim) + ' — evidence “' + esc(i.evidence) + '”';
+      }).join(' · ') + '</div>' : '';
+  return '<div class="judg"><div class="jhead">Scoring V2 · inspectable evidence</div>' +
+    '<div class="v2-results"><span>meaning pass<b>' + (t.meaning_pass ? 'PASS' : 'FAIL') +
+    '</b></span><span>compression<b>' + (t.compression_success ? 'SUCCESS' : 'FAIL') +
+    '</b></span><span>semantic coverage<b>' + t.semantic_coverage_pct +
+    '%</b></span><span>critical failures<b>' + (t.critical_failures || []).length +
+    '</b></span><span>inventions<b>' + (t.inventions || []).length +
+    '</b></span><span>message-body savings<b>' + pct(t.message_body_savings_pct) +
+    '</b></span></div><ul class="key">' + verdicts + '</ul>' + inventionHtml + dec + '</div>';
 }
 
 function render(S) {
@@ -558,21 +577,23 @@ function render(S) {
   var examLabel = function (t) {
     return t.benchmark_id
       ? t.benchmark_id + " · " + (t.benchmark_name || t.payload || "benchmark")
-      : "fresh-payload era · " + (t.payload || "exam");
+      : (t.payload || "exam");
   };
 
   var best = null;
-  var passing = tests.filter(function (t) { return t.fidelity >= 90; });
-  passing.forEach(function (t) { if (best === null || t.token_delta_pct < best) best = t.token_delta_pct; });
-  var completedCycle = latestCompletedBenchmarkCycle(tests);
+  tests.filter(function (t) { return t.scoring_version === "v2" && t.compression_success; })
+    .forEach(function (t) {
+      if (best === null || t.message_body_savings_pct > best) best = t.message_body_savings_pct;
+    });
+  var latestValidV2 = latestValidScoringV2(tests);
   var revisions = String(rb.version == null ? "0.0" : rb.version).split(".")[1] || "0";
   var m = [
     ["rulebook revisions", revisions],
     ["turns", conv.length ? conv[conv.length - 1].turn : 0],
     ["rules adopted", adopted.length],
-    ["best savings", best === null ? "—" : savings(best)],
-    ["avg savings · benchmark cycle", completedCycle ? savings(completedCycle.avgTokenDeltaPct) : "forming"],
-    ["avg fidelity · benchmark cycle", completedCycle ? completedCycle.avgFidelity + "/100" : "forming"]
+    ["latest meaning pass · V2", latestValidV2 ? (latestValidV2.meaning_pass ? "PASS" : "FAIL") : "awaiting V2"],
+    ["latest semantic coverage · V2", latestValidV2 ? latestValidV2.semantic_coverage_pct + "%" : "awaiting V2"],
+    ["best message-body savings · V2", best === null ? "—" : pct(best)]
   ];
   document.getElementById("metrics").innerHTML = m.map(function (x) {
     return "<span>" + x[0] + "<b>" + x[1] + "</b></span>";
@@ -594,9 +615,16 @@ function render(S) {
       return '<div class="tick">motion · ' + esc(receipt.verb || "none") + ' · ' +
         '<span class="' + (receipt.accepted ? "ok" : "low") + '">' + esc(receipt.reason || "no receipt") + '</span></div>';
     }
+    if (e.scoring_version === "v2") {
+      if (!e.judge_valid) return '<div class="tick">exam · ' + esc(examLabel(e)) +
+        ' · <span class="low">INVALID JUDGE RESULT</span></div>';
+      return '<div class="tick">exam · ' + esc(examLabel(e)) + ' · Scoring V2 · meaning ' +
+        '<span class="' + (e.meaning_pass ? "ok" : "low") + '">' + (e.meaning_pass ? "PASS" : "FAIL") +
+        '</span> · coverage ' + e.semantic_coverage_pct + '% · body savings ' + pct(e.message_body_savings_pct) + '</div>';
+    }
     var cls = e.fidelity >= 80 ? "ok" : "low";
-    return '<div class="tick">exam · ' + esc(examLabel(e)) + " · " + pct(e.token_delta_pct || 0) +
-      ' tokens · fidelity <span class="' + cls + '">' + fidTxt(e.fidelity) + "</span></div>";
+    return '<div class="tick">exam · ' + esc(examLabel(e)) + ' · ' + esc(scoringLabel(e)) +
+      ' · fidelity <span class="' + cls + '">' + fidTxt(e.fidelity) + "</span></div>";
   }
 
   ["A", "B"].forEach(function (agent) {
@@ -632,6 +660,9 @@ function render(S) {
   // THE JUDGMENT — shared by the latest-exam card and every history row
   function judgeHtml(t) {
     var dec = t.decoder_model ? '<div class="jdec">decoder: ' + esc(t.decoder_model) + "</div>" : "";
+    if (t.scoring_version === "v2") {
+      return scoringV2EvidenceHtml(t);
+    }
     if (t.key && t.key.length) {
       var marks = {};
       var mark = function (arr, lab) {
@@ -671,26 +702,37 @@ function render(S) {
       '<div class="tx-col dec"><div class="lab">what the stranger got back</div><pre>' + esc(t.decoded || "—") + "</pre></div></div>";
   }
   function sumLine(t, prefix) {
+    if (t.scoring_version === "v2") {
+      var status = t.judge_valid
+        ? 'meaning <span class="' + (t.meaning_pass ? "ok" : "low") + '">' + (t.meaning_pass ? "PASS" : "FAIL") +
+          '</span> · coverage ' + t.semantic_coverage_pct + '% · body savings ' + pct(t.message_body_savings_pct)
+        : '<span class="low">INVALID JUDGE RESULT</span>';
+      return prefix + t.turn + ' · ' + esc(examLabel(t)) + ' · Scoring V2 · ' + status;
+    }
     var cls = t.fidelity >= 80 ? "ok" : "low";
     return prefix + t.turn + " · " + esc(examLabel(t)) + " · " + (t.orig_tokens == null ? "?" : t.orig_tokens) +
-      " → " + (t.enc_tokens == null ? "?" : t.enc_tokens) + " tok · savings " + savings(t.token_delta_pct) +
-      ' · fidelity <span class="' + cls + '">' + fidTxt(t.fidelity) + "</span>";
+      " → " + (t.enc_tokens == null ? "?" : t.enc_tokens) + ' tok · ' + esc(scoringLabel(t)) +
+      ' fidelity <span class="' + cls + '">' + fidTxt(t.fidelity) + "</span>";
   }
-  function comparisonHtml(t) {
-    var view = benchmarkComparisonView(t);
-    if (!view) return '<div class="benchmark-compare">Historical result from the fresh-payload era; no same-message comparison is claimed.</div>';
-    if (!view.valid) {
-      return '<div class="benchmark-compare"><b>' + esc(view.id) + '</b> produced no valid score. Its baseline remains turn ' + view.priorTurn + '.</div>';
+  function baselineHtml(t) {
+    if (t.scoring_version === "v2") {
+      if (!t.judge_valid) {
+        return '<div class="benchmark-compare"><b>INVALID JUDGE RESULT</b> — ' +
+          (t.prior_valid_v2_turn == null ? 'no valid V2 baseline exists yet.' :
+           'the valid V2 baseline remains turn ' + t.prior_valid_v2_turn + '.') + '</div>';
+      }
+      return '<div class="benchmark-compare"><b>Current Scoring V2 result.</b> ' +
+        (t.prior_valid_v2_turn == null ? 'This is the first valid V2 result for this benchmark.' :
+         'The previous valid V2 evidence is turn ' + t.prior_valid_v2_turn + '.') +
+        ' V1 and V2 results are not compared.</div>';
     }
-    return '<div class="benchmark-compare"><b>' + esc(view.id) + ' versus its previous valid run, turn ' + view.priorTurn + '</b><br>' +
-      'fidelity ' + view.priorFidelity + ' → ' + view.fidelity + ' (' + pct(view.fidelityDelta) + ') · ' +
-      'savings ' + pct(view.priorSavings) + ' → ' + pct(view.savings) + ' (' + pct(view.savingsDelta) + ' points)</div>';
+    return '<div class="benchmark-compare"><b>' + esc(scoringLabel(t)) + ' history.</b> This event is immutable historical evidence and is not compared with Scoring V2.</div>';
   }
 
   if (last) {
     document.getElementById("tx").innerHTML =
       '<div class="tx-head">' + sumLine(last, "turn ") + "</div>" +
-      comparisonHtml(last) +
+      baselineHtml(last) +
       judgeHtml(last) +
       '<details class="inline"><summary>read the full exam — original · encoded · decoded</summary>' +
       colsHtml(last) + "</details>";
@@ -700,12 +742,15 @@ function render(S) {
 
   var rows = tests.slice(-15).reverse();
   document.getElementById("exams").innerHTML = rows.length ? rows.map(function (t) {
-    var fcls = t.fidelity >= 80 ? "" : "bad-f";
+    var result = t.scoring_version === "v2"
+      ? (t.judge_valid ? 'meaning ' + (t.meaning_pass ? 'PASS' : 'FAIL') + ' · coverage ' +
+          t.semantic_coverage_pct + '% · body savings ' + pct(t.message_body_savings_pct) : 'INVALID JUDGE RESULT')
+      : scoringLabel(t) + ' fidelity ' + (t.fidelity == null || t.fidelity < 0 ? "unparseable" : t.fidelity);
     return '<details class="exrow"><summary>t' + t.turn + " · " + esc(examLabel(t)) + " · " +
       (t.orig_tokens == null ? "?" : t.orig_tokens) + "→" + (t.enc_tokens == null ? "?" : t.enc_tokens) +
-      " tok · savings " + savings(t.token_delta_pct) +
-      ' · <span class="' + fcls + '">fidelity ' + (t.fidelity == null || t.fidelity < 0 ? "unparseable" : t.fidelity) + "</span></summary>" +
-      '<div class="exrow-body">' + comparisonHtml(t) + judgeHtml(t) + colsHtml(t) + "</div></details>";
+      ' tok · <span class="' + (t.scoring_version === "v2" && (!t.judge_valid || !t.meaning_pass) ? "bad-f" : "") + '">' +
+      esc(result) + "</span></summary>" +
+      '<div class="exrow-body">' + baselineHtml(t) + judgeHtml(t) + colsHtml(t) + "</div></details>";
   }).join("") : '<p class="empty">No exams yet.</p>';
 
   document.getElementById("lang-sum").textContent =
@@ -977,7 +1022,8 @@ setInterval(function () {
     ["agent_a.md", "agent A — the one that argues for compression"],
     ["agent_b.md", "agent B — the one that argues for accuracy"],
     ["payloadgen.md", "historical fresh-payload writer — retired when Benchmark Set v1 began"],
-    ["grader.md", "the judge — how fidelity gets scored"]
+    ["grader_v2.md", "active Scoring V2 judge — atom verdicts and decoded evidence"],
+    ["grader.md", "legacy V1 judge — retained for historical reference"]
   ];
   var esc = function (s) { return String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;"); };
   Promise.all(files.map(function (f) {

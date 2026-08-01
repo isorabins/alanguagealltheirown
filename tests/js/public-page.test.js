@@ -1,5 +1,11 @@
-const test=require('node:test'); const assert=require('node:assert/strict'); const fs=require('node:fs'); const path=require('node:path');
+const test=require('node:test'); const assert=require('node:assert/strict'); const fs=require('node:fs'); const path=require('node:path'); const vm=require('node:vm');
 const html=fs.readFileSync(path.join(__dirname,'../../viewer/index.html'),'utf8');
+const scoringFixtures=JSON.parse(fs.readFileSync(path.join(__dirname,'../fixtures/scoring-v2-events.json'),'utf8'));
+
+test('public viewer inline JavaScript parses',()=>{
+  const script=html.match(/<script>\s*([\s\S]*?)<\/script>/);
+  assert.ok(script); assert.doesNotThrow(()=>new vm.Script(script[1]));
+});
 
 test('public page has mobile disclosure and suggestion placement',()=>{
   assert.match(html,/@media\s*\(max-width:\s*760px\)/); assert.match(html,/id="suggestion-form"/);
@@ -8,50 +14,82 @@ test('public page has mobile disclosure and suggestion placement',()=>{
   assert.match(html,/<details class="sect">/); assert.match(html,/Full transcript/);
 });
 
-test('public page explains fixed benchmarks and labels the earlier era honestly',()=>{
-  assert.match(html,/Five fixed benchmark messages now repeat/);
-  assert.match(html,/fresh-payload era/);
-  assert.match(html,/separate transfer test still checks/);
-  assert.doesNotMatch(html,/Every exam is new/);
+test('public page explains Scoring V2 and labels immutable history honestly',()=>{
+  assert.match(html,/Five corrected development benchmarks repeat/);
+  assert.match(html,/legacy V1/);
+  assert.match(html,/V1 and V2 results are not compared/);
+  assert.match(html,/INVALID JUDGE RESULT/);
+  assert.match(html,/evaluator failure, not a benchmark failure/);
   assert.doesNotMatch(html,/avg savings · last 10 passing/);
   assert.doesNotMatch(html,/avg fidelity · last 10 exams/);
+  assert.doesNotMatch(html,/avg fidelity · benchmark cycle/);
 });
 
-test('benchmark cycle metrics require five valid benchmark ids',()=>{
-  const source=html.match(/function latestCompletedBenchmarkCycle\(tests\) \{([\s\S]*?)\n\}\n\nfunction benchmarkComparisonView/);
-  assert.ok(source,'latestCompletedBenchmarkCycle must remain independently testable');
-  const latestCompletedBenchmarkCycle=Function('tests',source[1]);
-  const cycle1=['B1','B2','B3','B4','B5'].map((id,index)=>({
-    benchmark_version:'v1',benchmark_id:id,benchmark_cycle:1,
-    fidelity:80+index,token_delta_pct:-10*(index+1)
-  }));
-  const complete=latestCompletedBenchmarkCycle(cycle1);
-  assert.equal(complete.cycle,1);
-  assert.equal(complete.avgTokenDeltaPct,-30);
-  assert.equal(complete.avgFidelity,82);
-  assert.equal(latestCompletedBenchmarkCycle(cycle1.concat([{
-    benchmark_version:'v1',benchmark_id:'B1',benchmark_cycle:2,
-    fidelity:100,token_delta_pct:-90
-  }])).cycle,1);
-  assert.equal(latestCompletedBenchmarkCycle([]),null);
+test('public exact-wiring copy identifies the active V2 judge and legacy V1 prompt',()=>{
+  const howStart=html.indexOf('<h2>How This Works</h2>');
+  const promptsStart=html.indexOf('<h2>The Prompts</h2>',howStart);
+  const how=html.slice(howStart,promptsStart);
+  const filesStart=html.indexOf('var files = [');
+  const filesEnd=html.indexOf('];',filesStart);
+  const promptFiles=html.slice(filesStart,filesEnd+2);
+
+  assert.match(how,/Scoring V2/);
+  assert.match(how,/SURVIVED, CORRUPTED, or MISSING/);
+  assert.match(how,/decoded evidence/);
+  assert.match(how,/deterministic literal/i);
+  assert.match(how,/INVALID JUDGE RESULT/);
+  assert.match(promptFiles,/\["grader_v2\.md",\s*"active Scoring V2 judge/);
+  assert.match(promptFiles,/\["grader\.md",\s*"legacy V1 judge/);
+  assert.doesNotMatch(promptFiles,/\["grader\.md",\s*"the judge/);
 });
 
-test('benchmark comparison uses the recorded same-message baseline',()=>{
-  const source=html.match(/function benchmarkComparisonView\(t\) \{([\s\S]*?)\n\}\n\nfunction render/);
-  assert.ok(source,'benchmarkComparisonView must remain independently testable');
-  const benchmarkComparisonView=Function('t',source[1]);
-  const view=benchmarkComparisonView({
-    benchmark_id:'B3',prior_turn:1179,prior_fidelity:68,fidelity:91,
-    fidelity_delta:23,prior_token_delta_pct:-29,token_delta_pct:-34,
-    savings_delta_pct:5
-  });
-  assert.deepEqual(view,{
-    valid:true,id:'B3',priorTurn:1179,priorFidelity:68,fidelity:91,
-    fidelityDelta:23,priorSavings:29,savings:34,savingsDelta:5
-  });
-  assert.deepEqual(benchmarkComparisonView({
-    benchmark_id:'B3',prior_turn:1179,fidelity_delta:null
-  }),{valid:false,id:'B3',priorTurn:1179});
+test('viewer selects only the latest valid Scoring V2 result as current',()=>{
+  const source=html.match(/function latestValidScoringV2\(tests\) \{([\s\S]*?)\n\}/);
+  assert.ok(source,'latestValidScoringV2 must remain independently testable');
+  const latestValidScoringV2=Function('tests',source[1]);
+  const v1={benchmark_version:'v1',fidelity:100};
+  const valid={scoring_version:'v2',judge_valid:true,turn:20,semantic_coverage_pct:90};
+  const invalid={scoring_version:'v2',judge_valid:false,turn:21};
+  assert.equal(latestValidScoringV2([v1,valid,invalid]),valid);
+  assert.equal(latestValidScoringV2([v1,invalid]),null);
+});
+
+test('viewer labels V2, V1, and pre-V1 without comparing scores',()=>{
+  const source=html.match(/function scoringLabel\(t\) \{([\s\S]*?)\n\}/);
+  assert.ok(source,'scoringLabel must remain independently testable');
+  const scoringLabel=Function('t',source[1]);
+  assert.equal(scoringLabel({scoring_version:'v2'}),'Scoring V2');
+  assert.equal(scoringLabel({benchmark_version:'v1'}),'legacy V1');
+  assert.equal(scoringLabel({era:'benchmark-v1'}),'legacy V1');
+  assert.equal(scoringLabel({}),'pre-V1 legacy');
+  assert.doesNotMatch(html,/versus its previous valid run/);
+  assert.doesNotMatch(html,/fidelity_delta/);
+});
+
+test('Scoring V2 rendering exposes all separate outcomes and decoded evidence',()=>{
+  for(const label of ['meaning pass','compression','semantic coverage','critical failures','inventions','message-body savings','decoded evidence']) {
+    assert.match(html,new RegExp(label,'i'));
+  }
+  assert.match(html,/prior valid V2 result/);
+});
+
+test('offline V2 fixtures render inspectable verdicts and invalid-judge separation',()=>{
+  const start=html.indexOf('function scoringV2EvidenceHtml(t) {');
+  const end=html.indexOf('\n\nfunction render(S)',start);
+  assert.ok(start>=0 && end>start,'Scoring V2 renderer must remain independently testable');
+  const scoringV2EvidenceHtml=Function(html.slice(start,end)+'\nreturn scoringV2EvidenceHtml;')();
+  const valid=scoringV2EvidenceHtml(scoringFixtures.valid_failure);
+  assert.match(valid,/meaning pass<b>FAIL/);
+  assert.match(valid,/semantic coverage<b>50%/);
+  assert.match(valid,/critical failures<b>1/);
+  assert.match(valid,/message-body savings<b>\+42%/);
+  assert.match(valid,/B2\.01 · CORRUPTED · critical/);
+  assert.match(valid,/decoded evidence: “Vessel C18A”/);
+  assert.match(valid,/Vessel is cleared &lt;now&gt;/);
+  const invalid=scoringV2EvidenceHtml(scoringFixtures.invalid_judge);
+  assert.match(invalid,/INVALID JUDGE RESULT/);
+  assert.match(invalid,/evaluator failure, not a benchmark failure/);
+  assert.doesNotMatch(invalid,/meaning pass<b>FAIL/);
 });
 
 test('stale active claims and Composition are absent',()=>{
