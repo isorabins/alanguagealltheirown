@@ -4,7 +4,9 @@ This is the durable evidence packet for the ALATO roadmap Wayfinder. It exists
 so a later medium-reasoning interview can make decisions from the same facts as
 the initial high-reasoning read instead of reconstructing the project from chat.
 
-## Proposed destination
+Canonical map: [Wayfind the ALATO roadmap without regressions](https://github.com/isorabins/alanguagealltheirown/issues/29)
+
+## Confirmed destination
 
 Produce a small, ordered, implementation-ready decision contract for the three
 known ALATO roadmap changes, with a semantic regression contract that preserves
@@ -12,7 +14,59 @@ the current autonomous and public system. Wayfinding ends when the decisions,
 dependencies, tests, and release boundaries are clear; implementation and live
 changes remain outside the map.
 
-Iso must confirm or revise this destination before the GitHub map is created.
+Confirmed by Iso on 2026-08-01 WITA. The ordered contracts are active-request
+repair, benchmark correction, corrected exam feedback, and the 20-exchange cost
+projection.
+
+## Confirmed interview decisions
+
+### Active legislative feedback lifecycle
+
+Active legislative feedback is Agent B's exact typed request for the current
+open motion. It survives Agent A's revision, structural retries or failures,
+process restarts, and unrelated no-motion outcomes. A newer request supersedes
+it; adoption or rejection of the matching motion clears it. No transcript or
+event-window replay is restored.
+
+### Benchmark result model
+
+Each benchmark reports critical-meaning pass/fail, total semantic coverage,
+and message-body savings as separate results. A run qualifies as successful
+compression only when every critical meaning survives, semantic coverage is
+100%, and the decode invents nothing. A high average never overrides an
+action-changing failure.
+
+### Control and unseen-test boundary
+
+Each corrected B1-B5 message receives one matched ordinary-English control run,
+stored as a versioned frozen baseline. Scheduled turns continue to run one
+ALATO development exam only. The five controls are rerun only if a benchmark,
+model, tokenizer, compression instruction, or token budget changes.
+
+No recurring unseen-test system is built. Before a major generalization claim,
+the operator manually runs three private messages, one prose, one procedure,
+and one task, through matched ALATO and English paths. Their answer keys are
+written before execution; the messages stay outside the repository and agent
+feedback; only the aggregate result may become public.
+
+### Twenty-exchange projection boundary
+
+The projection remains unavailable until one complete corrected B1-B5 cycle
+qualifies under the benchmark result model. It then shows ALATO and the matched
+frozen-English projection side by side. ALATO's added value is only the
+control-adjusted difference, not its standalone percentage against uncompressed
+English. Every number remains a fixed hypothetical rather than provider
+telemetry or an API-bill claim.
+
+### Regression and release boundary
+
+Regression protection reuses the existing Python and Node runners plus one
+small path-filtered GitHub Actions workflow. Roughly ten end-to-end semantic
+scenarios exercise the real prompt assembler and state machine; CI makes no
+provider calls and no new testing framework is introduced. After offline gates
+pass, one separately approved off-live real-model smoke may check the exact
+assembled prompt. Merge, deployment, timer, provider, X, and live-state actions
+remain separate release steps.
 
 ## Evidence snapshot
 
@@ -145,11 +199,9 @@ Prefer scenario tests that cover a full lifecycle over a matrix of overlapping
 projection tests. The production-shaped fixture must call
 `assemble_legislative_prompt()`; helper-only tests are insufficient.
 
-## Thirty-minute interview contract
+## Completed thirty-minute interview
 
-The interview asks at most six decisions, one at a time, with a recommended
-answer. It does not ask for facts available in this brief or the repository.
-Stop when 30 minutes elapse and park unresolved detail as Wayfinder fog.
+Iso confirmed all six recommended decisions on 2026-08-01 WITA:
 
 1. Confirm the proposed destination and the four-step dependency order.
 2. Confirm the minimum behavior the active-feedback repair must preserve.
@@ -160,11 +212,11 @@ Stop when 30 minutes elapse and park unresolved detail as Wayfinder fog.
    claim.
 6. Confirm the ten-point regression contract and release boundaries.
 
-## Initial fog
+## Remaining fog
 
 - Exact critical meanings and corrected atomic answer keys for B1-B5.
-- The equivalent compression constraint for the ordinary-English control.
-- The cadence and disclosure rule for operator-held unseen material.
+- The exact matched compression instruction and budget for the frozen English
+  baselines.
 - Whether the existing single fidelity percentage remains visible after the
   corrected result model is introduced.
 
