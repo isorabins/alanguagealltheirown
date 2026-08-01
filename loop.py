@@ -40,8 +40,8 @@ from legislative_protocol import (
     validation_reason,
 )
 from project_lookup import is_project_question, project_lookup
-from rulebook import (apply_typed_motion, language_payload, render_language,
-                      render_legislature, score_judgment_v2)
+from rulebook import (_literal_set_survives, apply_typed_motion, language_payload,
+                      render_language, render_legislature, score_judgment_v2)
 from state_store import atomic_write_json, load_json
 
 ROOT = Path(__file__).resolve().parent
@@ -944,6 +944,23 @@ def normalize_answer_key(raw):
             if re.sub(r"^\s*(?:[-*•]|\d+[.)])\s*", "", str(line)).strip()]
 
 
+def _grader_answer_key(answer_key, decoded):
+    """Expose exact-literal requirements and deterministic decode preflight."""
+    projected = []
+    for atom in answer_key:
+        literal_sets = copy.deepcopy(atom["literal_sets"])
+        projected.append({
+            "id": atom["id"],
+            "meaning": atom["meaning"],
+            "literal_sets": literal_sets,
+            "missing_literal_sets": [
+                alternatives for alternatives in literal_sets
+                if not _literal_set_survives(decoded, alternatives)
+            ],
+        })
+    return projected
+
+
 def test_turn(conv, rb, meta, turn):
     suite = load_benchmark_suite()
     benchmark, benchmark_cycle = select_benchmark(meta, suite)
@@ -968,9 +985,7 @@ def test_turn(conv, rb, meta, turn):
     savings_pct = -delta
     grade_sys = (ROOT / "prompts" / "grader_v2.md").read_text()
     if key:
-        key_txt = json.dumps([
-            {"id": atom["id"], "meaning": atom["meaning"]} for atom in key
-        ], ensure_ascii=False)
+        key_txt = json.dumps(_grader_answer_key(key, decoded.strip()), ensure_ascii=False)
         grade_user = f"ORIGINAL:\n{payload}\n\nATOMIC ANSWER KEY:\n{key_txt}\n\nDECODED:\n{decoded.strip()}"
         graded, _ = call(MODEL_GRADER, grade_sys, grade_user, max_tokens=4000, temperature=0, meta=meta)
         gm = re.search(r"\{.*\}", graded, re.S)

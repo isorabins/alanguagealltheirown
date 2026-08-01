@@ -19,6 +19,108 @@ class EvidenceTests(unittest.TestCase):
         ], "inventions": []}
         return decoded, grade
 
+    def _assert_literal_loss_reaches_grader(self, *, benchmark_id, target_id,
+                                             literal, replacement, turn):
+        suite = loop.load_benchmark_suite()
+        benchmark_index = next(
+            index for index, row in enumerate(suite["benchmarks"])
+            if row["id"] == benchmark_id
+        )
+        benchmark = suite["benchmarks"][benchmark_index]
+        target = next(atom for atom in benchmark["answer_key"] if atom["id"] == target_id)
+        corrupted_evidence = target["meaning"].replace(literal, replacement)
+        decoded = "\n".join(
+            corrupted_evidence if atom["id"] == target_id else atom["meaning"]
+            for atom in benchmark["answer_key"]
+        )
+
+        def run(verdict):
+            grade = {"mode": "RELAY", "items": [
+                {
+                    "id": atom["id"],
+                    "verdict": verdict if atom["id"] == target_id else "SURVIVED",
+                    "evidence": corrupted_evidence if atom["id"] == target_id else atom["meaning"],
+                }
+                for atom in benchmark["answer_key"]
+            ], "inventions": []}
+            calls = []
+
+            def fake_call(model, system, user, **kwargs):
+                calls.append((model, system, user))
+                if len(calls) == 1:
+                    return "ENCODED", {}
+                if len(calls) == 2:
+                    return decoded, {}
+                return json.dumps(grade), {}
+
+            meta = {
+                "tests_run": 0,
+                "spend_usd": 0.0,
+                "benchmark_suite": {
+                    "version": "v2", "next_index": benchmark_index, "cycle": 1,
+                },
+            }
+            conv = []
+            with mock.patch("loop.call", side_effect=fake_call), \
+                 mock.patch("loop.token_count", side_effect=[100, 50]):
+                loop.test_turn(conv, json.loads(
+                    (ROOT / "tests/fixtures/mixed-rulebook.json").read_text()
+                ), meta, turn)
+            self.assertEqual(len(calls), 3)
+            return conv[-1], calls[-1]
+
+        invalid_event, grader_call = run("SURVIVED")
+        grader_system, grader_user = grader_call[1], grader_call[2]
+        key_json = grader_user.split("ATOMIC ANSWER KEY:\n", 1)[1].split(
+            "\n\nDECODED:\n", 1
+        )[0]
+        grader_key = json.loads(key_json)
+        self.assertEqual(
+            [atom["literal_sets"] for atom in grader_key],
+            [atom["literal_sets"] for atom in benchmark["answer_key"]],
+        )
+        projected_target = next(atom for atom in grader_key if atom["id"] == target_id)
+        self.assertEqual(projected_target["missing_literal_sets"], [[literal]])
+        self.assertIn("SURVIVED is forbidden", grader_system)
+        self.assertIn("CORRUPTED", grader_system)
+        self.assertIn("MISSING", grader_system)
+        self.assertFalse(invalid_event["judge_valid"])
+        self.assertEqual(invalid_event["judge_status"], "INVALID JUDGE RESULT")
+        self.assertEqual(invalid_event["judge_reason"], f"deterministic_conflict:{target_id}")
+
+        valid_event, _ = run("CORRUPTED")
+        self.assertTrue(valid_event["judge_valid"])
+        self.assertEqual(valid_event["judge_status"], "VALID")
+        self.assertFalse(valid_event["meaning_pass"])
+        target_result = next(
+            item for item in valid_event["atom_results"] if item["id"] == target_id
+        )
+        self.assertEqual(target_result["verdict"], "CORRUPTED")
+        language = language_payload(json.loads(
+            (ROOT / "tests/fixtures/mixed-rulebook.json").read_text()
+        ))
+        feedback = loop.derive_scoring_v2_failure_feedback(
+            [valid_event],
+            language_version=language["version"],
+            language_hash=language["hash"],
+        )
+        self.assertIsNotNone(feedback)
+        self.assertEqual(feedback.failed_atom_id, target_id)
+        self.assertEqual(feedback.classification, "CORRUPTED")
+        self.assertEqual(feedback.decoded_evidence, corrupted_evidence)
+
+    def test_b1_dropped_currency_symbol_is_visible_to_the_grader(self):
+        self._assert_literal_loss_reaches_grader(
+            benchmark_id="B1", target_id="B1.03", literal="$48",
+            replacement="48", turn=1350,
+        )
+
+    def test_b2_compacted_vessel_identifier_is_visible_to_the_grader(self):
+        self._assert_literal_loss_reaches_grader(
+            benchmark_id="B2", target_id="B2.01", literal="C-18A",
+            replacement="c18a", turn=1353,
+        )
+
     def test_corpus_receipt_does_not_mutate_legacy_rule_scores(self):
         rb = json.loads((ROOT / "tests/fixtures/mixed-rulebook.json").read_text())
         before = json.dumps(rb, sort_keys=True)
