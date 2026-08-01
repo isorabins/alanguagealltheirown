@@ -14,7 +14,7 @@
 
 The fresh fixed-base post-removal review found three hard documentation problems directly related to the scope reduction: the field note did not name its verification sources, `CONTEXT.md` still defined the removed control concepts as active glossary terms, and this receipt still claimed that the superseded review had no remaining gap. This documentation pass repaired all three and replaced bare issue references with linked titles.
 
-The final Standards review also found two hard documentation defects outside the approved B2.05 correction: `MECHANICS.md` still describes the retired V1 judging flow, and the viewer's exact-wiring explanation and prompt list still describe V1 while omitting the active `grader_v2` prompt. Both remain unmodified pending explicit Iso approval; this receipt does not claim a Standards pass.
+After explicit Iso approval, commit `394c7b0` corrected the Scoring V2 judge explanation in `MECHANICS.md`, the viewer's exact-wiring copy, and the active `grader_v2` and legacy grader labels, with one focused Node regression. The final review then caught an inaccurate statement that public cycle averages appear after B1 through B5; this doc-only pass removed that statement without adding a replacement behavior claim. Final Standards and Spec hard findings are resolved.
 
 The review also noted judgment-call smells, not documented-standard violations: possible Data Clumps/Shotgun Surgery in the Scoring V2 result fields and possible Duplicated Code in viewer helpers and status construction. They are not release findings from the English-control removal and were not changed.
 
