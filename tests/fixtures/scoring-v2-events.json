@@ -1,0 +1,31 @@
+{
+  "valid_failure": {
+    "scoring_version": "v2",
+    "judge_valid": true,
+    "decoder_model": "offline-fixture",
+    "meaning_pass": false,
+    "compression_success": false,
+    "semantic_coverage_pct": 50,
+    "message_body_savings_pct": 42,
+    "answer_key": [
+      {"id":"B2.01","meaning":"The vessel identifier is C-18A.","critical":true},
+      {"id":"B2.02","meaning":"The test is secondary hydrostatic.","critical":false}
+    ],
+    "atom_results": [
+      {"id":"B2.01","verdict":"CORRUPTED","evidence":"Vessel C18A"},
+      {"id":"B2.02","verdict":"SURVIVED","evidence":"secondary hydrostatic test"}
+    ],
+    "critical_failures": [
+      {"atom_id":"B2.01","verdict":"CORRUPTED","expected_meaning":"The vessel identifier is C-18A.","decoded_evidence":"Vessel C18A"}
+    ],
+    "inventions": [
+      {"claim":"The vessel is cleared.","evidence":"Vessel is cleared <now>"}
+    ]
+  },
+  "invalid_judge": {
+    "scoring_version": "v2",
+    "judge_valid": false,
+    "judge_reason": "fabricated_evidence:B2.01",
+    "prior_valid_v2_turn": 1401
+  }
+}

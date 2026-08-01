@@ -40,5 +40,16 @@ class PromptContractTests(unittest.TestCase):
             self.assertIn(phrase, prompt)
         self.assertIn("Do not rename these fields to `requirement` or `verdict`", prompt)
 
+    def test_scoring_v2_judge_requires_inspectable_decoded_evidence(self):
+        prompt = (ROOT / "prompts/grader_v2.md").read_text()
+        for phrase in (
+            "one verdict",
+            "exact, contiguous, non-empty span",
+            "For MISSING, `evidence` must be the empty string",
+            "rejects fabricated or",
+            "absent spans and deterministically checks practical literals",
+        ):
+            self.assertIn(phrase, prompt)
+
 
 if __name__ == "__main__": unittest.main()

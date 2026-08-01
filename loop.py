@@ -40,7 +40,7 @@ from legislative_protocol import (
 )
 from project_lookup import is_project_question, project_lookup
 from rulebook import (apply_typed_motion, language_payload, render_language,
-                      render_legislature, score_judgment)
+                      render_legislature, score_judgment_v2)
 from state_store import atomic_write_json, load_json
 
 ROOT = Path(__file__).resolve().parent
@@ -412,6 +412,26 @@ def render_window(conv):
             )
             continue
         if e["type"] == "test":
+            if e.get("scoring_version") == "v2":
+                if not e.get("judge_valid"):
+                    result = (
+                        f"INVALID JUDGE RESULT ({e.get('judge_reason', 'invalid')}); "
+                        "this is evaluator failure, not benchmark failure"
+                    )
+                else:
+                    result = (
+                        f"meaning {'PASS' if e.get('meaning_pass') else 'FAIL'} | "
+                        f"coverage {e.get('semantic_coverage_pct')}% | "
+                        f"critical failures {len(e.get('critical_failures', []))} | "
+                        f"inventions {len(e.get('inventions', []))} | "
+                        f"message-body savings {e.get('message_body_savings_pct')}% | "
+                        f"compression {'SUCCESS' if e.get('compression_success') else 'FAIL'}"
+                    )
+                out.append(
+                    f"[turn {e['turn']} — SCORING V2 DEVELOPMENT BENCHMARK | "
+                    f"payload: {e['payload']}]\n{result}"
+                )
+                continue
             audit = ""
             if e.get("total"):
                 bits = [f"answer key: {e.get('survived')}/{e['total']} items survived"]
@@ -836,27 +856,42 @@ def agent_turn(conv, rb, meta, collaboration, turn):
     return result
 
 
-BENCHMARK_PATH = ROOT / "benchmarks" / "v1.json"
+BENCHMARK_PATH = ROOT / "benchmarks" / "v2.json"
+LEGACY_BENCHMARK_PATH = ROOT / "benchmarks" / "v1.json"
 BENCHMARK_IDS = ("B1", "B2", "B3", "B4", "B5")
 
 
 def load_benchmark_suite(path=BENCHMARK_PATH):
-    """Load and validate the frozen benchmark registry before touching model spend."""
+    """Load Scoring V2 atoms and join them to the immutable V1 source messages."""
     suite = load_json(Path(path), {})
     rows = suite.get("benchmarks", [])
     ids = tuple(row.get("id") for row in rows if isinstance(row, dict))
-    if suite.get("version") != "v1" or ids != BENCHMARK_IDS:
-        raise ValueError("benchmark_v1_registry_invalid")
+    if suite.get("version") != "v2" or suite.get("source_version") != "v1" or ids != BENCHMARK_IDS:
+        raise ValueError("benchmark_v2_registry_invalid")
+    source_suite = load_json(LEGACY_BENCHMARK_PATH, {})
+    source_rows = {row.get("id"): row for row in source_suite.get("benchmarks", [])}
     for row in rows:
-        baseline = row.get("baseline", {})
-        if (
-            not str(row.get("name", "")).strip()
-            or not str(row.get("original", "")).strip()
-            or len(row.get("answer_key", [])) < 6
-            or baseline.get("fidelity") is None
-            or baseline.get("token_delta_pct") is None
-        ):
-            raise ValueError(f"benchmark_v1_row_invalid:{row.get('id')}")
+        source = source_rows.get(row.get("id"), {})
+        atoms = row.get("answer_key", [])
+        atom_ids = [atom.get("id") for atom in atoms if isinstance(atom, dict)]
+        valid_atoms = (
+            len(atoms) >= 6 and len(atom_ids) == len(atoms)
+            and len(atom_ids) == len(set(atom_ids))
+            and all(
+                isinstance(atom.get("meaning"), str) and atom["meaning"].strip()
+                and isinstance(atom.get("critical"), bool)
+                and isinstance(atom.get("literal_sets"), list)
+                and all(isinstance(group, list) and group
+                        and all(isinstance(value, str) and value for value in group)
+                        for group in atom["literal_sets"])
+                for atom in atoms if isinstance(atom, dict)
+            )
+        )
+        if (not str(row.get("name", "")).strip() or not valid_atoms
+                or not str(source.get("original", "")).strip()
+                or source.get("source_turn") != row.get("source_turn")):
+            raise ValueError(f"benchmark_v2_row_invalid:{row.get('id')}")
+        row["original"] = source["original"]
     return suite
 
 
@@ -864,11 +899,9 @@ def select_benchmark(meta, suite=None):
     """Return the next benchmark without advancing its durable cursor."""
     suite = suite or load_benchmark_suite()
     state = meta.get("benchmark_suite")
-    if state is None:
+    if state is None or state.get("version") != suite["version"]:
         state = {"version": suite["version"], "next_index": 0, "cycle": 1}
         meta["benchmark_suite"] = state
-    if state.get("version") != suite["version"]:
-        raise ValueError("benchmark_version_mismatch")
     index = state.get("next_index")
     cycle = state.get("cycle")
     if not isinstance(index, int) or not 0 <= index < len(suite["benchmarks"]):
@@ -892,9 +925,8 @@ def advance_benchmark(meta, benchmark, suite=None):
 
 
 def previous_benchmark_result(meta, benchmark):
-    """Use the previous valid live result, or the frozen historical baseline."""
-    previous = meta.get("benchmark_results", {}).get(benchmark["id"])
-    return copy.deepcopy(previous or benchmark["baseline"])
+    """Return only a prior valid Scoring V2 result; V1 is never a comparison baseline."""
+    return copy.deepcopy(meta.get("benchmark_results_v2", {}).get(benchmark["id"]))
 
 
 def normalize_answer_key(raw):
@@ -909,7 +941,7 @@ def test_turn(conv, rb, meta, turn):
     benchmark, benchmark_cycle = select_benchmark(meta, suite)
     pname = f"{benchmark['id']} · {benchmark['name']}"
     payload = benchmark["original"]
-    key = normalize_answer_key(benchmark["answer_key"])
+    key = copy.deepcopy(benchmark["answer_key"])
     previous = previous_benchmark_result(meta, benchmark)
     captured = language_payload(rb)
     rbook = render_language(rb)
@@ -922,11 +954,17 @@ def test_turn(conv, rb, meta, turn):
                "reconstruct the original content as faithfully as you can. Do not invent anything "
                "the message does not encode. Output ONLY the reconstruction.\n\n" + rbook)
     decoded, _ = call(MODEL_DECODER, dec_sys, encoded.strip(), max_tokens=4000, temperature=0.1, meta=meta)
-    grade_sys = (ROOT / "prompts" / "grader.md").read_text()
+    orig_t = token_count(payload, meta)
+    enc_t = token_count(encoded.strip(), meta)
+    delta = round((enc_t - orig_t) / orig_t * 100)
+    savings_pct = -delta
+    grade_sys = (ROOT / "prompts" / "grader_v2.md").read_text()
     if key:
-        key_txt = "\n".join(f"{i + 1}. {k}" for i, k in enumerate(key))
-        grade_user = f"ORIGINAL:\n{payload}\n\nANSWER KEY:\n{key_txt}\n\nDECODED:\n{decoded.strip()}"
-        graded, _ = call(MODEL_GRADER, grade_sys, grade_user, max_tokens=1200, temperature=0, meta=meta)
+        key_txt = json.dumps([
+            {"id": atom["id"], "meaning": atom["meaning"]} for atom in key
+        ], ensure_ascii=False)
+        grade_user = f"ORIGINAL:\n{payload}\n\nATOMIC ANSWER KEY:\n{key_txt}\n\nDECODED:\n{decoded.strip()}"
+        graded, _ = call(MODEL_GRADER, grade_sys, grade_user, max_tokens=4000, temperature=0, meta=meta)
         gm = re.search(r"\{.*\}", graded, re.S)
         try:
             g = json.loads(gm.group(0)) if gm else {}
@@ -934,64 +972,71 @@ def test_turn(conv, rb, meta, turn):
             g = {}
     else:
         g = {}
-    lost = str(g.get("lost", "answer key unavailable" if not key else "grader output unparseable"))[:300]
     audit = {}
     if key:
-        scored = score_judgment(key, g)
-        items = g.get("items", []) if scored["valid"] else []
-        fidelity = scored["fidelity"]
-        audit = {"key": key, "judge_valid": scored["valid"], "judge_reason": scored["reason"],
-                 "survived": scored.get("survived", 0), "total": len(key),
-                 "corrupted": [f"{i.get('n')}: {i.get('note', '')}" for i in items if i.get("verdict") == "CORRUPTED"],
-                 "missing": [f"{i.get('n')}: {i.get('note', '')}" for i in items if i.get("verdict") == "MISSING"],
-                 "invented": scored.get("invented", [])}
-        if not scored["valid"]:
-            lost = f"invalid judge output: {scored['reason']}"
+        scored = score_judgment_v2(key, g, decoded.strip(), savings_pct)
+        audit = {
+            "judge_valid": scored["valid"], "judge_status": scored["status"],
+            "judge_reason": scored["reason"], "atom_results": scored.get("items", []),
+            "survived": scored.get("survived"), "total": scored.get("total", len(key)),
+            "meaning_pass": scored.get("meaning_pass"),
+            "compression_success": scored.get("compression_success"),
+            "semantic_coverage_pct": scored.get("semantic_coverage_pct"),
+            "critical_failures": scored.get("critical_failures", []),
+            "inventions": scored.get("inventions", []),
+        }
     else:
-        fidelity = None
-        audit = {"key": [], "judge_valid": False, "judge_reason": "answer_key_unavailable",
-                 "survived": 0, "total": 0, "corrupted": [], "missing": [], "invented": []}
-    orig_t = token_count(payload, meta)
-    enc_t = token_count(encoded.strip(), meta)
-    delta = round((enc_t - orig_t) / orig_t * 100)
-    fidelity_delta = fidelity - previous["fidelity"] if fidelity is not None else None
-    savings_delta = (
-        previous["token_delta_pct"] - delta if fidelity is not None else None
-    )
+        scored = {"valid": False, "status": "INVALID JUDGE RESULT", "reason": "answer_key_unavailable"}
+        audit = {"judge_valid": False, "judge_status": scored["status"],
+                 "judge_reason": scored["reason"], "atom_results": [], "survived": None,
+                 "total": 0, "meaning_pass": None, "compression_success": None,
+                 "semantic_coverage_pct": None, "critical_failures": [], "inventions": []}
     meta["tests_run"] = meta.get("tests_run", 0) + 1
     event = {"turn": turn, "agent": "harness", "type": "test", "payload": pname,
              "original": payload, "orig_tokens": orig_t, "enc_tokens": enc_t,
-             "token_delta_pct": delta, "fidelity": fidelity, "lost": lost,
+             "token_delta_pct": delta, "message_body_savings_pct": savings_pct,
              "encoded": encoded.strip(), "decoded": decoded.strip(), "tokens": enc_t,
              "decoder_model": MODEL_DECODER, "language_version": captured["version"],
-             "language_hash": captured["hash"], "era": "benchmark-v1",
+             "language_hash": captured["hash"], "era": "benchmark-v2",
+             "scoring_version": "v2",
              "benchmark_id": benchmark["id"], "benchmark_name": benchmark["name"],
              "benchmark_version": suite["version"], "benchmark_cycle": benchmark_cycle,
              "benchmark_source_turn": benchmark["source_turn"],
-             "prior_turn": previous["turn"], "prior_fidelity": previous["fidelity"],
-             "prior_token_delta_pct": previous["token_delta_pct"],
-             "fidelity_delta": fidelity_delta, "savings_delta_pct": savings_delta}
+             "answer_key": [{"id": atom["id"], "meaning": atom["meaning"],
+                              "critical": atom["critical"]} for atom in key],
+             "prior_valid_v2_turn": previous.get("turn") if previous else None}
     event.update(audit)
     conv.append(event)
     exams = meta.setdefault("corpus_exams", [])
     exams.append({"turn": turn, "language_version": captured["version"],
-                  "language_hash": captured["hash"], "fidelity": fidelity,
-                  "token_delta_pct": delta, "valid": fidelity is not None,
-                  "era": "benchmark-v1", "benchmark_id": benchmark["id"],
+                  "language_hash": captured["hash"], "scoring_version": "v2",
+                  "meaning_pass": audit["meaning_pass"],
+                  "compression_success": audit["compression_success"],
+                  "semantic_coverage_pct": audit["semantic_coverage_pct"],
+                  "critical_failures": copy.deepcopy(audit["critical_failures"]),
+                  "inventions": copy.deepcopy(audit["inventions"]),
+                  "message_body_savings_pct": savings_pct,
+                  "token_delta_pct": delta, "valid": scored["valid"],
+                  "judge_status": audit["judge_status"],
+                  "era": "benchmark-v2", "benchmark_id": benchmark["id"],
                   "benchmark_name": benchmark["name"],
                   "benchmark_version": suite["version"],
                   "benchmark_cycle": benchmark_cycle,
-                  "prior_turn": previous["turn"],
-                  "fidelity_delta": fidelity_delta,
-                  "savings_delta_pct": savings_delta})
+                  "prior_valid_v2_turn": previous.get("turn") if previous else None})
     meta["corpus_exams"] = exams[-500:]
-    if fidelity is not None:
-        meta.setdefault("benchmark_results", {})[benchmark["id"]] = {
-            "turn": turn, "fidelity": fidelity, "token_delta_pct": delta,
+    if scored["valid"]:
+        meta.setdefault("benchmark_results_v2", {})[benchmark["id"]] = {
+            "turn": turn, "meaning_pass": audit["meaning_pass"],
+            "compression_success": audit["compression_success"],
+            "semantic_coverage_pct": audit["semantic_coverage_pct"],
+            "critical_failures": copy.deepcopy(audit["critical_failures"]),
+            "inventions": copy.deepcopy(audit["inventions"]),
+            "message_body_savings_pct": savings_pct,
             "language_version": captured["version"], "language_hash": captured["hash"],
         }
     advance_benchmark(meta, benchmark, suite)
-    print(f"[t{turn} TEST] {pname}  {orig_t}->{enc_t}tok ({delta:+d}%)  fid {fidelity}  "
+    print(f"[t{turn} TEST] {pname}  {orig_t}->{enc_t}tok ({delta:+d}%)  "
+          f"{audit['judge_status']} coverage {audit['semantic_coverage_pct']}  "
           f"${meta['spend_usd']:.3f}", flush=True)
 
 

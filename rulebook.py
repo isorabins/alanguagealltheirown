@@ -11,6 +11,7 @@ from state_store import snapshot_hash
 MOTION_RE = re.compile(r"^\s*\**(PROPOSE|REPEAL|ADOPT|REJECT|REVISE|REQUEST(?:-REVISION|-TEST)?)\**\s*:\s*(.+?)\s*$")
 RULE_ID_RE = re.compile(r"\brule[-‐‑‒–—](\d+)\b", re.I)
 VALID_VERDICTS = {"SURVIVED", "CORRUPTED", "MISSING"}
+SCORING_V2 = "v2"
 
 
 def adopted_rules(rulebook: dict[str, Any]) -> list[dict[str, Any]]:
@@ -98,6 +99,116 @@ def score_judgment(answer_key: list[str], grade: dict[str, Any]) -> dict[str, An
         fidelity = min(fidelity, 15)
     return {"valid": True, "reason": "valid", "fidelity": max(0, min(100, fidelity)),
             "survived": survived, "invented": invented}
+
+
+def _contains_exact_span(text: str, span: str) -> bool:
+    return span in text
+
+
+def _literal_set_survives(evidence: str, alternatives: list[str]) -> bool:
+    folded = evidence.casefold()
+    return any(str(alternative).casefold() in folded for alternative in alternatives)
+
+
+def validate_judgment_v2(answer_key: list[dict[str, Any]], grade: Any,
+                         decoded: str) -> tuple[bool, str]:
+    """Validate the judge as evidence, not as truth about benchmark performance."""
+    if not isinstance(grade, dict):
+        return False, "judgment_not_object"
+    items = grade.get("items")
+    if not isinstance(items, list):
+        return False, "items_not_array"
+    if grade.get("mode") not in {"RELAY", "RESPONDED"}:
+        return False, "invalid_mode"
+    expected_ids = [atom["id"] for atom in answer_key]
+    actual_ids: list[str] = []
+    for item in items:
+        if not isinstance(item, dict):
+            return False, "item_not_object"
+        atom_id = item.get("id")
+        if not isinstance(atom_id, str) or atom_id not in expected_ids:
+            return False, "invalid_atom_id"
+        if item.get("verdict") not in VALID_VERDICTS:
+            return False, "invalid_verdict"
+        evidence = item.get("evidence")
+        if not isinstance(evidence, str):
+            return False, "evidence_not_string"
+        verdict = item["verdict"]
+        if verdict == "MISSING":
+            if evidence:
+                return False, f"missing_atom_has_evidence:{atom_id}"
+        elif not evidence:
+            return False, f"absent_evidence:{atom_id}"
+        elif not _contains_exact_span(decoded, evidence):
+            return False, f"fabricated_evidence:{atom_id}"
+        actual_ids.append(atom_id)
+    if len(actual_ids) != len(set(actual_ids)):
+        return False, "duplicate_atom_id"
+    if actual_ids != expected_ids:
+        return False, "invalid_atom_coverage_or_order"
+    inventions = grade.get("inventions")
+    if not isinstance(inventions, list):
+        return False, "inventions_not_array"
+    for invention in inventions:
+        if not isinstance(invention, dict):
+            return False, "invention_not_object"
+        claim, evidence = invention.get("claim"), invention.get("evidence")
+        if not isinstance(claim, str) or not claim.strip() or not isinstance(evidence, str) or not evidence:
+            return False, "malformed_invention"
+        if not _contains_exact_span(decoded, evidence):
+            return False, "fabricated_invention_evidence"
+    atoms_by_id = {atom["id"]: atom for atom in answer_key}
+    for item in items:
+        if item["verdict"] != "SURVIVED":
+            continue
+        atom = atoms_by_id[item["id"]]
+        for alternatives in atom.get("literal_sets", []):
+            if not _literal_set_survives(item["evidence"], alternatives):
+                return False, f"deterministic_conflict:{item['id']}"
+    return True, "valid"
+
+
+def score_judgment_v2(answer_key: list[dict[str, Any]], grade: Any, decoded: str,
+                      message_body_savings_pct: int) -> dict[str, Any]:
+    valid, reason = validate_judgment_v2(answer_key, grade, decoded)
+    if not valid:
+        return {
+            "valid": False,
+            "status": "INVALID JUDGE RESULT",
+            "reason": reason,
+            "scoring_version": SCORING_V2,
+        }
+    items = copy.deepcopy(grade["items"])
+    atoms_by_id = {atom["id"]: atom for atom in answer_key}
+    survived = sum(item["verdict"] == "SURVIVED" for item in items)
+    inventions = copy.deepcopy(grade["inventions"])
+    coverage = round(100 * survived / len(answer_key)) if answer_key else 0
+    meaning_pass = survived == len(answer_key) and not inventions
+    critical_failures = [
+        {
+            "atom_id": item["id"],
+            "verdict": item["verdict"],
+            "expected_meaning": atoms_by_id[item["id"]]["meaning"],
+            "decoded_evidence": item["evidence"],
+        }
+        for item in items
+        if atoms_by_id[item["id"]].get("critical") and item["verdict"] != "SURVIVED"
+    ]
+    return {
+        "valid": True,
+        "status": "VALID",
+        "reason": "valid",
+        "scoring_version": SCORING_V2,
+        "meaning_pass": meaning_pass,
+        "compression_success": meaning_pass and message_body_savings_pct > 0,
+        "semantic_coverage_pct": coverage,
+        "critical_failures": critical_failures,
+        "inventions": inventions,
+        "survived": survived,
+        "total": len(answer_key),
+        "items": items,
+        "message_body_savings_pct": message_body_savings_pct,
+    }
 
 
 @dataclass
