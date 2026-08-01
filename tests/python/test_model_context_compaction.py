@@ -16,6 +16,7 @@ from project_lookup import PROJECT_FINDINGS_PREFIX
 from legislative_protocol import (
     action_request_options,
     build_legislative_request,
+    build_post_state_receipt,
     prompt_receipt_projection,
     prompt_request_projection,
 )
@@ -263,6 +264,7 @@ class ProjectionUnitTests(unittest.TestCase):
         self.assertIn("attempted_action", request.latest_receipt.model_dump())
         self.assertIn("unchanged_rule_ids", request.latest_receipt.model_dump())
         self.assertEqual(request.model_dump_json(), canonical_json)
+        self.assertIsNone(request_projection["active_legislative_feedback"])
 
     def test_schema_describes_the_unchanged_substantive_deliberation_boundary(self):
         schema = action_request_options("B", production_book())["response_format"][
@@ -466,6 +468,107 @@ class ProjectionUnitTests(unittest.TestCase):
                 collaboration.deliver_one(state, "RESEARCH", "B", 1210)
 
         self.assertEqual(state, before)
+
+
+class ActiveLegislativeFeedbackPromptTests(unittest.TestCase):
+    def _request_receipt(self, book, turn, focus):
+        receipt = full_receipt(book, turn, "B")
+        receipt["attempted_action"]["motion"]["focus"] = focus
+        return {"turn": turn, "agent": "harness", "type": "legislature", "post_state_receipt": receipt}
+
+    def _assemble(self, events, book, agent):
+        return loop.assemble_legislative_prompt(
+            events, book, turn=1220, agent=agent, collaboration_input=None
+        )
+
+    def test_current_exact_request_reaches_agent_a_without_mutating_canonical_inputs(self):
+        book = production_book()
+        focus = "Test the exact boundary against one hostile transfer."
+        events = [self._request_receipt(book, 1209, focus)]
+        book_hash, event_hash = snapshot_hash(book), snapshot_hash(events)
+
+        assembled = self._assemble(events, book, "A")
+
+        self.assertEqual(
+            assembled["prompt_request"]["active_legislative_feedback"],
+            {"kind": "REQUEST", "target_rule_id": "rule-132", "focus": focus, "request_turn": 1209},
+        )
+        self.assertIn(focus, assembled["system"])
+        self.assertNotIn("RECENT EVENT WINDOW", assembled["system"])
+        self.assertEqual(snapshot_hash(book), book_hash)
+        self.assertEqual(snapshot_hash(events), event_hash)
+
+    def test_request_survives_revision_structural_failure_and_reconstruction_to_agent_b(self):
+        book = production_book()
+        focus = "Test the exact boundary against one hostile transfer."
+        events = [self._request_receipt(book, 1209, focus)]
+        before_revision = copy.deepcopy(book)
+        book["rules"][-1]["text_en"] = "Use the boundary marker only after its hostile scope is explicit."
+        book["rules"][-1]["proposed_turn"] = 1210
+        revision = build_post_state_receipt(
+            turn=1210, role="A", result="accepted", reason="motion_applied",
+            action={"deliberation": "The focused revision preserves the open boundary.", "motion": {"kind": "REVISE", "target_rule_id": "rule-132", "text": book["rules"][-1]["text_en"]}, "measurements": [], "requests": []},
+            before_rulebook=before_revision, after_rulebook=book, next_actor="B", attempts=1,
+        ).model_dump(mode="json")
+        failure = build_post_state_receipt(
+            turn=1211, role="B", action=None, result="structural_failure",
+            reason="structural_validation_exhausted: invalid JSON", before_rulebook=book,
+            after_rulebook=book, next_actor="B", attempts=3,
+        ).model_dump(mode="json")
+        events.extend([
+            {"turn": 1210, "agent": "harness", "type": "legislature", "post_state_receipt": revision},
+            {"turn": 1211, "agent": "harness", "type": "legislature", "post_state_receipt": failure},
+        ])
+
+        assembled = self._assemble(copy.deepcopy(events), book, "B")
+
+        self.assertEqual(assembled["prompt_request"]["active_legislative_feedback"]["focus"], focus)
+        self.assertIn(focus, assembled["system"])
+
+    def test_newer_request_supersedes_the_older_request(self):
+        book = production_book()
+        older = "Test the first exact boundary before adoption."
+        newer = "Test the replacement boundary against mixed conditional lists."
+        events = [self._request_receipt(book, 1209, older), self._request_receipt(book, 1212, newer)]
+
+        assembled = self._assemble(events, book, "A")
+
+        self.assertEqual(assembled["prompt_request"]["active_legislative_feedback"]["focus"], newer)
+        self.assertIn(newer, assembled["system"])
+        self.assertNotIn(older, assembled["system"])
+
+    def test_matching_adoption_or_rejection_clears_feedback(self):
+        focus = "Test the exact boundary against one hostile transfer."
+        for terminal_status in ("adopted", "rejected"):
+            with self.subTest(terminal_status=terminal_status):
+                book = production_book()
+                events = [self._request_receipt(book, 1209, focus)]
+                book["rules"][-1]["status"] = terminal_status
+
+                assembled = self._assemble(events, book, "A")
+
+                self.assertIsNone(assembled["prompt_request"]["active_legislative_feedback"])
+                self.assertNotIn(focus, assembled["system"])
+
+    def test_no_motion_preserves_feedback_but_unrelated_motion_does_not_receive_it(self):
+        book = production_book()
+        focus = "Test the exact boundary against one hostile transfer."
+        events = [self._request_receipt(book, 1209, focus)]
+        no_motion = build_post_state_receipt(
+            turn=1210, role="A", action={"deliberation": "The open motion needs no additional action now.", "motion": None, "measurements": [], "requests": []},
+            result="accepted", reason="no_motion", before_rulebook=book, after_rulebook=book,
+            next_actor="B", attempts=1,
+        ).model_dump(mode="json")
+        events.append({"turn": 1210, "agent": "harness", "type": "legislature", "post_state_receipt": no_motion})
+        self.assertEqual(self._assemble(events, book, "B")["prompt_request"]["active_legislative_feedback"]["focus"], focus)
+
+        unrelated = self._request_receipt(book, 1211, "Test an unrelated target boundary.")
+        unrelated["post_state_receipt"]["attempted_action"]["motion"]["target_rule_id"] = "rule-126"
+        unrelated["post_state_receipt"]["current_open_motion"]["target_rule_id"] = "rule-126"
+        events.append(unrelated)
+        assembled = self._assemble(events, book, "A")
+        self.assertEqual(assembled["prompt_request"]["active_legislative_feedback"]["focus"], focus)
+        self.assertNotIn("Test an unrelated target boundary.", assembled["system"])
 
 
 class ProductionShapedPromptTests(unittest.TestCase):

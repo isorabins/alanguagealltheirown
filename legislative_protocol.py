@@ -131,6 +131,15 @@ class OpenMotionState(StrictModel):
     proposed_turn: int
 
 
+class ActiveLegislativeFeedback(StrictModel):
+    """The one unresolved typed request projected for the current motion."""
+
+    kind: Literal["REQUEST"] = "REQUEST"
+    target_rule_id: str
+    focus: str = Field(min_length=12, max_length=1000)
+    request_turn: int = Field(ge=0)
+
+
 class RuleState(StrictModel):
     rule_id: str
     status: str
@@ -185,6 +194,7 @@ class LegislativeRequest(StrictModel):
     next_live_test_turn: int = Field(ge=1)
     current_state: CanonicalLegislativeState
     latest_receipt: PostStateReceipt | None
+    active_legislative_feedback: ActiveLegislativeFeedback | None
     collaboration_input: dict[str, Any] | None
 
 
@@ -478,6 +488,11 @@ def prompt_request_projection(request: LegislativeRequest) -> dict[str, Any]:
             if request.latest_receipt is not None
             else None
         ),
+        "active_legislative_feedback": (
+            request.active_legislative_feedback.model_dump(mode="json")
+            if request.active_legislative_feedback is not None
+            else None
+        ),
         "collaboration_input": request.collaboration_input,
     }
 
@@ -563,6 +578,7 @@ def build_legislative_request(
     rulebook: dict[str, Any],
     latest_receipt: PostStateReceipt | dict[str, Any] | None,
     collaboration_input: dict[str, Any] | None,
+    active_legislative_feedback: ActiveLegislativeFeedback | dict[str, Any] | None = None,
 ) -> LegislativeRequest:
     receipt = (
         latest_receipt
@@ -577,8 +593,51 @@ def build_legislative_request(
         next_live_test_turn=next_live_test_turn,
         current_state=canonical_legislative_state(rulebook, role),
         latest_receipt=receipt,
+        active_legislative_feedback=(
+            active_legislative_feedback
+            if isinstance(active_legislative_feedback, ActiveLegislativeFeedback)
+            else ActiveLegislativeFeedback.model_validate(
+                active_legislative_feedback, strict=True
+            )
+            if active_legislative_feedback is not None
+            else None
+        ),
         collaboration_input=collaboration_input,
     )
+
+
+def derive_active_legislative_feedback(
+    events: list[dict[str, Any]], open_motion: OpenMotionState | None
+) -> ActiveLegislativeFeedback | None:
+    """Derive, without consuming history, B's latest eligible request for one open motion."""
+    if open_motion is None:
+        return None
+    for event in reversed(events):
+        payload = event.get("post_state_receipt")
+        if not isinstance(payload, dict):
+            continue
+        try:
+            receipt = PostStateReceipt.model_validate(payload, strict=True)
+        except ValidationError:
+            continue
+        action = receipt.attempted_action
+        motion = action.motion if action is not None else None
+        if (
+            receipt.actor == "B"
+            and receipt.result == "accepted"
+            and receipt.reason == "focused_work_requested"
+            and isinstance(motion, RequestMotion)
+            and motion.target_rule_id == open_motion.target_rule_id
+            and receipt.current_open_motion is not None
+            and receipt.current_open_motion.target_rule_id == open_motion.target_rule_id
+        ):
+            return ActiveLegislativeFeedback(
+                kind="REQUEST",
+                target_rule_id=motion.target_rule_id,
+                focus=motion.focus,
+                request_turn=receipt.turn,
+            )
+    return None
 
 
 def validation_reason(error: ValidationError | ValueError) -> str:

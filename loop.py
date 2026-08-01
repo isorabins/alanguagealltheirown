@@ -30,6 +30,8 @@ from legislative_protocol import (
     build_cutover_receipt,
     build_legislative_request,
     build_post_state_receipt,
+    current_open_motion,
+    derive_active_legislative_feedback,
     prompt_receipt_projection,
     prompt_request_projection,
     validate_action,
@@ -567,12 +569,16 @@ def assemble_legislative_prompt(
     role_prompt = (ROOT / "prompts" / f"agent_{agent.lower()}.md").read_text()
     constitution = (ROOT / "prompts" / "constitution.md").read_text()
     next_test = ((turn // TEST_EVERY) + 1) * TEST_EVERY
+    active_feedback = derive_active_legislative_feedback(
+        conv, current_open_motion(rb)
+    )
     request = build_legislative_request(
         role=agent,
         turn=turn,
         next_live_test_turn=next_test,
         rulebook=rb,
         latest_receipt=latest_post_state_receipt(conv),
+        active_legislative_feedback=active_feedback,
         collaboration_input=collaboration_input,
     )
     open_motion = request.current_state.open_motion
