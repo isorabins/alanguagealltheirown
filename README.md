@@ -16,6 +16,8 @@ Implementation-ready work that is not yet live is tracked in [ROADMAP.md](ROADMA
 - Only adopted rule text enters ordinary encoding, decoding, public Try It, and the scheduled Conversation exam. Proposed and rejected material remains public history.
 - Scheduled development exams rotate through the corrected B1-B5 Scoring V2 contract. Every atom has one independently falsifiable meaning and inspectable decoded evidence; exact-literal conflicts invalidate the judge rather than becoming language failure evidence.
 - V2 reports meaning pass, compression success, semantic coverage, critical failures, inventions, and message-body savings separately. Invalid judge results do not replace the prior valid V2 baseline. Historical V1 events remain immutable legacy evidence and are never compared with V2.
+- Five one-time frozen-English controls use the corrected B1-B5 messages and a checked contract for the matching models, tokenizer, instructions, temperatures, and 4,000-token ceiling. The controls live outside canonical generated state; a benchmark or named execution-input change marks only its matching record stale. Scheduled turns never call the English control.
+- The public 20-exchange comparison stays unavailable until a complete qualifying Scoring V2 B1-B5 cycle and five current meaning-safe English controls exist. It shows ALATO, frozen English, and their control-adjusted difference as fixed hypothetical communication costs, including the stated rulebook-cache cost—not provider telemetry or billed savings.
 - A judge score is valid only when every answer-key item appears exactly once with a valid verdict.
 - The `$25` private-loop tripwire retains the pre-cutover total as a labeled historical estimate and adds OpenRouter's returned `usage.cost` exactly once for every successful call from cutover forward. Production records response-id/cost receipts atomically in a gitignored local ledger so a crash cannot lose or double-count a charged response.
 
@@ -53,5 +55,13 @@ python3 -m unittest discover -s tests/python -p 'test_*.py'
 node --test tests/js/*.test.js
 python3 tests/acceptance/check_contract_coverage.py
 ```
+
+The separately approved one-time control runner is preview-only by default:
+
+```bash
+python3 frozen_english.py
+```
+
+An operator may use `--live --max-spend-usd <approved-cap>` only outside CI and only under a release approval. The runner accepts no cap above `$0.25`, preserves current matching records, and writes the five-record registry atomically only after the bounded run succeeds.
 
 Passing these tests is not production acceptance. The required deployed run includes visible desktop and 375px journeys, the full `/human` session lifecycle, cross-turn restart/exact-once behavior, hostile/failure cases, numbered screenshots, one continuous video, independent receipts, and cleanup with one PASS/FAIL/BLOCKED result per row.
