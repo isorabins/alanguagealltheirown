@@ -106,8 +106,16 @@ def _contains_exact_span(text: str, span: str) -> bool:
 
 
 def _literal_set_survives(evidence: str, alternatives: list[str]) -> bool:
-    folded = evidence.casefold()
-    return any(str(alternative).casefold() in folded for alternative in alternatives)
+    return any(_contains_exact_literal(evidence, str(alternative)) for alternative in alternatives)
+
+
+def _contains_exact_literal(evidence: str, literal: str) -> bool:
+    """Match one literal without accepting it inside a larger token or quantity."""
+    return re.search(
+        rf"(?<![A-Za-z0-9_]){re.escape(literal)}(?![A-Za-z0-9_])",
+        evidence,
+        flags=re.IGNORECASE,
+    ) is not None
 
 
 def validate_judgment_v2(answer_key: list[dict[str, Any]], grade: Any,

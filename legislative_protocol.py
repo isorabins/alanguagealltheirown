@@ -670,6 +670,7 @@ def derive_active_legislative_feedback(
             and motion.target_rule_id == open_motion.target_rule_id
             and receipt.current_open_motion is not None
             and receipt.current_open_motion.target_rule_id == open_motion.target_rule_id
+            and receipt.current_open_motion.kind == open_motion.kind
         ):
             return ActiveLegislativeFeedback(
                 kind="REQUEST",
@@ -677,6 +678,20 @@ def derive_active_legislative_feedback(
                 focus=motion.focus,
                 request_turn=receipt.turn,
             )
+        if (
+            receipt.result == "accepted"
+            and receipt.current_open_motion is not None
+            and receipt.current_open_motion.target_rule_id == open_motion.target_rule_id
+            and receipt.current_open_motion.kind == open_motion.kind
+            and (
+                (open_motion.kind == "add" and isinstance(motion, ProposeMotion))
+                or (open_motion.kind == "repeal" and isinstance(motion, RepealMotion))
+            )
+        ):
+            # This is the creation boundary for the currently open motion. An
+            # older request for a settled motion with the same rule id must not
+            # resurface (most importantly across repeated repeal attempts).
+            return None
     return None
 
 

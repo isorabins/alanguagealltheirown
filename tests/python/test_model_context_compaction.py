@@ -571,6 +571,62 @@ class ActiveLegislativeFeedbackPromptTests(unittest.TestCase):
         self.assertEqual(assembled["prompt_request"]["active_legislative_feedback"]["focus"], focus)
         self.assertNotIn("Test an unrelated target boundary.", assembled["system"])
 
+    def test_settled_repeal_request_does_not_resurface_on_a_later_repeal_of_same_rule(self):
+        first_repeal = production_book()
+        target = first_repeal["rules"][-1]
+        target["status"] = "adopted"
+        target["pending_repeal"] = {
+            "kind": "repeal",
+            "target_id": target["id"],
+            "rationale": "Remove the first version after one focused audit.",
+            "proposed_turn": 1205,
+            "agent": "A",
+        }
+        stale_focus = "Test the first repeal against one exact downstream dependency."
+        stale_request = self._request_receipt(first_repeal, 1206, stale_focus)
+
+        settled = copy.deepcopy(first_repeal)
+        settled["rules"][-1].pop("pending_repeal")
+        current = copy.deepcopy(settled)
+        current["rules"][-1]["pending_repeal"] = {
+            "kind": "repeal",
+            "target_id": target["id"],
+            "rationale": "Open a later independent repeal after the first settled.",
+            "proposed_turn": 1215,
+            "agent": "A",
+        }
+        creation = build_post_state_receipt(
+            turn=1215,
+            role="A",
+            action={
+                "deliberation": "A later independent repeal is now open for audit.",
+                "motion": {
+                    "kind": "REPEAL",
+                    "target_rule_id": target["id"],
+                    "rationale": "Open a later independent repeal after the first settled.",
+                },
+                "measurements": [],
+                "requests": [],
+            },
+            result="accepted",
+            reason="repeal_proposed",
+            before_rulebook=settled,
+            after_rulebook=current,
+            next_actor="B",
+            attempts=1,
+        ).model_dump(mode="json")
+        events = [stale_request, {
+            "turn": 1215,
+            "agent": "harness",
+            "type": "legislature",
+            "post_state_receipt": creation,
+        }]
+
+        assembled = self._assemble(events, current, "B")
+
+        self.assertIsNone(assembled["prompt_request"]["active_legislative_feedback"])
+        self.assertNotIn(stale_focus, assembled["system"])
+
 
 class ScoringV2FailureFeedbackPromptTests(unittest.TestCase):
     def _failure_event(

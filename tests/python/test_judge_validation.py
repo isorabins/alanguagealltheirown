@@ -71,5 +71,46 @@ class JudgeTests(unittest.TestCase):
                 self.assertEqual(result["status"],"INVALID JUDGE RESULT")
                 self.assertTrue(result["reason"].startswith(expected_reason),result)
 
+    def test_v2_exact_literals_do_not_survive_inside_larger_values_or_identifiers(self):
+        for literal, evidence in (
+            ("15", "The order contains 150 meals."),
+            ("$48", "Tier A costs $480 per head."),
+            ("CAT-882", "Use vendor code CAT-8820."),
+            ("Tier A", "Use Tier Alpha for the dinner."),
+        ):
+            with self.subTest(literal=literal):
+                key = [{
+                    "id": "B1.01",
+                    "meaning": f"Preserve {literal} exactly.",
+                    "critical": True,
+                    "literal_sets": [[literal]],
+                }]
+                grade = {
+                    "mode": "RELAY",
+                    "items": [{
+                        "id": "B1.01",
+                        "verdict": "SURVIVED",
+                        "evidence": evidence,
+                    }],
+                    "inventions": [],
+                }
+                result = score_judgment_v2(key, grade, evidence, 10)
+                self.assertFalse(result["valid"])
+                self.assertEqual(result["reason"], "deterministic_conflict:B1.01")
+
+        exact = "Use vendor code CAT-882; Tier A costs $48 for 15 meals."
+        key = [{
+            "id": "B1.01",
+            "meaning": "Preserve every literal exactly.",
+            "critical": True,
+            "literal_sets": [["CAT-882"], ["Tier A"], ["$48"], ["15"]],
+        }]
+        grade = {
+            "mode": "RELAY",
+            "items": [{"id": "B1.01", "verdict": "SURVIVED", "evidence": exact}],
+            "inventions": [],
+        }
+        self.assertTrue(score_judgment_v2(key, grade, exact, 10)["valid"])
+
 
 if __name__ == "__main__": unittest.main()
