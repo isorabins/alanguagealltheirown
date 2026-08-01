@@ -4,7 +4,7 @@
 
 - Fixed pre-run base: `0ef2bab60f95c8e41d0ee81b9ca7beeeb06e7353`.
 - Authored roadmap commits: `6cba726`, `44e650f`, `e7b1c93`, `4080022`.
-- Current-main reconciliation: fresh-fetched `origin/main` at `bd91736` and merged it into the integration branch. This preserves the already-pushed sequential ticket history while adopting turns 1317–1334 exactly.
+- Current-main reconciliation: fresh-fetched `origin/main` at `bd91736` for review, then re-fetched and merged final tip `874585b` before push. This preserves the already-pushed sequential ticket history while adopting turns 1317–1335 exactly.
 - Generated-only exclusions: `state/conversation.json`, `state/meta.json`, `state/public-collaboration.json`, `state/rulebook.json`, and `viewer/state.js`. The authored ticket tip `4080022` changed none of them; they enter the branch only through the current-main merge.
 - Immutable V1 proof: `benchmarks/v1.json` is byte-identical to the fixed base, SHA-256 `18ae4224645fef79dd1b14e3f9741ff5023725299ae94fe93c7f370b29d60d62`.
 
