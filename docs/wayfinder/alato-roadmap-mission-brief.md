@@ -212,6 +212,18 @@ Iso confirmed all six recommended decisions on 2026-08-01 WITA:
    claim.
 6. Confirm the ten-point regression contract and release boundaries.
 
+## Remaining human decision
+
+Only [Review one concrete corrected B1-B5 evidence contract](https://github.com/isorabins/alanguagealltheirown/issues/31)
+remains open. The agent must prepare the full corrected contract and recommended
+defaults before the session. Iso only approves or corrects material disputes,
+with the review capped at 30 minutes.
+
+The receipt, comparative viewer, and regression-policy tickets were closed as
+mis-scoped Wayfinder work because Iso already settled their product decisions.
+Their exact schemas, tests, and execution waves will be synthesized through
+`$to-spec` and `$to-tickets` after the B1-B5 contract is approved.
+
 ## Remaining fog
 
 - Exact critical meanings and corrected atomic answer keys for B1-B5.
