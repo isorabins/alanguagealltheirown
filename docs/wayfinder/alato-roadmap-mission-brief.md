@@ -36,27 +36,19 @@ compression only when every critical meaning survives, semantic coverage is
 100%, and the decode invents nothing. A high average never overrides an
 action-changing failure.
 
-### Control and unseen-test boundary
+### English-control scope reduction
 
-Each corrected B1-B5 message receives one matched ordinary-English control run,
-stored as a versioned frozen baseline. Scheduled turns continue to run one
-ALATO development exam only. The five controls are rerun only if a benchmark,
-model, tokenizer, compression instruction, or token budget changes.
+Iso superseded the matched frozen-English controls and their control-adjusted
+public projection on 2026-08-01 WITA. Both were removed from implementation
+scope; the attempted experiment is retained only in the repository field note.
+
+### Manual unseen-test boundary
 
 No recurring unseen-test system is built. Before a major generalization claim,
 the operator manually runs three private messages, one prose, one procedure,
 and one task, through matched ALATO and English paths. Their answer keys are
 written before execution; the messages stay outside the repository and agent
 feedback; only the aggregate result may become public.
-
-### Twenty-exchange projection boundary
-
-The projection remains unavailable until one complete corrected B1-B5 cycle
-qualifies under the benchmark result model. It then shows ALATO and the matched
-frozen-English projection side by side. ALATO's added value is only the
-control-adjusted difference, not its standalone percentage against uncompressed
-English. Every number remains a fixed hypothetical rather than provider
-telemetry or an API-bill claim.
 
 ### Regression and release boundary
 
@@ -146,11 +138,9 @@ restore transcript replay.
 ### Make B1-B5 measure rulebook performance
 
 The open diagnosis shows false B1 and B5 verdicts, tenfold B2 pressure errors
-hidden by equal weighting, uneven answer keys, and no ordinary-English control.
-This is not implementation-ready, but it is bounded: correct the five fixtures,
-separate critical failure from semantic coverage and compression, retain
-verdict evidence, add one equivalent English control, and keep unseen material
-operator-held.
+hidden by equal weighting, and uneven answer keys. This is bounded: correct the
+five fixtures, separate critical failure from semantic coverage and compression,
+and retain verdict evidence.
 
 ### Restore development-exam feedback to the legislators
 
@@ -201,7 +191,9 @@ projection tests. The production-shaped fixture must call
 
 ## Completed thirty-minute interview
 
-Iso confirmed all six recommended decisions on 2026-08-01 WITA:
+Iso confirmed six recommended decisions on 2026-08-01 WITA. The matched frozen
+English portion of item 4 and the control-adjusted public projection in item 5
+were later superseded; the manual unseen-test boundary remains:
 
 1. Confirm the proposed destination and the four-step dependency order.
 2. Confirm the minimum behavior the active-feedback repair must preserve.
@@ -215,12 +207,11 @@ Iso confirmed all six recommended decisions on 2026-08-01 WITA:
 ## Completed Scoring V2 decision
 
 Iso approved [Review one concrete corrected B1-B5 evidence contract](https://github.com/isorabins/alanguagealltheirown/issues/31)
-on 2026-08-01 WITA. Its resolution is the authoritative Scoring V2 contract:
-corrected atomic meanings, evidence-backed verdicts, invalid-judge handling,
-V1/V2 history, matched frozen English baselines, and the manual unseen-test
-boundary. The decision ticket and parent map are closed with no remaining fog.
+on 2026-08-01 WITA. Its retained resolution is the authoritative Scoring V2
+contract: corrected atomic meanings, evidence-backed verdicts,
+invalid-judge handling, V1/V2 history, and the manual unseen-test boundary.
 
-The receipt, comparative viewer, and regression-policy tickets were closed as
+The receipt and regression-policy tickets were closed as
 mis-scoped Wayfinder work because Iso already settled their product decisions.
 Their exact schemas, tests, and execution waves now belong in `$to-spec` and
 `$to-tickets`; the Wayfinder map authorizes no implementation or live change.

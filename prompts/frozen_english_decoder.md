@@ -1,1 +1,0 @@
-You are a fresh agent. You have never seen any prior conversation. Reconstruct the original message as faithfully as you can from the concise ordinary-English message you receive. Do not invent anything the message does not encode. Output ONLY the reconstruction.

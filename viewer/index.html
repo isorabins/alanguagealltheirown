@@ -81,18 +81,6 @@
     letter-spacing: 0.04em; margin: -1.8rem 0 2.4rem;
   }
   .legend b { color: var(--ink-dim); font-weight: 400; }
-  .projection { border: 1px solid var(--hairline); padding: 1.1rem 1.25rem; margin: -1.2rem 0 2.6rem; }
-  .projection-title { text-align: center; color: var(--accent); font-size: 1rem; margin-bottom: 0.75rem; }
-  .projection-values { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0.7rem; }
-  .projection-values span { border: 1px solid var(--hairline); padding: 0.7rem; text-align: center;
-    font-family: var(--mono); font-size: 0.62rem; color: var(--ink-faint); text-transform: uppercase; }
-  .projection-values b { display: block; color: var(--ink); font-size: 1.05rem; font-weight: 400; margin-top: 0.2rem; }
-  .projection-copy { max-width: 48rem; margin: 0.8rem auto 0; text-align: center; color: var(--ink-dim); font-size: 0.84rem; }
-  .projection details { margin-top: 0.8rem; border-top: 1px solid var(--hairline); padding-top: 0.65rem; }
-  .projection summary { font-family: var(--mono); color: var(--ink-faint); font-size: 0.62rem;
-    letter-spacing: 0.12em; text-align: center; text-transform: uppercase; cursor: pointer; }
-  .projection-assumptions { margin-top: 0.65rem; font-family: var(--mono); color: var(--ink-faint);
-    font-size: 0.64rem; line-height: 1.65; text-align: center; }
 
   .panes { display: grid; grid-template-columns: 1fr 1fr; gap: 1.4rem; }
   .pane { border: 1px solid var(--hairline); display: flex; flex-direction: column; height: 430px; }
@@ -320,7 +308,7 @@
   @media (max-width: 760px) {
     body { padding: 2.4rem 1rem 4rem; }
     h1 { font-size: 1.42rem; letter-spacing: 0.16em; }
-    .panes, .decisions, .tx-cols, .status-main, .v2-results, .projection-values { grid-template-columns: 1fr; }
+    .panes, .decisions, .tx-cols, .status-main, .v2-results { grid-template-columns: 1fr; }
     .pane { height: 340px; }
     .timers { gap: 2rem; }
     .metrics { gap: 1.2rem 1.8rem; }
@@ -361,10 +349,6 @@
 
 <div class="metrics" id="metrics"></div>
 <div class="legend"><b>Scoring V2</b> keeps meaning pass, semantic coverage, critical failures, inventions, and message-body savings separate. Compression succeeds only when every meaning survives, nothing is invented, and the encoded body is smaller. Historical fidelity percentages are labelled legacy V1 and are never compared with V2.</div>
-<section class="projection" id="projection" aria-live="polite">
-  <p class="projection-title">20 exchanges. One fair fight.</p>
-  <p class="projection-copy">The paired projection is forming: it appears only after a complete qualifying Scoring V2 B1–B5 cycle and five current frozen-English controls.</p>
-</section>
 
 <h2>The Negotiation, Live</h2>
 <p class="how">DeepSeek Agent A invents or revises one focused idea. Kimi Agent B audits that idea and alone may adopt or reject it. The harness blocks role violations and malformed or repeated motions.</p>
@@ -527,96 +511,6 @@ function latestValidScoringV2(tests) {
   }) || null;
 }
 
-var PROJECTION_ASSUMPTIONS = {
-  reference_model: "Claude Sonnet 4.6", exchanges: 20, messages: 40,
-  english_tokens_per_message: 1000, history_message_copies: 780,
-  rulebook_cache_writes: 2, rulebook_cache_reads: 38,
-  input_usd_per_million: 3, output_usd_per_million: 15,
-  cache_write_usd_per_million: 3.75, cache_read_usd_per_million: 0.30
-};
-
-function latestQualifyingScoringV2Cycle(tests) {
-  var ids = ["B1", "B2", "B3", "B4", "B5"], cycles = {};
-  (tests || []).forEach(function (t) {
-    if (!t || t.scoring_version !== "v2" || t.era !== "benchmark-v2" ||
-        t.benchmark_version !== "v2" || ids.indexOf(t.benchmark_id) < 0 ||
-        !Number.isInteger(t.benchmark_cycle)) return;
-    (cycles[t.benchmark_cycle] = cycles[t.benchmark_cycle] || {})[t.benchmark_id] = t;
-  });
-  var keys = Object.keys(cycles).map(Number).sort(function (a, b) { return b - a; });
-  for (var i = 0; i < keys.length; i++) {
-    var rows = cycles[keys[i]];
-    if (!ids.every(function (id) {
-      var row = rows[id];
-      return row && row.judge_valid === true && row.meaning_pass === true &&
-        row.compression_success === true && row.semantic_coverage_pct === 100 &&
-        Array.isArray(row.inventions) && row.inventions.length === 0 &&
-        typeof row.message_body_savings_pct === "number";
-    })) continue;
-    return {
-      benchmark_cycle: keys[i],
-      average_message_body_savings_pct: ids.reduce(function (sum, id) {
-        return sum + rows[id].message_body_savings_pct;
-      }, 0) / ids.length
-    };
-  }
-  return null;
-}
-
-function currentFrozenEnglishAverage(registry, contract) {
-  var ids = ["B1", "B2", "B3", "B4", "B5"];
-  if (!registry || !contract || registry.schema_version !== 1 ||
-      registry.baseline_version !== "frozen-english-v2" ||
-      contract.baseline_version !== "frozen-english-v2") return null;
-  var expected = {}, records = {};
-  (contract.benchmarks || []).forEach(function (row) { expected[row.id] = row.benchmark_digest; });
-  (registry.records || []).forEach(function (row) { records[row.benchmark_id] = row; });
-  var sameInputs = function (left, right) {
-    if (!left || !right) return false;
-    var leftKeys = Object.keys(left).sort(), rightKeys = Object.keys(right).sort();
-    return leftKeys.length === rightKeys.length && leftKeys.every(function (key, index) {
-      return key === rightKeys[index] && left[key] === right[key];
-    });
-  };
-  var values = [];
-  for (var i = 0; i < ids.length; i++) {
-    var row = records[ids[i]];
-    if (!row || row.benchmark_version !== contract.benchmark_version ||
-        row.benchmark_digest !== expected[ids[i]] ||
-        !sameInputs(row.execution_inputs, contract.execution_inputs) ||
-        row.judge_valid !== true || row.meaning_pass !== true ||
-        row.semantic_coverage_pct !== 100 || !Array.isArray(row.inventions) ||
-        row.inventions.length !== 0 || typeof row.message_body_savings_pct !== "number") return null;
-    values.push(row.message_body_savings_pct);
-  }
-  return values.reduce(function (sum, value) { return sum + value; }, 0) / values.length;
-}
-
-function twentyExchangeProjection(alatoSavingsPct, englishSavingsPct, rulebookTokens) {
-  if (!(rulebookTokens > 0) || typeof alatoSavingsPct !== "number" ||
-      typeof englishSavingsPct !== "number") return null;
-  var a = PROJECTION_ASSUMPTIONS;
-  var inputTokens = a.history_message_copies * a.english_tokens_per_message;
-  var outputTokens = a.messages * a.english_tokens_per_message;
-  var plainCost = (inputTokens * a.input_usd_per_million +
-    outputTokens * a.output_usd_per_million) / 1000000;
-  var communicationCost = function (savingsPct) {
-    var ratio = 1 - savingsPct / 100;
-    return (inputTokens * ratio * a.input_usd_per_million +
-      outputTokens * ratio * a.output_usd_per_million) / 1000000;
-  };
-  var cacheCost = rulebookTokens * (a.rulebook_cache_writes * a.cache_write_usd_per_million +
-    a.rulebook_cache_reads * a.cache_read_usd_per_million) / 1000000;
-  var alatoCost = communicationCost(alatoSavingsPct) + cacheCost;
-  var englishCost = communicationCost(englishSavingsPct);
-  var alatoProjected = 100 * (plainCost - alatoCost) / plainCost;
-  var englishProjected = 100 * (plainCost - englishCost) / plainCost;
-  return {plain_cost_usd: plainCost, alato_cost_usd: alatoCost, english_cost_usd: englishCost,
-    rulebook_cache_cost_usd: cacheCost, alato_projected_savings_pct: alatoProjected,
-    english_projected_savings_pct: englishProjected,
-    control_adjusted_percentage_points: alatoProjected - englishProjected};
-}
-
 function scoringV2EvidenceHtml(t) {
   var esc = function (s) {
     return String(s == null ? "" : s).replace(/[&<>"]/g, function (c) {
@@ -704,28 +598,6 @@ function render(S) {
   document.getElementById("metrics").innerHTML = m.map(function (x) {
     return "<span>" + x[0] + "<b>" + x[1] + "</b></span>";
   }).join("");
-  var qualifyingCycle = latestQualifyingScoringV2Cycle(tests);
-  var frozenEnglishAverage = currentFrozenEnglishAverage(S.frozenEnglish, S.frozenEnglishContract);
-  var projection = qualifyingCycle && frozenEnglishAverage !== null
-    ? twentyExchangeProjection(qualifyingCycle.average_message_body_savings_pct,
-        frozenEnglishAverage, rb.kernel_tokens) : null;
-  var projectionElement = document.getElementById("projection");
-  if (projectionElement) {
-    if (!projection) {
-      projectionElement.innerHTML = '<p class="projection-title">20 exchanges. One fair fight.</p>' +
-        '<p class="projection-copy">The paired projection is forming: it appears only after a complete qualifying Scoring V2 B1–B5 cycle and five current frozen-English controls. Legacy V1 history never unlocks or enters this comparison.</p>';
-    } else {
-      var points = Math.round(projection.control_adjusted_percentage_points);
-      projectionElement.innerHTML = '<p class="projection-title">20 exchanges. One fair fight.</p>' +
-        '<div class="projection-values"><span>ALATO hypothetical<b>' + Math.round(projection.alato_projected_savings_pct) + '%</b></span>' +
-        '<span>frozen English hypothetical<b>' + Math.round(projection.english_projected_savings_pct) + '%</b></span>' +
-        '<span>control-adjusted difference<b>' + (points > 0 ? '+' : '') + points + ' points</b></span></div>' +
-        '<p class="projection-copy">A fixed thought experiment, not provider telemetry and not billed savings. The rulebook has to pay rent; its cache cost is included.</p>' +
-        '<details><summary>fixed assumptions</summary><p class="projection-assumptions">Claude Sonnet 4.6 reference prices · 20 exchanges / 40 messages · 1,000 ordinary-English tokens per message · 780 accumulated-history message copies · full history retained · current rulebook cached separately for both agents · two five-minute cache writes and 38 cache reads · rulebook-cache cost $' +
-        projection.rulebook_cache_cost_usd.toFixed(4) + ' · latest qualifying Scoring V2 cycle ' + qualifyingCycle.benchmark_cycle +
-        ' · five version-matched frozen-English controls. Hypothetical communication-layer projection only.</p></details>';
-    }
-  }
 
   function msgHtml(e, cls) {
     var body = esc(String(e.content == null ? "" : e.content).replace(/\*\*/g, "")).replace(/^(PROPOSE|REPEAL|ADOPT|REJECT|REVISE|REQUEST(?:-REVISION|-TEST)?)\s*:/gm, '<span class="verb">$1:</span>');
@@ -1074,24 +946,19 @@ function runtimeView(when, now, turn) {
 }
 
 function loadState() {
-  var ROOT_RAW = "https://raw.githubusercontent.com/isorabins/alanguagealltheirown/main/";
   var RAW = "https://raw.githubusercontent.com/isorabins/alanguagealltheirown/main/state/";
   var COMMITS = "https://api.github.com/repos/isorabins/alanguagealltheirown/commits" +
     "?sha=main&path=state%2Fconversation.json&per_page=1";
   var fallback = window.STATE || {conversation: [], rulebook: {rules: [], version: "0.0", kernel_tokens: 0}, collaboration: {}, conversations: [], x: {}, meta: {}};
   var get = function (f) { return fetch(RAW + f, {cache: "no-store"}).then(function (r) { if (!r.ok) throw 0; return r.json(); }); };
-  var getRoot = function (f) { return fetch(ROOT_RAW + f, {cache: "no-store"}).then(function (r) { if (!r.ok) throw 0; return r.json(); }); };
   var getOptional = function (f, fallbackValue) { return get(f).catch(function () { return fallbackValue; }); };
-  var getRootOptional = function (f, fallbackValue) { return getRoot(f).catch(function () { return fallbackValue; }); };
   var lastCommit = fetch(COMMITS, {cache: "no-store"}).then(function (r) {
     if (!r.ok) throw 0;
     return r.json();
   }).catch(function () { return null; });
   Promise.all([get("conversation.json"), get("rulebook.json"), lastCommit,
     getOptional("public-collaboration.json", {research: [], asks: [], suggestions: []}), getOptional("conversations.json", []),
-    getOptional("tweet-state.json", {}),
-    getRootOptional("baselines/frozen-english-v2.json", {records: []}),
-    getRootOptional("baselines/frozen-english-contract-v2.json", {})]).then(function (both) {
+    getOptional("tweet-state.json", {})]).then(function (both) {
     var latest = both[2] && Array.isArray(both[2]) && both[2][0];
     var when = latest && latest.commit && latest.commit.committer && latest.commit.committer.date;
     if (when) {
@@ -1116,8 +983,7 @@ function loadState() {
         runtimeStatus.classList.remove("visible");
       }
     }
-    render({conversation: both[0], rulebook: both[1], collaboration: both[3], conversations: both[4], x: both[5],
-      frozenEnglish: both[6], frozenEnglishContract: both[7], meta: {updated: runtime.stamp}});
+    render({conversation: both[0], rulebook: both[1], collaboration: both[3], conversations: both[4], x: both[5], meta: {updated: runtime.stamp}});
   }).catch(function () { render(fallback); });
 }
 loadState();

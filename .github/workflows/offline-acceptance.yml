@@ -4,7 +4,6 @@ on:
   push:
     paths:
       - "*.py"
-      - "baselines/**"
       - "benchmarks/**"
       - "ops/**"
       - "prompts/**"
@@ -15,7 +14,6 @@ on:
   pull_request:
     paths:
       - "*.py"
-      - "baselines/**"
       - "benchmarks/**"
       - "ops/**"
       - "prompts/**"

@@ -3,16 +3,16 @@
 ## Review boundary
 
 - Fixed pre-run base: `0ef2bab60f95c8e41d0ee81b9ca7beeeb06e7353`.
-- Authored roadmap commits: `6cba726`, `44e650f`, `e7b1c93`, `4080022`.
+- Retained authored roadmap commits: `6cba726`, `44e650f`, `e7b1c93`. The English-control work from `4080022` was removed by Iso's scope reduction.
 - Current-main reconciliation: fresh-fetched `origin/main` at `bd91736` for review, then re-fetched and merged final tip `874585b` before push. This preserves the already-pushed sequential ticket history while adopting turns 1317–1335 exactly.
-- Generated-only exclusions: `state/conversation.json`, `state/meta.json`, `state/public-collaboration.json`, `state/rulebook.json`, and `viewer/state.js`. The authored ticket tip `4080022` changed none of them; they enter the branch only through the current-main merge.
+- Generated-only exclusions: `state/conversation.json`, `state/meta.json`, `state/public-collaboration.json`, `state/rulebook.json`, and `viewer/state.js`. They enter the branch only through the current-main merge.
 - Immutable V1 proof: `benchmarks/v1.json` is byte-identical to the fixed base, SHA-256 `18ae4224645fef79dd1b14e3f9741ff5023725299ae94fe93c7f370b29d60d62`.
 
 ## Sequential review axes
 
 ### Standards
 
-No remaining hard repository-standard violation. The Python and browser runtimes intentionally duplicate the small projection calculation because #35 requires those two existing seams; both are covered against the same fixed assumptions. No new framework, speculative platform, or generated-state authorship was added.
+No remaining hard repository-standard violation. No new framework, speculative platform, or generated-state authorship was added.
 
 ### Spec
 
@@ -21,7 +21,7 @@ Two hard findings were repaired:
 1. Deterministic literal checks accepted a required literal as a substring of a larger value or identifier (`15` in `150`, `$48` in `$480`). The matcher now enforces alphanumeric/underscore token boundaries and regression tests cover valid and invalid boundaries.
 2. Active feedback keyed only on rule id, so an old request could resurface after settlement when a later independent repeal targeted the same rule. Derivation now respects motion kind and stops at the current PROPOSE/REPEAL creation boundary while preserving feedback across revision, structural failure, and reconstruction.
 
-No remaining hard requirement gap or scope expansion was found in #35–#40 or the approved Scoring V2 resolution.
+No remaining hard requirement gap or scope expansion was found in the retained #35–#40 scope or the retained Scoring V2 resolution.
 
 ### Design fidelity
 
@@ -29,9 +29,9 @@ No remaining hard requirement gap or scope expansion was found in #35–#40 or t
 
 ### Integrity, privacy, and operations
 
-- Canonical generated state and hashes are not mutated by projection helpers; raw benchmark messages, full answer keys, grader prompts/deliberation, and transcripts do not enter legislative prompts.
+- Canonical generated state and hashes are not mutated by prompt-feedback helpers; raw benchmark messages, full answer keys, grader prompts/deliberation, and transcripts do not enter legislative prompts.
 - Invalid judges, V1, and mismatched-language evidence cannot become semantic feedback or replace a valid V2 baseline.
-- The frozen-English registry remains empty before the approved one-time operator run. Preview mode reports five pending controls and makes no provider call; scheduled turns import no control runner.
+- The English control and control-adjusted projection were removed; the experiment receipt remains in `docs/wayfinder/field-note-english-control-2026-08-01.md`.
 - The CI workflow contains no secret/provider/live flag and runs only the established offline Python, Node, and historical coverage commands.
 - No provider call, merge, deployment, timer/VPS change, Crabbox action, X action, public release, or live-state mutation occurred in ticket #40.
 
@@ -47,10 +47,7 @@ No remaining hard requirement gap or scope expansion was found in #35–#40 or t
 | 11–12 | Every non-missing verdict has an inspectable decoded span; practical literals veto false survival with exact boundaries. | Judge validation plus larger-value/identifier regression. |
 | 13–14 | Unsupported/malformed judge output is `INVALID JUDGE RESULT`; V1 stays immutable and visibly legacy. | Python invalid-judge tests, V1 SHA receipt, screenshots 03. |
 | 15–16 | One bounded current-language failure receipt reaches both legislators; invalid/V1/raw material stays out. | `ScoringV2FailureFeedbackPromptTests`; prompt sentinel/cap/hash tests. |
-| 17 | Five versioned matched English-control records are supported. | Frozen contract/runner tests; preview receipt. |
-| 18–19 | Scheduled turns run only ALATO; only named benchmark/execution inputs stale a control. | No-import assertion and stale-input tests. |
 | 20 | Public history labels Scoring V2, invalid results, and V1 distinctly. | Node viewer tests; screenshot 03. |
-| 21–22 | Paired 20-exchange projection gates on a qualifying B1–B5 cycle and renders ALATO/English/control-adjusted fixed hypotheses with cache cost. | Python/Node calculation tests; screenshots 01, 02, 04. |
 | 23 | No unseen-comparison material or recurring unseen infrastructure was added. | Fixed-base changed-path and scope review. |
 | 24 | Semantic regressions exercise the real Python prompt/test-turn path and current Node viewer path. | Focused lifecycle suite plus full offline suites. |
 | 25 | One path-filtered offline Actions workflow ignores generated-state-only turns. | `.github/workflows/offline-acceptance.yml`; YAML/path/provider audit. |
