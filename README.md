@@ -46,6 +46,13 @@ The production loop is `run_turn.sh` on its existing 15-minute timer and commits
 generated canonical state to `main`. Collaboration synchronization is best effort;
 X delivery has its own service and cannot stop or modify the scheduled turn path.
 
+The latest verified roadmap-release state, completed gates, known Scoring V2
+limitation, and remaining human-surface closeout work are recorded in
+[the roadmap release progress note](docs/wayfinder/alato-roadmap-release-progress.md).
+The live evaluation pattern is separated into judge-conformance failures and
+genuine language-fidelity failures in
+[the Scoring V2 production field note](docs/wayfinder/field-note-scoring-v2-live-evaluations-2026-08-03.md).
+
 Offline tests:
 
 ```bash
