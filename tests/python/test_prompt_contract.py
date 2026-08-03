@@ -27,6 +27,16 @@ class PromptContractTests(unittest.TestCase):
             "typed `measurements` and `requests`",
         ):
             self.assertIn(phrase, (ROOT / "prompts/constitution.md").read_text())
+        constitution_text = (ROOT / "prompts/constitution.md").read_text()
+        for phrase in (
+            "opaque token",
+            "private development-exam source",
+            "schema-bound fault response",
+            "later valid normal retest",
+        ):
+            self.assertIn(phrase, constitution_text)
+        self.assertIn("Do not ask for, infer, or reproduce", a)
+        self.assertIn("Adoption means pending retest", b)
 
     def test_conversation_judge_documents_the_validator_schema(self):
         prompt = (ROOT / "prompts/conversation_judge.md").read_text()

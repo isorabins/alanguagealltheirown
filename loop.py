@@ -32,9 +32,11 @@ from legislative_protocol import (
     build_post_state_receipt,
     current_open_motion,
     derive_active_legislative_feedback,
-    derive_scoring_v2_failure_feedback,
+    derive_semantic_fault_ledger,
     prompt_receipt_projection,
     prompt_request_projection,
+    select_semantic_fault_for_turn,
+    semantic_fault_feedback,
     validate_action,
     validate_action_with_deliberation_fallback,
     validation_reason,
@@ -593,11 +595,19 @@ def assemble_legislative_prompt(
     active_feedback = derive_active_legislative_feedback(
         conv, current_open_motion(rb)
     )
-    language = language_payload(rb)
-    scoring_v2_feedback = derive_scoring_v2_failure_feedback(
-        conv,
-        language_version=language["version"],
-        language_hash=language["hash"],
+    semantic_fault = select_semantic_fault_for_turn(
+        derive_semantic_fault_ledger(conv),
+        role=agent,
+        open_motion=current_open_motion(rb),
+    )
+    fault_feedback = semantic_fault_feedback(semantic_fault)
+    required_fault_token = (
+        semantic_fault.fault_token
+        if semantic_fault is not None
+        and semantic_fault.status == "UNRESOLVED"
+        and agent == "A"
+        and current_open_motion(rb) is None
+        else None
     )
     request = build_legislative_request(
         role=agent,
@@ -606,7 +616,7 @@ def assemble_legislative_prompt(
         rulebook=rb,
         latest_receipt=latest_post_state_receipt(conv),
         active_legislative_feedback=active_feedback,
-        scoring_v2_failure_feedback=scoring_v2_feedback,
+        semantic_fault_feedback=fault_feedback,
         collaboration_input=collaboration_input,
     )
     open_motion = request.current_state.open_motion
@@ -653,6 +663,14 @@ def assemble_legislative_prompt(
         {
             "deliberation": example_deliberation,
             "motion": example_motion,
+            "fault_response": (
+                {
+                    "status": "REPAIR_PROPOSED",
+                    "fault_token": required_fault_token,
+                }
+                if required_fault_token is not None
+                else None
+            ),
             "measurements": [],
             "requests": [],
         },
@@ -667,7 +685,16 @@ def assemble_legislative_prompt(
         "never substitute prose strings or differently named request fields. "
         f"Valid non-operative shape example: {example}\n"
         "Never return an empty, whitespace-only, or punctuation-only "
-        "`deliberation` value.\n\n"
+        "`deliberation` value.\n"
+        + (
+            "The supplied abstract semantic fault is mandatory now. Return "
+            "one focused `PROPOSE` motion and the exact schema-bound "
+            "`fault_response`; prompt presence or free prose is not attention. "
+            "Generalize the repair from its invariant and do not seek the "
+            "private benchmark source.\n\n"
+            if required_fault_token is not None
+            else "\n"
+        )
     )
     prompt_request = prompt_request_projection(request)
     system = (
@@ -694,9 +721,12 @@ def assemble_legislative_prompt(
     return {
         "system": system,
         "user": user,
-        "request_options": action_request_options(agent, rb),
+        "request_options": action_request_options(
+            agent, rb, required_fault_token=required_fault_token
+        ),
         "canonical_request": request,
         "prompt_request": prompt_request,
+        "required_fault_token": required_fault_token,
         "total_chars": len(system) + len(user),
     }
 
@@ -718,6 +748,7 @@ def agent_turn(conv, rb, meta, collaboration, turn):
     system = assembled["system"]
     base_user = assembled["user"]
     request_options = assembled["request_options"]
+    required_fault_token = assembled["required_fault_token"]
     structured_action = None
     deliberation_fallback = None
     usage = {}
@@ -743,6 +774,13 @@ def agent_turn(conv, rb, meta, collaboration, turn):
         try:
             structured_action, deliberation_fallback = (
                 validate_action_with_deliberation_fallback(text, agent, rb)
+                if required_fault_token is None
+                else validate_action_with_deliberation_fallback(
+                    text,
+                    agent,
+                    rb,
+                    required_fault_token=required_fault_token,
+                )
             )
             break
         except ValidationError as exc:

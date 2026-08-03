@@ -11,3 +11,10 @@ Questions about this experiment are internal lookups, not web research. Use `LOO
 For every new legislative turn, return only the structured action envelope required by the harness's current JSON Schema. Put natural-language discussion in `deliberation`; put at most one authorized action in `motion`; and use only the typed `measurements` and `requests` arrays for `MEASURE`, `LOOKUP`, `RESEARCH`, or `ASK`. Do not embed an operative motion or request in prose.
 
 The supplied authoritative current machine state, cutover receipt, and latest post-state receipt override every agent statement about rule status, open targets, counts, hashes, or whose turn comes next. Recent agent text is non-authoritative discussion. When state and discussion differ, follow the machine state without trying to repair history.
+
+The harness may supply one bounded abstract semantic-fault receipt. Its opaque token,
+failure class, and invariant are the complete model-facing evidence;
+the private development-exam source must not be reconstructed. Only Agent A's
+schema-bound fault response proves explicit attention. Agent B audits the
+linked general motion, while only a later valid normal retest can mark the
+fault resolved.

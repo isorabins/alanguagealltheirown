@@ -14,9 +14,11 @@ from collaboration import (
 )
 from project_lookup import PROJECT_FINDINGS_PREFIX
 from legislative_protocol import (
+    MAX_SEMANTIC_FAULT_PROMPT_CHARS,
     action_request_options,
     build_legislative_request,
     build_post_state_receipt,
+    derive_semantic_fault_ledger,
     prompt_receipt_projection,
     prompt_request_projection,
 )
@@ -265,7 +267,7 @@ class ProjectionUnitTests(unittest.TestCase):
         self.assertIn("unchanged_rule_ids", request.latest_receipt.model_dump())
         self.assertEqual(request.model_dump_json(), canonical_json)
         self.assertIsNone(request_projection["active_legislative_feedback"])
-        self.assertIsNone(request_projection["scoring_v2_failure_feedback"])
+        self.assertIsNone(request_projection["semantic_fault_feedback"])
 
     def test_schema_describes_the_unchanged_substantive_deliberation_boundary(self):
         schema = action_request_options("B", production_book())["response_format"][
@@ -628,16 +630,16 @@ class ActiveLegislativeFeedbackPromptTests(unittest.TestCase):
         self.assertNotIn(stale_focus, assembled["system"])
 
 
-class ScoringV2FailureFeedbackPromptTests(unittest.TestCase):
+class SemanticFaultFeedbackPromptTests(unittest.TestCase):
     def _failure_event(
         self,
         book,
-        turn,
+        turn=1506,
         *,
         benchmark_id="B2",
-        atom_id="B2.01",
-        verdict="CORRUPTED",
-        evidence="Pressure is 225 MPa.",
+        atom_id="B2.04",
+        verdict="MISSING",
+        evidence="",
         language_version=None,
         language_hash=None,
     ):
@@ -657,22 +659,48 @@ class ScoringV2FailureFeedbackPromptTests(unittest.TestCase):
             "meaning_pass": False,
             "answer_key": [
                 {
-                    "id": atom_id,
-                    "meaning": "Pressure must remain exactly 22.5 MPa.",
-                    "critical": True,
+                    "id": f"{benchmark_id}.01",
+                    "meaning": "A noncritical location must not preempt repair work.",
+                    "critical": False,
                 },
                 {
-                    "id": f"{benchmark_id}.02",
-                    "meaning": "A separate source meaning must never reach the prompt.",
-                    "critical": False,
+                    "id": atom_id,
+                    "meaning": "Use routing token ref_8.delta.",
+                    "critical": True,
+                    "required_literals": ["ref_8.delta"],
+                },
+                {
+                    "id": f"{benchmark_id}.19",
+                    "meaning": "The allocation is 2.7 liters of batch QX-41.",
+                    "critical": True,
+                    "required_literals": ["2.7", "liters", "QX-41"],
                 },
             ],
             "atom_results": [
+                {
+                    "id": f"{benchmark_id}.01",
+                    "verdict": "CORRUPTED",
+                    "evidence": "A noncritical location was normalized.",
+                },
                 {"id": atom_id, "verdict": verdict, "evidence": evidence},
                 {
-                    "id": f"{benchmark_id}.02",
-                    "verdict": "SURVIVED",
-                    "evidence": "A separate source meaning must never reach the prompt.",
+                    "id": f"{benchmark_id}.19",
+                    "verdict": "MISSING",
+                    "evidence": "",
+                },
+            ],
+            "critical_failures": [
+                {
+                    "atom_id": atom_id,
+                    "decoded_evidence": evidence,
+                    "expected_meaning": "Use routing token ref_8.delta.",
+                    "verdict": verdict,
+                },
+                {
+                    "atom_id": f"{benchmark_id}.19",
+                    "decoded_evidence": "",
+                    "expected_meaning": "The allocation is 2.7 liters of batch QX-41.",
+                    "verdict": "MISSING",
                 },
             ],
             "original": "RAW_BENCHMARK_SENTINEL " * 100,
@@ -682,112 +710,85 @@ class ScoringV2FailureFeedbackPromptTests(unittest.TestCase):
             "grader_deliberation": "RAW_GRADER_DELIBERATION_SENTINEL " * 100,
         }
 
-    def _assemble(self, events, book, agent):
+    def _eligible_book(self):
+        book = production_book()
+        book["rules"][-1]["status"] = "rejected"
+        return book
+
+    def _assemble(self, events, book, agent, *, turn=1513):
         return loop.assemble_legislative_prompt(
-            events, book, turn=1220, agent=agent, collaboration_input=None
+            events, book, turn=turn, agent=agent, collaboration_input=None
         )
 
-    def test_valid_current_failure_reaches_both_roles_as_one_bounded_receipt(self):
-        book = production_book()
-        request = ActiveLegislativeFeedbackPromptTests()._request_receipt(
-            book, 1209, "Test the exact boundary against one hostile transfer."
-        )
-        failure = self._failure_event(book, 1212)
-        events = [request, failure]
+    def test_eligible_agent_a_gets_one_abstract_schema_bound_fault(self):
+        book = self._eligible_book()
+        events = [self._failure_event(book)]
         book_hash, events_hash = snapshot_hash(book), snapshot_hash(events)
 
         assembled_a = self._assemble(events, book, "A")
-        assembled_b = self._assemble(json.loads(json.dumps(events)), book, "B")
-        expected = {
-            "exam_turn": 1212,
-            "benchmark_id": "B2",
-            "benchmark_version": "v2",
-            "scoring_version": "v2",
-            "language_version": language_payload(book)["version"],
-            "failed_atom_id": "B2.01",
-            "classification": "CORRUPTED",
-            "expected_meaning": "Pressure must remain exactly 22.5 MPa.",
-            "decoded_evidence": "Pressure is 225 MPa.",
-        }
-        for assembled in (assembled_a, assembled_b):
-            projection = assembled["prompt_request"]
-            self.assertEqual(projection["scoring_v2_failure_feedback"], expected)
-            self.assertEqual(
-                projection["active_legislative_feedback"]["focus"],
-                "Test the exact boundary against one hostile transfer.",
-            )
-            self.assertIn(expected["expected_meaning"], assembled["system"])
-            self.assertIn(expected["decoded_evidence"], assembled["system"])
-            self.assertLess(
-                len(json.dumps(projection["scoring_v2_failure_feedback"])), 600
-            )
-            for sentinel in (
-                "RAW_BENCHMARK_SENTINEL",
-                "RAW_ENCODED_SENTINEL",
-                "RAW_DECODED_SENTINEL",
-                "RAW_GRADER_PROMPT_SENTINEL",
-                "RAW_GRADER_DELIBERATION_SENTINEL",
-                "A separate source meaning must never reach the prompt.",
-            ):
-                self.assertNotIn(sentinel, assembled["system"])
+        projection = assembled_a["prompt_request"]["semantic_fault_feedback"]
+        self.assertEqual(
+            set(projection),
+            {"fault_token", "status", "classification", "failure_class", "invariant"},
+        )
+        self.assertEqual(projection["status"], "UNRESOLVED")
+        self.assertEqual(projection["classification"], "MISSING")
+        self.assertEqual(projection["failure_class"], "OPAQUE_IDENTIFIER")
+        self.assertEqual(assembled_a["required_fault_token"], projection["fault_token"])
+        schema = json.dumps(assembled_a["request_options"], sort_keys=True)
+        self.assertIn(projection["fault_token"], schema)
+        self.assertIn("REPAIR_PROPOSED", schema)
+        self.assertLessEqual(
+            len(json.dumps(projection, separators=(",", ":"))),
+            MAX_SEMANTIC_FAULT_PROMPT_CHARS,
+        )
+        for private_value in (
+            "B2.04",
+            "B2.19",
+            "ref_8.delta",
+            "2.7",
+            "liters",
+            "QX-41",
+            "RAW_BENCHMARK_SENTINEL",
+            "RAW_ENCODED_SENTINEL",
+            "RAW_DECODED_SENTINEL",
+            "RAW_GRADER_PROMPT_SENTINEL",
+            "RAW_GRADER_DELIBERATION_SENTINEL",
+        ):
+            self.assertNotIn(private_value, assembled_a["system"])
         self.assertEqual(snapshot_hash(book), book_hash)
         self.assertEqual(snapshot_hash(events), events_hash)
 
-    def test_only_the_latest_qualifying_current_failure_replaces_feedback(self):
+    def test_unrelated_open_motion_settles_without_fault_preemption(self):
         book = production_book()
-        older = self._failure_event(book, 1208, benchmark_id="B1", atom_id="B1.01")
-        invalid = self._failure_event(book, 1210)
+        assembled = self._assemble([self._failure_event(book)], book, "B", turn=1511)
+        self.assertIsNone(assembled["prompt_request"]["semantic_fault_feedback"])
+        self.assertIsNone(assembled["required_fault_token"])
+
+    def test_invalid_legacy_and_malformed_correlations_fail_closed(self):
+        book = self._eligible_book()
+        invalid = self._failure_event(book, 1506)
         invalid.update({"judge_valid": False, "judge_status": "INVALID JUDGE RESULT"})
-        legacy = self._failure_event(book, 1211)
+        legacy = self._failure_event(book, 1507)
         legacy.update({"era": "benchmark-v1", "benchmark_version": "v1", "scoring_version": "v1"})
-        mismatched = self._failure_event(book, 1212, language_version="0.older", language_hash="f" * 64)
+        malformed = self._failure_event(book, 1508)
+        malformed["critical_failures"][0]["atom_id"] = "B3.99"
 
-        retained = self._assemble([older, invalid, legacy, mismatched], book, "A")
-        self.assertEqual(
-            retained["prompt_request"]["scoring_v2_failure_feedback"]["exam_turn"], 1208
-        )
+        assembled = self._assemble([invalid, legacy, malformed], book, "A")
 
-        newer = self._failure_event(
-            book,
-            1213,
-            benchmark_id="B3",
-            atom_id="B3.04",
-            verdict="MISSING",
-            evidence="",
-        )
-        replaced = self._assemble([older, invalid, legacy, mismatched, newer], book, "B")
-        feedback = replaced["prompt_request"]["scoring_v2_failure_feedback"]
-        self.assertEqual(feedback["exam_turn"], 1213)
-        self.assertEqual(feedback["failed_atom_id"], "B3.04")
-        self.assertEqual(feedback["classification"], "MISSING")
-        self.assertEqual(feedback["decoded_evidence"], "")
-
-    def test_invalid_legacy_or_mismatched_evidence_never_becomes_current_feedback(self):
-        book = production_book()
-        invalid = self._failure_event(book, 1210)
-        invalid.update({"judge_valid": False, "judge_status": "INVALID JUDGE RESULT"})
-        legacy = self._failure_event(book, 1211)
-        legacy.update({"era": "benchmark-v1", "benchmark_version": "v1", "scoring_version": "v1"})
-        mismatched = self._failure_event(book, 1212, language_version="0.older", language_hash="e" * 64)
-
-        assembled = self._assemble([invalid, legacy, mismatched], book, "A")
-
-        self.assertIsNone(assembled["prompt_request"]["scoring_v2_failure_feedback"])
+        self.assertIsNone(assembled["prompt_request"]["semantic_fault_feedback"])
         self.assertNotIn("INVALID JUDGE RESULT", assembled["system"])
         self.assertNotIn("RAW_BENCHMARK_SENTINEL", assembled["system"])
 
-    def test_hostile_decoded_evidence_is_bounded_without_replaying_the_decode(self):
-        book = production_book()
-        evidence = "Evidence begins with the corrupted pressure value. " + (
-            "RAW_DECODED_TAIL_SENTINEL " * 100
+    def test_language_hash_change_does_not_drop_private_queue(self):
+        book = self._eligible_book()
+        event = self._failure_event(
+            book, 1506, language_version="adopted-before", language_hash="a" * 64
         )
-        assembled = self._assemble([self._failure_event(book, 1212, evidence=evidence)], book, "A")
-
-        feedback = assembled["prompt_request"]["scoring_v2_failure_feedback"]
-        self.assertLessEqual(len(feedback["decoded_evidence"]), 500)
-        self.assertTrue(feedback["decoded_evidence"].startswith("Evidence begins"))
-        self.assertTrue(feedback["decoded_evidence"].endswith("… [truncated]"))
-        self.assertNotIn("RAW_DECODED_TAIL_SENTINEL " * 100, assembled["system"])
+        ledger = derive_semantic_fault_ledger([event])
+        assembled = self._assemble([event], book, "A")
+        self.assertEqual(len(ledger), 2)
+        self.assertIsNotNone(assembled["prompt_request"]["semantic_fault_feedback"])
 
 
 class ProductionShapedPromptTests(unittest.TestCase):

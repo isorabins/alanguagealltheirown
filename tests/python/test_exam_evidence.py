@@ -1,3 +1,4 @@
+import copy
 import json
 import hashlib
 import unittest
@@ -5,7 +6,14 @@ from pathlib import Path
 from unittest import mock
 
 import loop
-from rulebook import language_payload
+from legislative_protocol import (
+    build_post_state_receipt,
+    derive_semantic_fault_ledger,
+    select_semantic_fault_for_turn,
+    validate_action,
+)
+from rulebook import apply_typed_motion, language_payload
+from state_store import snapshot_hash
 
 ROOT = Path(__file__).parents[2]
 
@@ -105,15 +113,12 @@ class EvidenceTests(unittest.TestCase):
         language = language_payload(json.loads(
             (ROOT / "tests/fixtures/mixed-rulebook.json").read_text()
         ))
-        feedback = loop.derive_scoring_v2_failure_feedback(
-            [valid_event],
-            language_version=language["version"],
-            language_hash=language["hash"],
+        ledger = loop.derive_semantic_fault_ledger([valid_event])
+        fault = next(
+            entry for entry in ledger if entry.latest_source.atom_id == target_id
         )
-        self.assertIsNotNone(feedback)
-        self.assertEqual(feedback.failed_atom_id, target_id)
-        self.assertEqual(feedback.classification, "CORRUPTED")
-        self.assertEqual(feedback.decoded_evidence, corrupted_evidence)
+        self.assertEqual(fault.classification, "CORRUPTED")
+        self.assertEqual(fault.latest_source.decoded_evidence, corrupted_evidence)
 
     def test_production_evidence_patterns_use_harness_owned_contiguous_spans(self):
         cases = (
@@ -231,13 +236,13 @@ class EvidenceTests(unittest.TestCase):
     def test_b1_dropped_currency_symbol_is_visible_to_the_grader(self):
         self._assert_literal_loss_reaches_grader(
             benchmark_id="B1", target_id="B1.03", literal="$48",
-            replacement="48", turn=1350,
+            replacement="48", turn=1506,
         )
 
     def test_b2_compacted_vessel_identifier_is_visible_to_the_grader(self):
         self._assert_literal_loss_reaches_grader(
             benchmark_id="B2", target_id="B2.01", literal="C-18A",
-            replacement="c18a", turn=1353,
+            replacement="c18a", turn=1509,
         )
 
     def test_corpus_receipt_does_not_mutate_legacy_rule_scores(self):
@@ -395,6 +400,281 @@ class EvidenceTests(unittest.TestCase):
     def test_answer_key_numbering_is_normalized_before_grading(self):
         self.assertEqual(loop.normalize_answer_key("1. first fact\n- second fact\n* third fact"),
                          ["first fact","second fact","third fact"])
+
+
+class SemanticFaultLedgerTests(unittest.TestCase):
+    def _fault_event(self, *, turn=1506, verdict="MISSING", evidence=""):
+        return {
+            "turn": turn,
+            "agent": "harness",
+            "type": "test",
+            "era": "benchmark-v2",
+            "benchmark_id": "B2",
+            "benchmark_version": "v2",
+            "scoring_version": "v2",
+            "language_version": "adopted-a",
+            "language_hash": "a" * 64,
+            "judge_valid": True,
+            "judge_status": "VALID",
+            "meaning_pass": verdict == "SURVIVED",
+            "answer_key": [
+                {
+                    "id": "B2.04",
+                    "meaning": "Use routing token ref_8.delta.",
+                    "critical": True,
+                    "required_literals": ["ref_8.delta"],
+                }
+            ],
+            "atom_results": [
+                {"id": "B2.04", "verdict": verdict, "evidence": evidence}
+            ],
+            "critical_failures": (
+                []
+                if verdict == "SURVIVED"
+                else [
+                    {
+                        "atom_id": "B2.04",
+                        "decoded_evidence": evidence,
+                        "expected_meaning": "Use routing token ref_8.delta.",
+                        "verdict": verdict,
+                    }
+                ]
+            ),
+            "original": "PRIVATE ORIGINAL",
+            "encoded": "PRIVATE ENCODED",
+            "decoded": "PRIVATE DECODED",
+        }
+
+    def _book(self):
+        return {"version": "0.0", "changes": 0, "next_id": 1, "rules": []}
+
+    def _legislative_event(
+        self,
+        book,
+        *,
+        turn,
+        role,
+        payload,
+        required_fault_token=None,
+    ):
+        before = copy.deepcopy(book)
+        action = validate_action(
+            payload,
+            role,
+            book,
+            required_fault_token=required_fault_token,
+        )
+        motion_receipt = apply_typed_motion(
+            action.motion, book, turn, role, action.deliberation
+        )
+        if motion_receipt.changed:
+            book["version"] = f"0.{book['changes'] + 1}"
+            book["changes"] += 1
+        post_state = build_post_state_receipt(
+            turn=turn,
+            role=role,
+            action=action,
+            result="accepted" if motion_receipt.accepted else "rejected",
+            reason=motion_receipt.reason,
+            before_rulebook=before,
+            after_rulebook=book,
+            next_actor="A" if role == "B" else "B",
+            attempts=1,
+        )
+        return {
+            "turn": turn,
+            "agent": "harness",
+            "type": "legislature",
+            "protocol": "structured-legislature-v1",
+            "motion_receipt": motion_receipt.dict(),
+            "post_state_receipt": post_state.model_dump(mode="json"),
+        }
+
+    def _linked_proposal(self):
+        exam = self._fault_event()
+        token = derive_semantic_fault_ledger([exam])[0].fault_token
+        book = self._book()
+        proposal = self._legislative_event(
+            book,
+            turn=1507,
+            role="A",
+            required_fault_token=token,
+            payload={
+                "deliberation": "Public proposal: preserve this general invariant.",
+                "motion": {
+                    "kind": "PROPOSE",
+                    "text": "Preserve opaque identifiers exactly, including punctuation and case.",
+                },
+                "fault_response": {
+                    "status": "REPAIR_PROPOSED",
+                    "fault_token": token,
+                },
+                "measurements": [],
+                "requests": [],
+            },
+        )
+        return exam, proposal, book
+
+    def test_proposal_request_reject_and_adopt_follow_canonical_receipts(self):
+        exam, proposal, request_book = self._linked_proposal()
+        proposed = derive_semantic_fault_ledger([exam, proposal])[0]
+        self.assertEqual(proposed.status, "REPAIR_PROPOSED")
+        self.assertEqual(proposed.linked_motion_rule_id, "rule-001")
+
+        request = self._legislative_event(
+            request_book,
+            turn=1508,
+            role="B",
+            payload={
+                "deliberation": "Public audit: verify the punctuation boundary.",
+                "motion": {
+                    "kind": "REQUEST",
+                    "target_rule_id": "rule-001",
+                    "focus": "Test punctuation and case on one hostile opaque identifier.",
+                },
+                "measurements": [],
+                "requests": [],
+            },
+        )
+        requested = derive_semantic_fault_ledger([exam, proposal, request])[0]
+        self.assertEqual(requested.status, "REPAIR_PROPOSED")
+        self.assertEqual(requested.linked_motion_rule_id, "rule-001")
+
+        exam, proposal, reject_book = self._linked_proposal()
+        rejected_event = self._legislative_event(
+            reject_book,
+            turn=1508,
+            role="B",
+            payload={
+                "deliberation": "Public audit: reject the proposed boundary.",
+                "motion": {"kind": "REJECT", "target_rule_id": "rule-001"},
+                "measurements": [],
+                "requests": [],
+            },
+        )
+        rejected = derive_semantic_fault_ledger(
+            [exam, proposal, rejected_event]
+        )[0]
+        self.assertEqual(rejected.status, "UNRESOLVED")
+
+        exam, proposal, adopt_book = self._linked_proposal()
+        adopted_event = self._legislative_event(
+            adopt_book,
+            turn=1508,
+            role="B",
+            payload={
+                "deliberation": "Public audit: adopt the general identifier boundary.",
+                "motion": {"kind": "ADOPT", "target_rule_id": "rule-001"},
+                "measurements": [],
+                "requests": [],
+            },
+        )
+        adopted = derive_semantic_fault_ledger(
+            [exam, proposal, adopted_event]
+        )[0]
+        self.assertEqual(adopted.status, "PENDING_RETEST")
+        self.assertEqual(adopted.adoption_turn, 1508)
+
+    def test_only_later_valid_same_atom_retest_can_resolve_or_reactivate(self):
+        exam, proposal, book = self._linked_proposal()
+        adopted_event = self._legislative_event(
+            book,
+            turn=1508,
+            role="B",
+            payload={
+                "deliberation": "Public audit: adopt the general identifier boundary.",
+                "motion": {"kind": "ADOPT", "target_rule_id": "rule-001"},
+                "measurements": [],
+                "requests": [],
+            },
+        )
+        base = [exam, proposal, adopted_event]
+
+        invalid = self._fault_event(turn=1509, verdict="SURVIVED", evidence="ref_8.delta")
+        invalid.update({"judge_valid": False, "judge_status": "INVALID JUDGE RESULT"})
+        self.assertEqual(
+            derive_semantic_fault_ledger(base + [invalid])[0].status,
+            "PENDING_RETEST",
+        )
+
+        other = self._fault_event(turn=1509, verdict="SURVIVED", evidence="ref_8.delta")
+        other["benchmark_id"] = "B3"
+        other["answer_key"][0]["id"] = "B3.04"
+        other["atom_results"][0]["id"] = "B3.04"
+        self.assertEqual(
+            derive_semantic_fault_ledger(base + [other])[0].status,
+            "PENDING_RETEST",
+        )
+
+        survived = self._fault_event(
+            turn=1509, verdict="SURVIVED", evidence="ref_8.delta"
+        )
+        resolved = derive_semantic_fault_ledger(base + [survived])[0]
+        self.assertEqual(resolved.status, "RESOLVED")
+        self.assertEqual(resolved.resolved_turn, 1509)
+
+        failed = self._fault_event(turn=1512)
+        reactivated = derive_semantic_fault_ledger(base + [failed])[0]
+        self.assertEqual(reactivated.status, "UNRESOLVED")
+        self.assertEqual(reactivated.last_failure_turn, 1512)
+
+    def test_turn_1506_to_1510_production_trace_keeps_critical_queue_private(self):
+        canonical = json.loads((ROOT / "state/conversation.json").read_text())
+        events = [
+            copy.deepcopy(event)
+            for event in canonical
+            if 1506 <= int(event.get("turn", -1)) <= 1510
+        ]
+        events_hash = snapshot_hash(events)
+        first_exam = next(
+            event for event in events
+            if event.get("turn") == 1506 and event.get("type") == "test"
+        )
+        later_exam = next(
+            event for event in events
+            if event.get("turn") == 1509 and event.get("type") == "test"
+        )
+        first_critical_ids = {
+            failure["atom_id"] for failure in first_exam["critical_failures"]
+        }
+
+        # Reproduce the broken reader: the first failed atom is noncritical.
+        old_choice = next(
+            item for item in later_exam["atom_results"]
+            if item["verdict"] in {"MISSING", "CORRUPTED"}
+        )
+        key_row = next(
+            atom for atom in later_exam["answer_key"] if atom["id"] == old_choice["id"]
+        )
+        self.assertFalse(key_row["critical"])
+
+        ledger = derive_semantic_fault_ledger(events)
+        ledger_ids = {entry.latest_source.atom_id for entry in ledger}
+        self.assertTrue(first_critical_ids.issubset(ledger_ids))
+        self.assertNotIn(old_choice["id"], ledger_ids)
+        self.assertTrue(all(entry.status == "UNRESOLVED" for entry in ledger))
+        self.assertEqual(
+            ledger[0].latest_source.atom_id,
+            first_exam["critical_failures"][0]["atom_id"],
+        )
+        self.assertEqual(
+            ledger[1].latest_source.atom_id,
+            first_exam["critical_failures"][1]["atom_id"],
+        )
+        selected = select_semantic_fault_for_turn(
+            ledger, role="A", open_motion=None
+        )
+        self.assertEqual(selected.fault_token, ledger[0].fault_token)
+        self.assertEqual(
+            [entry.model_dump(mode="json") for entry in ledger],
+            [
+                entry.model_dump(mode="json")
+                for entry in derive_semantic_fault_ledger(
+                    json.loads(json.dumps(events))
+                )
+            ],
+        )
+        self.assertEqual(snapshot_hash(events), events_hash)
 
 
 if __name__ == "__main__": unittest.main()
