@@ -106,7 +106,9 @@ class FaultResponse(StrictModel):
     """Typed proof that Agent A associated one proposal with one private fault."""
 
     status: Literal["REPAIR_PROPOSED"]
-    fault_token: str = Field(min_length=16, max_length=40, pattern=r"fault-[0-9a-f]+")
+    fault_token: str = Field(
+        min_length=16, max_length=40, pattern=r"^fault-[0-9a-f]+$"
+    )
 
 
 RecordedMotion = Annotated[
@@ -176,7 +178,7 @@ class SemanticFaultEvidence(StrictModel):
     atom_id: str = Field(min_length=1, max_length=80)
     classification: Literal["MISSING", "CORRUPTED"]
     expected_meaning: str = Field(min_length=1, max_length=500)
-    required_literals: list[str] = Field(default_factory=list, max_length=30)
+    required_literal_sets: list[list[str]] = Field(default_factory=list, max_length=30)
     decoded_evidence: str
     original: str
     encoded: str
@@ -197,7 +199,9 @@ class SemanticFaultLedgerEntry(StrictModel):
     """One event-sourced critical semantic fault and its honest lifecycle."""
 
     source_identity: str = Field(min_length=1, max_length=200)
-    fault_token: str = Field(min_length=16, max_length=40, pattern=r"fault-[0-9a-f]+")
+    fault_token: str = Field(
+        min_length=16, max_length=40, pattern=r"^fault-[0-9a-f]+$"
+    )
     first_failure_turn: int = Field(ge=SEMANTIC_FAULT_CUTOVER_TURN)
     last_failure_turn: int = Field(ge=SEMANTIC_FAULT_CUTOVER_TURN)
     classification: Literal["MISSING", "CORRUPTED"]
@@ -214,7 +218,9 @@ class SemanticFaultLedgerEntry(StrictModel):
 class SemanticFaultFeedback(StrictModel):
     """The only semantic-fault data allowed into a model request."""
 
-    fault_token: str = Field(min_length=16, max_length=40, pattern=r"fault-[0-9a-f]+")
+    fault_token: str = Field(
+        min_length=16, max_length=40, pattern=r"^fault-[0-9a-f]+$"
+    )
     status: Literal["UNRESOLVED", "REPAIR_PROPOSED"]
     classification: Literal["MISSING", "CORRUPTED"]
     failure_class: FailureClass
@@ -883,7 +889,10 @@ def _semantic_fault_token(source_identity: str) -> str:
     return f"fault-{digest[:24]}"
 
 
-def _validated_v2_exam(event: dict[str, Any]) -> dict[str, Any] | None:
+def _validated_v2_exam(
+    event: dict[str, Any],
+    canonical_atoms: dict[tuple[str, str], dict[str, Any]],
+) -> dict[str, Any] | None:
     """Return a fully correlated judge-valid V2 exam or fail closed."""
     turn = event.get("turn")
     required_strings = (
@@ -932,10 +941,28 @@ def _validated_v2_exam(event: dict[str, Any]) -> dict[str, Any] | None:
             and type(atom.get("critical")) is bool
         ):
             return None
-        required_literals = atom.get("required_literals", [])
+        literal_sets = atom.get("literal_sets")
+        canonical_atom = canonical_atoms.get((event["benchmark_id"], atom["id"]))
+        if canonical_atoms:
+            if not (
+                isinstance(canonical_atom, dict)
+                and canonical_atom.get("meaning") == atom["meaning"]
+                and canonical_atom.get("critical") is atom["critical"]
+            ):
+                return None
+            canonical_literal_sets = canonical_atom.get("literal_sets")
+            if literal_sets is None:
+                literal_sets = canonical_literal_sets
+            elif literal_sets != canonical_literal_sets:
+                return None
         if not (
-            isinstance(required_literals, list)
-            and all(isinstance(value, str) for value in required_literals)
+            isinstance(literal_sets, list)
+            and all(
+                isinstance(group, list)
+                and group
+                and all(isinstance(value, str) and value for value in group)
+                for group in literal_sets
+            )
         ):
             return None
         key_ids.append(atom["id"])
@@ -944,7 +971,7 @@ def _validated_v2_exam(event: dict[str, Any]) -> dict[str, Any] | None:
                 "id": atom["id"],
                 "meaning": atom["meaning"],
                 "critical": atom["critical"],
-                "required_literals": list(required_literals),
+                "literal_sets": copy.deepcopy(literal_sets),
             }
         )
     if len(key_ids) != len(set(key_ids)):
@@ -1025,7 +1052,7 @@ def _source_evidence(
         atom_id=atom["id"],
         classification=failure["verdict"],
         expected_meaning=atom["meaning"],
-        required_literals=copy.deepcopy(atom["required_literals"]),
+        required_literal_sets=copy.deepcopy(atom["literal_sets"]),
         decoded_evidence=failure["decoded_evidence"],
         original=event["original"],
         encoded=event["encoded"],
@@ -1077,7 +1104,10 @@ def _apply_exam_to_fault_ledger(
         existing.failure_class, existing.invariant = _generalize_semantic_fault(
             source.expected_meaning
         )
-        existing.status = "UNRESOLVED"
+        if existing.status != "REPAIR_PROPOSED":
+            # A fresh failure updates provenance, but an unsettled linked
+            # proposal remains the active repair after B requests revision.
+            existing.status = "UNRESOLVED"
         existing.resolved_turn = None
         existing.latest_source = source
 
@@ -1175,6 +1205,8 @@ def _apply_legislature_to_fault_ledger(
         return
     if receipt.current_open_motion is not None:
         return
+    if receipt.reason != "motion_applied":
+        return
     if isinstance(motion, RejectMotion):
         entry.status = "UNRESOLVED"
         entry.adoption_turn = None
@@ -1187,13 +1219,30 @@ def _apply_legislature_to_fault_ledger(
 
 def derive_semantic_fault_ledger(
     events: list[dict[str, Any]],
+    *,
+    benchmark_suite: dict[str, Any] | None = None,
 ) -> list[SemanticFaultLedgerEntry]:
-    """Reconstruct the bounded private ledger from canonical events only."""
+    """Reconstruct the private ledger, backfilling literals from frozen V2 data."""
+    canonical_atoms: dict[tuple[str, str], dict[str, Any]] = {}
+    if isinstance(benchmark_suite, dict) and benchmark_suite.get("version") == "v2":
+        rows = benchmark_suite.get("benchmarks")
+        if isinstance(rows, list):
+            for row in rows:
+                if not isinstance(row, dict) or not isinstance(row.get("id"), str):
+                    canonical_atoms = {}
+                    break
+                atoms = row.get("answer_key")
+                if not isinstance(atoms, list):
+                    canonical_atoms = {}
+                    break
+                for atom in atoms:
+                    if isinstance(atom, dict) and isinstance(atom.get("id"), str):
+                        canonical_atoms[(row["id"], atom["id"])] = copy.deepcopy(atom)
     ledger: dict[str, SemanticFaultLedgerEntry] = {}
     for event in events:
         if not isinstance(event, dict):
             continue
-        exam = _validated_v2_exam(event)
+        exam = _validated_v2_exam(event, canonical_atoms)
         if exam is not None:
             _apply_exam_to_fault_ledger(ledger, exam)
         elif event.get("type") == "legislature":

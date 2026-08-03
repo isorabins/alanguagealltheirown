@@ -662,18 +662,19 @@ class SemanticFaultFeedbackPromptTests(unittest.TestCase):
                     "id": f"{benchmark_id}.01",
                     "meaning": "A noncritical location must not preempt repair work.",
                     "critical": False,
+                    "literal_sets": [],
                 },
                 {
                     "id": atom_id,
                     "meaning": "Use routing token ref_8.delta.",
                     "critical": True,
-                    "required_literals": ["ref_8.delta"],
+                    "literal_sets": [["ref_8.delta"]],
                 },
                 {
                     "id": f"{benchmark_id}.19",
                     "meaning": "The allocation is 2.7 liters of batch QX-41.",
                     "critical": True,
-                    "required_literals": ["2.7", "liters", "QX-41"],
+                    "literal_sets": [["2.7"], ["liters"], ["QX-41"]],
                 },
             ],
             "atom_results": [
@@ -716,9 +717,20 @@ class SemanticFaultFeedbackPromptTests(unittest.TestCase):
         return book
 
     def _assemble(self, events, book, agent, *, turn=1513):
-        return loop.assemble_legislative_prompt(
-            events, book, turn=turn, agent=agent, collaboration_input=None
-        )
+        exam = next(event for event in events if event.get("type") == "test")
+        suite = {
+            "version": "v2",
+            "benchmarks": [
+                {
+                    "id": exam["benchmark_id"],
+                    "answer_key": copy.deepcopy(exam["answer_key"]),
+                }
+            ],
+        }
+        with mock.patch("loop.load_benchmark_suite", return_value=suite):
+            return loop.assemble_legislative_prompt(
+                events, book, turn=turn, agent=agent, collaboration_input=None
+            )
 
     def test_eligible_agent_a_gets_one_abstract_schema_bound_fault(self):
         book = self._eligible_book()

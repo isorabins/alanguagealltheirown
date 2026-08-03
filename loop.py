@@ -596,7 +596,7 @@ def assemble_legislative_prompt(
         conv, current_open_motion(rb)
     )
     semantic_fault = select_semantic_fault_for_turn(
-        derive_semantic_fault_ledger(conv),
+        derive_semantic_fault_ledger(conv, benchmark_suite=load_benchmark_suite()),
         role=agent,
         open_motion=current_open_motion(rb),
     )
@@ -1176,7 +1176,9 @@ def test_turn(conv, rb, meta, turn):
              "benchmark_version": suite["version"], "benchmark_cycle": benchmark_cycle,
              "benchmark_source_turn": benchmark["source_turn"],
              "answer_key": [{"id": atom["id"], "meaning": atom["meaning"],
-                              "critical": atom["critical"]} for atom in key],
+                              "critical": atom["critical"],
+                              "literal_sets": copy.deepcopy(atom["literal_sets"])}
+                             for atom in key],
              "prior_valid_v2_turn": previous.get("turn") if previous else None}
     event.update(audit)
     conv.append(event)

@@ -8,6 +8,7 @@ from unittest import mock
 import loop
 from legislative_protocol import (
     build_post_state_receipt,
+    current_open_motion,
     derive_semantic_fault_ledger,
     select_semantic_fault_for_turn,
     validate_action,
@@ -422,7 +423,7 @@ class SemanticFaultLedgerTests(unittest.TestCase):
                     "id": "B2.04",
                     "meaning": "Use routing token ref_8.delta.",
                     "critical": True,
-                    "required_literals": ["ref_8.delta"],
+                    "literal_sets": [["ref_8.delta"]],
                 }
             ],
             "atom_results": [
@@ -540,6 +541,59 @@ class SemanticFaultLedgerTests(unittest.TestCase):
         self.assertEqual(requested.status, "REPAIR_PROPOSED")
         self.assertEqual(requested.linked_motion_rule_id, "rule-001")
 
+        refreshed_failure = self._fault_event(turn=1509)
+        refreshed = derive_semantic_fault_ledger(
+            [exam, proposal, request, refreshed_failure]
+        )[0]
+        self.assertEqual(refreshed.status, "REPAIR_PROPOSED")
+        self.assertEqual(refreshed.last_failure_turn, 1509)
+        self.assertEqual(
+            select_semantic_fault_for_turn(
+                [refreshed],
+                role="A",
+                open_motion=current_open_motion(request_book),
+            ).fault_token,
+            refreshed.fault_token,
+        )
+        revision = self._legislative_event(
+            request_book,
+            turn=1510,
+            role="A",
+            payload={
+                "deliberation": "Public proposal: tighten the identifier boundary.",
+                "motion": {
+                    "kind": "REVISE",
+                    "target_rule_id": "rule-001",
+                    "text": "Preserve opaque identifiers and all internal punctuation exactly.",
+                },
+                "measurements": [],
+                "requests": [],
+            },
+        )
+        adopt_after_revision = self._legislative_event(
+            request_book,
+            turn=1511,
+            role="B",
+            payload={
+                "deliberation": "Public audit: adopt the revised general boundary.",
+                "motion": {"kind": "ADOPT", "target_rule_id": "rule-001"},
+                "measurements": [],
+                "requests": [],
+            },
+        )
+        after_interleaving = derive_semantic_fault_ledger(
+            [
+                exam,
+                proposal,
+                request,
+                refreshed_failure,
+                revision,
+                adopt_after_revision,
+            ]
+        )[0]
+        self.assertEqual(after_interleaving.status, "PENDING_RETEST")
+        self.assertEqual(after_interleaving.adoption_turn, 1511)
+
         exam, proposal, reject_book = self._linked_proposal()
         rejected_event = self._legislative_event(
             reject_book,
@@ -618,6 +672,46 @@ class SemanticFaultLedgerTests(unittest.TestCase):
         self.assertEqual(reactivated.status, "UNRESOLVED")
         self.assertEqual(reactivated.last_failure_turn, 1512)
 
+    def test_state_machine_noop_cannot_claim_repair_proposed(self):
+        exam = self._fault_event()
+        token = derive_semantic_fault_ledger([exam])[0].fault_token
+        duplicate_text = (
+            "Preserve opaque identifiers exactly, including punctuation and case."
+        )
+        book = {
+            "version": "0.1",
+            "changes": 1,
+            "next_id": 2,
+            "rules": [
+                {
+                    "id": "rule-001",
+                    "text_en": duplicate_text,
+                    "status": "adopted",
+                    "history": [],
+                }
+            ],
+        }
+        noop = self._legislative_event(
+            book,
+            turn=1507,
+            role="A",
+            required_fault_token=token,
+            payload={
+                "deliberation": "Public proposal: repeat the existing identifier rule.",
+                "motion": {"kind": "PROPOSE", "text": duplicate_text},
+                "fault_response": {
+                    "status": "REPAIR_PROPOSED",
+                    "fault_token": token,
+                },
+                "measurements": [],
+                "requests": [],
+            },
+        )
+        self.assertEqual(noop["post_state_receipt"]["result"], "rejected")
+        ledger = derive_semantic_fault_ledger([exam, noop])
+        self.assertEqual(ledger[0].status, "UNRESOLVED")
+        self.assertIsNone(ledger[0].linked_motion_rule_id)
+
     def test_turn_1506_to_1510_production_trace_keeps_critical_queue_private(self):
         canonical = json.loads((ROOT / "state/conversation.json").read_text())
         events = [
@@ -647,8 +741,26 @@ class SemanticFaultLedgerTests(unittest.TestCase):
             atom for atom in later_exam["answer_key"] if atom["id"] == old_choice["id"]
         )
         self.assertFalse(key_row["critical"])
+        self.assertEqual(old_choice["id"], "B4.01")
+        turn_1510_message = next(
+            event for event in events
+            if event.get("turn") == 1510 and event.get("type") == "message"
+        )
+        turn_1510_receipt = next(
+            event for event in events
+            if event.get("turn") == 1510 and event.get("type") == "legislature"
+        )
+        self.assertIn(old_choice["id"], turn_1510_message["content"])
+        self.assertEqual(
+            turn_1510_message["structured_action"]["motion"]["kind"], "PROPOSE"
+        )
+        self.assertEqual(
+            turn_1510_receipt["post_state_receipt"]["current_open_motion"]["target_rule_id"],
+            turn_1510_receipt["motion_receipt"]["rule_id"],
+        )
 
-        ledger = derive_semantic_fault_ledger(events)
+        suite = loop.load_benchmark_suite()
+        ledger = derive_semantic_fault_ledger(events, benchmark_suite=suite)
         ledger_ids = {entry.latest_source.atom_id for entry in ledger}
         self.assertTrue(first_critical_ids.issubset(ledger_ids))
         self.assertNotIn(old_choice["id"], ledger_ids)
@@ -661,6 +773,17 @@ class SemanticFaultLedgerTests(unittest.TestCase):
             ledger[1].latest_source.atom_id,
             first_exam["critical_failures"][1]["atom_id"],
         )
+        suite_atoms = {
+            atom["id"]: atom
+            for row in suite["benchmarks"]
+            if row["id"] == first_exam["benchmark_id"]
+            for atom in row["answer_key"]
+        }
+        for entry in ledger[:2]:
+            self.assertEqual(
+                entry.latest_source.required_literal_sets,
+                suite_atoms[entry.latest_source.atom_id]["literal_sets"],
+            )
         selected = select_semantic_fault_for_turn(
             ledger, role="A", open_motion=None
         )
@@ -670,11 +793,50 @@ class SemanticFaultLedgerTests(unittest.TestCase):
             [
                 entry.model_dump(mode="json")
                 for entry in derive_semantic_fault_ledger(
-                    json.loads(json.dumps(events))
+                    json.loads(json.dumps(events)), benchmark_suite=suite
                 )
             ],
         )
         self.assertEqual(snapshot_hash(events), events_hash)
+
+        # The eligible prompt uses the exact production B3 source internally,
+        # but none of its answer material crosses the model boundary.
+        settled_book = json.loads((ROOT / "state/rulebook.json").read_text())
+        open_rule = next(rule for rule in settled_book["rules"] if rule["id"] == "rule-176")
+        open_rule["status"] = "rejected"
+        assembled = loop.assemble_legislative_prompt(
+            [event for event in events if event.get("turn") <= 1509],
+            settled_book,
+            turn=1513,
+            agent="A",
+            collaboration_input=None,
+        )
+        self.assertIsNotNone(
+            assembled["prompt_request"]["semantic_fault_feedback"]
+        )
+        private_values = {
+            first_exam["benchmark_id"],
+            first_exam["original"],
+            first_exam["encoded"],
+            first_exam["decoded"],
+        }
+        for failure in first_exam["critical_failures"]:
+            private_values.add(failure["atom_id"])
+            private_values.add(failure["expected_meaning"])
+            if failure["decoded_evidence"]:
+                private_values.add(failure["decoded_evidence"])
+            for group in suite_atoms[failure["atom_id"]]["literal_sets"]:
+                private_values.update(group)
+        new_fault_surface = json.dumps(
+            {
+                "feedback": assembled["prompt_request"]["semantic_fault_feedback"],
+                "schema": assembled["request_options"],
+            },
+            ensure_ascii=False,
+            sort_keys=True,
+        )
+        for private_value in private_values:
+            self.assertNotIn(private_value, new_fault_surface)
 
 
 if __name__ == "__main__": unittest.main()
