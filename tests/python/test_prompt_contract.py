@@ -44,10 +44,11 @@ class PromptContractTests(unittest.TestCase):
         prompt = (ROOT / "prompts/grader_v2.md").read_text()
         for phrase in (
             "one verdict",
-            "exact, contiguous, non-empty span",
-            "For MISSING, `evidence` must be the empty string",
-            "rejects fabricated or",
-            "absent spans and deterministically checks practical literals",
+            "inclusive start and end line numbers",
+            "The harness copies those raw lines itself",
+            "For MISSING, `evidence_lines` must be the empty array",
+            "malformed or out-of-range references",
+            "range must include at least one listed line",
         ):
             self.assertIn(phrase, prompt)
 

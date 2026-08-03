@@ -944,8 +944,18 @@ def normalize_answer_key(raw):
             if re.sub(r"^\s*(?:[-*•]|\d+[.)])\s*", "", str(line)).strip()]
 
 
+def _numbered_decoded(decoded):
+    """Return a stable one-based view of decoded lines for the judge."""
+    lines = decoded.splitlines()
+    return "\n".join(
+        f"{line_number:04d}: {line}"
+        for line_number, line in enumerate(lines, start=1)
+    )
+
+
 def _grader_answer_key(answer_key, decoded):
     """Expose exact-literal requirements and deterministic decode preflight."""
+    decoded_lines = decoded.splitlines()
     projected = []
     for atom in answer_key:
         literal_sets = copy.deepcopy(atom["literal_sets"])
@@ -957,8 +967,89 @@ def _grader_answer_key(answer_key, decoded):
                 alternatives for alternatives in literal_sets
                 if not _literal_set_survives(decoded, alternatives)
             ],
+            "literal_set_lines": [
+                [
+                    line_number
+                    for line_number, line in enumerate(decoded_lines, start=1)
+                    if _literal_set_survives(line, alternatives)
+                ]
+                for alternatives in literal_sets
+            ],
         })
     return projected
+
+
+def _materialize_grader_evidence(grade, decoded):
+    """Resolve judge-selected line ranges into exact spans owned by the harness."""
+    if not isinstance(grade, dict):
+        return grade, None
+    items = grade.get("items")
+    inventions = grade.get("inventions")
+    if not isinstance(items, list) or not isinstance(inventions, list):
+        return grade, None
+
+    decoded_lines = decoded.splitlines()
+    materialized = copy.deepcopy(grade)
+
+    def resolve(entry, *, identity, missing_allowed):
+        if not isinstance(entry, dict):
+            return f"invalid_evidence_line_range:{identity}"
+        evidence_lines = entry.pop("evidence_lines", None)
+        if missing_allowed and evidence_lines == []:
+            entry["evidence"] = ""
+            return None
+        if (
+            not isinstance(evidence_lines, list)
+            or len(evidence_lines) != 2
+            or any(
+                isinstance(value, bool) or not isinstance(value, int)
+                for value in evidence_lines
+            )
+        ):
+            return f"invalid_evidence_line_range:{identity}"
+        start, end = evidence_lines
+        if start < 1 or end < start or end > len(decoded_lines):
+            return f"invalid_evidence_line_range:{identity}"
+        entry["evidence"] = "\n".join(decoded_lines[start - 1:end])
+        return None
+
+    for item in materialized["items"]:
+        identity = item.get("id", "unknown") if isinstance(item, dict) else "unknown"
+        missing_allowed = isinstance(item, dict) and item.get("verdict") == "MISSING"
+        reason = resolve(item, identity=identity, missing_allowed=missing_allowed)
+        if reason:
+            return grade, reason
+    for index, invention in enumerate(materialized["inventions"], start=1):
+        reason = resolve(
+            invention,
+            identity=f"invention-{index}",
+            missing_allowed=False,
+        )
+        if reason:
+            return grade, reason
+    return materialized, None
+
+
+def _invalid_judge_diagnostic(grade, reason):
+    """Retain only the rejected reference needed to explain an invalid result."""
+    diagnostic = {"reason": reason}
+    atom_id = reason.split(":", 1)[1] if ":" in reason else None
+    items = grade.get("items") if isinstance(grade, dict) else None
+    if atom_id and isinstance(items, list):
+        item = next(
+            (
+                candidate for candidate in items
+                if isinstance(candidate, dict) and candidate.get("id") == atom_id
+            ),
+            None,
+        )
+        if item:
+            diagnostic.update({
+                "atom_id": atom_id,
+                "verdict": item.get("verdict"),
+                "evidence_lines": copy.deepcopy(item.get("evidence_lines")),
+            })
+    return diagnostic
 
 
 def test_turn(conv, rb, meta, turn):
@@ -985,8 +1076,12 @@ def test_turn(conv, rb, meta, turn):
     savings_pct = -delta
     grade_sys = (ROOT / "prompts" / "grader_v2.md").read_text()
     if key:
+        numbered_decoded = _numbered_decoded(decoded.strip())
         key_txt = json.dumps(_grader_answer_key(key, decoded.strip()), ensure_ascii=False)
-        grade_user = f"ORIGINAL:\n{payload}\n\nATOMIC ANSWER KEY:\n{key_txt}\n\nDECODED:\n{decoded.strip()}"
+        grade_user = (
+            f"ORIGINAL:\n{payload}\n\nATOMIC ANSWER KEY:\n{key_txt}"
+            f"\n\nNUMBERED DECODED:\n{numbered_decoded}"
+        )
         graded, _ = call(MODEL_GRADER, grade_sys, grade_user, max_tokens=4000, temperature=0, meta=meta)
         gm = re.search(r"\{.*\}", graded, re.S)
         try:
@@ -997,7 +1092,20 @@ def test_turn(conv, rb, meta, turn):
         g = {}
     audit = {}
     if key:
-        scored = score_judgment_v2(key, g, decoded.strip(), savings_pct)
+        materialized_grade, evidence_reason = _materialize_grader_evidence(
+            g, decoded.strip()
+        )
+        if evidence_reason:
+            scored = {
+                "valid": False,
+                "status": "INVALID JUDGE RESULT",
+                "reason": evidence_reason,
+                "scoring_version": "v2",
+            }
+        else:
+            scored = score_judgment_v2(
+                key, materialized_grade, decoded.strip(), savings_pct
+            )
         audit = {
             "judge_valid": scored["valid"], "judge_status": scored["status"],
             "judge_reason": scored["reason"], "atom_results": scored.get("items", []),
@@ -1008,6 +1116,10 @@ def test_turn(conv, rb, meta, turn):
             "critical_failures": scored.get("critical_failures", []),
             "inventions": scored.get("inventions", []),
         }
+        if not scored["valid"]:
+            audit["judge_diagnostic"] = _invalid_judge_diagnostic(
+                g, scored["reason"]
+            )
     else:
         scored = {"valid": False, "status": "INVALID JUDGE RESULT", "reason": "answer_key_unavailable"}
         audit = {"judge_valid": False, "judge_status": scored["status"],
