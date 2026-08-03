@@ -14,8 +14,12 @@ class EvidenceTests(unittest.TestCase):
     def _valid_grade(self, benchmark):
         decoded = "\n".join(atom["meaning"] for atom in benchmark["answer_key"])
         grade = {"mode": "RELAY", "items": [
-            {"id": atom["id"], "verdict": "SURVIVED", "evidence": atom["meaning"]}
-            for atom in benchmark["answer_key"]
+            {
+                "id": atom["id"],
+                "verdict": "SURVIVED",
+                "evidence_lines": [line_number, line_number],
+            }
+            for line_number, atom in enumerate(benchmark["answer_key"], start=1)
         ], "inventions": []}
         return decoded, grade
 
@@ -39,9 +43,9 @@ class EvidenceTests(unittest.TestCase):
                 {
                     "id": atom["id"],
                     "verdict": verdict if atom["id"] == target_id else "SURVIVED",
-                    "evidence": corrupted_evidence if atom["id"] == target_id else atom["meaning"],
+                    "evidence_lines": [line_number, line_number],
                 }
-                for atom in benchmark["answer_key"]
+                for line_number, atom in enumerate(benchmark["answer_key"], start=1)
             ], "inventions": []}
             calls = []
 
@@ -72,7 +76,7 @@ class EvidenceTests(unittest.TestCase):
         invalid_event, grader_call = run("SURVIVED")
         grader_system, grader_user = grader_call[1], grader_call[2]
         key_json = grader_user.split("ATOMIC ANSWER KEY:\n", 1)[1].split(
-            "\n\nDECODED:\n", 1
+            "\n\nNUMBERED DECODED:\n", 1
         )[0]
         grader_key = json.loads(key_json)
         self.assertEqual(
@@ -81,12 +85,14 @@ class EvidenceTests(unittest.TestCase):
         )
         projected_target = next(atom for atom in grader_key if atom["id"] == target_id)
         self.assertEqual(projected_target["missing_literal_sets"], [[literal]])
+        self.assertEqual(projected_target["literal_set_lines"], [[]])
         self.assertIn("SURVIVED is forbidden", grader_system)
         self.assertIn("CORRUPTED", grader_system)
         self.assertIn("MISSING", grader_system)
         self.assertFalse(invalid_event["judge_valid"])
         self.assertEqual(invalid_event["judge_status"], "INVALID JUDGE RESULT")
         self.assertEqual(invalid_event["judge_reason"], f"deterministic_conflict:{target_id}")
+        self.assertEqual(invalid_event["judge_diagnostic"]["atom_id"], target_id)
 
         valid_event, _ = run("CORRUPTED")
         self.assertTrue(valid_event["judge_valid"])
@@ -108,6 +114,119 @@ class EvidenceTests(unittest.TestCase):
         self.assertEqual(feedback.failed_atom_id, target_id)
         self.assertEqual(feedback.classification, "CORRUPTED")
         self.assertEqual(feedback.decoded_evidence, corrupted_evidence)
+
+    def test_production_evidence_patterns_use_harness_owned_contiguous_spans(self):
+        cases = (
+            (
+                "B2.12",
+                "Weld-Series Gamma is the longitudinal seam.",
+                [["Weld-Series Gamma"]],
+                "Before re-test, inspect Weld-Series Gamma.\n"
+                "This is the longitudinal seam fabricated by Arclight.",
+                [1, 2],
+            ),
+            (
+                "B4.28",
+                "The perishables in Bay 3 are confirmed intact.",
+                [["Bay 3"]],
+                "Temperature in Bay 3 held steady at 34°F; perishables are intact.",
+                [1, 1],
+            ),
+            (
+                "B4.26",
+                "The final summary to Erica includes the action taken on each unit.",
+                [["Erica"]],
+                "Final summary to Erica: include action taken on each freezer-coil unit.",
+                [1, 1],
+            ),
+        )
+        for atom_id, meaning, literal_sets, decoded, evidence_lines in cases:
+            with self.subTest(atom_id=atom_id):
+                raw_grade = {
+                    "mode": "RELAY",
+                    "items": [{
+                        "id": atom_id,
+                        "verdict": "SURVIVED",
+                        "evidence_lines": evidence_lines,
+                    }],
+                    "inventions": [],
+                }
+                materialized, reason = loop._materialize_grader_evidence(
+                    raw_grade, decoded
+                )
+                self.assertIsNone(reason)
+                result = loop.score_judgment_v2(
+                    [{
+                        "id": atom_id,
+                        "meaning": meaning,
+                        "critical": True,
+                        "literal_sets": literal_sets,
+                    }],
+                    materialized,
+                    decoded,
+                    20,
+                )
+                self.assertTrue(result["valid"])
+                self.assertTrue(result["meaning_pass"])
+                self.assertIn(
+                    literal_sets[0][0],
+                    result["items"][0]["evidence"],
+                )
+
+    def test_malformed_or_legacy_evidence_references_fail_closed(self):
+        decoded = "Line one.\nLine two."
+        for evidence_lines in (
+            None, [0, 1], [2, 1], [1, 3], [True, 1], ["1", 1], [1], [1, 2, 3]
+        ):
+            with self.subTest(evidence_lines=evidence_lines):
+                item = {"id": "B1.01", "verdict": "SURVIVED"}
+                if evidence_lines is None:
+                    item["evidence"] = "Line one."
+                else:
+                    item["evidence_lines"] = evidence_lines
+                _, reason = loop._materialize_grader_evidence(
+                    {"mode": "RELAY", "items": [item], "inventions": []},
+                    decoded,
+                )
+                self.assertEqual(reason, "invalid_evidence_line_range:B1.01")
+
+    def test_deterministic_evidence_keeps_real_language_losses_failed(self):
+        decoded = (
+            "Use prescription map.\n"
+            "If TX-88773 is over 475 gigabits, pause env:staging dataflows."
+        )
+        raw_grade = {
+            "mode": "RELAY",
+            "items": [
+                {"id": "B3.10", "verdict": "MISSING", "evidence_lines": []},
+                {"id": "B5.26", "verdict": "CORRUPTED", "evidence_lines": [2, 2]},
+            ],
+            "inventions": [],
+        }
+        materialized, reason = loop._materialize_grader_evidence(raw_grade, decoded)
+        self.assertIsNone(reason)
+        result = loop.score_judgment_v2(
+            [
+                {
+                    "id": "B3.10", "meaning": "Use tag v4_final.",
+                    "critical": True, "literal_sets": [["v4_final"]],
+                },
+                {
+                    "id": "B5.26", "meaning": "Pause dataflows tagged env: staging.",
+                    "critical": True, "literal_sets": [["env: staging"]],
+                },
+            ],
+            materialized,
+            decoded,
+            20,
+        )
+        self.assertTrue(result["valid"])
+        self.assertFalse(result["meaning_pass"])
+        self.assertEqual(result["semantic_coverage_pct"], 0)
+        self.assertEqual(
+            [failure["atom_id"] for failure in result["critical_failures"]],
+            ["B3.10", "B5.26"],
+        )
 
     def test_b1_dropped_currency_symbol_is_visible_to_the_grader(self):
         self._assert_literal_loss_reaches_grader(
