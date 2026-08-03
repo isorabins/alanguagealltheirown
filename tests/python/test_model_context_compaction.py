@@ -734,6 +734,7 @@ class SemanticFaultFeedbackPromptTests(unittest.TestCase):
 
     def test_eligible_agent_a_gets_one_abstract_schema_bound_fault(self):
         book = self._eligible_book()
+        book["rules"][0]["text_en"] += " Example private token ref_8.delta."
         events = [self._failure_event(book)]
         book_hash, events_hash = snapshot_hash(book), snapshot_hash(events)
 
@@ -768,6 +769,11 @@ class SemanticFaultFeedbackPromptTests(unittest.TestCase):
             "RAW_GRADER_DELIBERATION_SENTINEL",
         ):
             self.assertNotIn(private_value, assembled_a["system"])
+        self.assertIn(
+            loop.PRIVATE_FAULT_PROMPT_REDACTION,
+            assembled_a["system"],
+        )
+        self.assertIn(render_language(book).splitlines()[0], assembled_a["system"])
         self.assertEqual(snapshot_hash(book), book_hash)
         self.assertEqual(snapshot_hash(events), events_hash)
 
@@ -801,6 +807,30 @@ class SemanticFaultFeedbackPromptTests(unittest.TestCase):
         assembled = self._assemble([event], book, "A")
         self.assertEqual(len(ledger), 2)
         self.assertIsNotNone(assembled["prompt_request"]["semantic_fault_feedback"])
+
+    def test_prompt_withholds_only_nonresolved_fault_material(self):
+        book = self._eligible_book()
+        event = self._failure_event(book)
+        ledger = derive_semantic_fault_ledger([event])
+        ledger[0].status = "RESOLVED"
+        book["rules"][0]["text_en"] = (
+            "A resolved historical example retains ref_8.delta in the full view."
+        )
+        book["rules"][1]["text_en"] = (
+            "A queued private example contains 2.7 liters of batch QX-41."
+        )
+        book_hash = snapshot_hash(book)
+
+        with mock.patch(
+            "loop.derive_semantic_fault_ledger", return_value=ledger
+        ):
+            assembled = self._assemble([event], book, "A")
+
+        self.assertIn("ref_8.delta", assembled["system"])
+        self.assertNotIn("2.7", assembled["system"])
+        self.assertNotIn("QX-41", assembled["system"])
+        self.assertIn(loop.PRIVATE_FAULT_PROMPT_REDACTION, assembled["system"])
+        self.assertEqual(snapshot_hash(book), book_hash)
 
 
 class ProductionShapedPromptTests(unittest.TestCase):

@@ -802,8 +802,11 @@ class SemanticFaultLedgerTests(unittest.TestCase):
         # The eligible prompt uses the exact production B3 source internally,
         # but none of its answer material crosses the model boundary.
         settled_book = json.loads((ROOT / "state/rulebook.json").read_text())
-        open_rule = next(rule for rule in settled_book["rules"] if rule["id"] == "rule-176")
-        open_rule["status"] = "rejected"
+        for rule in settled_book["rules"]:
+            if rule.get("status") == "proposed":
+                rule["status"] = "rejected"
+            rule.pop("pending_repeal", None)
+        settled_book_hash = snapshot_hash(settled_book)
         assembled = loop.assemble_legislative_prompt(
             [event for event in events if event.get("turn") <= 1509],
             settled_book,
@@ -829,6 +832,8 @@ class SemanticFaultLedgerTests(unittest.TestCase):
                 private_values.update(group)
         new_fault_surface = json.dumps(
             {
+                "system": assembled["system"],
+                "user": assembled["user"],
                 "feedback": assembled["prompt_request"]["semantic_fault_feedback"],
                 "schema": assembled["request_options"],
             },
@@ -837,6 +842,8 @@ class SemanticFaultLedgerTests(unittest.TestCase):
         )
         for private_value in private_values:
             self.assertNotIn(private_value, new_fault_surface)
+        self.assertEqual(snapshot_hash(settled_book), settled_book_hash)
+        self.assertIn(loop.PRIVATE_FAULT_PROMPT_REDACTION, assembled["system"])
 
 
 if __name__ == "__main__": unittest.main()

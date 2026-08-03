@@ -59,6 +59,9 @@ TEST_EVERY = 3      # every Nth turn is a test turn
 WINDOW = 30         # conversation events each agent sees
 MAX_TEST_AUDIT_CATEGORY_CHARS = 320
 MAX_TEST_GRADER_LOSS_CHARS = 600
+PRIVATE_FAULT_PROMPT_REDACTION = (
+    "[private validation-overlapping text withheld from this legislative prompt]"
+)
 SPEND_CAP = 25.00   # dollars, hard stop across all runs — anomaly tripwire, ~50 days at gloves-off burn
 AGENT_TEMP = 0.9
 COST_LEDGER_SCHEMA_VERSION = 1
@@ -595,8 +598,11 @@ def assemble_legislative_prompt(
     active_feedback = derive_active_legislative_feedback(
         conv, current_open_motion(rb)
     )
+    fault_ledger = derive_semantic_fault_ledger(
+        conv, benchmark_suite=load_benchmark_suite()
+    )
     semantic_fault = select_semantic_fault_for_turn(
-        derive_semantic_fault_ledger(conv, benchmark_suite=load_benchmark_suite()),
+        fault_ledger,
         role=agent,
         open_motion=current_open_motion(rb),
     )
@@ -697,10 +703,20 @@ def assemble_legislative_prompt(
         )
     )
     prompt_request = prompt_request_projection(request)
+    if semantic_fault is not None:
+        prompt_request = _projection_without_private_fault_material(
+            prompt_request, fault_ledger
+        )
+        prompt_language, prompt_legislature = (
+            _rulebook_views_without_private_fault_material(rb, fault_ledger)
+        )
+    else:
+        prompt_language = render_language(rb)
+        prompt_legislature = render_legislature(rb)
     system = (
         f"{output_contract}{constitution}\n\n{role_prompt}\n\n"
-        f"=== ADOPTED LANGUAGE ===\n{render_language(rb)}\n\n"
-        f"=== COMPLETE LEGISLATURE ===\n{render_legislature(rb)}\n\n"
+        f"=== ADOPTED LANGUAGE ===\n{prompt_language}\n\n"
+        f"=== COMPLETE LEGISLATURE ===\n{prompt_legislature}\n\n"
         f"=== AUTHORITATIVE CURRENT MACHINE STATE AND RECEIPT ===\n"
         f"{json.dumps(prompt_request, ensure_ascii=False, separators=(',', ':'))}"
     )
@@ -729,6 +745,78 @@ def assemble_legislative_prompt(
         "required_fault_token": required_fault_token,
         "total_chars": len(system) + len(user),
     }
+
+
+def _private_fault_material(fault_ledger):
+    """Return exact source strings that must never share a model prompt."""
+    material = set()
+    for entry in fault_ledger:
+        if entry.status == "RESOLVED":
+            continue
+        source = entry.latest_source
+        material.update(
+            {
+                source.benchmark_id,
+                source.atom_id,
+                source.expected_meaning,
+                source.decoded_evidence,
+                source.original,
+                source.encoded,
+                source.decoded,
+            }
+        )
+        material.update(
+            literal
+            for alternatives in source.required_literal_sets
+            for literal in alternatives
+        )
+    return tuple(sorted((value for value in material if value), key=len, reverse=True))
+
+
+def _contains_private_fault_material(value, material):
+    return isinstance(value, str) and any(private in value for private in material)
+
+
+def _projection_without_private_fault_material(value, fault_ledger):
+    """Redact a complete model-only field if it overlaps exact private evidence."""
+    material = _private_fault_material(fault_ledger)
+    if isinstance(value, dict):
+        return {
+            key: _projection_without_private_fault_material(item, fault_ledger)
+            for key, item in value.items()
+        }
+    if isinstance(value, list):
+        return [
+            _projection_without_private_fault_material(item, fault_ledger)
+            for item in value
+        ]
+    if _contains_private_fault_material(value, material):
+        return PRIVATE_FAULT_PROMPT_REDACTION
+    return value
+
+
+def _rulebook_views_without_private_fault_material(rb, fault_ledger):
+    """Conceal contaminated prose without changing canonical view metadata."""
+    prompt_language = render_language(rb)
+    prompt_legislature = render_legislature(rb)
+    material = _private_fault_material(fault_ledger)
+    for rule in rb.get("rules", []):
+        text = rule.get("text_en")
+        if _contains_private_fault_material(text, material):
+            prompt_language = prompt_language.replace(
+                text, PRIVATE_FAULT_PROMPT_REDACTION
+            )
+            prompt_legislature = prompt_legislature.replace(
+                text, PRIVATE_FAULT_PROMPT_REDACTION
+            )
+        pending = rule.get("pending_repeal")
+        if isinstance(pending, dict) and _contains_private_fault_material(
+            pending.get("rationale"), material
+        ):
+            prompt_legislature = prompt_legislature.replace(
+                pending["rationale"], PRIVATE_FAULT_PROMPT_REDACTION
+            )
+    return prompt_language, prompt_legislature
 
 
 def agent_turn(conv, rb, meta, collaboration, turn):
