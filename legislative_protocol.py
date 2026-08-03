@@ -2,7 +2,9 @@
 from __future__ import annotations
 
 import copy
+import hashlib
 import json
+import re
 from functools import reduce
 from operator import or_
 from typing import Annotated, Any, Literal, Union
@@ -22,10 +24,22 @@ from state_store import snapshot_hash
 
 PROTOCOL_VERSION = "structured-legislature-v1"
 MAX_STRUCTURAL_RETRIES = 2
-MAX_SCORING_V2_FEEDBACK_EVIDENCE_CHARS = 500
+SEMANTIC_FAULT_CUTOVER_TURN = 1506
+MAX_SEMANTIC_FAULT_PROMPT_CHARS = 500
 
 Role = Literal["A", "B"]
 ActionResultKind = Literal["accepted", "rejected", "structural_failure", "cutover"]
+FaultLifecycle = Literal[
+    "UNRESOLVED", "REPAIR_PROPOSED", "PENDING_RETEST", "RESOLVED"
+]
+FailureClass = Literal[
+    "OPAQUE_IDENTIFIER",
+    "QUANTIFIED_BUNDLE",
+    "MEASURED_VALUE",
+    "TEMPORAL_CONSTRAINT",
+    "EXACT_LABEL",
+    "SEMANTIC_RELATIONSHIP",
+]
 Deliberation = Annotated[
     str,
     Field(
@@ -88,6 +102,15 @@ class RequestMotion(StrictModel):
     focus: str = Field(min_length=12, max_length=1000)
 
 
+class FaultResponse(StrictModel):
+    """Typed proof that Agent A associated one proposal with one private fault."""
+
+    status: Literal["REPAIR_PROPOSED"]
+    fault_token: str = Field(
+        min_length=16, max_length=40, pattern=r"^fault-[0-9a-f]+$"
+    )
+
+
 RecordedMotion = Annotated[
     Union[
         ProposeMotion,
@@ -104,6 +127,7 @@ RecordedMotion = Annotated[
 class LegislativeAction(StrictModel):
     deliberation: Deliberation
     motion: RecordedMotion | None
+    fault_response: FaultResponse | None = None
     measurements: list[MeasurementRequest] = Field(max_length=2)
     requests: list[CollaborationRequest] = Field(max_length=3)
 
@@ -123,6 +147,8 @@ class RecordedLegislativeAction(StrictModel):
 
     deliberation: str = Field(max_length=4000)
     motion: RecordedMotion | None
+    # Historical structured receipts predate semantic-fault attention.
+    fault_response: FaultResponse | None = None
     measurements: list[MeasurementRequest] = Field(max_length=2)
     requests: list[CollaborationRequest] = Field(max_length=3)
 
@@ -142,25 +168,69 @@ class ActiveLegislativeFeedback(StrictModel):
     request_turn: int = Field(ge=0)
 
 
-class ScoringV2FailureFeedback(StrictModel):
-    """One bounded, current-language Scoring V2 failure for legislators."""
+class SemanticFaultEvidence(StrictModel):
+    """Exact audit evidence retained only in the internal event projection."""
 
-    exam_turn: int = Field(ge=0)
+    exam_turn: int = Field(ge=SEMANTIC_FAULT_CUTOVER_TURN)
     benchmark_id: str = Field(min_length=1, max_length=32)
     benchmark_version: Literal["v2"]
     scoring_version: Literal["v2"]
-    language_version: str = Field(min_length=1, max_length=80)
-    failed_atom_id: str = Field(min_length=1, max_length=80)
+    atom_id: str = Field(min_length=1, max_length=80)
     classification: Literal["MISSING", "CORRUPTED"]
     expected_meaning: str = Field(min_length=1, max_length=500)
-    decoded_evidence: str = Field(max_length=MAX_SCORING_V2_FEEDBACK_EVIDENCE_CHARS)
+    required_literal_sets: list[list[str]] = Field(default_factory=list, max_length=30)
+    decoded_evidence: str
+    original: str
+    encoded: str
+    decoded: str
+    language_version: str = Field(min_length=1, max_length=80)
+    language_hash: str = Field(min_length=64, max_length=64)
 
     @model_validator(mode="after")
-    def evidence_matches_classification(self) -> "ScoringV2FailureFeedback":
+    def evidence_matches_classification(self) -> "SemanticFaultEvidence":
         if self.classification == "MISSING" and self.decoded_evidence:
-            raise ValueError("missing feedback cannot carry decoded evidence")
+            raise ValueError("missing fault evidence cannot carry decoded evidence")
         if self.classification == "CORRUPTED" and not self.decoded_evidence:
-            raise ValueError("corrupted feedback requires decoded evidence")
+            raise ValueError("corrupted fault evidence requires decoded evidence")
+        return self
+
+
+class SemanticFaultLedgerEntry(StrictModel):
+    """One event-sourced critical semantic fault and its honest lifecycle."""
+
+    source_identity: str = Field(min_length=1, max_length=200)
+    fault_token: str = Field(
+        min_length=16, max_length=40, pattern=r"^fault-[0-9a-f]+$"
+    )
+    first_failure_turn: int = Field(ge=SEMANTIC_FAULT_CUTOVER_TURN)
+    last_failure_turn: int = Field(ge=SEMANTIC_FAULT_CUTOVER_TURN)
+    classification: Literal["MISSING", "CORRUPTED"]
+    failure_class: FailureClass
+    invariant: str = Field(min_length=12, max_length=240)
+    status: FaultLifecycle
+    linked_motion_rule_id: str | None = None
+    repair_proposed_turn: int | None = Field(default=None, ge=0)
+    adoption_turn: int | None = Field(default=None, ge=0)
+    resolved_turn: int | None = Field(default=None, ge=0)
+    latest_source: SemanticFaultEvidence
+
+
+class SemanticFaultFeedback(StrictModel):
+    """The only semantic-fault data allowed into a model request."""
+
+    fault_token: str = Field(
+        min_length=16, max_length=40, pattern=r"^fault-[0-9a-f]+$"
+    )
+    status: Literal["UNRESOLVED", "REPAIR_PROPOSED"]
+    classification: Literal["MISSING", "CORRUPTED"]
+    failure_class: FailureClass
+    invariant: str = Field(min_length=12, max_length=240)
+
+    @model_validator(mode="after")
+    def serialized_receipt_is_bounded(self) -> "SemanticFaultFeedback":
+        serialized = json.dumps(self.model_dump(mode="json"), separators=(",", ":"))
+        if len(serialized) > MAX_SEMANTIC_FAULT_PROMPT_CHARS:
+            raise ValueError("semantic fault prompt receipt exceeds its explicit bound")
         return self
 
 
@@ -219,7 +289,7 @@ class LegislativeRequest(StrictModel):
     current_state: CanonicalLegislativeState
     latest_receipt: PostStateReceipt | None
     active_legislative_feedback: ActiveLegislativeFeedback | None
-    scoring_v2_failure_feedback: ScoringV2FailureFeedback | None
+    semantic_fault_feedback: SemanticFaultFeedback | None
     collaboration_input: dict[str, Any] | None
 
 
@@ -268,6 +338,15 @@ def _targeted_motion(base: type[StrictModel], target_ids: list[str]) -> type[Str
     )
 
 
+def _targeted_fault_response(fault_token: str) -> type[StrictModel]:
+    token_suffix = fault_token.removeprefix("fault-")
+    return create_model(
+        f"FaultResponse_{token_suffix}",
+        __base__=FaultResponse,
+        fault_token=(Literal.__getitem__((fault_token,)), ...),
+    )
+
+
 def _motion_union(
     motion_types: list[type[StrictModel]], *, allow_none: bool
 ) -> Any:
@@ -283,10 +362,15 @@ def _motion_union(
 
 
 def state_specific_action_model(
-    role: Role, rulebook: dict[str, Any]
+    role: Role,
+    rulebook: dict[str, Any],
+    *,
+    required_fault_token: str | None = None,
 ) -> type[_ActionEnvelopeBase]:
     """Create the Pydantic action model authorized by the current role and state."""
     open_motion = current_open_motion(rulebook)
+    if required_fault_token is not None and (role != "A" or open_motion is not None):
+        raise ValueError("a fault response is required only for eligible Agent A state")
     motion_types: list[type[StrictModel]]
     state_name: str
     if role == "A":
@@ -302,9 +386,13 @@ def state_specific_action_model(
                 if rule.get("status") == "adopted"
             ]
             motion_types = [ProposeMotion]
-            if adopted_ids:
+            if adopted_ids and required_fault_token is None:
                 motion_types.append(_targeted_motion(RepealMotion, adopted_ids))
-            state_name = "no_open_motion"
+            state_name = (
+                f"fault_{required_fault_token.removeprefix('fault-')}"
+                if required_fault_token is not None
+                else "no_open_motion"
+            )
     elif role == "B":
         if open_motion:
             target_ids = [open_motion.target_rule_id]
@@ -326,18 +414,32 @@ def state_specific_action_model(
         motion=(
             _motion_union(
                 motion_types,
-                allow_none=not (role == "B" and open_motion is not None),
+                allow_none=not (
+                    (role == "B" and open_motion is not None)
+                    or required_fault_token is not None
+                ),
             ),
             ...,
         ),
+        fault_response=(
+            _targeted_fault_response(required_fault_token), ...
+        )
+        if required_fault_token is not None
+        else (type(None), None),
     )
 
 
 def validate_action(
-    payload: str | bytes | dict[str, Any], role: Role, rulebook: dict[str, Any]
+    payload: str | bytes | dict[str, Any],
+    role: Role,
+    rulebook: dict[str, Any],
+    *,
+    required_fault_token: str | None = None,
 ) -> _ActionEnvelopeBase:
     """Strictly validate provider output against the current state-specific model."""
-    model = state_specific_action_model(role, rulebook)
+    model = state_specific_action_model(
+        role, rulebook, required_fault_token=required_fault_token
+    )
     if isinstance(payload, (str, bytes)):
         return model.model_validate_json(payload, strict=True)
     return model.model_validate(payload, strict=True)
@@ -383,6 +485,8 @@ def validate_action_with_deliberation_fallback(
     payload: str | bytes | dict[str, Any],
     role: Role,
     rulebook: dict[str, Any],
+    *,
+    required_fault_token: str | None = None,
 ) -> tuple[_ActionEnvelopeBase, dict[str, Any] | None]:
     """Repair only a missing or malformed public deliberation field.
 
@@ -391,7 +495,12 @@ def validate_action_with_deliberation_fallback(
     sentence is substituted.
     """
     try:
-        return validate_action(payload, role, rulebook), None
+        return validate_action(
+            payload,
+            role,
+            rulebook,
+            required_fault_token=required_fault_token,
+        ), None
     except ValidationError as original_error:
         allowed_errors = {
             "missing",
@@ -417,9 +526,19 @@ def validate_action_with_deliberation_fallback(
         # before replacing the invalid non-operative public sentence.
         candidate = copy.deepcopy(parsed)
         candidate["deliberation"] = "Public validation placeholder."
-        validated = validate_action(candidate, role, rulebook)
+        validated = validate_action(
+            candidate,
+            role,
+            rulebook,
+            required_fault_token=required_fault_token,
+        )
         candidate["deliberation"] = _deterministic_deliberation(role, validated)
-        repaired = validate_action(candidate, role, rulebook)
+        repaired = validate_action(
+            candidate,
+            role,
+            rulebook,
+            required_fault_token=required_fault_token,
+        )
         return repaired, {
             "applied": True,
             "source": "harness_deterministic_deliberation",
@@ -427,11 +546,24 @@ def validate_action_with_deliberation_fallback(
         }
 
 
-def action_request_options(role: Role, rulebook: dict[str, Any]) -> dict[str, Any]:
+def action_request_options(
+    role: Role,
+    rulebook: dict[str, Any],
+    *,
+    required_fault_token: str | None = None,
+) -> dict[str, Any]:
     """Return OpenRouter's strict JSON Schema and compatible-provider requirement."""
-    model = state_specific_action_model(role, rulebook)
+    model = state_specific_action_model(
+        role, rulebook, required_fault_token=required_fault_token
+    )
     open_motion = current_open_motion(rulebook)
-    state = open_motion.target_rule_id if open_motion else "none"
+    state = (
+        open_motion.target_rule_id
+        if open_motion
+        else f"fault_{required_fault_token.removeprefix('fault-')}"
+        if required_fault_token
+        else "none"
+    )
     return {
         "response_format": {
             "type": "json_schema",
@@ -518,9 +650,9 @@ def prompt_request_projection(request: LegislativeRequest) -> dict[str, Any]:
             if request.active_legislative_feedback is not None
             else None
         ),
-        "scoring_v2_failure_feedback": (
-            request.scoring_v2_failure_feedback.model_dump(mode="json")
-            if request.scoring_v2_failure_feedback is not None
+        "semantic_fault_feedback": (
+            request.semantic_fault_feedback.model_dump(mode="json")
+            if request.semantic_fault_feedback is not None
             else None
         ),
         "collaboration_input": request.collaboration_input,
@@ -609,7 +741,7 @@ def build_legislative_request(
     latest_receipt: PostStateReceipt | dict[str, Any] | None,
     collaboration_input: dict[str, Any] | None,
     active_legislative_feedback: ActiveLegislativeFeedback | dict[str, Any] | None = None,
-    scoring_v2_failure_feedback: ScoringV2FailureFeedback | dict[str, Any] | None = None,
+    semantic_fault_feedback: SemanticFaultFeedback | dict[str, Any] | None = None,
 ) -> LegislativeRequest:
     receipt = (
         latest_receipt
@@ -633,13 +765,13 @@ def build_legislative_request(
             if active_legislative_feedback is not None
             else None
         ),
-        scoring_v2_failure_feedback=(
-            scoring_v2_failure_feedback
-            if isinstance(scoring_v2_failure_feedback, ScoringV2FailureFeedback)
-            else ScoringV2FailureFeedback.model_validate(
-                scoring_v2_failure_feedback, strict=True
+        semantic_fault_feedback=(
+            semantic_fault_feedback
+            if isinstance(semantic_fault_feedback, SemanticFaultFeedback)
+            else SemanticFaultFeedback.model_validate(
+                semantic_fault_feedback, strict=True
             )
-            if scoring_v2_failure_feedback is not None
+            if semantic_fault_feedback is not None
             else None
         ),
         collaboration_input=collaboration_input,
@@ -695,71 +827,465 @@ def derive_active_legislative_feedback(
     return None
 
 
-def derive_scoring_v2_failure_feedback(
-    events: list[dict[str, Any]], *, language_version: str, language_hash: str
-) -> ScoringV2FailureFeedback | None:
-    """Project the latest inspectable current-language Scoring V2 atom failure.
+_OPAQUE_IDENTIFIER_RE = re.compile(
+    r"(?:\b[A-Za-z0-9]+_[A-Za-z0-9_.-]+\b|\b[A-Z]{2,}[A-Z0-9]*-\d+[A-Z0-9-]*\b|#[A-Za-z0-9-]+)"
+)
+_MEASURED_VALUE_RE = re.compile(
+    r"\b\d+(?:\.\d+)?\s*(?:%|ppm|kg(?:/ha)?|kilograms?|(?:metric\s+)?tonnes?|tons?|liters?|litres?|lbs?|pounds?|hours?|minutes?|°[FC])\b",
+    re.IGNORECASE,
+)
+_TEMPORAL_RE = re.compile(
+    r"(?:\b\d{1,2}:\d{2}\b|\b(?:a\.?m\.?|p\.?m\.?)\b|\b(?:monday|tuesday|wednesday|thursday|friday|saturday|sunday)\b|\b(?:before|after|until|deadline)\b)",
+    re.IGNORECASE,
+)
+_EXACT_LABEL_RE = re.compile(r"[\"'“”‘’][^\"'“”‘’]{1,80}[\"'“”‘’]")
 
-    Exam events remain canonical and may retain the full benchmark artifact. This
-    reader emits only a single bounded failure receipt for the prompt and fails
-    closed when an event does not prove every required correlation or field.
-    """
-    for event in reversed(events):
+
+def _generalize_semantic_fault(expected_meaning: str) -> tuple[FailureClass, str]:
+    """Classify literal shape without carrying any source value into the prompt."""
+    has_identifier = _OPAQUE_IDENTIFIER_RE.search(expected_meaning) is not None
+    has_measurement = _MEASURED_VALUE_RE.search(expected_meaning) is not None
+    if has_identifier and has_measurement:
+        return (
+            "QUANTIFIED_BUNDLE",
+            "Preserve every quantity, unit, opaque identifier, and relationship in a measured allocation as one complete bundle.",
+        )
+    if _TEMPORAL_RE.search(expected_meaning):
+        return (
+            "TEMPORAL_CONSTRAINT",
+            "Preserve complete times, ranges, deadlines, and their ordering relationships without normalizing away precision.",
+        )
+    if has_measurement:
+        return (
+            "MEASURED_VALUE",
+            "Preserve numeric precision, units, thresholds, and comparison direction as one complete measured fact.",
+        )
+    if has_identifier:
+        return (
+            "OPAQUE_IDENTIFIER",
+            "Preserve opaque identifiers exactly, including internal punctuation, digits, case, and their semantic role.",
+        )
+    if _EXACT_LABEL_RE.search(expected_meaning):
+        return (
+            "EXACT_LABEL",
+            "Preserve exact labels and their attachment to the entity or location they identify.",
+        )
+    return (
+        "SEMANTIC_RELATIONSHIP",
+        "Preserve the complete critical fact and the relationships between its entities, actions, and constraints.",
+    )
+
+
+def _semantic_fault_identity(
+    *, scoring_version: str, benchmark_version: str, benchmark_id: str, atom_id: str
+) -> str:
+    return f"{scoring_version}:{benchmark_version}:{benchmark_id}:{atom_id}"
+
+
+def _semantic_fault_token(source_identity: str) -> str:
+    digest = hashlib.sha256(
+        f"alato-semantic-fault-v1\0{source_identity}".encode("utf-8")
+    ).hexdigest()
+    return f"fault-{digest[:24]}"
+
+
+def _validated_v2_exam(
+    event: dict[str, Any],
+    canonical_atoms: dict[tuple[str, str], dict[str, Any]],
+) -> dict[str, Any] | None:
+    """Return a fully correlated judge-valid V2 exam or fail closed."""
+    turn = event.get("turn")
+    required_strings = (
+        "benchmark_id",
+        "benchmark_version",
+        "scoring_version",
+        "language_version",
+        "language_hash",
+        "original",
+        "encoded",
+        "decoded",
+    )
+    if not (
+        event.get("type") == "test"
+        and event.get("era") == "benchmark-v2"
+        and type(turn) is int
+        and turn >= SEMANTIC_FAULT_CUTOVER_TURN
+        and event.get("benchmark_id") in {"B1", "B2", "B3", "B4", "B5"}
+        and event.get("benchmark_version") == "v2"
+        and event.get("scoring_version") == "v2"
+        and event.get("judge_valid") is True
+        and event.get("judge_status") == "VALID"
+        and all(isinstance(event.get(key), str) for key in required_strings)
+        and len(event.get("language_hash", "")) == 64
+    ):
+        return None
+
+    answer_key = event.get("answer_key")
+    atom_results = event.get("atom_results")
+    critical_failures = event.get("critical_failures")
+    if not all(
+        isinstance(value, list)
+        for value in (answer_key, atom_results, critical_failures)
+    ) or not answer_key:
+        return None
+
+    normalized_key: list[dict[str, Any]] = []
+    key_ids: list[str] = []
+    for atom in answer_key:
         if not (
-            event.get("type") == "test"
-            and event.get("era") == "benchmark-v2"
-            and event.get("benchmark_id") in {"B1", "B2", "B3", "B4", "B5"}
-            and event.get("benchmark_version") == "v2"
-            and event.get("scoring_version") == "v2"
-            and event.get("judge_valid") is True
-            and event.get("judge_status") == "VALID"
-            and event.get("meaning_pass") is False
-            and event.get("language_version") == language_version
-            and event.get("language_hash") == language_hash
+            isinstance(atom, dict)
+            and isinstance(atom.get("id"), str)
+            and atom.get("id")
+            and isinstance(atom.get("meaning"), str)
+            and atom.get("meaning")
+            and type(atom.get("critical")) is bool
+        ):
+            return None
+        literal_sets = atom.get("literal_sets")
+        canonical_atom = canonical_atoms.get((event["benchmark_id"], atom["id"]))
+        if canonical_atoms:
+            if not (
+                isinstance(canonical_atom, dict)
+                and canonical_atom.get("meaning") == atom["meaning"]
+                and canonical_atom.get("critical") is atom["critical"]
+            ):
+                return None
+            canonical_literal_sets = canonical_atom.get("literal_sets")
+            if literal_sets is None:
+                literal_sets = canonical_literal_sets
+            elif literal_sets != canonical_literal_sets:
+                return None
+        if not (
+            isinstance(literal_sets, list)
+            and all(
+                isinstance(group, list)
+                and group
+                and all(isinstance(value, str) and value for value in group)
+                for group in literal_sets
+            )
+        ):
+            return None
+        key_ids.append(atom["id"])
+        normalized_key.append(
+            {
+                "id": atom["id"],
+                "meaning": atom["meaning"],
+                "critical": atom["critical"],
+                "literal_sets": copy.deepcopy(literal_sets),
+            }
+        )
+    if len(key_ids) != len(set(key_ids)):
+        return None
+
+    normalized_results: list[dict[str, str]] = []
+    for item in atom_results:
+        if not (
+            isinstance(item, dict)
+            and isinstance(item.get("id"), str)
+            and item.get("verdict") in {"SURVIVED", "MISSING", "CORRUPTED"}
+            and isinstance(item.get("evidence"), str)
+        ):
+            return None
+        evidence = item["evidence"]
+        if (item["verdict"] == "MISSING") != (evidence == ""):
+            return None
+        normalized_results.append(
+            {
+                "id": item["id"],
+                "verdict": item["verdict"],
+                "evidence": evidence,
+            }
+        )
+    if [item["id"] for item in normalized_results] != key_ids:
+        return None
+
+    expected_failures = []
+    for atom, result in zip(normalized_key, normalized_results, strict=True):
+        if atom["critical"] and result["verdict"] in {"MISSING", "CORRUPTED"}:
+            expected_failures.append(
+                {
+                    "atom_id": atom["id"],
+                    "decoded_evidence": result["evidence"],
+                    "expected_meaning": atom["meaning"],
+                    "verdict": result["verdict"],
+                }
+            )
+    normalized_failures = []
+    for failure in critical_failures:
+        if not (
+            isinstance(failure, dict)
+            and isinstance(failure.get("atom_id"), str)
+            and isinstance(failure.get("decoded_evidence"), str)
+            and isinstance(failure.get("expected_meaning"), str)
+            and failure.get("verdict") in {"MISSING", "CORRUPTED"}
+        ):
+            return None
+        normalized_failures.append(
+            {
+                "atom_id": failure["atom_id"],
+                "decoded_evidence": failure["decoded_evidence"],
+                "expected_meaning": failure["expected_meaning"],
+                "verdict": failure["verdict"],
+            }
+        )
+    if normalized_failures != expected_failures:
+        return None
+
+    return {
+        "turn": turn,
+        "event": event,
+        "answer_key": normalized_key,
+        "atom_results": normalized_results,
+        "critical_failures": normalized_failures,
+    }
+
+
+def _source_evidence(
+    exam: dict[str, Any], atom: dict[str, Any], failure: dict[str, str]
+) -> SemanticFaultEvidence:
+    event = exam["event"]
+    return SemanticFaultEvidence(
+        exam_turn=exam["turn"],
+        benchmark_id=event["benchmark_id"],
+        benchmark_version=event["benchmark_version"],
+        scoring_version=event["scoring_version"],
+        atom_id=atom["id"],
+        classification=failure["verdict"],
+        expected_meaning=atom["meaning"],
+        required_literal_sets=copy.deepcopy(atom["literal_sets"]),
+        decoded_evidence=failure["decoded_evidence"],
+        original=event["original"],
+        encoded=event["encoded"],
+        decoded=event["decoded"],
+        language_version=event["language_version"],
+        language_hash=event["language_hash"],
+    )
+
+
+def _apply_exam_to_fault_ledger(
+    ledger: dict[str, SemanticFaultLedgerEntry], exam: dict[str, Any]
+) -> None:
+    event = exam["event"]
+    key_by_id = {atom["id"]: atom for atom in exam["answer_key"]}
+    failure_by_id = {
+        failure["atom_id"]: failure for failure in exam["critical_failures"]
+    }
+    for atom_id, failure in failure_by_id.items():
+        atom = key_by_id[atom_id]
+        identity = _semantic_fault_identity(
+            scoring_version=event["scoring_version"],
+            benchmark_version=event["benchmark_version"],
+            benchmark_id=event["benchmark_id"],
+            atom_id=atom_id,
+        )
+        source = _source_evidence(exam, atom, failure)
+        existing = ledger.get(identity)
+        if existing is None:
+            failure_class, invariant = _generalize_semantic_fault(
+                source.expected_meaning
+            )
+            ledger[identity] = SemanticFaultLedgerEntry(
+                source_identity=identity,
+                fault_token=_semantic_fault_token(identity),
+                first_failure_turn=exam["turn"],
+                last_failure_turn=exam["turn"],
+                classification=source.classification,
+                failure_class=failure_class,
+                invariant=invariant,
+                status="UNRESOLVED",
+                latest_source=source,
+            )
+            continue
+        if existing.latest_source.expected_meaning != source.expected_meaning:
+            # A same-version answer-key drift has no safe lifecycle interpretation.
+            continue
+        existing.last_failure_turn = exam["turn"]
+        existing.classification = source.classification
+        existing.failure_class, existing.invariant = _generalize_semantic_fault(
+            source.expected_meaning
+        )
+        if existing.status != "REPAIR_PROPOSED":
+            # A fresh failure updates provenance, but an unsettled linked
+            # proposal remains the active repair after B requests revision.
+            existing.status = "UNRESOLVED"
+        existing.resolved_turn = None
+        existing.latest_source = source
+
+    result_by_id = {item["id"]: item for item in exam["atom_results"]}
+    for identity, entry in ledger.items():
+        if not identity.startswith(
+            f"{event['scoring_version']}:{event['benchmark_version']}:{event['benchmark_id']}:"
         ):
             continue
-        answer_key = event.get("answer_key")
-        atom_results = event.get("atom_results")
-        if not isinstance(answer_key, list) or not isinstance(atom_results, list):
+        result = result_by_id.get(entry.latest_source.atom_id)
+        atom = key_by_id.get(entry.latest_source.atom_id)
+        if not result or not atom:
             continue
-        meanings = {
-            atom.get("id"): atom.get("meaning")
-            for atom in answer_key
-            if isinstance(atom, dict)
-            and isinstance(atom.get("id"), str)
-            and isinstance(atom.get("meaning"), str)
-        }
-        for item in atom_results:
-            if not isinstance(item, dict) or item.get("verdict") not in {"MISSING", "CORRUPTED"}:
-                continue
-            atom_id = item.get("id")
-            evidence = item.get("evidence")
-            expected_meaning = meanings.get(atom_id)
-            if not isinstance(atom_id, str) or not isinstance(evidence, str) or not expected_meaning:
-                continue
-            try:
-                return ScoringV2FailureFeedback(
-                    exam_turn=event.get("turn"),
-                    benchmark_id=event.get("benchmark_id"),
-                    benchmark_version=event.get("benchmark_version"),
-                    scoring_version=event.get("scoring_version"),
-                    language_version=event.get("language_version"),
-                    failed_atom_id=atom_id,
-                    classification=item["verdict"],
-                    expected_meaning=expected_meaning,
-                    decoded_evidence=_bounded_scoring_v2_evidence(evidence),
-                )
-            except ValidationError:
-                continue
-    return None
+        if atom["meaning"] != entry.latest_source.expected_meaning:
+            continue
+        if (
+            entry.status == "PENDING_RETEST"
+            and entry.adoption_turn is not None
+            and exam["turn"] > entry.adoption_turn
+            and result["verdict"] == "SURVIVED"
+        ):
+            entry.status = "RESOLVED"
+            entry.resolved_turn = exam["turn"]
 
 
-def _bounded_scoring_v2_evidence(evidence: str) -> str:
-    """Keep an inspectable decoded span without replaying a whole decode."""
-    if len(evidence) <= MAX_SCORING_V2_FEEDBACK_EVIDENCE_CHARS:
-        return evidence
-    suffix = "… [truncated]"
-    return evidence[:MAX_SCORING_V2_FEEDBACK_EVIDENCE_CHARS - len(suffix)] + suffix
+def _linked_fault_for_motion(
+    ledger: dict[str, SemanticFaultLedgerEntry], target_rule_id: str
+) -> SemanticFaultLedgerEntry | None:
+    linked = [
+        entry
+        for entry in ledger.values()
+        if entry.linked_motion_rule_id == target_rule_id
+        and entry.status == "REPAIR_PROPOSED"
+    ]
+    return linked[0] if len(linked) == 1 else None
+
+
+def _apply_legislature_to_fault_ledger(
+    ledger: dict[str, SemanticFaultLedgerEntry], event: dict[str, Any]
+) -> None:
+    payload = event.get("post_state_receipt")
+    if not isinstance(payload, dict):
+        return
+    try:
+        receipt = PostStateReceipt.model_validate(payload, strict=True)
+    except ValidationError:
+        return
+    if receipt.turn < SEMANTIC_FAULT_CUTOVER_TURN:
+        return
+    action = receipt.attempted_action
+    motion = action.motion if action is not None else None
+    fault_response = action.fault_response if action is not None else None
+
+    if (
+        receipt.actor == "A"
+        and receipt.result == "accepted"
+        and receipt.reason == "proposal_recorded"
+        and isinstance(motion, ProposeMotion)
+        and fault_response is not None
+        and receipt.current_open_motion is not None
+        and receipt.current_open_motion.kind == "add"
+        and receipt.current_open_motion.proposed_turn == receipt.turn
+        and receipt.current_open_motion.target_rule_id in receipt.changed_rule_ids
+    ):
+        matching = [
+            entry
+            for entry in ledger.values()
+            if entry.fault_token == fault_response.fault_token
+            and entry.status == "UNRESOLVED"
+        ]
+        if len(matching) == 1:
+            entry = matching[0]
+            entry.status = "REPAIR_PROPOSED"
+            entry.linked_motion_rule_id = receipt.current_open_motion.target_rule_id
+            entry.repair_proposed_turn = receipt.turn
+            entry.adoption_turn = None
+            entry.resolved_turn = None
+        return
+
+    if receipt.actor != "B" or receipt.result != "accepted" or motion is None:
+        return
+    target_rule_id = getattr(motion, "target_rule_id", None)
+    if not isinstance(target_rule_id, str):
+        return
+    entry = _linked_fault_for_motion(ledger, target_rule_id)
+    if entry is None:
+        return
+    if isinstance(motion, RequestMotion):
+        if (
+            receipt.reason == "focused_work_requested"
+            and receipt.current_open_motion is not None
+            and receipt.current_open_motion.target_rule_id == target_rule_id
+        ):
+            return
+        return
+    if receipt.current_open_motion is not None:
+        return
+    if receipt.reason != "motion_applied":
+        return
+    if isinstance(motion, RejectMotion):
+        entry.status = "UNRESOLVED"
+        entry.adoption_turn = None
+        entry.resolved_turn = None
+    elif isinstance(motion, AdoptMotion):
+        entry.status = "PENDING_RETEST"
+        entry.adoption_turn = receipt.turn
+        entry.resolved_turn = None
+
+
+def derive_semantic_fault_ledger(
+    events: list[dict[str, Any]],
+    *,
+    benchmark_suite: dict[str, Any] | None = None,
+) -> list[SemanticFaultLedgerEntry]:
+    """Reconstruct the private ledger, backfilling literals from frozen V2 data."""
+    canonical_atoms: dict[tuple[str, str], dict[str, Any]] = {}
+    if isinstance(benchmark_suite, dict) and benchmark_suite.get("version") == "v2":
+        rows = benchmark_suite.get("benchmarks")
+        if isinstance(rows, list):
+            for row in rows:
+                if not isinstance(row, dict) or not isinstance(row.get("id"), str):
+                    canonical_atoms = {}
+                    break
+                atoms = row.get("answer_key")
+                if not isinstance(atoms, list):
+                    canonical_atoms = {}
+                    break
+                for atom in atoms:
+                    if isinstance(atom, dict) and isinstance(atom.get("id"), str):
+                        canonical_atoms[(row["id"], atom["id"])] = copy.deepcopy(atom)
+    ledger: dict[str, SemanticFaultLedgerEntry] = {}
+    for event in events:
+        if not isinstance(event, dict):
+            continue
+        exam = _validated_v2_exam(event, canonical_atoms)
+        if exam is not None:
+            _apply_exam_to_fault_ledger(ledger, exam)
+        elif event.get("type") == "legislature":
+            _apply_legislature_to_fault_ledger(ledger, event)
+    return sorted(
+        (entry.model_copy(deep=True) for entry in ledger.values()),
+        key=lambda entry: (entry.first_failure_turn, entry.source_identity),
+    )
+
+
+def select_semantic_fault_for_turn(
+    ledger: list[SemanticFaultLedgerEntry],
+    *,
+    role: Role,
+    open_motion: OpenMotionState | None,
+) -> SemanticFaultLedgerEntry | None:
+    """Select one actionable or linked fault without exposing the private queue."""
+    if open_motion is not None:
+        linked = [
+            entry
+            for entry in ledger
+            if entry.linked_motion_rule_id == open_motion.target_rule_id
+            and entry.status == "REPAIR_PROPOSED"
+        ]
+        return linked[0].model_copy(deep=True) if len(linked) == 1 else None
+    if role != "A":
+        return None
+    unresolved = [entry for entry in ledger if entry.status == "UNRESOLVED"]
+    return unresolved[0].model_copy(deep=True) if unresolved else None
+
+
+def semantic_fault_feedback(
+    entry: SemanticFaultLedgerEntry | None,
+) -> SemanticFaultFeedback | None:
+    if entry is None or entry.status not in {"UNRESOLVED", "REPAIR_PROPOSED"}:
+        return None
+    return SemanticFaultFeedback(
+        fault_token=entry.fault_token,
+        status=entry.status,
+        classification=entry.classification,
+        failure_class=entry.failure_class,
+        invariant=entry.invariant,
+    )
 
 
 def validation_reason(error: ValidationError | ValueError) -> str:

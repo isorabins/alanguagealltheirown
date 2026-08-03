@@ -32,9 +32,11 @@ from legislative_protocol import (
     build_post_state_receipt,
     current_open_motion,
     derive_active_legislative_feedback,
-    derive_scoring_v2_failure_feedback,
+    derive_semantic_fault_ledger,
     prompt_receipt_projection,
     prompt_request_projection,
+    select_semantic_fault_for_turn,
+    semantic_fault_feedback,
     validate_action,
     validate_action_with_deliberation_fallback,
     validation_reason,
@@ -57,6 +59,9 @@ TEST_EVERY = 3      # every Nth turn is a test turn
 WINDOW = 30         # conversation events each agent sees
 MAX_TEST_AUDIT_CATEGORY_CHARS = 320
 MAX_TEST_GRADER_LOSS_CHARS = 600
+PRIVATE_FAULT_PROMPT_REDACTION = (
+    "[private validation-overlapping text withheld from this legislative prompt]"
+)
 SPEND_CAP = 25.00   # dollars, hard stop across all runs — anomaly tripwire, ~50 days at gloves-off burn
 AGENT_TEMP = 0.9
 COST_LEDGER_SCHEMA_VERSION = 1
@@ -593,11 +598,22 @@ def assemble_legislative_prompt(
     active_feedback = derive_active_legislative_feedback(
         conv, current_open_motion(rb)
     )
-    language = language_payload(rb)
-    scoring_v2_feedback = derive_scoring_v2_failure_feedback(
-        conv,
-        language_version=language["version"],
-        language_hash=language["hash"],
+    fault_ledger = derive_semantic_fault_ledger(
+        conv, benchmark_suite=load_benchmark_suite()
+    )
+    semantic_fault = select_semantic_fault_for_turn(
+        fault_ledger,
+        role=agent,
+        open_motion=current_open_motion(rb),
+    )
+    fault_feedback = semantic_fault_feedback(semantic_fault)
+    required_fault_token = (
+        semantic_fault.fault_token
+        if semantic_fault is not None
+        and semantic_fault.status == "UNRESOLVED"
+        and agent == "A"
+        and current_open_motion(rb) is None
+        else None
     )
     request = build_legislative_request(
         role=agent,
@@ -606,7 +622,7 @@ def assemble_legislative_prompt(
         rulebook=rb,
         latest_receipt=latest_post_state_receipt(conv),
         active_legislative_feedback=active_feedback,
-        scoring_v2_failure_feedback=scoring_v2_feedback,
+        semantic_fault_feedback=fault_feedback,
         collaboration_input=collaboration_input,
     )
     open_motion = request.current_state.open_motion
@@ -653,6 +669,14 @@ def assemble_legislative_prompt(
         {
             "deliberation": example_deliberation,
             "motion": example_motion,
+            "fault_response": (
+                {
+                    "status": "REPAIR_PROPOSED",
+                    "fault_token": required_fault_token,
+                }
+                if required_fault_token is not None
+                else None
+            ),
             "measurements": [],
             "requests": [],
         },
@@ -667,13 +691,32 @@ def assemble_legislative_prompt(
         "never substitute prose strings or differently named request fields. "
         f"Valid non-operative shape example: {example}\n"
         "Never return an empty, whitespace-only, or punctuation-only "
-        "`deliberation` value.\n\n"
+        "`deliberation` value.\n"
+        + (
+            "The supplied abstract semantic fault is mandatory now. Return "
+            "one focused `PROPOSE` motion and the exact schema-bound "
+            "`fault_response`; prompt presence or free prose is not attention. "
+            "Generalize the repair from its invariant and do not seek the "
+            "private benchmark source.\n\n"
+            if required_fault_token is not None
+            else "\n"
+        )
     )
     prompt_request = prompt_request_projection(request)
+    if semantic_fault is not None:
+        prompt_request = _projection_without_private_fault_material(
+            prompt_request, fault_ledger
+        )
+        prompt_language, prompt_legislature = (
+            _rulebook_views_without_private_fault_material(rb, fault_ledger)
+        )
+    else:
+        prompt_language = render_language(rb)
+        prompt_legislature = render_legislature(rb)
     system = (
         f"{output_contract}{constitution}\n\n{role_prompt}\n\n"
-        f"=== ADOPTED LANGUAGE ===\n{render_language(rb)}\n\n"
-        f"=== COMPLETE LEGISLATURE ===\n{render_legislature(rb)}\n\n"
+        f"=== ADOPTED LANGUAGE ===\n{prompt_language}\n\n"
+        f"=== COMPLETE LEGISLATURE ===\n{prompt_legislature}\n\n"
         f"=== AUTHORITATIVE CURRENT MACHINE STATE AND RECEIPT ===\n"
         f"{json.dumps(prompt_request, ensure_ascii=False, separators=(',', ':'))}"
     )
@@ -694,11 +737,86 @@ def assemble_legislative_prompt(
     return {
         "system": system,
         "user": user,
-        "request_options": action_request_options(agent, rb),
+        "request_options": action_request_options(
+            agent, rb, required_fault_token=required_fault_token
+        ),
         "canonical_request": request,
         "prompt_request": prompt_request,
+        "required_fault_token": required_fault_token,
         "total_chars": len(system) + len(user),
     }
+
+
+def _private_fault_material(fault_ledger):
+    """Return exact source strings that must never share a model prompt."""
+    material = set()
+    for entry in fault_ledger:
+        if entry.status == "RESOLVED":
+            continue
+        source = entry.latest_source
+        material.update(
+            {
+                source.benchmark_id,
+                source.atom_id,
+                source.expected_meaning,
+                source.decoded_evidence,
+                source.original,
+                source.encoded,
+                source.decoded,
+            }
+        )
+        material.update(
+            literal
+            for alternatives in source.required_literal_sets
+            for literal in alternatives
+        )
+    return tuple(sorted((value for value in material if value), key=len, reverse=True))
+
+
+def _contains_private_fault_material(value, material):
+    return isinstance(value, str) and any(private in value for private in material)
+
+
+def _projection_without_private_fault_material(value, fault_ledger):
+    """Redact a complete model-only field if it overlaps exact private evidence."""
+    material = _private_fault_material(fault_ledger)
+    if isinstance(value, dict):
+        return {
+            key: _projection_without_private_fault_material(item, fault_ledger)
+            for key, item in value.items()
+        }
+    if isinstance(value, list):
+        return [
+            _projection_without_private_fault_material(item, fault_ledger)
+            for item in value
+        ]
+    if _contains_private_fault_material(value, material):
+        return PRIVATE_FAULT_PROMPT_REDACTION
+    return value
+
+
+def _rulebook_views_without_private_fault_material(rb, fault_ledger):
+    """Conceal contaminated prose without changing canonical view metadata."""
+    prompt_language = render_language(rb)
+    prompt_legislature = render_legislature(rb)
+    material = _private_fault_material(fault_ledger)
+    for rule in rb.get("rules", []):
+        text = rule.get("text_en")
+        if _contains_private_fault_material(text, material):
+            prompt_language = prompt_language.replace(
+                text, PRIVATE_FAULT_PROMPT_REDACTION
+            )
+            prompt_legislature = prompt_legislature.replace(
+                text, PRIVATE_FAULT_PROMPT_REDACTION
+            )
+        pending = rule.get("pending_repeal")
+        if isinstance(pending, dict) and _contains_private_fault_material(
+            pending.get("rationale"), material
+        ):
+            prompt_legislature = prompt_legislature.replace(
+                pending["rationale"], PRIVATE_FAULT_PROMPT_REDACTION
+            )
+    return prompt_language, prompt_legislature
 
 
 def agent_turn(conv, rb, meta, collaboration, turn):
@@ -718,6 +836,7 @@ def agent_turn(conv, rb, meta, collaboration, turn):
     system = assembled["system"]
     base_user = assembled["user"]
     request_options = assembled["request_options"]
+    required_fault_token = assembled["required_fault_token"]
     structured_action = None
     deliberation_fallback = None
     usage = {}
@@ -743,6 +862,13 @@ def agent_turn(conv, rb, meta, collaboration, turn):
         try:
             structured_action, deliberation_fallback = (
                 validate_action_with_deliberation_fallback(text, agent, rb)
+                if required_fault_token is None
+                else validate_action_with_deliberation_fallback(
+                    text,
+                    agent,
+                    rb,
+                    required_fault_token=required_fault_token,
+                )
             )
             break
         except ValidationError as exc:
@@ -1138,7 +1264,9 @@ def test_turn(conv, rb, meta, turn):
              "benchmark_version": suite["version"], "benchmark_cycle": benchmark_cycle,
              "benchmark_source_turn": benchmark["source_turn"],
              "answer_key": [{"id": atom["id"], "meaning": atom["meaning"],
-                              "critical": atom["critical"]} for atom in key],
+                              "critical": atom["critical"],
+                              "literal_sets": copy.deepcopy(atom["literal_sets"])}
+                             for atom in key],
              "prior_valid_v2_turn": previous.get("turn") if previous else None}
     event.update(audit)
     conv.append(event)

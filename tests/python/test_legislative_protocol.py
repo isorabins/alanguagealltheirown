@@ -73,10 +73,18 @@ def open_repeal_book():
     return book
 
 
-def action(motion=None, *, deliberation="One bounded decision.", measurements=None, requests=None):
+def action(
+    motion=None,
+    *,
+    deliberation="One bounded decision.",
+    fault_response=None,
+    measurements=None,
+    requests=None,
+):
     return {
         "deliberation": deliberation,
         "motion": motion,
+        **({"fault_response": fault_response} if fault_response is not None else {}),
         "measurements": measurements or [],
         "requests": requests or [],
     }
@@ -236,6 +244,73 @@ class StateSpecificActionTests(unittest.TestCase):
         schema_text = str(options["response_format"]["json_schema"]["schema"])
         self.assertIn("rule-003", schema_text)
         self.assertNotIn("rule-002", schema_text)
+
+    def test_eligible_agent_a_must_bind_exact_fault_token_to_real_proposal(self):
+        token = "fault-0123456789abcdef01234567"
+        proposed = {
+            "kind": "PROPOSE",
+            "text": "Preserve every opaque identifier exactly with its punctuation.",
+        }
+        valid = action(
+            proposed,
+            fault_response={"status": "REPAIR_PROPOSED", "fault_token": token},
+        )
+        parsed = validate_action(
+            valid,
+            "A",
+            adopted_book(),
+            required_fault_token=token,
+        )
+        self.assertEqual(parsed.fault_response.fault_token, token)
+        schema_text = str(
+            action_request_options(
+                "A", adopted_book(), required_fault_token=token
+            )["response_format"]["json_schema"]["schema"]
+        )
+        self.assertIn(token, schema_text)
+
+        invalid = [
+            action(proposed),
+            action(
+                proposed,
+                fault_response={
+                    "status": "REPAIR_PROPOSED",
+                    "fault_token": "fault-aaaaaaaaaaaaaaaaaaaaaaaa",
+                },
+            ),
+            action(
+                None,
+                fault_response={"status": "REPAIR_PROPOSED", "fault_token": token},
+            ),
+            action(
+                {
+                    "kind": "REPEAL",
+                    "target_rule_id": "rule-001",
+                    "rationale": "The old rule does not preserve opaque identifiers.",
+                },
+                fault_response={"status": "REPAIR_PROPOSED", "fault_token": token},
+            ),
+        ]
+        for payload in invalid:
+            with self.subTest(payload=payload):
+                with self.assertRaises(ValidationError):
+                    validate_action(
+                        payload,
+                        "A",
+                        adopted_book(),
+                        required_fault_token=token,
+                    )
+
+    def test_fault_response_is_forbidden_outside_the_eligible_state(self):
+        token = "fault-0123456789abcdef01234567"
+        payload = action(
+            {
+                "kind": "PROPOSE",
+                "text": "Preserve every opaque identifier exactly with its punctuation.",
+            },
+            fault_response={"status": "REPAIR_PROPOSED", "fault_token": token},
+        )
+        self.assert_invalid("A", adopted_book(), payload)
 
     def test_open_auditor_cannot_return_punctuation_or_skip_the_motion(self):
         self.assert_invalid("B", open_add_book(), action(deliberation=","))
