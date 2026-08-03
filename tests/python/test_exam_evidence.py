@@ -672,6 +672,123 @@ class SemanticFaultLedgerTests(unittest.TestCase):
         self.assertEqual(reactivated.status, "UNRESOLVED")
         self.assertEqual(reactivated.last_failure_turn, 1512)
 
+    def test_later_valid_same_atom_retest_resolves_unlinked_fault(self):
+        exam = self._fault_event(turn=1506)
+
+        invalid = self._fault_event(
+            turn=1509, verdict="SURVIVED", evidence="ref_8.delta"
+        )
+        invalid.update({"judge_valid": False, "judge_status": "INVALID JUDGE RESULT"})
+        self.assertEqual(
+            derive_semantic_fault_ledger([exam, invalid])[0].status,
+            "UNRESOLVED",
+        )
+
+        other_benchmark = self._fault_event(
+            turn=1509, verdict="SURVIVED", evidence="ref_8.delta"
+        )
+        other_benchmark["benchmark_id"] = "B3"
+        other_benchmark["answer_key"][0]["id"] = "B3.04"
+        other_benchmark["atom_results"][0]["id"] = "B3.04"
+        self.assertEqual(
+            derive_semantic_fault_ledger([exam, other_benchmark])[0].status,
+            "UNRESOLVED",
+        )
+
+        absent_atom = self._fault_event(
+            turn=1509, verdict="SURVIVED", evidence="other evidence"
+        )
+        absent_atom["answer_key"][0].update(
+            {
+                "id": "B2.05",
+                "meaning": "A different atom survived.",
+                "literal_sets": [],
+            }
+        )
+        absent_atom["atom_results"][0]["id"] = "B2.05"
+        self.assertEqual(
+            derive_semantic_fault_ledger([exam, absent_atom])[0].status,
+            "UNRESOLVED",
+        )
+
+        earlier = self._fault_event(
+            turn=1506, verdict="SURVIVED", evidence="ref_8.delta"
+        )
+        later_failure = self._fault_event(turn=1509)
+        self.assertEqual(
+            derive_semantic_fault_ledger([earlier, later_failure])[0].status,
+            "UNRESOLVED",
+        )
+
+        same_turn = self._fault_event(
+            turn=1509, verdict="SURVIVED", evidence="ref_8.delta"
+        )
+        self.assertEqual(
+            derive_semantic_fault_ledger([later_failure, same_turn])[0].status,
+            "UNRESOLVED",
+        )
+
+        survived = self._fault_event(
+            turn=1509, verdict="SURVIVED", evidence="ref_8.delta"
+        )
+        resolved = derive_semantic_fault_ledger([exam, survived])[0]
+        self.assertEqual(resolved.status, "RESOLVED")
+        self.assertEqual(resolved.resolved_turn, 1509)
+        self.assertIsNone(resolved.adoption_turn)
+        self.assertIsNone(resolved.linked_motion_rule_id)
+
+        failed = self._fault_event(turn=1512)
+        reactivated = derive_semantic_fault_ledger([exam, survived, failed])[0]
+        self.assertEqual(reactivated.status, "UNRESOLVED")
+        self.assertEqual(reactivated.last_failure_turn, 1512)
+        self.assertIsNone(reactivated.resolved_turn)
+
+    def test_turn_1521_success_prevents_redundant_turn_1522_fault_proposal(self):
+        canonical = json.loads((ROOT / "state/conversation.json").read_text())
+        suite = loop.load_benchmark_suite()
+
+        through_retest = [
+            copy.deepcopy(event)
+            for event in canonical
+            if int(event.get("turn", -1)) <= 1521
+        ]
+        ledger = derive_semantic_fault_ledger(
+            through_retest, benchmark_suite=suite
+        )
+        b3 = {
+            entry.latest_source.atom_id: entry
+            for entry in ledger
+            if entry.latest_source.benchmark_id == "B3"
+        }
+        self.assertEqual(b3["B3.10"].status, "RESOLVED")
+        self.assertEqual(b3["B3.21"].status, "RESOLVED")
+        self.assertEqual(b3["B3.21"].resolved_turn, 1521)
+
+        through_redundant_proposal = [
+            copy.deepcopy(event)
+            for event in canonical
+            if int(event.get("turn", -1)) <= 1522
+        ]
+        replayed = derive_semantic_fault_ledger(
+            through_redundant_proposal, benchmark_suite=suite
+        )
+        replayed_b3_21 = next(
+            entry for entry in replayed
+            if entry.latest_source.atom_id == "B3.21"
+        )
+        turn_1522 = next(
+            event for event in through_redundant_proposal
+            if event.get("turn") == 1522 and event.get("type") == "legislature"
+        )
+        self.assertEqual(replayed_b3_21.status, "RESOLVED")
+        self.assertEqual(replayed_b3_21.resolved_turn, 1521)
+        self.assertNotEqual(
+            replayed_b3_21.linked_motion_rule_id,
+            turn_1522["post_state_receipt"]["current_open_motion"][
+                "target_rule_id"
+            ],
+        )
+
     def test_state_machine_noop_cannot_claim_repair_proposed(self):
         exam = self._fault_event()
         token = derive_semantic_fault_ledger([exam])[0].fault_token

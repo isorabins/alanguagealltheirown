@@ -1124,9 +1124,8 @@ def _apply_exam_to_fault_ledger(
         if atom["meaning"] != entry.latest_source.expected_meaning:
             continue
         if (
-            entry.status == "PENDING_RETEST"
-            and entry.adoption_turn is not None
-            and exam["turn"] > entry.adoption_turn
+            entry.status in {"UNRESOLVED", "PENDING_RETEST"}
+            and exam["turn"] > entry.last_failure_turn
             and result["verdict"] == "SURVIVED"
         ):
             entry.status = "RESOLVED"
