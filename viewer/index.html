@@ -511,6 +511,21 @@ function latestValidScoringV2(tests) {
   }) || null;
 }
 
+function messageBodySavingsPct(t) {
+  var value = t && t.message_body_savings_pct;
+  return typeof value === "number" && isFinite(value) ? value : null;
+}
+
+function bestMessageBodySavingsV2(tests) {
+  var best = null;
+  (tests || []).forEach(function (t) {
+    if (!t || t.scoring_version !== "v2") return;
+    var value = messageBodySavingsPct(t);
+    if (value !== null && (best === null || value > best)) best = value;
+  });
+  return best;
+}
+
 function scoringV2EvidenceHtml(t) {
   var esc = function (s) {
     return String(s == null ? "" : s).replace(/[&<>"]/g, function (c) {
@@ -519,10 +534,13 @@ function scoringV2EvidenceHtml(t) {
   };
   var pct = function (n) { return (n > 0 ? "+" : "") + n + "%"; };
   var dec = t.decoder_model ? '<div class="jdec">decoder: ' + esc(t.decoder_model) + "</div>" : "";
+  var savings = messageBodySavingsPct(t);
   if (!t.judge_valid) {
     return '<div class="judg"><div class="jhead">Scoring V2</div><div class="invalid-judge"><b>INVALID JUDGE RESULT</b><br>' +
       esc(t.judge_reason || "invalid evidence") +
-      '<br>This is evaluator failure, not a benchmark failure. It cannot replace the prior valid V2 result.</div>' + dec + '</div>';
+      '<br>This is evaluator failure, not a benchmark failure. It cannot replace the prior valid V2 result.</div>' +
+      '<div class="v2-results"><span>semantic coverage<b>unavailable</b></span><span>message-body savings<b>' +
+      (savings === null ? "unavailable" : pct(savings)) + '</b></span></div>' + dec + '</div>';
   }
   var atoms = {};
   (t.answer_key || []).forEach(function (atom) { atoms[atom.id] = atom; });
@@ -543,7 +561,7 @@ function scoringV2EvidenceHtml(t) {
     '</b></span><span>semantic coverage<b>' + t.semantic_coverage_pct +
     '%</b></span><span>critical failures<b>' + (t.critical_failures || []).length +
     '</b></span><span>inventions<b>' + (t.inventions || []).length +
-    '</b></span><span>message-body savings<b>' + pct(t.message_body_savings_pct) +
+    '</b></span><span>message-body savings<b>' + (savings === null ? "unavailable" : pct(savings)) +
     '</b></span></div><ul class="key">' + verdicts + '</ul>' + inventionHtml + dec + '</div>';
 }
 
@@ -580,11 +598,20 @@ function render(S) {
       : (t.payload || "exam");
   };
 
-  var best = null;
-  tests.filter(function (t) { return t.scoring_version === "v2" && t.compression_success; })
-    .forEach(function (t) {
-      if (best === null || t.message_body_savings_pct > best) best = t.message_body_savings_pct;
-    });
+  var v2SavingsHtml = function (t) {
+    var value = messageBodySavingsPct(t);
+    return 'body savings ' + (value === null ? "unavailable" : pct(value));
+  };
+  var v2ResultHtml = function (t) {
+    if (!t.judge_valid) {
+      return '<span class="low">INVALID JUDGE RESULT</span> · coverage unavailable · ' + v2SavingsHtml(t);
+    }
+    return 'meaning <span class="' + (t.meaning_pass ? "ok" : "low") + '">' +
+      (t.meaning_pass ? "PASS" : "FAIL") + '</span> · coverage ' +
+      t.semantic_coverage_pct + '% · ' + v2SavingsHtml(t);
+  };
+
+  var best = bestMessageBodySavingsV2(tests);
   var latestValidV2 = latestValidScoringV2(tests);
   var revisions = String(rb.version == null ? "0.0" : rb.version).split(".")[1] || "0";
   var m = [
@@ -616,11 +643,7 @@ function render(S) {
         '<span class="' + (receipt.accepted ? "ok" : "low") + '">' + esc(receipt.reason || "no receipt") + '</span></div>';
     }
     if (e.scoring_version === "v2") {
-      if (!e.judge_valid) return '<div class="tick">exam · ' + esc(examLabel(e)) +
-        ' · <span class="low">INVALID JUDGE RESULT</span></div>';
-      return '<div class="tick">exam · ' + esc(examLabel(e)) + ' · Scoring V2 · meaning ' +
-        '<span class="' + (e.meaning_pass ? "ok" : "low") + '">' + (e.meaning_pass ? "PASS" : "FAIL") +
-        '</span> · coverage ' + e.semantic_coverage_pct + '% · body savings ' + pct(e.message_body_savings_pct) + '</div>';
+      return '<div class="tick">exam · ' + esc(examLabel(e)) + ' · Scoring V2 · ' + v2ResultHtml(e) + '</div>';
     }
     var cls = e.fidelity >= 80 ? "ok" : "low";
     return '<div class="tick">exam · ' + esc(examLabel(e)) + ' · ' + esc(scoringLabel(e)) +
@@ -703,11 +726,7 @@ function render(S) {
   }
   function sumLine(t, prefix) {
     if (t.scoring_version === "v2") {
-      var status = t.judge_valid
-        ? 'meaning <span class="' + (t.meaning_pass ? "ok" : "low") + '">' + (t.meaning_pass ? "PASS" : "FAIL") +
-          '</span> · coverage ' + t.semantic_coverage_pct + '% · body savings ' + pct(t.message_body_savings_pct)
-        : '<span class="low">INVALID JUDGE RESULT</span>';
-      return prefix + t.turn + ' · ' + esc(examLabel(t)) + ' · Scoring V2 · ' + status;
+      return prefix + t.turn + ' · ' + esc(examLabel(t)) + ' · Scoring V2 · ' + v2ResultHtml(t);
     }
     var cls = t.fidelity >= 80 ? "ok" : "low";
     return prefix + t.turn + " · " + esc(examLabel(t)) + " · " + (t.orig_tokens == null ? "?" : t.orig_tokens) +
@@ -742,14 +761,12 @@ function render(S) {
 
   var rows = tests.slice(-15).reverse();
   document.getElementById("exams").innerHTML = rows.length ? rows.map(function (t) {
-    var result = t.scoring_version === "v2"
-      ? (t.judge_valid ? 'meaning ' + (t.meaning_pass ? 'PASS' : 'FAIL') + ' · coverage ' +
-          t.semantic_coverage_pct + '% · body savings ' + pct(t.message_body_savings_pct) : 'INVALID JUDGE RESULT')
-      : scoringLabel(t) + ' fidelity ' + (t.fidelity == null || t.fidelity < 0 ? "unparseable" : t.fidelity);
+    var result = t.scoring_version === "v2" ? v2ResultHtml(t) :
+      esc(scoringLabel(t) + ' fidelity ' + (t.fidelity == null || t.fidelity < 0 ? "unparseable" : t.fidelity));
     return '<details class="exrow"><summary>t' + t.turn + " · " + esc(examLabel(t)) + " · " +
       (t.orig_tokens == null ? "?" : t.orig_tokens) + "→" + (t.enc_tokens == null ? "?" : t.enc_tokens) +
       ' tok · <span class="' + (t.scoring_version === "v2" && (!t.judge_valid || !t.meaning_pass) ? "bad-f" : "") + '">' +
-      esc(result) + "</span></summary>" +
+      result + "</span></summary>" +
       '<div class="exrow-body">' + baselineHtml(t) + judgeHtml(t) + colsHtml(t) + "</div></details>";
   }).join("") : '<p class="empty">No exams yet.</p>';
 
@@ -950,6 +967,9 @@ function loadState() {
   var COMMITS = "https://api.github.com/repos/isorabins/alanguagealltheirown/commits" +
     "?sha=main&path=state%2Fconversation.json&per_page=1";
   var fallback = window.STATE || {conversation: [], rulebook: {rules: [], version: "0.0", kernel_tokens: 0}, collaboration: {}, conversations: [], x: {}, meta: {}};
+  // Keep the last deployed canonical snapshot visible while the no-cache GitHub
+  // refresh is in flight. A slow or failed refresh must not blank proven results.
+  render(fallback);
   var get = function (f) { return fetch(RAW + f, {cache: "no-store"}).then(function (r) { if (!r.ok) throw 0; return r.json(); }); };
   var getOptional = function (f, fallbackValue) { return get(f).catch(function () { return fallbackValue; }); };
   var lastCommit = fetch(COMMITS, {cache: "no-store"}).then(function (r) {

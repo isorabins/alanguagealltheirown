@@ -2,6 +2,20 @@ const test=require('node:test'); const assert=require('node:assert/strict'); con
 const html=fs.readFileSync(path.join(__dirname,'../../viewer/index.html'),'utf8');
 const scoringFixtures=JSON.parse(fs.readFileSync(path.join(__dirname,'../fixtures/scoring-v2-events.json'),'utf8'));
 
+function viewerDocument() {
+  const elements=new Map();
+  return {
+    elements,
+    document:{getElementById(id){
+      if(!elements.has(id)) elements.set(id,{
+        innerHTML:'',textContent:'',hidden:false,scrollTop:0,scrollHeight:0,
+        classList:{add(){},remove(){}},style:{},addEventListener(){}
+      });
+      return elements.get(id);
+    }}
+  };
+}
+
 test('public viewer inline JavaScript parses',()=>{
   const script=html.match(/<script>\s*([\s\S]*?)<\/script>/);
   assert.ok(script); assert.doesNotThrow(()=>new vm.Script(script[1]));
@@ -74,7 +88,7 @@ test('Scoring V2 rendering exposes all separate outcomes and decoded evidence',(
 });
 
 test('offline V2 fixtures render inspectable verdicts and invalid-judge separation',()=>{
-  const start=html.indexOf('function scoringV2EvidenceHtml(t) {');
+  const start=html.indexOf('function messageBodySavingsPct(t) {');
   const end=html.indexOf('\n\nfunction render(S)',start);
   assert.ok(start>=0 && end>start,'Scoring V2 renderer must remain independently testable');
   const scoringV2EvidenceHtml=Function(html.slice(start,end)+'\nreturn scoringV2EvidenceHtml;')();
@@ -89,7 +103,74 @@ test('offline V2 fixtures render inspectable verdicts and invalid-judge separati
   const invalid=scoringV2EvidenceHtml(scoringFixtures.invalid_judge);
   assert.match(invalid,/INVALID JUDGE RESULT/);
   assert.match(invalid,/evaluator failure, not a benchmark failure/);
+  assert.match(invalid,/semantic coverage<b>unavailable/);
+  assert.match(invalid,/message-body savings<b>\+31%/);
   assert.doesNotMatch(invalid,/meaning pass<b>FAIL/);
+});
+
+test('completed V2 exams persist coverage and body savings independently',()=>{
+  const script=html.match(/<script>\s*([\s\S]*?)<\/script>/)[1];
+  const end=script.indexOf('\nvar TURN_MS');
+  assert.ok(end>0,'viewer render functions must remain independently executable');
+
+  const viewer=viewerDocument();
+  const elements=viewer.elements;
+  const api=Function('document',script.slice(0,end)+'\nreturn {render,bestMessageBodySavingsV2};')(viewer.document);
+  const validFailure={
+    type:'test',turn:200,scoring_version:'v2',judge_valid:true,
+    benchmark_id:'B3',benchmark_name:'Farming data',meaning_pass:false,
+    semantic_coverage_pct:63,message_body_savings_pct:37,
+    compression_success:false,orig_tokens:435,enc_tokens:274,
+    answer_key:[],atom_results:[],critical_failures:[],inventions:[]
+  };
+  const invalid={
+    type:'test',turn:203,scoring_version:'v2',judge_valid:false,
+    benchmark_id:'B4',benchmark_name:'Retail prose',judge_reason:'malformed evidence',
+    semantic_coverage_pct:null,message_body_savings_pct:46,
+    compression_success:null,orig_tokens:428,enc_tokens:231
+  };
+
+  assert.equal(api.bestMessageBodySavingsV2([validFailure,invalid]),46);
+  api.render({
+    conversation:[validFailure,invalid],
+    rulebook:{version:'0.1',rules:[]},collaboration:{},conversations:[],x:{},meta:{updated:'fixture'}
+  });
+
+  assert.match(elements.get('metrics').innerHTML,/best message-body savings · V2<b>\+46%/);
+  assert.match(elements.get('metrics').innerHTML,/latest semantic coverage · V2<b>63%/);
+  assert.match(elements.get('exams').innerHTML,/t203[\s\S]*INVALID JUDGE RESULT[\s\S]*coverage unavailable[\s\S]*body savings \+46%/);
+  assert.match(elements.get('exams').innerHTML,/t200[\s\S]*coverage 63%[\s\S]*body savings \+37%/);
+  assert.doesNotMatch(elements.get('exams').innerHTML,/&lt;span/,
+    'trusted result markup must render as labels, not leak as visible HTML text');
+});
+
+test('last deployed savings remain visible when the live refresh fails',async()=>{
+  const script=html.match(/<script>\s*([\s\S]*?)<\/script>/)[1];
+  const loadCall=script.indexOf('\nloadState();');
+  assert.ok(loadCall>0,'loadState must remain independently executable');
+  const viewer=viewerDocument();
+  const fallbackExam={
+    type:'test',turn:200,scoring_version:'v2',judge_valid:true,
+    benchmark_id:'B1',benchmark_name:'Event prose',meaning_pass:true,
+    semantic_coverage_pct:100,message_body_savings_pct:44,
+    compression_success:true,orig_tokens:469,enc_tokens:263,
+    answer_key:[],atom_results:[],critical_failures:[],inventions:[]
+  };
+  const window={STATE:{
+    conversation:[fallbackExam],rulebook:{version:'0.1',rules:[]},
+    collaboration:{},conversations:[],x:{},meta:{updated:'deployed fixture'}
+  }};
+  const failedFetch=()=>Promise.reject(new Error('offline refresh failed'));
+  const api=Function('document','window','fetch',
+    script.slice(0,loadCall)+'\nreturn {loadState};')(viewer.document,window,failedFetch);
+
+  api.loadState();
+  assert.match(viewer.elements.get('metrics').innerHTML,/best message-body savings · V2<b>\+44%/,
+    'the deployed snapshot must render synchronously before refresh settles');
+  await new Promise(resolve=>setImmediate(resolve));
+  assert.match(viewer.elements.get('metrics').innerHTML,/best message-body savings · V2<b>\+44%/,
+    'a failed refresh must not clear the last deployed savings');
+  assert.match(viewer.elements.get('exams').innerHTML,/coverage 100%[\s\S]*body savings \+44%/);
 });
 
 test('stale active claims and Composition are absent',()=>{
