@@ -26,6 +26,9 @@
     "scoring_version": "v2",
     "judge_valid": false,
     "judge_reason": "fabricated_evidence:B2.01",
-    "prior_valid_v2_turn": 1401
+    "prior_valid_v2_turn": 1401,
+    "orig_tokens": 435,
+    "enc_tokens": 300,
+    "message_body_savings_pct": 31
   }
 }
