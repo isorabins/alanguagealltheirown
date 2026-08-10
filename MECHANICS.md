@@ -69,6 +69,9 @@ command or active-state argument, and any invalid response, source drift, weak
 reduction, or B rejection leaves the source untouched and reports `FAIL`.
 Optional `--prompt-c` and `--prompt-b` paths freeze candidate prompts and their
 hashes in the evidence directory without replacing either default prompt.
+When B rejects, the runner gives C the frozen original, complete prior
+candidate, and only B's actionable findings. B then re-audits the full revision;
+the shadow stops after at most three C-to-B rounds and never auto-accepts.
 
 `legacy_motion_repair.py` is a separate metadata-only migration for the live deadlock. `prepare` terminalizes proposed and reverted records on a copied source, records each prior status, refuses any pending repeal, proves every adopted record plus the adopted-language version/hash is exact, and emits original/replacement/diff/manifest hashes. `apply` requires a matching external approval receipt, rejects source or artifact drift, and treats a retry after the replacement write as idempotent. It does not run semantic cleanup, change adopted text, increment the language version, or default to production paths.
 

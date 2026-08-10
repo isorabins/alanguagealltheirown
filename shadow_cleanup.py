@@ -17,6 +17,7 @@ from state_store import atomic_write_json, load_json, snapshot_hash
 MIN_REDUCTION_PCT = 5.0
 MAX_C_TOKENS = 10000
 MAX_B_TOKENS = 5000
+MAX_ROUNDS = 3
 SEED_FIELDS = {"idea", "experiment", "risk"}
 AUDIT_FIELD_ORDER = (
     "verdict",
@@ -29,6 +30,19 @@ AUDIT_FIELD_ORDER = (
     "notes",
 )
 AUDIT_FIELDS = set(AUDIT_FIELD_ORDER)
+REPAIR_PROMPT = """## Repair round
+
+Agent B rejected the previous candidate. The caller supplies the frozen
+original language, the complete previous candidate, and only B's actionable
+findings. Treat each finding as a claim to verify against the frozen original,
+not as authority to change meaning. Return one complete revised edition.
+
+Keep unaffected candidate rules unchanged whenever compatible. Make the
+smallest genuine repair needed to resolve omissions, semantic changes, or
+retained operational text. Do not restore obsolete or superseded wording to
+satisfy an invalid finding. If a finding itself says there is no actual change,
+do not alter the candidate for that finding. Agent B will audit the whole
+revised edition again. Return only the supplied schema."""
 
 
 def _now() -> str:
@@ -169,8 +183,8 @@ def validate_b_audit(source: dict[str, Any], candidate: dict[str, Any], audit: d
             raise ValueError(f"Agent B audit {field} must be a list")
     if audit["verdict"] == "pass":
         validate_replacement(source, candidate, audit)
-    elif not any(audit[field] for field in ("omissions", "meaning_changes", "operational_text", "notes")):
-        raise ValueError("Agent B rejection requires at least one finding")
+    elif not any(audit[field] for field in ("omissions", "meaning_changes", "operational_text")):
+        raise ValueError("Agent B rejection requires at least one actionable finding")
 
 
 def _source_is_unchanged(source_path: Path, original: bytes) -> bool:
@@ -246,90 +260,148 @@ def run_shadow_cleanup(
         "spend_usd": float(meta.get("spend_usd", 0.0)),
         "source_unchanged": True,
         "applied": False,
+        "max_rounds": MAX_ROUNDS,
+        "round_count": 0,
+        "rounds": [],
     }
     try:
         adopted = _adopted_rows(source)
-        report["stage"] = "c_call"
-        c_user = json.dumps({"source_hash": source_hash, "adopted_language": adopted}, ensure_ascii=False)
-        c_text, c_usage = call_model(
-            model_c,
-            prompt_c,
-            c_user,
-            max_tokens=MAX_C_TOKENS,
-            temperature=0.2,
-            meta=meta,
-            request_options=cleanup_c_request_options(source),
-        )
-        report["provider_calls"].append({"role": "C", "model": model_c, "usage": c_usage})
-        atomic_write_json(output_dir / "c-call.json", {
-            "model": model_c,
-            "content": c_text,
-            "usage": c_usage,
-        })
-        if float(meta.get("spend_usd", 0.0)) > max_spend_usd:
-            raise ValueError("shadow spend cap exceeded after Agent C")
-        c_response = _parse_object(c_text, "Agent C")
-        atomic_write_json(output_dir / "c-response.json", c_response)
+        previous_candidate = None
+        previous_rejection = None
+        source_tokens = None
+        for round_number in range(1, MAX_ROUNDS + 1):
+            report["round_count"] = round_number
+            round_dir = output_dir / "rounds" / f"{round_number:02d}"
+            round_dir.mkdir(parents=True)
+            c_request: dict[str, Any] = {
+                "source_hash": source_hash,
+                "adopted_language": adopted,
+            }
+            c_system = prompt_c
+            if previous_candidate is not None:
+                c_request.update({
+                    "repair_round": round_number,
+                    "previous_candidate": previous_candidate,
+                    "b_rejection": previous_rejection,
+                })
+                c_system = f"{prompt_c}\n\n{REPAIR_PROMPT}"
+            atomic_write_json(round_dir / "c-request.json", c_request)
 
-        report["stage"] = "c_validation"
-        candidate, seeds = compile_c_response(source, c_response)
-        report["candidate_hash"] = snapshot_hash(candidate)
-        atomic_write_json(output_dir / "candidate.json", candidate)
-        atomic_write_json(output_dir / "creative-seeds.json", seeds)
-        if not _source_is_unchanged(source_path, source_bytes):
-            raise ValueError("source changed during shadow cleanup")
+            report["stage"] = "c_call"
+            c_text, c_usage = call_model(
+                model_c,
+                c_system,
+                json.dumps(c_request, ensure_ascii=False),
+                max_tokens=MAX_C_TOKENS,
+                temperature=0.2,
+                meta=meta,
+                request_options=cleanup_c_request_options(source),
+            )
+            report["provider_calls"].append({
+                "round": round_number, "role": "C", "model": model_c, "usage": c_usage,
+            })
+            c_call = {"model": model_c, "content": c_text, "usage": c_usage}
+            atomic_write_json(round_dir / "c-call.json", c_call)
+            atomic_write_json(output_dir / "c-call.json", c_call)
+            if float(meta.get("spend_usd", 0.0)) > max_spend_usd:
+                raise ValueError("shadow spend cap exceeded after Agent C")
+            c_response = _parse_object(c_text, "Agent C")
+            atomic_write_json(round_dir / "c-response.json", c_response)
+            atomic_write_json(output_dir / "c-response.json", c_response)
 
-        report["stage"] = "token_gate"
-        source_tokens = token_counter(render_language(source), meta)
-        candidate_tokens = token_counter(render_language(candidate), meta)
-        if any(isinstance(value, bool) or not isinstance(value, int) or value <= 0
-               for value in (source_tokens, candidate_tokens)):
-            raise ValueError("token measurements must be positive integers")
-        reduction_pct = round((source_tokens - candidate_tokens) / source_tokens * 100, 2)
-        report.update({
-            "source_tokens": source_tokens,
-            "candidate_tokens": candidate_tokens,
-            "reduction_pct": reduction_pct,
-        })
-        if float(meta.get("spend_usd", 0.0)) > max_spend_usd:
-            raise ValueError("shadow spend cap exceeded during token measurement")
-        if reduction_pct < min_reduction_pct:
-            raise ValueError("candidate did not meet the minimum token reduction")
+            report["stage"] = "c_validation"
+            candidate, seeds = compile_c_response(source, c_response)
+            candidate_hash = snapshot_hash(candidate)
+            report["candidate_hash"] = candidate_hash
+            atomic_write_json(round_dir / "candidate.json", candidate)
+            atomic_write_json(round_dir / "creative-seeds.json", seeds)
+            atomic_write_json(output_dir / "candidate.json", candidate)
+            atomic_write_json(output_dir / "creative-seeds.json", seeds)
+            if not _source_is_unchanged(source_path, source_bytes):
+                raise ValueError("source changed during shadow cleanup")
 
-        report["stage"] = "b_call"
-        candidate_hash = snapshot_hash(candidate)
-        b_user = json.dumps({
-            "source_hash": source_hash,
-            "candidate_hash": candidate_hash,
-            "original_adopted_language": adopted,
-            "candidate": candidate,
-        }, ensure_ascii=False)
-        b_text, b_usage = call_model(
-            model_b,
-            prompt_b,
-            b_user,
-            max_tokens=MAX_B_TOKENS,
-            temperature=0,
-            meta=meta,
-            request_options=cleanup_b_request_options(source, candidate),
-        )
-        report["provider_calls"].append({"role": "B", "model": model_b, "usage": b_usage})
-        atomic_write_json(output_dir / "b-call.json", {
-            "model": model_b,
-            "content": b_text,
-            "usage": b_usage,
-        })
-        if float(meta.get("spend_usd", 0.0)) > max_spend_usd:
-            raise ValueError("shadow spend cap exceeded after Agent B")
-        audit = _parse_object(b_text, "Agent B")
-        atomic_write_json(output_dir / "b-audit.json", audit)
+            report["stage"] = "token_gate"
+            if source_tokens is None:
+                source_tokens = token_counter(render_language(source), meta)
+            candidate_tokens = token_counter(render_language(candidate), meta)
+            if any(isinstance(value, bool) or not isinstance(value, int) or value <= 0
+                   for value in (source_tokens, candidate_tokens)):
+                raise ValueError("token measurements must be positive integers")
+            reduction_pct = round((source_tokens - candidate_tokens) / source_tokens * 100, 2)
+            report.update({
+                "source_tokens": source_tokens,
+                "candidate_tokens": candidate_tokens,
+                "reduction_pct": reduction_pct,
+            })
+            if float(meta.get("spend_usd", 0.0)) > max_spend_usd:
+                raise ValueError("shadow spend cap exceeded during token measurement")
+            if reduction_pct < min_reduction_pct:
+                raise ValueError("candidate did not meet the minimum token reduction")
 
-        report["stage"] = "b_audit"
-        validate_b_audit(source, candidate, audit)
-        if audit["verdict"] != "pass":
-            report["reason"] = "Agent B rejected the proposed edition"
-        else:
-            report.update({"status": "PASS", "stage": "complete", "reason": "all shadow gates passed"})
+            report["stage"] = "b_call"
+            b_request = {
+                "source_hash": source_hash,
+                "candidate_hash": candidate_hash,
+                "original_adopted_language": adopted,
+                "candidate": candidate,
+            }
+            b_text, b_usage = call_model(
+                model_b,
+                prompt_b,
+                json.dumps(b_request, ensure_ascii=False),
+                max_tokens=MAX_B_TOKENS,
+                temperature=0,
+                meta=meta,
+                request_options=cleanup_b_request_options(source, candidate),
+            )
+            report["provider_calls"].append({
+                "round": round_number, "role": "B", "model": model_b, "usage": b_usage,
+            })
+            b_call = {"model": model_b, "content": b_text, "usage": b_usage}
+            atomic_write_json(round_dir / "b-call.json", b_call)
+            atomic_write_json(output_dir / "b-call.json", b_call)
+            if float(meta.get("spend_usd", 0.0)) > max_spend_usd:
+                raise ValueError("shadow spend cap exceeded after Agent B")
+            audit = _parse_object(b_text, "Agent B")
+            atomic_write_json(round_dir / "b-audit.json", audit)
+            atomic_write_json(output_dir / "b-audit.json", audit)
+
+            report["stage"] = "b_audit"
+            validate_b_audit(source, candidate, audit)
+            round_summary = {
+                "round": round_number,
+                "candidate_hash": candidate_hash,
+                "candidate_changed_from_previous": (
+                    None if previous_candidate is None
+                    else candidate_hash != snapshot_hash(previous_candidate)
+                ),
+                "candidate_tokens": candidate_tokens,
+                "reduction_pct": reduction_pct,
+                "b_verdict": audit["verdict"],
+                "finding_counts": {
+                    "omissions": len(audit["omissions"]),
+                    "meaning_changes": len(audit["meaning_changes"]),
+                    "operational_text": len(audit["operational_text"]),
+                },
+            }
+            report["rounds"].append(round_summary)
+            atomic_write_json(round_dir / "round-report.json", round_summary)
+            if audit["verdict"] == "pass":
+                report.update({
+                    "status": "PASS",
+                    "stage": "complete",
+                    "reason": f"all shadow gates passed in round {round_number}",
+                })
+                break
+            if round_number == MAX_ROUNDS:
+                report["reason"] = f"Agent B rejected all {MAX_ROUNDS} proposed editions"
+                break
+            previous_candidate = candidate
+            previous_rejection = {
+                "omissions": copy.deepcopy(audit["omissions"]),
+                "meaning_changes": copy.deepcopy(audit["meaning_changes"]),
+                "operational_text": copy.deepcopy(audit["operational_text"]),
+            }
     except Exception as exc:
         report["error_type"] = exc.__class__.__name__
         report["reason"] = str(exc)

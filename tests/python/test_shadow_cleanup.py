@@ -4,7 +4,15 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from shadow_cleanup import MAX_B_TOKENS, MAX_C_TOKENS, cleanup_c_request_options, run_shadow_cleanup
+from shadow_cleanup import (
+    MAX_B_TOKENS,
+    MAX_C_TOKENS,
+    REPAIR_PROMPT,
+    cleanup_c_request_options,
+    compile_c_response,
+    run_shadow_cleanup,
+    validate_b_audit,
+)
 from state_store import snapshot_hash
 
 
@@ -210,7 +218,7 @@ class ShadowCleanupTests(unittest.TestCase):
 
             def call(model, _system, user, **_kwargs):
                 calls.append(model)
-                if len(calls) == 1:
+                if model == "c":
                     return json.dumps(c_response()), {"cost": 0.01}
                 request = json.loads(user)
                 return json.dumps({
@@ -236,8 +244,89 @@ class ShadowCleanupTests(unittest.TestCase):
             )
             self.assertEqual(report["status"], "FAIL")
             self.assertEqual(report["stage"], "b_audit")
-            self.assertIn("rejected", report["reason"])
+            self.assertIn("all 3", report["reason"])
+            self.assertEqual(report["round_count"], 3)
+            self.assertEqual(calls, ["c", "b", "c", "b", "c", "b"])
+            self.assertEqual([item["b_verdict"] for item in report["rounds"]], ["REJECT"] * 3)
+            self.assertTrue((output / "rounds/03/b-audit.json").exists())
             self.assertFalse((output / "applied-rulebook.json").exists())
+
+    def test_repair_round_gets_full_context_and_b_reaudits_whole_revision(self):
+        with tempfile.TemporaryDirectory() as directory:
+            self.source_path = self._source_copy(directory)
+            c_requests = []
+            c_systems = []
+            b_requests = []
+
+            def audit(request, verdict, findings):
+                return {
+                    "verdict": verdict,
+                    "reviewed_source_hash": request["source_hash"],
+                    "reviewed_candidate_hash": request["candidate_hash"],
+                    "covered_source_ids": ["rule-001", "rule-002"],
+                    "omissions": [],
+                    "meaning_changes": findings,
+                    "operational_text": [],
+                    "notes": ["non-actionable audit context must not go back to C"],
+                }
+
+            def call(model, system, user, **_kwargs):
+                request = json.loads(user)
+                if model == "c":
+                    c_requests.append(request)
+                    c_systems.append(system)
+                    response = c_response()
+                    if len(c_requests) == 2:
+                        response["groups"][0]["text_en"] = "Mark every deadline or due time once."
+                    return json.dumps(response), {"cost": 0.01}
+                b_requests.append(request)
+                if len(b_requests) == 1:
+                    findings = [{"location": "rule-c001", "issue": "The deadline scope changed."}]
+                    return json.dumps(audit(request, "REJECT", findings)), {"cost": 0.01}
+                return json.dumps(audit(request, "pass", [])), {"cost": 0.01}
+
+            output = Path(directory) / "shadow"
+            report = run_shadow_cleanup(
+                self.source_path,
+                output,
+                model_c="c",
+                model_b="b",
+                call_model=call,
+                token_counter=self._token_counter,
+                meta={"spend_usd": 0.0},
+            )
+            self.assertEqual(report["status"], "PASS")
+            self.assertEqual(report["round_count"], 2)
+            self.assertEqual([item["b_verdict"] for item in report["rounds"]], ["REJECT", "pass"])
+            self.assertIsNone(report["rounds"][0]["candidate_changed_from_previous"])
+            self.assertTrue(report["rounds"][1]["candidate_changed_from_previous"])
+            repair = c_requests[1]
+            self.assertEqual(repair["source_hash"], c_requests[0]["source_hash"])
+            self.assertEqual(len(repair["adopted_language"]), 2)
+            self.assertEqual(set(repair["b_rejection"]), {"omissions", "meaning_changes", "operational_text"})
+            self.assertEqual(repair["b_rejection"]["meaning_changes"][0]["location"], "rule-c001")
+            self.assertEqual(repair["previous_candidate"], b_requests[0]["candidate"])
+            self.assertIn(REPAIR_PROMPT, c_systems[1])
+            self.assertEqual(b_requests[1]["candidate"]["rules"][0]["text_en"],
+                             "Mark every deadline or due time once.")
+            stored = json.loads((output / "rounds/02/c-request.json").read_text())
+            self.assertEqual(stored["b_rejection"], repair["b_rejection"])
+
+    def test_b_rejection_requires_an_actionable_finding(self):
+        source = json.loads((FIX / "source.json").read_text())
+        candidate, _ = compile_c_response(source, c_response())
+        audit = {
+            "verdict": "REJECT",
+            "reviewed_source_hash": snapshot_hash(source),
+            "reviewed_candidate_hash": snapshot_hash(candidate),
+            "covered_source_ids": ["rule-001", "rule-002"],
+            "omissions": [],
+            "meaning_changes": [],
+            "operational_text": [],
+            "notes": ["No actionable semantic defect."],
+        }
+        with self.assertRaisesRegex(ValueError, "actionable"):
+            validate_b_audit(source, candidate, audit)
 
     def test_source_drift_is_detected_before_b(self):
         with tempfile.TemporaryDirectory() as directory:
