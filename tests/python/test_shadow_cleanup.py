@@ -1,3 +1,4 @@
+import hashlib
 import json
 import tempfile
 import unittest
@@ -100,6 +101,37 @@ class ShadowCleanupTests(unittest.TestCase):
             self.assertEqual(json.loads((output / "b-call.json").read_text())["model"], "kimi-b")
             self.assertFalse((output / "applied-rulebook.json").exists())
             self.assertFalse((output / "manifest.json").exists())
+
+    def test_shadow_can_freeze_an_explicit_agent_c_prompt(self):
+        with tempfile.TemporaryDirectory() as directory:
+            self.source_path = self._source_copy(directory)
+            prompt = Path(directory) / "candidate-c.md"
+            prompt.write_text("candidate Agent C behavior contract")
+            systems = []
+            passing_call = self._passing_call([])
+
+            def call(model, system, user, **kwargs):
+                systems.append(system)
+                return passing_call(model, system, user, **kwargs)
+
+            output = Path(directory) / "shadow"
+            report = run_shadow_cleanup(
+                self.source_path,
+                output,
+                model_c="different-family-c",
+                model_b="kimi-b",
+                call_model=call,
+                token_counter=self._token_counter,
+                meta={"spend_usd": 0.0},
+                prompt_c_path=prompt,
+            )
+            expected_hash = hashlib.sha256(prompt.read_bytes()).hexdigest()
+            self.assertEqual(report["status"], "PASS")
+            self.assertEqual(systems[0], prompt.read_text())
+            self.assertEqual(report["prompt_c_sha256"], expected_hash)
+            receipt = json.loads((output / "c-prompt.json").read_text())
+            self.assertEqual(receipt["sha256"], expected_hash)
+            self.assertEqual(receipt["content"], prompt.read_text())
 
     def test_shadow_refuses_the_same_model_for_c_and_b(self):
         with tempfile.TemporaryDirectory() as directory:

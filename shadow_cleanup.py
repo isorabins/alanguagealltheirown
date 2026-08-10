@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import argparse
 import copy
+import hashlib
 import json
 from datetime import datetime, timezone
 from pathlib import Path
@@ -188,6 +189,7 @@ def run_shadow_cleanup(
     call_model: Callable[..., tuple[str, dict[str, Any]]],
     token_counter: Callable[[str, dict[str, Any]], int],
     meta: dict[str, Any],
+    prompt_c_path: Path | None = None,
     min_reduction_pct: float = MIN_REDUCTION_PCT,
     max_spend_usd: float = 0.25,
 ) -> dict[str, Any]:
@@ -205,8 +207,16 @@ def run_shadow_cleanup(
     if not isinstance(source, dict):
         raise ValueError("source must be one JSON object")
     source_hash = snapshot_hash(source)
+    prompt_c_path = Path(prompt_c_path) if prompt_c_path else Path(__file__).parent / "prompts" / "cleanup_c.md"
+    prompt_c = prompt_c_path.read_text()
+    prompt_c_hash = hashlib.sha256(prompt_c.encode()).hexdigest()
     output_dir.mkdir(parents=True)
     atomic_write_json(output_dir / "original.json", source)
+    atomic_write_json(output_dir / "c-prompt.json", {
+        "path": str(prompt_c_path.resolve()),
+        "sha256": prompt_c_hash,
+        "content": prompt_c,
+    })
     report: dict[str, Any] = {
         "kind": "shadow_cleanup",
         "status": "FAIL",
@@ -217,6 +227,7 @@ def run_shadow_cleanup(
         "source_hash": source_hash,
         "candidate_hash": None,
         "models": {"c": model_c, "b": model_b},
+        "prompt_c_sha256": prompt_c_hash,
         "minimum_reduction_pct": min_reduction_pct,
         "source_tokens": None,
         "candidate_tokens": None,
@@ -232,7 +243,7 @@ def run_shadow_cleanup(
         c_user = json.dumps({"source_hash": source_hash, "adopted_language": adopted}, ensure_ascii=False)
         c_text, c_usage = call_model(
             model_c,
-            (Path(__file__).parent / "prompts" / "cleanup_c.md").read_text(),
+            prompt_c,
             c_user,
             max_tokens=MAX_C_TOKENS,
             temperature=0.2,
@@ -327,6 +338,7 @@ def main() -> int:
     parser.add_argument("--output", type=Path, required=True)
     parser.add_argument("--model-c", required=True)
     parser.add_argument("--model-b", default=None)
+    parser.add_argument("--prompt-c", type=Path, default=None)
     parser.add_argument("--min-reduction-pct", type=float, default=MIN_REDUCTION_PCT)
     parser.add_argument("--max-spend-usd", type=float, default=0.25)
     args = parser.parse_args()
@@ -343,6 +355,7 @@ def main() -> int:
         call_model=call,
         token_counter=token_count,
         meta=meta,
+        prompt_c_path=args.prompt_c,
         min_reduction_pct=args.min_reduction_pct,
         max_spend_usd=args.max_spend_usd,
     )
