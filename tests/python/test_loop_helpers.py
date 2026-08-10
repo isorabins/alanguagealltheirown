@@ -56,6 +56,11 @@ class StructuredLoopTests(unittest.TestCase):
     def tearDown(self):
         loop.disable_cost_receipt_ledger()
 
+    def test_api_key_prefers_in_process_environment(self):
+        with mock.patch.dict("os.environ", {"OPENROUTER_API_KEY": "environment-key"}), \
+                mock.patch.object(loop, "_key", None):
+            self.assertEqual(loop.api_key(), "environment-key")
+
     def _assert_delivery_restored_and_redelivered(self, kind):
         collaboration = empty_state()
         if kind == "RESEARCH":

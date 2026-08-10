@@ -82,6 +82,8 @@ class CostAccountingError(RuntimeError):
 def api_key():
     global _key
     if _key is None:
+        _key = os.environ.get("OPENROUTER_API_KEY", "").strip() or None
+    if _key is None and (ROOT / ".env").exists():
         for line in (ROOT / ".env").read_text().splitlines():
             if line.startswith("OPENROUTER_API_KEY="):
                 _key = line.split("=", 1)[1].strip()

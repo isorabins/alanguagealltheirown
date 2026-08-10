@@ -60,6 +60,14 @@ For Scoring V2 exams, `rulebook.score_judgment_v2` requires every answer-key ato
 
 `cleanup_rulebook.py apply` requires an external approval receipt naming the exact source and full applied-ledger hashes and refuses changed source, changed replacement, or missing approval. A successful apply records the approval hash in the bundle manifest. Live snapshot/model calls/application remain separate approval gates.
 
+`shadow_cleanup.py` is a smaller manual evidence path. It accepts only an explicit
+source snapshot and a new output directory, asks Agent C for one consolidated
+edition plus three separately stored creative seeds, requires at least 5% fewer
+decoder-visible tokens, and sends only the edition to Agent B for audit. It emits
+`original.json`, the candidate, seeds, audit, and `report.json`. It has no apply
+command or active-state argument, and any invalid response, source drift, weak
+reduction, or B rejection leaves the source untouched and reports `FAIL`.
+
 `legacy_motion_repair.py` is a separate metadata-only migration for the live deadlock. `prepare` terminalizes proposed and reverted records on a copied source, records each prior status, refuses any pending repeal, proves every adopted record plus the adopted-language version/hash is exact, and emits original/replacement/diff/manifest hashes. `apply` requires a matching external approval receipt, rejects source or artifact drift, and treats a retry after the replacement write as idempotent. It does not run semantic cleanup, change adopted text, increment the language version, or default to production paths.
 
 ## Collaboration inbox
