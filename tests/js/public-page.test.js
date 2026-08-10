@@ -110,7 +110,7 @@ test('offline V2 fixtures render inspectable verdicts and invalid-judge separati
 
 test('completed V2 exams persist coverage and body savings independently',()=>{
   const script=html.match(/<script>\s*([\s\S]*?)<\/script>/)[1];
-  const end=script.indexOf('\nvar TURN_MS');
+  const end=script.indexOf('\nfunction runtimeView');
   assert.ok(end>0,'viewer render functions must remain independently executable');
 
   const viewer=viewerDocument();
@@ -136,6 +136,14 @@ test('completed V2 exams persist coverage and body savings independently',()=>{
     rulebook:{version:'0.1',rules:[]},collaboration:{},conversations:[],x:{},meta:{updated:'fixture'}
   });
 
+  assert.equal(elements.get('metrics').innerHTML,
+    '<span>rulebook revisions<b>1</b></span>'+
+    '<span>turns<b>203</b></span>'+
+    '<span>rules adopted<b>0</b></span>'+
+    '<span>latest meaning pass · V2<b>FAIL</b></span>'+
+    '<span>latest semantic coverage · V2<b>63%</b></span>'+
+    '<span>best message-body savings · V2<b>+46%</b></span>',
+    'full-history rendering must keep the same six-field headline contract as bootstrap.js');
   assert.match(elements.get('metrics').innerHTML,/best message-body savings · V2<b>\+46%/);
   assert.match(elements.get('metrics').innerHTML,/latest semantic coverage · V2<b>63%/);
   assert.match(elements.get('exams').innerHTML,/t203[\s\S]*INVALID JUDGE RESULT[\s\S]*coverage unavailable[\s\S]*body savings \+46%/);
@@ -173,6 +181,76 @@ test('last deployed savings remain visible when the live refresh fails',async()=
   assert.match(viewer.elements.get('exams').innerHTML,/coverage 100%[\s\S]*body savings \+44%/);
 });
 
+test('failed live refresh dynamically loads and renders the bundled archive',async()=>{
+  const script=html.match(/<script>\s*([\s\S]*?)<\/script>/)[1];
+  const loadCall=script.indexOf('\nloadState();');
+  assert.ok(loadCall>0,'loadState must remain independently executable');
+  const viewer=viewerDocument();
+  const appended=[];
+  viewer.document.createElement=(tag)=>({tag,src:'',onload:null,onerror:null});
+  viewer.document.head={appendChild(node){appended.push(node);}};
+  const window={};
+  const failedFetch=()=>Promise.reject(new Error('offline refresh failed'));
+  const api=Function('document','window','fetch',
+    script.slice(0,loadCall)+'\nreturn {loadState};')(viewer.document,window,failedFetch);
+
+  api.loadState();
+  await new Promise(resolve=>setImmediate(resolve));
+  assert.equal(appended.length,1);
+  assert.equal(appended[0].src,'state.js');
+  assert.equal(viewer.elements.get('metrics'),undefined,
+    'the historical archive must not be assumed present before its script loads');
+
+  window.STATE={
+    conversation:[{
+      type:'test',turn:200,scoring_version:'v2',judge_valid:true,
+      benchmark_id:'B1',benchmark_name:'Event prose',meaning_pass:true,
+      semantic_coverage_pct:100,message_body_savings_pct:44,
+      compression_success:true,orig_tokens:469,enc_tokens:263,
+      answer_key:[],atom_results:[],critical_failures:[],inventions:[]
+    }],
+    rulebook:{version:'0.1',rules:[]},collaboration:{},conversations:[],x:{},
+    meta:{updated:'deployed fixture'}
+  };
+  appended[0].onload();
+  await new Promise(resolve=>setImmediate(resolve));
+  assert.match(viewer.elements.get('metrics').innerHTML,/best message-body savings · V2<b>\+44%/);
+  assert.match(viewer.elements.get('exams').innerHTML,/coverage 100%[\s\S]*body savings \+44%/);
+});
+
+test('headline counters render before the full historical archive loads',()=>{
+  const bootstrapTag='<script src="bootstrap.js"></script>';
+  const startupTag='<script src="startup.js"></script>';
+  assert.ok(html.includes(bootstrapTag));
+  assert.ok(html.includes(startupTag));
+  assert.ok(html.indexOf(bootstrapTag)<html.indexOf(startupTag));
+  assert.ok(html.indexOf(startupTag)<html.indexOf('<script>'));
+  assert.doesNotMatch(html,/<script src="state\.js"><\/script>/,
+    'the multi-megabyte historical archive must not block initial rendering');
+  assert.match(html,/function loadBundledState\(\)/,
+    'the deployed archive remains available as a fallback after live fetch failure');
+  assert.match(html,/if \(!when && window\.PUBLIC_BOOTSTRAP\) when = window\.PUBLIC_BOOTSTRAP\.updated \|\| null/,
+    'a GitHub commit-lookup failure must retain the deployed counter timestamp');
+
+  const startup=fs.readFileSync(path.join(__dirname,'../../viewer/startup.js'),'utf8');
+  const viewer=viewerDocument();
+  const intervals=[];
+  const window={
+    PUBLIC_BOOTSTRAP:{
+      turn:2193,updated:new Date(Date.now()-5*60*1000).toISOString(),
+      metrics:[['turns','2193'],['rules adopted','24']]
+    },
+    setInterval(fn){intervals.push(fn); return 1;},
+    setTimeout(){ return 1; }
+  };
+  Function('window','document',startup)(window,viewer.document);
+
+  assert.match(viewer.elements.get('t-turn').textContent,/^(?:\d\d:\d\d|running now|delayed)$/);
+  assert.match(viewer.elements.get('t-test').textContent,/^(?:\d\d:\d\d|running now)$/);
+  assert.match(viewer.elements.get('metrics').innerHTML,/turns<b>2193<\/b>/);
+  assert.equal(intervals.length,1,'one lightweight timer owns the countdown refresh');
+});
+
 test('stale active claims and Composition are absent',()=>{
   for(const phrase of ['dumb script','mindless script','gigawatt','power-grid','Composition','Slack ASK',':online']) assert.doesNotMatch(html,new RegExp(phrase,'i'));
 });
@@ -200,7 +278,7 @@ test('public page curates collaboration, judgment, and proposal history',()=>{
 });
 
 test('operator questions show their actual text without implying the core loop is blocked',()=>{
-  const source=html.match(/function operatorQuestionView\(openAsks\) \{([\s\S]*?)\n\}\n\nvar TURN_MS/);
+  const source=html.match(/function operatorQuestionView\(openAsks\) \{([\s\S]*?)\n\}\n\nfunction runtimeView/);
   assert.ok(source,'operatorQuestionView must remain executable as a pure status decision');
   const operatorQuestionView=Function('openAsks',source[1]);
   const open=[
@@ -232,7 +310,7 @@ test('stale runtime notice is truthful and self-clearing',()=>{
   assert.match(html,/path=state%2Fconversation\.json&per_page=1/);
   assert.match(html,/runtimeStatus\.classList\.remove\("visible"\)/);
 
-  const source=html.match(/function runtimeView\(when, now, turn\) \{([\s\S]*?)\n\}\n\nfunction loadState/);
+  const source=html.match(/function runtimeView\(when, now, turn\) \{([\s\S]*?)\n\}\n\nvar bundledStatePromise/);
   assert.ok(source,'runtimeView must remain executable as a pure status decision');
   const runtimeView=Function('when','now','turn',source[1]);
   const now=Date.parse('2026-07-31T10:00:00Z');

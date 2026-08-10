@@ -438,6 +438,62 @@ class StructuredLoopTests(unittest.TestCase):
         self.assertNotIn('"type": "protocol_cutover"', payload)
         self.assertIn('"content": "Public deliberation."', payload)
 
+    def test_viewer_bootstrap_is_small_and_contains_immediate_headline_state(self):
+        conversation = [
+            {
+                "turn": 20,
+                "agent": "harness",
+                "type": "test",
+                "scoring_version": "v2",
+                "judge_valid": True,
+                "meaning_pass": True,
+                "semantic_coverage_pct": 100,
+                "message_body_savings_pct": 31,
+            },
+            {
+                "turn": 21,
+                "agent": "harness",
+                "type": "test",
+                "scoring_version": "v2",
+                "judge_valid": False,
+                "message_body_savings_pct": 38,
+            },
+            {
+                "turn": 22,
+                "agent": "B",
+                "type": "message",
+                "content": "Public deliberation.",
+            },
+        ]
+        rulebook = open_book()
+        rulebook["version"] = "0.9"
+        rulebook["rules"][0]["status"] = "adopted"
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            (root / "viewer").mkdir()
+            with mock.patch.object(loop, "ROOT", root), mock.patch.object(
+                loop, "now_iso", return_value="2026-08-10T08:30:00Z"
+            ):
+                loop.write_viewer_state(conversation, rulebook, {"spend_usd": 0})
+            payload = (root / "viewer" / "bootstrap.js").read_text()
+
+        self.assertLess(len(payload.encode()), 2048)
+        self.assertTrue(payload.startswith("window.PUBLIC_BOOTSTRAP = "))
+        bootstrap = json.loads(payload.removeprefix("window.PUBLIC_BOOTSTRAP = ").removesuffix(";\n"))
+        self.assertEqual(bootstrap["turn"], 22)
+        self.assertEqual(bootstrap["updated"], "2026-08-10T08:30:00Z")
+        self.assertEqual(
+            bootstrap["metrics"],
+            [
+                ["rulebook revisions", "9"],
+                ["turns", "22"],
+                ["rules adopted", "1"],
+                ["latest meaning pass · V2", "PASS"],
+                ["latest semantic coverage · V2", "100%"],
+                ["best message-body savings · V2", "+38%"],
+            ],
+        )
+
     def test_archive_moves_local_cost_ledger_with_the_matching_meta(self):
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)

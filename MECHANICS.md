@@ -105,6 +105,6 @@ publisher.
 
 ## Deployment and acceptance
 
-The viewer remains static HTML plus small Vercel functions. `/human` rewrites to `human.html`. Redis, password/session, public OpenRouter key, WAF, deployment, loop pause/resume, cleanup application, paid production tests, X actions, feature push/PR, and `main` integration are all separate planned stops.
+The viewer remains static HTML plus small Vercel functions. `/human` rewrites to `human.html`. Each scheduled turn emits a sub-2-KB same-origin bootstrap containing the current turn timestamp and headline metrics; that bootstrap renders the timers and counters before canonical history loads. The multi-megabyte deployed history snapshot is no longer parser-blocking and is loaded only if the asynchronous public-repository refresh fails. Redis, password/session, public OpenRouter key, WAF, deployment, loop pause/resume, cleanup application, paid production tests, X actions, feature push/PR, and `main` integration are all separate planned stops.
 
 Offline tests prove contracts but not the live product. Production acceptance requires the deployed commit, visible real paths, desktop and 375px coverage, session expiry/restart, cross-turn exact-once delivery, hostile/failure cases, approved X results, numbered screenshots, one continuous video, independent read-only receipts, and cleanup. Every matrix row is PASS, FAIL, or BLOCKED; any debris, duplicate, stuck queue, warning, missing evidence, or incomplete approved action prevents overall PASS.
