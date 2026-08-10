@@ -10,6 +10,7 @@ on:
       - "tests/**"
       - "viewer/**"
       - ".github/workflows/offline-acceptance.yml"
+      - "!viewer/bootstrap.js"
       - "!viewer/state.js"
   pull_request:
     paths:
@@ -20,6 +21,7 @@ on:
       - "tests/**"
       - "viewer/**"
       - ".github/workflows/offline-acceptance.yml"
+      - "!viewer/bootstrap.js"
       - "!viewer/state.js"
 
 permissions:

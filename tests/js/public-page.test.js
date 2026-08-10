@@ -136,6 +136,14 @@ test('completed V2 exams persist coverage and body savings independently',()=>{
     rulebook:{version:'0.1',rules:[]},collaboration:{},conversations:[],x:{},meta:{updated:'fixture'}
   });
 
+  assert.equal(elements.get('metrics').innerHTML,
+    '<span>rulebook revisions<b>1</b></span>'+
+    '<span>turns<b>203</b></span>'+
+    '<span>rules adopted<b>0</b></span>'+
+    '<span>latest meaning pass · V2<b>FAIL</b></span>'+
+    '<span>latest semantic coverage · V2<b>63%</b></span>'+
+    '<span>best message-body savings · V2<b>+46%</b></span>',
+    'full-history rendering must keep the same six-field headline contract as bootstrap.js');
   assert.match(elements.get('metrics').innerHTML,/best message-body savings · V2<b>\+46%/);
   assert.match(elements.get('metrics').innerHTML,/latest semantic coverage · V2<b>63%/);
   assert.match(elements.get('exams').innerHTML,/t203[\s\S]*INVALID JUDGE RESULT[\s\S]*coverage unavailable[\s\S]*body savings \+46%/);
@@ -170,6 +178,43 @@ test('last deployed savings remain visible when the live refresh fails',async()=
   await new Promise(resolve=>setImmediate(resolve));
   assert.match(viewer.elements.get('metrics').innerHTML,/best message-body savings · V2<b>\+44%/,
     'a failed refresh must not clear the last deployed savings');
+  assert.match(viewer.elements.get('exams').innerHTML,/coverage 100%[\s\S]*body savings \+44%/);
+});
+
+test('failed live refresh dynamically loads and renders the bundled archive',async()=>{
+  const script=html.match(/<script>\s*([\s\S]*?)<\/script>/)[1];
+  const loadCall=script.indexOf('\nloadState();');
+  assert.ok(loadCall>0,'loadState must remain independently executable');
+  const viewer=viewerDocument();
+  const appended=[];
+  viewer.document.createElement=(tag)=>({tag,src:'',onload:null,onerror:null});
+  viewer.document.head={appendChild(node){appended.push(node);}};
+  const window={};
+  const failedFetch=()=>Promise.reject(new Error('offline refresh failed'));
+  const api=Function('document','window','fetch',
+    script.slice(0,loadCall)+'\nreturn {loadState};')(viewer.document,window,failedFetch);
+
+  api.loadState();
+  await new Promise(resolve=>setImmediate(resolve));
+  assert.equal(appended.length,1);
+  assert.equal(appended[0].src,'state.js');
+  assert.equal(viewer.elements.get('metrics'),undefined,
+    'the historical archive must not be assumed present before its script loads');
+
+  window.STATE={
+    conversation:[{
+      type:'test',turn:200,scoring_version:'v2',judge_valid:true,
+      benchmark_id:'B1',benchmark_name:'Event prose',meaning_pass:true,
+      semantic_coverage_pct:100,message_body_savings_pct:44,
+      compression_success:true,orig_tokens:469,enc_tokens:263,
+      answer_key:[],atom_results:[],critical_failures:[],inventions:[]
+    }],
+    rulebook:{version:'0.1',rules:[]},collaboration:{},conversations:[],x:{},
+    meta:{updated:'deployed fixture'}
+  };
+  appended[0].onload();
+  await new Promise(resolve=>setImmediate(resolve));
+  assert.match(viewer.elements.get('metrics').innerHTML,/best message-body savings · V2<b>\+44%/);
   assert.match(viewer.elements.get('exams').innerHTML,/coverage 100%[\s\S]*body savings \+44%/);
 });
 
