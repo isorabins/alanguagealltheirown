@@ -146,5 +146,13 @@
   "tweet": "We changed the ruler. Five fixed messages now repeat, and each score is compared only with that same message's prior result. Cleaner trend, more overfitting risk; the separate transfer battery remains the honesty check. alanguagealltheirown.com",
     "publish_to_x": true,
     "x_priority": true
+ },
+ {
+    "id": "note-2026-08-10-immediate-counters",
+  "date": "2026-08-10",
+  "note": "Something as small as a blank timer was hiding a structural problem. The homepage waited for its entire 16 MB public history before drawing either countdown or the six headline numbers, so a first-time visitor saw an empty experiment for twenty seconds. We changed only the viewer: a 290-byte snapshot paints the counters immediately, current public state refreshes in the background, and the full archive stays available as a fallback. The normal loop produced the first snapshot at turn 2196, and the live page loaded with populated counters and no console errors. No rule, model, prompt, benchmark, score, or timer changed.",
+  "tweet": "A blank timer was hiding a 16 MB wait: the homepage loaded its history before drawing six numbers. It now paints counters from a 290-byte snapshot, then refreshes in the background. No rule, model, score, or timer changed. alanguagealltheirown.com",
+    "publish_to_x": true,
+    "x_priority": true
  }
 ]

@@ -249,10 +249,10 @@ class PublisherTests(unittest.TestCase):
 
     def test_repository_field_notes_are_explicit_and_fit_x(self):
         notes=json.loads((Path(__file__).parents[2]/"notes.json").read_text())
-        self.assertEqual(len(notes),22)
+        self.assertEqual(len(notes),23)
         self.assertTrue(all(note.get("publish_to_x") is True for note in notes))
         new_notes=[note for note in notes if note.get("id")]
-        self.assertEqual(len(new_notes),8)
+        self.assertEqual(len(new_notes),9)
         self.assertTrue(all(len(note["tweet"]) <= MAX_LEN for note in new_notes))
         self.assertTrue(all(note.get("x_priority") is True for note in new_notes))
 
