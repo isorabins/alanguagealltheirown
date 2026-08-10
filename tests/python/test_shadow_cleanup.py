@@ -10,6 +10,7 @@ from shadow_cleanup import (
     REPAIR_PROMPT,
     cleanup_c_request_options,
     compile_c_response,
+    prompt_version,
     run_shadow_cleanup,
     validate_b_audit,
 )
@@ -73,7 +74,7 @@ class ShadowCleanupTests(unittest.TestCase):
         self.assertFalse(seeds["items"]["additionalProperties"])
 
     def test_b_prompt_requires_paired_semantic_evidence(self):
-        prompt = (ROOT / "prompts/cleanup_b.md").read_text()
+        prompt = (ROOT / "prompts/cleanup_b_v1.md").read_text()
         contract = " ".join(prompt.split())
         self.assertIn('Source clause: "..." Candidate clause: "..." Difference:', contract)
         self.assertIn("search the whole edition before calling it absent", contract)
@@ -104,6 +105,8 @@ class ShadowCleanupTests(unittest.TestCase):
             self.assertEqual(self.source_path.read_bytes(), before)
             self.assertTrue(report["source_unchanged"])
             self.assertFalse(report["applied"])
+            self.assertEqual(report["prompt_c_version"], "cleanup-c-v1")
+            self.assertEqual(report["prompt_b_version"], "cleanup-b-v1")
             self.assertEqual(len(json.loads((output / "creative-seeds.json").read_text())), 3)
             self.assertEqual(json.loads((output / "c-call.json").read_text())["model"], "different-family-c")
             self.assertEqual(json.loads((output / "b-call.json").read_text())["model"], "kimi-b")
@@ -143,12 +146,32 @@ class ShadowCleanupTests(unittest.TestCase):
             self.assertEqual(systems[1], prompt_b.read_text())
             self.assertEqual(report["prompt_c_sha256"], expected_hash)
             self.assertEqual(report["prompt_b_sha256"], expected_b_hash)
+            self.assertEqual(report["prompt_c_version"], f"custom-c-{expected_hash[:12]}")
+            self.assertEqual(report["prompt_b_version"], f"custom-b-{expected_b_hash[:12]}")
             receipt = json.loads((output / "c-prompt.json").read_text())
             receipt_b = json.loads((output / "b-prompt.json").read_text())
+            self.assertEqual(receipt["version"], report["prompt_c_version"])
             self.assertEqual(receipt["sha256"], expected_hash)
             self.assertEqual(receipt["content"], prompt.read_text())
+            self.assertEqual(receipt_b["version"], report["prompt_b_version"])
             self.assertEqual(receipt_b["sha256"], expected_b_hash)
             self.assertEqual(receipt_b["content"], prompt_b.read_text())
+
+    def test_versioned_candidate_prompts_have_stable_ids_and_exact_test_content(self):
+        prompt_c_v1 = ROOT / "prompts/cleanup_c_v1.md"
+        prompt_b_v1 = ROOT / "prompts/cleanup_b_v1.md"
+        prompt_c = ROOT / "prompts/cleanup_c_v2.md"
+        prompt_b = ROOT / "prompts/cleanup_b_v2.md"
+        c_hash = hashlib.sha256(prompt_c.read_bytes()).hexdigest()
+        b_hash = hashlib.sha256(prompt_b.read_bytes()).hexdigest()
+        self.assertEqual(prompt_version(prompt_c, "c", c_hash), "cleanup-c-v2")
+        self.assertEqual(prompt_version(prompt_b, "b", b_hash), "cleanup-b-v2")
+        self.assertEqual(hashlib.sha256(prompt_c_v1.read_bytes()).hexdigest(),
+                         "a7489096e4dedcab2f0287c45fc663f0daeab84e47311d0a7b7b92e04e17e730")
+        self.assertEqual(hashlib.sha256(prompt_b_v1.read_bytes()).hexdigest(),
+                         "39a9062ce640b760769bd70a8563f85b0358a962426c412c3d822ccc013ae32f")
+        self.assertEqual(c_hash, "aa454bf3c8f9ea4d124398716e91956529c33acd7206016003fa43bed6d71ad0")
+        self.assertEqual(b_hash, "0d6ea9d93245cf1e714cccf928434724a9b13a5f3094f2c1f365b758416e850b")
 
     def test_shadow_refuses_the_same_model_for_c_and_b(self):
         with tempfile.TemporaryDirectory() as directory:

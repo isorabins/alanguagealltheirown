@@ -6,6 +6,7 @@ import argparse
 import copy
 import hashlib
 import json
+import re
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Callable
@@ -18,6 +19,9 @@ MIN_REDUCTION_PCT = 5.0
 MAX_C_TOKENS = 10000
 MAX_B_TOKENS = 5000
 MAX_ROUNDS = 3
+PROMPTS_DIR = Path(__file__).parent / "prompts"
+DEFAULT_PROMPT_C_PATH = PROMPTS_DIR / "cleanup_c_v1.md"
+DEFAULT_PROMPT_B_PATH = PROMPTS_DIR / "cleanup_b_v1.md"
 SEED_FIELDS = {"idea", "experiment", "risk"}
 AUDIT_FIELD_ORDER = (
     "verdict",
@@ -47,6 +51,18 @@ revised edition again. Return only the supplied schema."""
 
 def _now() -> str:
     return datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
+
+
+def prompt_version(path: Path, role: str, sha256: str) -> str:
+    """Name repository prompt editions; content-address all other overrides."""
+    match = re.fullmatch(r"cleanup_([bc])_(v[1-9][0-9]*)\.md", path.name)
+    if (
+        path.resolve().parent == PROMPTS_DIR.resolve()
+        and match
+        and match.group(1) == role
+    ):
+        return f"cleanup-{role}-{match.group(2)}"
+    return f"custom-{role}-{sha256[:12]}"
 
 
 def _adopted_rows(source: dict[str, Any]) -> list[dict[str, str]]:
@@ -222,20 +238,24 @@ def run_shadow_cleanup(
     if not isinstance(source, dict):
         raise ValueError("source must be one JSON object")
     source_hash = snapshot_hash(source)
-    prompt_c_path = Path(prompt_c_path) if prompt_c_path else Path(__file__).parent / "prompts" / "cleanup_c.md"
+    prompt_c_path = Path(prompt_c_path) if prompt_c_path else DEFAULT_PROMPT_C_PATH
     prompt_c = prompt_c_path.read_text()
     prompt_c_hash = hashlib.sha256(prompt_c.encode()).hexdigest()
-    prompt_b_path = Path(prompt_b_path) if prompt_b_path else Path(__file__).parent / "prompts" / "cleanup_b.md"
+    prompt_c_version = prompt_version(prompt_c_path, "c", prompt_c_hash)
+    prompt_b_path = Path(prompt_b_path) if prompt_b_path else DEFAULT_PROMPT_B_PATH
     prompt_b = prompt_b_path.read_text()
     prompt_b_hash = hashlib.sha256(prompt_b.encode()).hexdigest()
+    prompt_b_version = prompt_version(prompt_b_path, "b", prompt_b_hash)
     output_dir.mkdir(parents=True)
     atomic_write_json(output_dir / "original.json", source)
     atomic_write_json(output_dir / "c-prompt.json", {
+        "version": prompt_c_version,
         "path": str(prompt_c_path.resolve()),
         "sha256": prompt_c_hash,
         "content": prompt_c,
     })
     atomic_write_json(output_dir / "b-prompt.json", {
+        "version": prompt_b_version,
         "path": str(prompt_b_path.resolve()),
         "sha256": prompt_b_hash,
         "content": prompt_b,
@@ -250,7 +270,9 @@ def run_shadow_cleanup(
         "source_hash": source_hash,
         "candidate_hash": None,
         "models": {"c": model_c, "b": model_b},
+        "prompt_c_version": prompt_c_version,
         "prompt_c_sha256": prompt_c_hash,
+        "prompt_b_version": prompt_b_version,
         "prompt_b_sha256": prompt_b_hash,
         "minimum_reduction_pct": min_reduction_pct,
         "source_tokens": None,

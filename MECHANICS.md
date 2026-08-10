@@ -67,8 +67,12 @@ decoder-visible tokens, and sends only the edition to Agent B for audit. It emit
 `original.json`, the candidate, seeds, audit, and `report.json`. It has no apply
 command or active-state argument, and any invalid response, source drift, weak
 reduction, or B rejection leaves the source untouched and reports `FAIL`.
-Optional `--prompt-c` and `--prompt-b` paths freeze candidate prompts and their
-hashes in the evidence directory without replacing either default prompt.
+The incumbent C and B prompts are immutable `v1` files. The exact longer prompts
+used in the August 10 shadow tests are preserved as `v2` candidates; they remain
+explicit overrides until evidence supports promotion. Every run records each
+prompt's version, SHA-256, path, and complete content. Optional `--prompt-c` and
+`--prompt-b` paths use the named repository version when available and otherwise
+receive a content-addressed `custom` version in the evidence directory.
 When B rejects, the runner gives C the frozen original, complete prior
 candidate, and only B's actionable findings. B then re-audits the full revision;
 the shadow stops after at most three C-to-B rounds and never auto-accepts.
