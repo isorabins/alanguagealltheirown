@@ -227,6 +227,11 @@ def run_shadow_cleanup(
         raise ValueError("reduction and spend limits must be positive")
     if not model_c.strip() or not model_b.strip() or model_c == model_b:
         raise ValueError("Agent C and Agent B require different non-empty models")
+    starting_spend = float(meta.get("spend_usd", 0.0))
+
+    def run_spend() -> float:
+        return round(float(meta.get("spend_usd", 0.0)) - starting_spend, 12)
+
     source_bytes = source_path.read_bytes()
     source = load_json(source_path, None)
     if not isinstance(source, dict):
@@ -287,6 +292,7 @@ def run_shadow_cleanup(
         "reduction_pct": None,
         "provider_calls": [],
         "spend_usd": float(meta.get("spend_usd", 0.0)),
+        "run_spend_usd": 0.0,
         "source_unchanged": True,
         "applied": False,
         "decision_authority": "C",
@@ -356,7 +362,7 @@ def run_shadow_cleanup(
             }
             atomic_write_json(round_dir / "c-call.json", c_call)
             atomic_write_json(output_dir / "c-call.json", c_call)
-            if float(meta.get("spend_usd", 0.0)) > max_spend_usd:
+            if run_spend() > max_spend_usd:
                 raise ValueError("shadow spend cap exceeded after Agent C")
             c_response = _parse_object(c_text, "Agent C")
             atomic_write_json(round_dir / "c-response.json", c_response)
@@ -386,7 +392,7 @@ def run_shadow_cleanup(
                 "candidate_tokens": candidate_tokens,
                 "reduction_pct": reduction_pct,
             })
-            if float(meta.get("spend_usd", 0.0)) > max_spend_usd:
+            if run_spend() > max_spend_usd:
                 raise ValueError("shadow spend cap exceeded during token measurement")
             if reduction_pct < min_reduction_pct:
                 raise ValueError("candidate did not meet the minimum token reduction")
@@ -465,7 +471,7 @@ def run_shadow_cleanup(
             }
             atomic_write_json(round_dir / "b-call.json", b_call)
             atomic_write_json(output_dir / "b-call.json", b_call)
-            if float(meta.get("spend_usd", 0.0)) > max_spend_usd:
+            if run_spend() > max_spend_usd:
                 raise ValueError("shadow spend cap exceeded after Agent B")
             report["stage"] = "b_audit"
             try:
@@ -518,6 +524,7 @@ def run_shadow_cleanup(
     finally:
         report["source_unchanged"] = _source_is_unchanged(source_path, source_bytes)
         report["spend_usd"] = round(float(meta.get("spend_usd", 0.0)), 12)
+        report["run_spend_usd"] = run_spend()
         if not report["source_unchanged"]:
             report.update({"status": "FAIL", "stage": "source_integrity", "reason": "source changed during shadow cleanup"})
         atomic_write_json(output_dir / "report.json", report)

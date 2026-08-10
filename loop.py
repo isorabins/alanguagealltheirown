@@ -7,12 +7,14 @@ the code there is: plumbing only, the LLMs do the language.
 """
 import argparse
 import copy
+import hashlib
 import json
 import math
 import os
 import re
 import shutil
 import sys
+import tempfile
 import time
 from datetime import datetime, timezone
 from pathlib import Path
@@ -22,6 +24,7 @@ from pydantic import ValidationError
 
 from collaboration import (deliver_one, empty_state, escalate_lookup_to_ask,
                            import_inbox_spool, public_state, stable_record, write_outbox)
+from cleanup_rulebook import build_applied_rulebook
 from conversation_exam import run_conversation
 from legislative_protocol import (
     MAX_STRUCTURAL_RETRIES,
@@ -44,7 +47,8 @@ from legislative_protocol import (
 from project_lookup import is_project_question, project_lookup
 from rulebook import (_literal_set_survives, apply_typed_motion, language_payload,
                       render_language, render_legislature, score_judgment_v2)
-from state_store import atomic_write_json, load_json
+from shadow_cleanup import run_shadow_cleanup
+from state_store import atomic_write_json, load_json, snapshot_hash
 
 ROOT = Path(__file__).resolve().parent
 STATE = ROOT / "state"
@@ -52,8 +56,18 @@ API_URL = "https://openrouter.ai/api/v1/chat/completions"
 
 MODEL_A = "deepseek/deepseek-v3.2"
 MODEL_B = "moonshotai/kimi-k2.6"
+MODEL_C = "moonshotai/kimi-k3"
 MODEL_DECODER = "moonshotai/kimi-k2.6"  # a FOREIGN decoder: the stranger must not share the negotiators' weights
 MODEL_GRADER = "deepseek/deepseek-v3.2"
+
+ACTIVE_AGENT_PROMPTS = {
+    "A": ("agent-a-v2", ROOT / "prompts" / "agent_a_v2.md"),
+    "B": ("agent-b-v2", ROOT / "prompts" / "agent_b_v2.md"),
+}
+AUTOMATIC_CLEANUP_GROWTH_PERCENT = 10
+AUTOMATIC_CLEANUP_MAX_SPEND_USD = 0.25
+AUTOMATIC_CLEANUP_PROMPT_C = ROOT / "prompts" / "cleanup_c_v2.md"
+AUTOMATIC_CLEANUP_PROMPT_B = ROOT / "prompts" / "cleanup_b_v2.md"
 
 TEST_EVERY = 3      # every Nth turn is a test turn
 WINDOW = 30         # conversation events each agent sees
@@ -646,6 +660,147 @@ def ensure_structured_protocol_cutover(conv, rb, meta, *, activation_turn):
     return receipt
 
 
+def maybe_run_automatic_cleanup(conv, rb, meta, turn):
+    """Apply the proven shadow workflow after 10% adopted-language growth."""
+    current_tokens = rb.get("kernel_tokens")
+    if (
+        isinstance(current_tokens, bool)
+        or not isinstance(current_tokens, int)
+        or current_tokens <= 0
+    ):
+        raise RuntimeError("automatic cleanup requires a positive kernel token count")
+    language = language_payload(rb)
+    state = meta.get("automatic_cleanup")
+    if state is None:
+        meta["automatic_cleanup"] = {
+            "schema_version": 1,
+            "baseline_tokens": current_tokens,
+            "baseline_language_hash": language["hash"],
+            "baseline_turn": turn,
+            "last_attempt_language_hash": None,
+            "last_status": "armed",
+        }
+        return False
+    if not isinstance(state, dict) or state.get("schema_version") != 1:
+        raise RuntimeError("automatic cleanup state is invalid")
+    baseline_tokens = state.get("baseline_tokens")
+    if (
+        isinstance(baseline_tokens, bool)
+        or not isinstance(baseline_tokens, int)
+        or baseline_tokens <= 0
+    ):
+        raise RuntimeError("automatic cleanup baseline is invalid")
+    cleanup_threshold = (
+        baseline_tokens * (100 + AUTOMATIC_CLEANUP_GROWTH_PERCENT) + 99
+    ) // 100
+    if current_tokens < cleanup_threshold:
+        return False
+    if current_open_motion(rb) is not None:
+        return False
+    if state.get("last_attempt_language_hash") == language["hash"]:
+        return False
+
+    state["last_attempt_language_hash"] = language["hash"]
+    state["last_attempt_turn"] = turn
+    source_path = STATE / "rulebook.json"
+    source = load_json(source_path, None)
+    if not isinstance(source, dict) or snapshot_hash(source) != snapshot_hash(rb):
+        raise RuntimeError("automatic cleanup source does not match loaded rulebook")
+
+    with tempfile.TemporaryDirectory(prefix="alato-cleanup-") as directory:
+        output = Path(directory) / "result"
+        report = run_shadow_cleanup(
+            source_path,
+            output,
+            model_c=MODEL_C,
+            model_b=MODEL_B,
+            call_model=call,
+            token_counter=token_count,
+            meta=meta,
+            prompt_c_path=AUTOMATIC_CLEANUP_PROMPT_C,
+            prompt_b_path=AUTOMATIC_CLEANUP_PROMPT_B,
+            max_spend_usd=AUTOMATIC_CLEANUP_MAX_SPEND_USD,
+        )
+        if report.get("error_type") == "CostAccountingError":
+            raise CostAccountingError(str(report.get("reason")))
+        if report.get("status") != "PASS":
+            state.update({
+                "last_status": "failed",
+                "last_reason": str(report.get("reason", "cleanup failed"))[:500],
+            })
+            conv.append({
+                "turn": turn,
+                "agent": "harness",
+                "type": "cleanup",
+                "status": "failed",
+                "source_hash": report.get("source_hash"),
+                "reason": state["last_reason"],
+                "models": report.get("models"),
+                "run_spend_usd": report.get("run_spend_usd"),
+            })
+            print(f"[t{turn} CLEANUP] failed: {state['last_reason']}", flush=True)
+            return False
+
+        candidate = load_json(output / "candidate.json", None)
+        seeds = load_json(output / "creative-seeds.json", None)
+        if not isinstance(candidate, dict) or not isinstance(seeds, list):
+            raise RuntimeError("automatic cleanup output is incomplete")
+        before_rulebook = copy.deepcopy(rb)
+        applied = build_applied_rulebook(before_rulebook, candidate)
+        applied_tokens = token_count(render_language(applied), meta)
+        applied["kernel_tokens"] = applied_tokens
+        after_language = language_payload(applied)
+        receipt = build_post_state_receipt(
+            turn=turn,
+            role="harness",
+            action=None,
+            result="cutover",
+            reason="automatic_cleanup_c_final_authority",
+            before_rulebook=before_rulebook,
+            after_rulebook=applied,
+            next_actor=next_legislative_actor(meta),
+            attempts=0,
+        )
+        rb.clear()
+        rb.update(applied)
+        state.update({
+            "baseline_tokens": applied_tokens,
+            "baseline_language_hash": after_language["hash"],
+            "baseline_turn": turn,
+            "last_status": "applied",
+            "last_reason": report.get("reason"),
+            "pending_creative_seeds": {"cleanup_turn": turn, "seeds": seeds},
+        })
+        conv.append({
+            "turn": turn,
+            "agent": "harness",
+            "type": "cleanup",
+            "status": "applied",
+            "source_hash": report.get("source_hash"),
+            "candidate_hash": report.get("candidate_hash"),
+            "source_tokens": report.get("source_tokens"),
+            "candidate_tokens": report.get("candidate_tokens"),
+            "applied_tokens": applied_tokens,
+            "reduction_pct": report.get("reduction_pct"),
+            "models": report.get("models"),
+            "prompt_versions": {
+                "c": report.get("prompt_c_version"),
+                "b": report.get("prompt_b_version"),
+                "c_finalizer": report.get("prompt_c_finalizer_version"),
+            },
+            "rounds": report.get("rounds"),
+            "run_spend_usd": report.get("run_spend_usd"),
+            "creative_seeds": seeds,
+            "post_state_receipt": receipt.model_dump(mode="json"),
+        })
+        print(
+            f"[t{turn} CLEANUP] applied {current_tokens}->{applied_tokens}tok  "
+            f"{report.get('reduction_pct')}% candidate reduction",
+            flush=True,
+        )
+        return True
+
+
 def assemble_legislative_prompt(
     conv,
     rb,
@@ -655,7 +810,8 @@ def assemble_legislative_prompt(
     collaboration_input,
 ):
     """Assemble the one deterministic model-facing legislative projection."""
-    role_prompt = (ROOT / "prompts" / f"agent_{agent.lower()}.md").read_text()
+    prompt_version, role_prompt_path = ACTIVE_AGENT_PROMPTS[agent]
+    role_prompt = role_prompt_path.read_text()
     constitution = (ROOT / "prompts" / "constitution.md").read_text()
     next_test = ((turn // TEST_EVERY) + 1) * TEST_EVERY
     active_feedback = derive_active_legislative_feedback(
@@ -753,7 +909,13 @@ def assemble_legislative_prompt(
         "Return the exact object key and value types required by the schema; "
         "never substitute prose strings or differently named request fields. "
         f"Valid non-operative shape example: {example}\n"
-        "Never return an empty, whitespace-only, or punctuation-only "
+        + (
+            "Never put legacy prose such as `ADOPT: rule-NNN` in `motion`; "
+            "use only the schema-required object.\n"
+            if agent == "B"
+            else ""
+        )
+        + "Never return an empty, whitespace-only, or punctuation-only "
         "`deliberation` value.\n"
         + (
             "The supplied abstract semantic fault is mandatory now. Return "
@@ -797,9 +959,17 @@ def assemble_legislative_prompt(
             "\"Public proposal:\". Return only the required structured response."
         )
     )
+    prompt_receipt = {
+        "role_version": prompt_version,
+        "role_sha256": hashlib.sha256(role_prompt.encode()).hexdigest(),
+        "assembled_sha256": hashlib.sha256(
+            f"SYSTEM\n{system}\nUSER\n{user}".encode()
+        ).hexdigest(),
+    }
     return {
         "system": system,
         "user": user,
+        "prompt_receipt": prompt_receipt,
         "request_options": action_request_options(
             agent, rb, required_fault_token=required_fault_token
         ),
@@ -889,12 +1059,21 @@ def agent_turn(conv, rb, meta, collaboration, turn):
     delivery = (deliver_one(collaboration, "RESEARCH", agent, turn) or
                 deliver_one(collaboration, "ASK", agent, turn) or
                 deliver_one(collaboration, "SUGGESTION", agent, turn))
+    prompt_input = copy.deepcopy(delivery) if delivery else {}
+    cleanup_state = meta.get("automatic_cleanup", {})
+    pending_seeds = (
+        cleanup_state.get("pending_creative_seeds")
+        if agent == "A" and isinstance(cleanup_state, dict)
+        else None
+    )
+    if pending_seeds:
+        prompt_input["cleanup_creative_seeds"] = copy.deepcopy(pending_seeds)
     assembled = assemble_legislative_prompt(
         conv,
         rb,
         turn=turn,
         agent=agent,
-        collaboration_input=delivery,
+        collaboration_input=prompt_input or None,
     )
     system = assembled["system"]
     base_user = assembled["user"]
@@ -968,6 +1147,7 @@ def agent_turn(conv, rb, meta, collaboration, turn):
                     "changed": False,
                     "line": None,
                 },
+                "prompt_receipt": assembled["prompt_receipt"],
                 "post_state_receipt": receipt.model_dump(mode="json"),
             }
         )
@@ -985,6 +1165,7 @@ def agent_turn(conv, rb, meta, collaboration, turn):
         "type": "message",
         "content": structured_action.deliberation,
         "structured_action": structured_action.model_dump(mode="json"),
+        "prompt_receipt": assembled["prompt_receipt"],
         "tokens": usage.get("completion_tokens", 0),
     }
     if deliberation_fallback is not None:
@@ -1047,6 +1228,9 @@ def agent_turn(conv, rb, meta, collaboration, turn):
                 record = stable_record(kind, agent, question, record_id)
                 record["request_turn"] = turn
                 collaboration[bucket].append(record)
+    if pending_seeds:
+        cleanup_state["creative_seeds_delivered_turn"] = turn
+        cleanup_state.pop("pending_creative_seeds", None)
     meta["last_agent"] = agent
     print(f"[t{turn} {agent}] {usage.get('completion_tokens', 0)}tok  "
           f"rules:{len(rb['rules'])}  ${meta['spend_usd']:.3f}", flush=True)
@@ -1543,6 +1727,7 @@ def run(turns):
             collaboration, STATE / "collaboration-inbox.json", turn=turn)
         save("collaboration.json", collaboration)
         process_one_research(collaboration, meta, turn)
+        maybe_run_automatic_cleanup(conv, rb, meta, turn)
         if turn % TEST_EVERY == 0:
             test_turn(conv, rb, meta, turn)
             maybe_run_conversation(rb, meta, turn, conversations)

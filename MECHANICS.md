@@ -81,6 +81,14 @@ The code then deterministically rechecks source coverage, schema validity, token
 reduction, spend, and source integrity. A valid C edition passes the shadow even
 when B objected, while the path remains non-applying.
 
+The production loop reuses that runner directly. Its first run records the
+current adopted-language token count. After 10% growth, and only with no open
+motion, it runs Kimi K3 C, one advisory Kimi K2.6 B review, and at most one final
+C decision. A valid result replaces the active adopted view through the existing
+full-history ledger builder, resets the baseline, and sends C's three
+non-operative creative seeds to the next Agent A turn. Ordinary Agent B
+legislative authority is unchanged.
+
 `legacy_motion_repair.py` is a separate metadata-only migration for the live deadlock. `prepare` terminalizes proposed and reverted records on a copied source, records each prior status, refuses any pending repeal, proves every adopted record plus the adopted-language version/hash is exact, and emits original/replacement/diff/manifest hashes. `apply` requires a matching external approval receipt, rejects source or artifact drift, and treats a retry after the replacement write as idempotent. It does not run semantic cleanup, change adopted text, increment the language version, or default to production paths.
 
 ## Collaboration inbox
@@ -126,6 +134,6 @@ publisher.
 
 ## Deployment and acceptance
 
-The viewer remains static HTML plus small Vercel functions. `/human` rewrites to `human.html`. Each scheduled turn emits a sub-2-KB same-origin bootstrap containing the current turn timestamp and headline metrics; that bootstrap renders the timers and counters before canonical history loads. The multi-megabyte deployed history snapshot is no longer parser-blocking and is loaded only if the asynchronous public-repository refresh fails. Redis, password/session, public OpenRouter key, WAF, deployment, loop pause/resume, cleanup application, paid production tests, X actions, feature push/PR, and `main` integration are all separate planned stops.
+The viewer remains static HTML plus small Vercel functions. `/human` rewrites to `human.html`. Each scheduled turn emits a sub-2-KB same-origin bootstrap containing the current turn timestamp and headline metrics; that bootstrap renders the timers and counters before canonical history loads. The multi-megabyte deployed history snapshot is no longer parser-blocking and is loaded only if the asynchronous public-repository refresh fails. Redis, password/session, public OpenRouter key, WAF, deployment, loop pause/resume, paid production tests, X actions, feature push/PR, and `main` integration are all separate planned stops.
 
 Offline tests prove contracts but not the live product. Production acceptance requires the deployed commit, visible real paths, desktop and 375px coverage, session expiry/restart, cross-turn exact-once delivery, hostile/failure cases, approved X results, numbered screenshots, one continuous video, independent read-only receipts, and cleanup. Every matrix row is PASS, FAIL, or BLOCKED; any debris, duplicate, stuck queue, warning, missing evidence, or incomplete approved action prevents overall PASS.
