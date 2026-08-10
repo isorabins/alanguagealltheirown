@@ -190,6 +190,7 @@ def run_shadow_cleanup(
     token_counter: Callable[[str, dict[str, Any]], int],
     meta: dict[str, Any],
     prompt_c_path: Path | None = None,
+    prompt_b_path: Path | None = None,
     min_reduction_pct: float = MIN_REDUCTION_PCT,
     max_spend_usd: float = 0.25,
 ) -> dict[str, Any]:
@@ -210,12 +211,20 @@ def run_shadow_cleanup(
     prompt_c_path = Path(prompt_c_path) if prompt_c_path else Path(__file__).parent / "prompts" / "cleanup_c.md"
     prompt_c = prompt_c_path.read_text()
     prompt_c_hash = hashlib.sha256(prompt_c.encode()).hexdigest()
+    prompt_b_path = Path(prompt_b_path) if prompt_b_path else Path(__file__).parent / "prompts" / "cleanup_b.md"
+    prompt_b = prompt_b_path.read_text()
+    prompt_b_hash = hashlib.sha256(prompt_b.encode()).hexdigest()
     output_dir.mkdir(parents=True)
     atomic_write_json(output_dir / "original.json", source)
     atomic_write_json(output_dir / "c-prompt.json", {
         "path": str(prompt_c_path.resolve()),
         "sha256": prompt_c_hash,
         "content": prompt_c,
+    })
+    atomic_write_json(output_dir / "b-prompt.json", {
+        "path": str(prompt_b_path.resolve()),
+        "sha256": prompt_b_hash,
+        "content": prompt_b,
     })
     report: dict[str, Any] = {
         "kind": "shadow_cleanup",
@@ -228,6 +237,7 @@ def run_shadow_cleanup(
         "candidate_hash": None,
         "models": {"c": model_c, "b": model_b},
         "prompt_c_sha256": prompt_c_hash,
+        "prompt_b_sha256": prompt_b_hash,
         "minimum_reduction_pct": min_reduction_pct,
         "source_tokens": None,
         "candidate_tokens": None,
@@ -296,7 +306,7 @@ def run_shadow_cleanup(
         }, ensure_ascii=False)
         b_text, b_usage = call_model(
             model_b,
-            (Path(__file__).parent / "prompts" / "cleanup_b.md").read_text(),
+            prompt_b,
             b_user,
             max_tokens=MAX_B_TOKENS,
             temperature=0,
@@ -339,6 +349,7 @@ def main() -> int:
     parser.add_argument("--model-c", required=True)
     parser.add_argument("--model-b", default=None)
     parser.add_argument("--prompt-c", type=Path, default=None)
+    parser.add_argument("--prompt-b", type=Path, default=None)
     parser.add_argument("--min-reduction-pct", type=float, default=MIN_REDUCTION_PCT)
     parser.add_argument("--max-spend-usd", type=float, default=0.25)
     args = parser.parse_args()
@@ -356,6 +367,7 @@ def main() -> int:
         token_counter=token_count,
         meta=meta,
         prompt_c_path=args.prompt_c,
+        prompt_b_path=args.prompt_b,
         min_reduction_pct=args.min_reduction_pct,
         max_spend_usd=args.max_spend_usd,
     )

@@ -67,8 +67,8 @@ decoder-visible tokens, and sends only the edition to Agent B for audit. It emit
 `original.json`, the candidate, seeds, audit, and `report.json`. It has no apply
 command or active-state argument, and any invalid response, source drift, weak
 reduction, or B rejection leaves the source untouched and reports `FAIL`.
-An optional `--prompt-c` path freezes a candidate Agent C prompt and its hash in
-the evidence directory without replacing the default prompt.
+Optional `--prompt-c` and `--prompt-b` paths freeze candidate prompts and their
+hashes in the evidence directory without replacing either default prompt.
 
 `legacy_motion_repair.py` is a separate metadata-only migration for the live deadlock. `prepare` terminalizes proposed and reverted records on a copied source, records each prior status, refuses any pending repeal, proves every adopted record plus the adopted-language version/hash is exact, and emits original/replacement/diff/manifest hashes. `apply` requires a matching external approval receipt, rejects source or artifact drift, and treats a retry after the replacement write as idempotent. It does not run semantic cleanup, change adopted text, increment the language version, or default to production paths.
 
