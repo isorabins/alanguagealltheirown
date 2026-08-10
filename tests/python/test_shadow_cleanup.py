@@ -63,6 +63,15 @@ class ShadowCleanupTests(unittest.TestCase):
         self.assertIn("creative_seeds", schema["required"])
         self.assertFalse(seeds["items"]["additionalProperties"])
 
+    def test_b_prompt_requires_paired_semantic_evidence(self):
+        prompt = (ROOT / "prompts/cleanup_b.md").read_text()
+        contract = " ".join(prompt.split())
+        self.assertIn('Source clause: "..." Candidate clause: "..." Difference:', contract)
+        self.assertIn("search the whole edition before calling it absent", contract)
+        self.assertIn("bookkeeping, rule structure, or explanatory framing", contract)
+        self.assertIn("broadens or narrows a requirement's scope", contract)
+        self.assertIn("never use it to inventory preserved language law", contract)
+
     def test_passing_shadow_writes_evidence_and_never_changes_source(self):
         with tempfile.TemporaryDirectory() as directory:
             self.source_path = self._source_copy(directory)
