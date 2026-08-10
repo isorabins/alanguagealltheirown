@@ -497,7 +497,8 @@ canned — you are watching the live pipeline run on your words.</p>
 
 <footer id="foot"></footer>
 
-<script src="state.js"></script>
+<script src="bootstrap.js"></script>
+<script src="startup.js"></script>
 <script>
 function scoringLabel(t) {
   if (t && t.scoring_version === "v2") return "Scoring V2";
@@ -928,9 +929,6 @@ function operatorQuestionView(openAsks) {
   };
 }
 
-var TURN_MS = 15 * 60 * 1000;
-var lastTurnAt = null, lastTurnNum = null, refetchArmed = false, refetchDelay = 45000;
-
 function runtimeView(when, now, turn) {
   if (!when) {
     return {
@@ -962,14 +960,29 @@ function runtimeView(when, now, turn) {
   };
 }
 
+var bundledStatePromise = null;
+function loadBundledState() {
+  if (window.STATE) return Promise.resolve(window.STATE);
+  if (bundledStatePromise) return bundledStatePromise;
+  bundledStatePromise = new Promise(function (resolve, reject) {
+    var script = document.createElement("script");
+    script.src = "state.js";
+    script.onload = function () {
+      if (window.STATE) resolve(window.STATE);
+      else reject(new Error("bundled state unavailable"));
+    };
+    script.onerror = function () { reject(new Error("bundled state unavailable")); };
+    document.head.appendChild(script);
+  });
+  return bundledStatePromise;
+}
+
 function loadState() {
   var RAW = "https://raw.githubusercontent.com/isorabins/alanguagealltheirown/main/state/";
   var COMMITS = "https://api.github.com/repos/isorabins/alanguagealltheirown/commits" +
     "?sha=main&path=state%2Fconversation.json&per_page=1";
-  var fallback = window.STATE || {conversation: [], rulebook: {rules: [], version: "0.0", kernel_tokens: 0}, collaboration: {}, conversations: [], x: {}, meta: {}};
-  // Keep the last deployed canonical snapshot visible while the no-cache GitHub
-  // refresh is in flight. A slow or failed refresh must not blank proven results.
-  render(fallback);
+  var fallback = window.STATE || null;
+  if (fallback) render(fallback);
   var get = function (f) { return fetch(RAW + f, {cache: "no-store"}).then(function (r) { if (!r.ok) throw 0; return r.json(); }); };
   var getOptional = function (f, fallbackValue) { return get(f).catch(function () { return fallbackValue; }); };
   var lastCommit = fetch(COMMITS, {cache: "no-store"}).then(function (r) {
@@ -981,15 +994,9 @@ function loadState() {
     getOptional("tweet-state.json", {})]).then(function (both) {
     var latest = both[2] && Array.isArray(both[2]) && both[2][0];
     var when = latest && latest.commit && latest.commit.committer && latest.commit.committer.date;
-    if (when) {
-      var t = new Date(when).getTime();
-      if (lastTurnAt !== null && t > lastTurnAt) refetchDelay = 45000;
-      lastTurnAt = t;
-    } else {
-      lastTurnAt = null;
-    }
-    lastTurnNum = both[0].length ? both[0][both[0].length - 1].turn : 0;
-    refetchArmed = false;
+    if (!when && window.PUBLIC_BOOTSTRAP) when = window.PUBLIC_BOOTSTRAP.updated || null;
+    var lastTurnNum = both[0].length ? both[0][both[0].length - 1].turn : 0;
+    if (window.ALATO_STARTUP) window.ALATO_STARTUP.setSnapshot(when, lastTurnNum);
     var runtime = runtimeView(when, Date.now(), lastTurnNum);
     var runtimeStatus = document.getElementById("runtime-status");
     var runtimeHeading = document.getElementById("runtime-status-heading");
@@ -1004,37 +1011,11 @@ function loadState() {
       }
     }
     render({conversation: both[0], rulebook: both[1], collaboration: both[3], conversations: both[4], x: both[5], meta: {updated: runtime.stamp}});
-  }).catch(function () { render(fallback); });
+  }).catch(function () {
+    loadBundledState().then(render).catch(function () {});
+  });
 }
 loadState();
-
-function fmtLeft(ms) {
-  var s = Math.max(0, Math.ceil(ms / 1000));
-  var m = Math.floor(s / 60); s = s % 60;
-  return (m < 10 ? "0" : "") + m + ":" + (s < 10 ? "0" : "") + s;
-}
-setInterval(function () {
-  var elT = document.getElementById("t-turn"), elX = document.getElementById("t-test");
-  if (!elT || !elX) return;
-  if (lastTurnAt === null) { elT.textContent = "--:--"; elX.textContent = "--:--"; return; }
-  var left = lastTurnAt + TURN_MS - Date.now();
-  var nextNum = (lastTurnNum || 0) + 1;
-  var k = (3 - (nextNum % 3)) % 3;
-  var testLeft = left + k * TURN_MS;
-  if (left <= 0) {
-    elT.textContent = left > -5 * 60 * 1000 ? "running now" : "delayed";
-    elT.classList.add("running");
-    if (!refetchArmed) {
-      refetchArmed = true;
-      setTimeout(loadState, refetchDelay);
-      refetchDelay = Math.min(refetchDelay * 2, 300000);
-    }
-  } else {
-    elT.textContent = fmtLeft(left); elT.classList.remove("running");
-  }
-  if (testLeft <= 0) { elX.textContent = "running now"; elX.classList.add("running"); }
-  else { elX.textContent = fmtLeft(testLeft); elX.classList.remove("running"); }
-}, 1000);
 
 (function () {
   var RAWP = "https://raw.githubusercontent.com/isorabins/alanguagealltheirown/main/prompts/";

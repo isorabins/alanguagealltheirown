@@ -520,6 +520,67 @@ def write_viewer_state(conv, rb, meta, collaboration=None, conversations=None):
     public_conversation = [
         event for event in conv if event.get("type") != "protocol_cutover"
     ]
+    updated = now_iso()
+    tests = [event for event in public_conversation if event.get("type") == "test"]
+    latest_valid_v2 = next(
+        (
+            event
+            for event in reversed(tests)
+            if event.get("scoring_version") == "v2"
+            and event.get("judge_valid") is True
+        ),
+        None,
+    )
+    savings = [
+        event.get("message_body_savings_pct")
+        for event in tests
+        if event.get("scoring_version") == "v2"
+        and isinstance(event.get("message_body_savings_pct"), (int, float))
+        and not isinstance(event.get("message_body_savings_pct"), bool)
+        and math.isfinite(event["message_body_savings_pct"])
+    ]
+    best_savings = max(savings) if savings else None
+    revision_parts = str(rb.get("version", "0.0")).split(".", 1)
+    revisions = revision_parts[1] if len(revision_parts) == 2 else "0"
+    turn = public_conversation[-1].get("turn", 0) if public_conversation else 0
+    adopted_count = sum(rule.get("status") == "adopted" for rule in rb.get("rules", []))
+    pct = lambda value: ("+" if value > 0 else "") + f"{value}%"
+    bootstrap = {
+        "turn": turn,
+        "updated": updated,
+        "metrics": [
+            ["rulebook revisions", str(revisions)],
+            ["turns", str(turn)],
+            ["rules adopted", str(adopted_count)],
+            [
+                "latest meaning pass · V2",
+                (
+                    "PASS"
+                    if latest_valid_v2 and latest_valid_v2.get("meaning_pass")
+                    else "FAIL"
+                    if latest_valid_v2
+                    else "awaiting V2"
+                ),
+            ],
+            [
+                "latest semantic coverage · V2",
+                (
+                    f'{latest_valid_v2.get("semantic_coverage_pct")}%'
+                    if latest_valid_v2
+                    else "awaiting V2"
+                ),
+            ],
+            [
+                "best message-body savings · V2",
+                pct(best_savings) if best_savings is not None else "—",
+            ],
+        ],
+    }
+    (ROOT / "viewer" / "bootstrap.js").write_text(
+        "window.PUBLIC_BOOTSTRAP = "
+        + json.dumps(bootstrap, separators=(",", ":"))
+        + ";\n"
+    )
     (ROOT / "viewer" / "state.js").write_text(
         "window.STATE = " + json.dumps(
             {"conversation": public_conversation, "rulebook": rb,
@@ -531,7 +592,7 @@ def write_viewer_state(conv, rb, meta, collaboration=None, conversations=None):
                       "spend_usd_provider_exact_since_cutover":
                           meta.get("spend_usd_provider_exact_since_cutover"),
                       "cost_accounting_basis": meta.get("cost_accounting_basis"),
-                      "updated": now_iso(), "run": meta.get("run", "local")}}) + ";\n")
+                      "updated": updated, "run": meta.get("run", "local")}}) + ";\n")
 
 
 def next_legislative_actor(meta):

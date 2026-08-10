@@ -1,0 +1,1 @@
+window.PUBLIC_BOOTSTRAP = {"turn":2193,"updated":"2026-08-10T08:31:19Z","metrics":[["rulebook revisions","757"],["turns","2193"],["rules adopted","100"],["latest meaning pass \u00b7 V2","FAIL"],["latest semantic coverage \u00b7 V2","97%"],["best message-body savings \u00b7 V2","+61%"]]};

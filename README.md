@@ -45,6 +45,9 @@ a stable source identity, explicit per-note X eligibility, and an explicit X rec
 The production loop is `run_turn.sh` on its existing 15-minute timer and commits
 generated canonical state to `main`. Collaboration synchronization is best effort;
 X delivery has its own service and cannot stop or modify the scheduled turn path.
+The public viewer renders its countdowns and headline metrics from a generated
+same-origin bootstrap under 2 KB. Canonical history loads asynchronously from the
+public repository; the deployed full snapshot is fetched only as a failure fallback.
 
 Offline tests:
 
