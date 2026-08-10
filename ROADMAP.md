@@ -604,3 +604,13 @@ Production merge/deploy requires separate current approval.
 **Current recommendation:** Keep this parked until the active monitor is
 terminal, then build it as a viewer-only change because the fixed model adds
 real-world meaning without contaminating the running experiment.
+
+## P2 — Let Agent C learn from accumulated exam failures
+
+**Status:** parked; not part of the current shadow-cleanup build.
+
+After the basic Agent C → Agent B cleanup path passes reliably, explore giving
+Agent C the development-exam failures accumulated since its previous cleanup.
+The purpose is to ground its three creative experiment ideas in what is
+actually failing. Decide the exact evidence shape later; do not expose sealed
+holdout data or let this roadmap item expand the current cleanup scope.
