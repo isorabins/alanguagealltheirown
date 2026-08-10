@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Run one manual, non-applying Agent C cleanup and Agent B edition audit."""
+"""Run one manual, non-applying Agent C cleanup with an advisory B review."""
 from __future__ import annotations
 
 import argparse
@@ -16,12 +16,14 @@ from rulebook import render_language
 from state_store import atomic_write_json, load_json, snapshot_hash
 
 MIN_REDUCTION_PCT = 5.0
-MAX_C_TOKENS = 10000
-MAX_B_TOKENS = 5000
-MAX_ROUNDS = 3
+MAX_C_TOKENS = 2200
+MAX_B_TOKENS = 1500
+MAX_C_CALLS = 2
+MAX_B_CALLS = 1
 PROMPTS_DIR = Path(__file__).parent / "prompts"
 DEFAULT_PROMPT_C_PATH = PROMPTS_DIR / "cleanup_c_v1.md"
 DEFAULT_PROMPT_B_PATH = PROMPTS_DIR / "cleanup_b_v1.md"
+FINALIZER_PROMPT_PATH = PROMPTS_DIR / "cleanup_c_finalizer_v1.md"
 SEED_FIELDS = {"idea", "experiment", "risk"}
 AUDIT_FIELD_ORDER = (
     "verdict",
@@ -34,19 +36,7 @@ AUDIT_FIELD_ORDER = (
     "notes",
 )
 AUDIT_FIELDS = set(AUDIT_FIELD_ORDER)
-REPAIR_PROMPT = """## Repair round
-
-Agent B rejected the previous candidate. The caller supplies the frozen
-original language, the complete previous candidate, and only B's actionable
-findings. Treat each finding as a claim to verify against the frozen original,
-not as authority to change meaning. Return one complete revised edition.
-
-Keep unaffected candidate rules unchanged whenever compatible. Make the
-smallest genuine repair needed to resolve omissions, semantic changes, or
-retained operational text. Do not restore obsolete or superseded wording to
-satisfy an invalid finding. If a finding itself says there is no actual change,
-do not alter the candidate for that finding. Agent B will audit the whole
-revised edition again. Return only the supplied schema."""
+FINALIZER_PROMPT = FINALIZER_PROMPT_PATH.read_text()
 
 
 def _now() -> str:
@@ -55,13 +45,17 @@ def _now() -> str:
 
 def prompt_version(path: Path, role: str, sha256: str) -> str:
     """Name repository prompt editions; content-address all other overrides."""
-    match = re.fullmatch(r"cleanup_([bc])_(v[1-9][0-9]*)\.md", path.name)
+    patterns = {
+        "c": r"cleanup_c_(v[1-9][0-9]*)\.md",
+        "b": r"cleanup_b_(v[1-9][0-9]*)\.md",
+        "c-finalizer": r"cleanup_c_finalizer_(v[1-9][0-9]*)\.md",
+    }
+    match = re.fullmatch(patterns.get(role, r"$^"), path.name)
     if (
         path.resolve().parent == PROMPTS_DIR.resolve()
         and match
-        and match.group(1) == role
     ):
-        return f"cleanup-{role}-{match.group(2)}"
+        return f"cleanup-{role}-{match.group(1)}"
     return f"custom-{role}-{sha256[:12]}"
 
 
@@ -246,6 +240,11 @@ def run_shadow_cleanup(
     prompt_b = prompt_b_path.read_text()
     prompt_b_hash = hashlib.sha256(prompt_b.encode()).hexdigest()
     prompt_b_version = prompt_version(prompt_b_path, "b", prompt_b_hash)
+    finalizer_prompt = FINALIZER_PROMPT_PATH.read_text()
+    finalizer_prompt_hash = hashlib.sha256(finalizer_prompt.encode()).hexdigest()
+    finalizer_prompt_version = prompt_version(
+        FINALIZER_PROMPT_PATH, "c-finalizer", finalizer_prompt_hash
+    )
     output_dir.mkdir(parents=True)
     atomic_write_json(output_dir / "original.json", source)
     atomic_write_json(output_dir / "c-prompt.json", {
@@ -259,6 +258,12 @@ def run_shadow_cleanup(
         "path": str(prompt_b_path.resolve()),
         "sha256": prompt_b_hash,
         "content": prompt_b,
+    })
+    atomic_write_json(output_dir / "c-finalizer-prompt.json", {
+        "version": finalizer_prompt_version,
+        "path": str(FINALIZER_PROMPT_PATH.resolve()),
+        "sha256": finalizer_prompt_hash,
+        "content": finalizer_prompt,
     })
     report: dict[str, Any] = {
         "kind": "shadow_cleanup",
@@ -274,6 +279,8 @@ def run_shadow_cleanup(
         "prompt_c_sha256": prompt_c_hash,
         "prompt_b_version": prompt_b_version,
         "prompt_b_sha256": prompt_b_hash,
+        "prompt_c_finalizer_version": finalizer_prompt_version,
+        "prompt_c_finalizer_sha256": finalizer_prompt_hash,
         "minimum_reduction_pct": min_reduction_pct,
         "source_tokens": None,
         "candidate_tokens": None,
@@ -282,16 +289,19 @@ def run_shadow_cleanup(
         "spend_usd": float(meta.get("spend_usd", 0.0)),
         "source_unchanged": True,
         "applied": False,
-        "max_rounds": MAX_ROUNDS,
+        "decision_authority": "C",
+        "b_review_mode": "single_advisory",
+        "max_c_calls": MAX_C_CALLS,
+        "max_b_calls": MAX_B_CALLS,
         "round_count": 0,
         "rounds": [],
     }
     try:
         adopted = _adopted_rows(source)
         previous_candidate = None
-        previous_rejection = None
+        previous_advisory = None
         source_tokens = None
-        for round_number in range(1, MAX_ROUNDS + 1):
+        for round_number in range(1, MAX_C_CALLS + 1):
             report["round_count"] = round_number
             round_dir = output_dir / "rounds" / f"{round_number:02d}"
             round_dir.mkdir(parents=True)
@@ -300,14 +310,24 @@ def run_shadow_cleanup(
                 "adopted_language": adopted,
             }
             c_system = prompt_c
+            c_system_version = prompt_c_version
             if previous_candidate is not None:
                 c_request.update({
-                    "repair_round": round_number,
+                    "final_decision": True,
                     "previous_candidate": previous_candidate,
-                    "b_rejection": previous_rejection,
+                    "b_advisory": previous_advisory,
                 })
-                c_system = f"{prompt_c}\n\n{REPAIR_PROMPT}"
+                c_system = f"{prompt_c}\n\n{finalizer_prompt}"
+                c_system_version = (
+                    f"{prompt_c_version}+{finalizer_prompt_version}"
+                )
+            c_system_hash = hashlib.sha256(c_system.encode()).hexdigest()
             atomic_write_json(round_dir / "c-request.json", c_request)
+            atomic_write_json(round_dir / "c-system-prompt.json", {
+                "version": c_system_version,
+                "sha256": c_system_hash,
+                "content": c_system,
+            })
 
             report["stage"] = "c_call"
             c_text, c_usage = call_model(
@@ -320,9 +340,20 @@ def run_shadow_cleanup(
                 request_options=cleanup_c_request_options(source),
             )
             report["provider_calls"].append({
-                "round": round_number, "role": "C", "model": model_c, "usage": c_usage,
+                "round": round_number,
+                "role": "C",
+                "model": model_c,
+                "prompt_version": c_system_version,
+                "prompt_sha256": c_system_hash,
+                "usage": c_usage,
             })
-            c_call = {"model": model_c, "content": c_text, "usage": c_usage}
+            c_call = {
+                "model": model_c,
+                "prompt_version": c_system_version,
+                "prompt_sha256": c_system_hash,
+                "content": c_text,
+                "usage": c_usage,
+            }
             atomic_write_json(round_dir / "c-call.json", c_call)
             atomic_write_json(output_dir / "c-call.json", c_call)
             if float(meta.get("spend_usd", 0.0)) > max_spend_usd:
@@ -360,36 +391,6 @@ def run_shadow_cleanup(
             if reduction_pct < min_reduction_pct:
                 raise ValueError("candidate did not meet the minimum token reduction")
 
-            report["stage"] = "b_call"
-            b_request = {
-                "source_hash": source_hash,
-                "candidate_hash": candidate_hash,
-                "original_adopted_language": adopted,
-                "candidate": candidate,
-            }
-            b_text, b_usage = call_model(
-                model_b,
-                prompt_b,
-                json.dumps(b_request, ensure_ascii=False),
-                max_tokens=MAX_B_TOKENS,
-                temperature=0,
-                meta=meta,
-                request_options=cleanup_b_request_options(source, candidate),
-            )
-            report["provider_calls"].append({
-                "round": round_number, "role": "B", "model": model_b, "usage": b_usage,
-            })
-            b_call = {"model": model_b, "content": b_text, "usage": b_usage}
-            atomic_write_json(round_dir / "b-call.json", b_call)
-            atomic_write_json(output_dir / "b-call.json", b_call)
-            if float(meta.get("spend_usd", 0.0)) > max_spend_usd:
-                raise ValueError("shadow spend cap exceeded after Agent B")
-            audit = _parse_object(b_text, "Agent B")
-            atomic_write_json(round_dir / "b-audit.json", audit)
-            atomic_write_json(output_dir / "b-audit.json", audit)
-
-            report["stage"] = "b_audit"
-            validate_b_audit(source, candidate, audit)
             round_summary = {
                 "round": round_number,
                 "candidate_hash": candidate_hash,
@@ -399,12 +400,102 @@ def run_shadow_cleanup(
                 ),
                 "candidate_tokens": candidate_tokens,
                 "reduction_pct": reduction_pct,
-                "b_verdict": audit["verdict"],
-                "finding_counts": {
-                    "omissions": len(audit["omissions"]),
-                    "meaning_changes": len(audit["meaning_changes"]),
-                    "operational_text": len(audit["operational_text"]),
-                },
+                "b_verdict": None,
+                "finding_counts": None,
+            }
+
+            if previous_candidate is not None:
+                report["rounds"].append(round_summary)
+                atomic_write_json(round_dir / "round-report.json", round_summary)
+                report.update({
+                    "status": "PASS",
+                    "stage": "complete",
+                    "reason": "Agent C finalized after one advisory B review",
+                })
+                break
+
+            report["stage"] = "b_call"
+            b_request = {
+                "source_hash": source_hash,
+                "candidate_hash": candidate_hash,
+                "original_adopted_language": adopted,
+                "candidate": candidate,
+            }
+            try:
+                b_text, b_usage = call_model(
+                    model_b,
+                    prompt_b,
+                    json.dumps(b_request, ensure_ascii=False),
+                    max_tokens=MAX_B_TOKENS,
+                    temperature=0,
+                    meta=meta,
+                    request_options=cleanup_b_request_options(source, candidate),
+                )
+            except Exception as exc:
+                advisory_error = {
+                    "status": "unavailable",
+                    "error_type": exc.__class__.__name__,
+                    "reason": str(exc),
+                }
+                atomic_write_json(round_dir / "b-advisory-error.json", advisory_error)
+                report["b_advisory_error"] = advisory_error
+                round_summary["b_verdict"] = "unavailable"
+                report["rounds"].append(round_summary)
+                atomic_write_json(round_dir / "round-report.json", round_summary)
+                report.update({
+                    "status": "PASS",
+                    "stage": "complete",
+                    "reason": "Agent C draft passed deterministic gates; B advisory unavailable",
+                })
+                break
+            report["provider_calls"].append({
+                "round": round_number,
+                "role": "B",
+                "model": model_b,
+                "prompt_version": prompt_b_version,
+                "prompt_sha256": prompt_b_hash,
+                "usage": b_usage,
+            })
+            b_call = {
+                "model": model_b,
+                "prompt_version": prompt_b_version,
+                "prompt_sha256": prompt_b_hash,
+                "content": b_text,
+                "usage": b_usage,
+            }
+            atomic_write_json(round_dir / "b-call.json", b_call)
+            atomic_write_json(output_dir / "b-call.json", b_call)
+            if float(meta.get("spend_usd", 0.0)) > max_spend_usd:
+                raise ValueError("shadow spend cap exceeded after Agent B")
+            report["stage"] = "b_audit"
+            try:
+                audit = _parse_object(b_text, "Agent B")
+                validate_b_audit(source, candidate, audit)
+            except Exception as exc:
+                advisory_error = {
+                    "status": "invalid",
+                    "error_type": exc.__class__.__name__,
+                    "reason": str(exc),
+                }
+                atomic_write_json(round_dir / "b-advisory-error.json", advisory_error)
+                report["b_advisory_error"] = advisory_error
+                round_summary["b_verdict"] = "invalid"
+                report["rounds"].append(round_summary)
+                atomic_write_json(round_dir / "round-report.json", round_summary)
+                report.update({
+                    "status": "PASS",
+                    "stage": "complete",
+                    "reason": "Agent C draft passed deterministic gates; B advisory invalid",
+                })
+                break
+            atomic_write_json(round_dir / "b-audit.json", audit)
+            atomic_write_json(output_dir / "b-audit.json", audit)
+
+            round_summary["b_verdict"] = audit["verdict"]
+            round_summary["finding_counts"] = {
+                "omissions": len(audit["omissions"]),
+                "meaning_changes": len(audit["meaning_changes"]),
+                "operational_text": len(audit["operational_text"]),
             }
             report["rounds"].append(round_summary)
             atomic_write_json(round_dir / "round-report.json", round_summary)
@@ -412,14 +503,11 @@ def run_shadow_cleanup(
                 report.update({
                     "status": "PASS",
                     "stage": "complete",
-                    "reason": f"all shadow gates passed in round {round_number}",
+                    "reason": "Agent C draft passed deterministic gates; B raised no objection",
                 })
                 break
-            if round_number == MAX_ROUNDS:
-                report["reason"] = f"Agent B rejected all {MAX_ROUNDS} proposed editions"
-                break
             previous_candidate = candidate
-            previous_rejection = {
+            previous_advisory = {
                 "omissions": copy.deepcopy(audit["omissions"]),
                 "meaning_changes": copy.deepcopy(audit["meaning_changes"]),
                 "operational_text": copy.deepcopy(audit["operational_text"]),

@@ -5,9 +5,9 @@ import unittest
 from pathlib import Path
 
 from shadow_cleanup import (
+    FINALIZER_PROMPT,
     MAX_B_TOKENS,
     MAX_C_TOKENS,
-    REPAIR_PROMPT,
     cleanup_c_request_options,
     compile_c_response,
     prompt_version,
@@ -107,6 +107,8 @@ class ShadowCleanupTests(unittest.TestCase):
             self.assertFalse(report["applied"])
             self.assertEqual(report["prompt_c_version"], "cleanup-c-v1")
             self.assertEqual(report["prompt_b_version"], "cleanup-b-v1")
+            self.assertEqual(report["decision_authority"], "C")
+            self.assertEqual(report["b_review_mode"], "single_advisory")
             self.assertEqual(len(json.loads((output / "creative-seeds.json").read_text())), 3)
             self.assertEqual(json.loads((output / "c-call.json").read_text())["model"], "different-family-c")
             self.assertEqual(json.loads((output / "b-call.json").read_text())["model"], "kimi-b")
@@ -162,10 +164,16 @@ class ShadowCleanupTests(unittest.TestCase):
         prompt_b_v1 = ROOT / "prompts/cleanup_b_v1.md"
         prompt_c = ROOT / "prompts/cleanup_c_v2.md"
         prompt_b = ROOT / "prompts/cleanup_b_v2.md"
+        finalizer = ROOT / "prompts/cleanup_c_finalizer_v1.md"
         c_hash = hashlib.sha256(prompt_c.read_bytes()).hexdigest()
         b_hash = hashlib.sha256(prompt_b.read_bytes()).hexdigest()
         self.assertEqual(prompt_version(prompt_c, "c", c_hash), "cleanup-c-v2")
         self.assertEqual(prompt_version(prompt_b, "b", b_hash), "cleanup-b-v2")
+        self.assertEqual(prompt_version(finalizer, "c-finalizer",
+                                        hashlib.sha256(finalizer.read_bytes()).hexdigest()),
+                         "cleanup-c-finalizer-v1")
+        self.assertEqual(hashlib.sha256(finalizer.read_bytes()).hexdigest(),
+                         "28b66aeb1cba08d1f905e062bda40d0eda82b0d19370694c201303fdfb8f8b10")
         self.assertEqual(hashlib.sha256(prompt_c_v1.read_bytes()).hexdigest(),
                          "a7489096e4dedcab2f0287c45fc663f0daeab84e47311d0a7b7b92e04e17e730")
         self.assertEqual(hashlib.sha256(prompt_b_v1.read_bytes()).hexdigest(),
@@ -234,7 +242,7 @@ class ShadowCleanupTests(unittest.TestCase):
             self.assertEqual(report["stage"], "token_gate")
             self.assertEqual(calls, ["c"])
 
-    def test_b_rejection_is_a_failed_shadow_not_an_apply_request(self):
+    def test_b_rejection_is_advisory_and_c_final_is_accepted(self):
         with tempfile.TemporaryDirectory() as directory:
             self.source_path = self._source_copy(directory)
             calls = []
@@ -265,16 +273,18 @@ class ShadowCleanupTests(unittest.TestCase):
                 token_counter=self._token_counter,
                 meta={"spend_usd": 0.0},
             )
-            self.assertEqual(report["status"], "FAIL")
-            self.assertEqual(report["stage"], "b_audit")
-            self.assertIn("all 3", report["reason"])
-            self.assertEqual(report["round_count"], 3)
-            self.assertEqual(calls, ["c", "b", "c", "b", "c", "b"])
-            self.assertEqual([item["b_verdict"] for item in report["rounds"]], ["REJECT"] * 3)
-            self.assertTrue((output / "rounds/03/b-audit.json").exists())
+            self.assertEqual(report["status"], "PASS")
+            self.assertEqual(report["stage"], "complete")
+            self.assertIn("C finalized", report["reason"])
+            self.assertEqual(report["round_count"], 2)
+            self.assertEqual(calls, ["c", "b", "c"])
+            self.assertEqual([item["b_verdict"] for item in report["rounds"]],
+                             ["REJECT", None])
+            self.assertTrue((output / "rounds/01/b-audit.json").exists())
+            self.assertFalse((output / "rounds/02/b-audit.json").exists())
             self.assertFalse((output / "applied-rulebook.json").exists())
 
-    def test_repair_round_gets_full_context_and_b_reaudits_whole_revision(self):
+    def test_final_c_call_gets_full_context_and_has_decision_authority(self):
         with tempfile.TemporaryDirectory() as directory:
             self.source_path = self._source_copy(directory)
             c_requests = []
@@ -303,10 +313,8 @@ class ShadowCleanupTests(unittest.TestCase):
                         response["groups"][0]["text_en"] = "Mark every deadline or due time once."
                     return json.dumps(response), {"cost": 0.01}
                 b_requests.append(request)
-                if len(b_requests) == 1:
-                    findings = [{"location": "rule-c001", "issue": "The deadline scope changed."}]
-                    return json.dumps(audit(request, "REJECT", findings)), {"cost": 0.01}
-                return json.dumps(audit(request, "pass", [])), {"cost": 0.01}
+                findings = [{"location": "rule-c001", "issue": "The deadline scope changed."}]
+                return json.dumps(audit(request, "REJECT", findings)), {"cost": 0.01}
 
             output = Path(directory) / "shadow"
             report = run_shadow_cleanup(
@@ -320,20 +328,29 @@ class ShadowCleanupTests(unittest.TestCase):
             )
             self.assertEqual(report["status"], "PASS")
             self.assertEqual(report["round_count"], 2)
-            self.assertEqual([item["b_verdict"] for item in report["rounds"]], ["REJECT", "pass"])
+            self.assertEqual([item["b_verdict"] for item in report["rounds"]],
+                             ["REJECT", None])
             self.assertIsNone(report["rounds"][0]["candidate_changed_from_previous"])
             self.assertTrue(report["rounds"][1]["candidate_changed_from_previous"])
-            repair = c_requests[1]
-            self.assertEqual(repair["source_hash"], c_requests[0]["source_hash"])
-            self.assertEqual(len(repair["adopted_language"]), 2)
-            self.assertEqual(set(repair["b_rejection"]), {"omissions", "meaning_changes", "operational_text"})
-            self.assertEqual(repair["b_rejection"]["meaning_changes"][0]["location"], "rule-c001")
-            self.assertEqual(repair["previous_candidate"], b_requests[0]["candidate"])
-            self.assertIn(REPAIR_PROMPT, c_systems[1])
-            self.assertEqual(b_requests[1]["candidate"]["rules"][0]["text_en"],
+            final = c_requests[1]
+            self.assertEqual(final["source_hash"], c_requests[0]["source_hash"])
+            self.assertEqual(len(final["adopted_language"]), 2)
+            self.assertTrue(final["final_decision"])
+            self.assertEqual(set(final["b_advisory"]),
+                             {"omissions", "meaning_changes", "operational_text"})
+            self.assertEqual(final["b_advisory"]["meaning_changes"][0]["location"],
+                             "rule-c001")
+            self.assertEqual(final["previous_candidate"], b_requests[0]["candidate"])
+            self.assertIn(FINALIZER_PROMPT, c_systems[1])
+            self.assertEqual(len(b_requests), 1)
+            final_candidate = json.loads((output / "candidate.json").read_text())
+            self.assertEqual(final_candidate["rules"][0]["text_en"],
                              "Mark every deadline or due time once.")
             stored = json.loads((output / "rounds/02/c-request.json").read_text())
-            self.assertEqual(stored["b_rejection"], repair["b_rejection"])
+            self.assertEqual(stored["b_advisory"], final["b_advisory"])
+            assembled = json.loads((output / "rounds/02/c-system-prompt.json").read_text())
+            self.assertEqual(assembled["content"], c_systems[1])
+            self.assertIn("cleanup-c-finalizer-v1", assembled["version"])
 
     def test_b_rejection_requires_an_actionable_finding(self):
         source = json.loads((FIX / "source.json").read_text())
@@ -350,6 +367,34 @@ class ShadowCleanupTests(unittest.TestCase):
         }
         with self.assertRaisesRegex(ValueError, "actionable"):
             validate_b_audit(source, candidate, audit)
+
+    def test_invalid_b_advisory_cannot_block_valid_c_draft(self):
+        with tempfile.TemporaryDirectory() as directory:
+            self.source_path = self._source_copy(directory)
+            calls = []
+
+            def call(model, _system, _user, **_kwargs):
+                calls.append(model)
+                if model == "c":
+                    return json.dumps(c_response()), {"cost": 0.01}
+                return "not json", {"cost": 0.01}
+
+            output = Path(directory) / "shadow"
+            report = run_shadow_cleanup(
+                self.source_path,
+                output,
+                model_c="c",
+                model_b="b",
+                call_model=call,
+                token_counter=self._token_counter,
+                meta={"spend_usd": 0.0},
+            )
+            self.assertEqual(report["status"], "PASS")
+            self.assertEqual(calls, ["c", "b"])
+            self.assertEqual(report["rounds"][0]["b_verdict"], "invalid")
+            self.assertEqual(report["b_advisory_error"]["status"], "invalid")
+            self.assertTrue((output / "candidate.json").exists())
+            self.assertFalse((output / "rounds/02").exists())
 
     def test_source_drift_is_detected_before_b(self):
         with tempfile.TemporaryDirectory() as directory:

@@ -73,9 +73,13 @@ explicit overrides until evidence supports promotion. Every run records each
 prompt's version, SHA-256, path, and complete content. Optional `--prompt-c` and
 `--prompt-b` paths use the named repository version when available and otherwise
 receive a content-addressed `custom` version in the evidence directory.
-When B rejects, the runner gives C the frozen original, complete prior
-candidate, and only B's actionable findings. B then re-audits the full revision;
-the shadow stops after at most three C-to-B rounds and never auto-accepts.
+Agent B performs one structured advisory review and has no acceptance authority.
+If B returns a structured rejection, the runner gives C the frozen original, complete
+prior candidate, and only B's actionable findings under the versioned C
+finalizer prompt. C returns the complete final edition; no second B review runs.
+The code then deterministically rechecks source coverage, schema validity, token
+reduction, spend, and source integrity. A valid C edition passes the shadow even
+when B objected, while the path remains non-applying.
 
 `legacy_motion_repair.py` is a separate metadata-only migration for the live deadlock. `prepare` terminalizes proposed and reverted records on a copied source, records each prior status, refuses any pending repeal, proves every adopted record plus the adopted-language version/hash is exact, and emits original/replacement/diff/manifest hashes. `apply` requires a matching external approval receipt, rejects source or artifact drift, and treats a retry after the replacement write as idempotent. It does not run semantic cleanup, change adopted text, increment the language version, or default to production paths.
 
