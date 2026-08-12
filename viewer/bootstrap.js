@@ -1,1 +1,1 @@
-window.PUBLIC_BOOTSTRAP = {"turn":2378,"updated":"2026-08-12T06:45:23Z","metrics":[["rulebook revisions","863"],["turns","2378"],["rules adopted","116"],["latest meaning pass \u00b7 V2","FAIL"],["latest semantic coverage \u00b7 V2","97%"],["best message-body savings \u00b7 V2","+61%"]]};
+window.PUBLIC_BOOTSTRAP = {"turn":2379,"updated":"2026-08-12T07:01:08Z","metrics":[["rulebook revisions","863"],["turns","2379"],["rules adopted","116"],["latest meaning pass \u00b7 V2","FAIL"],["latest semantic coverage \u00b7 V2","94%"],["best message-body savings \u00b7 V2","+61%"]]};
