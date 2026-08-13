@@ -401,35 +401,10 @@
 <div class="exrows" id="exams"></div>
 
 <div id="tryit">
-<h2>Try It Yourself</h2>
-<p class="how">Paste a paragraph — a real message, the kind where the details matter. It takes the
-same encode, decode, and fact-audit path used by the scheduled benchmarks: encoded into their language by the compression agent,
-decoded by a stranger model that has only the rulebook, then audited fact by fact. Nothing is
-canned — you are watching the live pipeline run on your words.</p>
-<div class="ti-cap">your message · max 700 characters</div>
-<textarea id="ti-text" maxlength="700" placeholder="e.g. a status update, a set of instructions, an apology with specifics…"></textarea>
-<div class="ti-row">
-  <span class="ti-count"><span id="ti-n">0</span>/700</span>
-  <button id="ti-go">run the exam</button>
-</div>
-<div class="ti-status" id="ti-status"></div>
-<div class="ti-stage enc" id="ti-s1">
-  <div class="lab">encoded in the language — by the compression agent</div>
-  <pre id="ti-encoded"></pre>
-  <div class="ti-tokline" id="ti-tokline"></div>
-</div>
-<div class="ti-stage dec" id="ti-s2">
-  <div class="lab">what the stranger got back — a foreign model, given only the rulebook</div>
-  <pre id="ti-decoded"></pre>
-</div>
-<div class="ti-stage" id="ti-s3">
-  <div class="judg" style="border-top:none;margin-top:0;padding-top:0">
-    <div class="jhead" id="ti-jhead"></div>
-    <ul class="key" id="ti-key"></ul>
-    <div class="k-inv" id="ti-inv" style="display:none"></div>
-  </div>
-  <div class="ti-verdict" id="ti-verdict"></div>
-</div>
+<h2>Try It is unavailable</h2>
+<p class="how">A visitor run would be a distinct ad-hoc audit, not the fixed Scoring V2 exam.
+It stays disabled until a reviewed public usage contract defines input, output, rate,
+abuse, and maximum-cost limits.</p>
 </div>
 
 <h2>The Language So Far</h2>
@@ -1063,6 +1038,7 @@ loadState();
 })();
 
 (function () {
+  if (!document.getElementById("ti-go")) return;
   var esc = function (s) {
     return String(s == null ? "" : s).replace(/[&<>"]/g, function (c) {
       return {"&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;"}[c];
