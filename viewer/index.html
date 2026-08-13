@@ -883,17 +883,23 @@ function render(S) {
   function conversationJudgmentHtml(judgment) {
     judgment = judgment || {};
     var raw = judgment.raw || judgment;
-    var held = judgment.valid === false;
+    var requirements = Array.isArray(raw.requirements) ? raw.requirements : [];
+    var canonicalRows = requirements.every(function (r) {
+      return r && Number.isInteger(r.id) && typeof r.pass === "boolean" &&
+        typeof r.evidence === "string";
+    });
+    var held = judgment.valid !== true || !canonicalRows;
     var state = held ? "judgment held · " + String(judgment.reason || "validation failed").replace(/_/g, " ")
       : "judgment accepted";
     var outcome = raw.concrete_outcome || raw.summary || "No concrete outcome was returned.";
-    var requirements = raw.requirements || [];
     var contradictions = raw.contradictions || [];
     return '<div class="conversation-outcome"><span class="judgment-state' + (held ? " held" : "") + '">' +
       esc(state) + '</span><p class="outcome">' + esc(outcome) + "</p>" +
       (requirements.length ? '<ul class="requirements">' + requirements.map(function (r) {
-        return "<li><b>" + esc(r.requirement || "requirement") + "</b><span>" +
-          esc(r.verdict || "No verdict recorded.") + "</span></li>";
+        var verdict = r && r.pass === true ? "PASS" : r && r.pass === false ? "FAIL" : "UNAVAILABLE";
+        var id = r && Number.isInteger(r.id) ? r.id : "?";
+        return "<li><b>requirement " + esc(id) + "</b><span>" + esc(verdict) +
+          (r && r.evidence ? " · " + esc(r.evidence) : " · evidence unavailable") + "</span></li>";
       }).join("") + "</ul>" : "") +
       (contradictions.length ? '<div class="k-inv">contradictions: ' + contradictions.map(esc).join(" · ") + "</div>" : "") +
       '<details class="raw-evidence"><summary>raw judgment evidence</summary><pre>' +

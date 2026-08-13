@@ -329,6 +329,35 @@ test('public page curates collaboration, judgment, and proposal history',()=>{
   assert.match(html,/earlier unresolved record/);
 });
 
+test('canonical conversation-2322 renders four verdicts, evidence, and six ordered messages',()=>{
+  const conversations=JSON.parse(fs.readFileSync(path.join(__dirname,'../../state/conversations.json'),'utf8'));
+  const canonical=conversations.find(row=>row.id==='conversation-2322');
+  assert.ok(canonical);
+  const script=html.match(/<script>\s*([\s\S]*?)<\/script>/)[1];
+  const end=script.indexOf('\nfunction runtimeView');
+  const viewer=viewerDocument();
+  const render=Function('document',script.slice(0,end)+'\nreturn render;')(viewer.document);
+  render({conversation:[],rulebook:{version:'0.1',rules:[]},collaboration:{},conversations:[canonical],x:{},meta:{}});
+  const output=viewer.elements.get('conversation-exam').innerHTML;
+  for(const row of canonical.judgment.requirements){
+    assert.match(output,new RegExp('requirement '+row.id+'[\\s\\S]*PASS[\\s\\S]*'+row.evidence.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')));
+  }
+  assert.doesNotMatch(output,/No verdict recorded/);
+  let cursor=-1;
+  canonical.messages.forEach(message=>{
+    const next=output.indexOf('speaker '+message.speaker,cursor+1);
+    assert.ok(next>cursor,'six messages retain stored speaker order');
+    cursor=next;
+  });
+  assert.match(output,/raw judgment evidence/);
+});
+
+test('invalid and malformed Conversation judgments are held, never accepted',()=>{
+  assert.match(html,/var held = judgment\.valid !== true/);
+  assert.match(html,/judgment held/);
+  assert.match(html,/contradictions:/);
+});
+
 test('operator questions show their actual text without implying the core loop is blocked',()=>{
   const source=html.match(/function operatorQuestionView\(openAsks\) \{([\s\S]*?)\n\}\n\nfunction runtimeView/);
   assert.ok(source,'operatorQuestionView must remain executable as a pure status decision');
