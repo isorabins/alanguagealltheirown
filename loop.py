@@ -529,6 +529,42 @@ def collaboration_directive(text, kind):
     return match.group(1).strip().strip("*`").strip() if match else None
 
 
+def _strict_scoring_success(event):
+    return (
+        event.get("scoring_version") == "v2"
+        and event.get("judge_valid") is True
+        and event.get("meaning_pass") is True
+        and event.get("compression_success") is True
+    )
+
+
+def _public_runtime_state(turn, meta):
+    if float(meta.get("spend_usd", 0.0)) >= SPEND_CAP:
+        return {
+            "status": "paused",
+            "turn": turn,
+            "message": (
+                f"Experiment paused at turn {turn}. No new turn or exam is running. "
+                "The public record remains available."
+            ),
+            "next_exam_turn": None,
+            "next_conversation_turn": None,
+        }
+    next_exam_turn = turn + (TEST_EVERY - (turn % TEST_EVERY))
+    tests_run = meta.get("tests_run")
+    next_conversation_turn = None
+    if isinstance(tests_run, int) and not isinstance(tests_run, bool):
+        exams_remaining = 32 - (tests_run % 32)
+        next_conversation_turn = next_exam_turn + (exams_remaining - 1) * TEST_EVERY
+    return {
+        "status": "active",
+        "turn": turn,
+        "message": "The experiment is active.",
+        "next_exam_turn": next_exam_turn,
+        "next_conversation_turn": next_conversation_turn,
+    }
+
+
 def write_viewer_state(conv, rb, meta, collaboration=None, conversations=None):
     # Protocol cutover receipts are canonical harness bookkeeping, not public
     # conversation events. Keep them in the persisted source log and out of the
@@ -547,23 +583,25 @@ def write_viewer_state(conv, rb, meta, collaboration=None, conversations=None):
         ),
         None,
     )
-    savings = [
-        event.get("message_body_savings_pct")
-        for event in tests
-        if event.get("scoring_version") == "v2"
-        and isinstance(event.get("message_body_savings_pct"), (int, float))
-        and not isinstance(event.get("message_body_savings_pct"), bool)
-        and math.isfinite(event["message_body_savings_pct"])
-    ]
+    savings = [event.get("message_body_savings_pct") for event in tests
+               if _strict_scoring_success(event)
+               and isinstance(event.get("message_body_savings_pct"), (int, float))
+               and not isinstance(event.get("message_body_savings_pct"), bool)
+               and math.isfinite(event["message_body_savings_pct"])]
     best_savings = max(savings) if savings else None
     revision_parts = str(rb.get("version", "0.0")).split(".", 1)
     revisions = revision_parts[1] if len(revision_parts) == 2 else "0"
     turn = public_conversation[-1].get("turn", 0) if public_conversation else 0
+    runtime = _public_runtime_state(turn, meta)
+    runtime_path = ROOT / "state" / "public-runtime.json"
+    runtime_path.parent.mkdir(exist_ok=True)
+    atomic_write_json(runtime_path, runtime)
     adopted_count = sum(rule.get("status") == "adopted" for rule in rb.get("rules", []))
     pct = lambda value: ("+" if value > 0 else "") + f"{value}%"
     bootstrap = {
         "turn": turn,
         "updated": updated,
+        "runtime": runtime,
         "metrics": [
             ["rulebook revisions", str(revisions)],
             ["turns", str(turn)],
@@ -587,7 +625,7 @@ def write_viewer_state(conv, rb, meta, collaboration=None, conversations=None):
                 ),
             ],
             [
-                "best message-body savings · V2",
+                "best strict savings · V2",
                 pct(best_savings) if best_savings is not None else "—",
             ],
         ],
@@ -608,7 +646,8 @@ def write_viewer_state(conv, rb, meta, collaboration=None, conversations=None):
                       "spend_usd_provider_exact_since_cutover":
                           meta.get("spend_usd_provider_exact_since_cutover"),
                       "cost_accounting_basis": meta.get("cost_accounting_basis"),
-                      "updated": updated, "run": meta.get("run", "local")}}) + ";\n")
+                      "updated": updated, "run": meta.get("run", "local"),
+                      "runtime": runtime}}) + ";\n")
 
 
 def next_legislative_actor(meta):

@@ -338,8 +338,8 @@
 </header>
 
 <div class="timers">
-  <div><span class="tval" id="t-turn">--:--</span><span class="tlab">next turn</span></div>
-  <div><span class="tval" id="t-test">--:--</span><span class="tlab">next exam</span></div>
+  <div><span class="tval" id="t-exam">--:--</span><span class="tlab">next exam</span></div>
+  <div><span class="tval" id="t-conversation">--:--</span><span class="tlab">next Conversation</span></div>
 </div>
 <p class="timers-cap">The agents normally take one turn every 15 minutes, around the clock. Every third turn, the next fixed benchmark must survive the round trip through their current language.</p>
 <aside class="runtime-status" id="runtime-status" aria-live="polite">
@@ -517,14 +517,21 @@ function messageBodySavingsPct(t) {
   return typeof value === "number" && isFinite(value) ? value : null;
 }
 
-function bestMessageBodySavingsV2(tests) {
+function bestStrictScoringV2(tests) {
   var best = null;
   (tests || []).forEach(function (t) {
-    if (!t || t.scoring_version !== "v2") return;
-    var value = messageBodySavingsPct(t);
-    if (value !== null && (best === null || value > best)) best = value;
+    if (!t || t.scoring_version !== "v2" || t.judge_valid !== true ||
+        t.meaning_pass !== true || t.compression_success !== true) return;
+    var value = t.message_body_savings_pct;
+    if (typeof value !== "number" || !isFinite(value)) return;
+    if (!best || value > best.message_body_savings_pct) best = t;
   });
   return best;
+}
+
+function bestMessageBodySavingsV2(tests) {
+  var best = bestStrictScoringV2(tests);
+  return best ? messageBodySavingsPct(best) : null;
 }
 
 function scoringV2EvidenceHtml(t) {
@@ -621,7 +628,7 @@ function render(S) {
     ["rules adopted", adopted.length],
     ["latest meaning pass · V2", latestValidV2 ? (latestValidV2.meaning_pass ? "PASS" : "FAIL") : "awaiting V2"],
     ["latest semantic coverage · V2", latestValidV2 ? latestValidV2.semantic_coverage_pct + "%" : "awaiting V2"],
-    ["best message-body savings · V2", best === null ? "—" : pct(best)]
+    ["best strict savings · V2", best === null ? "—" : pct(best)]
   ];
   document.getElementById("metrics").innerHTML = m.map(function (x) {
     return "<span>" + x[0] + "<b>" + x[1] + "</b></span>";
@@ -960,6 +967,18 @@ function runtimeView(when, now, turn) {
   };
 }
 
+function runtimeStatusView(runtime, when, now, turn) {
+  if (runtime && runtime.status === "paused") {
+    return {
+      visible: true,
+      heading: "Experiment paused.",
+      detail: runtime.message,
+      stamp: "paused at turn " + runtime.turn
+    };
+  }
+  return runtimeView(when, now, turn);
+}
+
 var bundledStatePromise = null;
 function loadBundledState() {
   if (window.STATE) return Promise.resolve(window.STATE);
@@ -991,13 +1010,14 @@ function loadState() {
   }).catch(function () { return null; });
   Promise.all([get("conversation.json"), get("rulebook.json"), lastCommit,
     getOptional("public-collaboration.json", {research: [], asks: [], suggestions: []}), getOptional("conversations.json", []),
-    getOptional("tweet-state.json", {})]).then(function (both) {
+    getOptional("tweet-state.json", {}), getOptional("public-runtime.json", null)]).then(function (both) {
     var latest = both[2] && Array.isArray(both[2]) && both[2][0];
     var when = latest && latest.commit && latest.commit.committer && latest.commit.committer.date;
     if (!when && window.PUBLIC_BOOTSTRAP) when = window.PUBLIC_BOOTSTRAP.updated || null;
     var lastTurnNum = both[0].length ? both[0][both[0].length - 1].turn : 0;
-    if (window.ALATO_STARTUP) window.ALATO_STARTUP.setSnapshot(when, lastTurnNum);
-    var runtime = runtimeView(when, Date.now(), lastTurnNum);
+    var publicRuntime = both[6] || (window.PUBLIC_BOOTSTRAP && window.PUBLIC_BOOTSTRAP.runtime) || null;
+    if (window.ALATO_STARTUP) window.ALATO_STARTUP.setSnapshot(when, lastTurnNum, publicRuntime);
+    var runtime = runtimeStatusView(publicRuntime, when, Date.now(), lastTurnNum);
     var runtimeStatus = document.getElementById("runtime-status");
     var runtimeHeading = document.getElementById("runtime-status-heading");
     var runtimeDetail = document.getElementById("runtime-status-detail");
@@ -1010,7 +1030,7 @@ function loadState() {
         runtimeStatus.classList.remove("visible");
       }
     }
-    render({conversation: both[0], rulebook: both[1], collaboration: both[3], conversations: both[4], x: both[5], meta: {updated: runtime.stamp}});
+    render({conversation: both[0], rulebook: both[1], collaboration: both[3], conversations: both[4], x: both[5], meta: {updated: runtime.stamp, runtime: publicRuntime}});
   }).catch(function () {
     loadBundledState().then(render).catch(function () {});
   });

@@ -1,6 +1,7 @@
 const test=require('node:test'); const assert=require('node:assert/strict'); const fs=require('node:fs'); const path=require('node:path'); const vm=require('node:vm');
 const html=fs.readFileSync(path.join(__dirname,'../../viewer/index.html'),'utf8');
 const scoringFixtures=JSON.parse(fs.readFileSync(path.join(__dirname,'../fixtures/scoring-v2-events.json'),'utf8'));
+const observatoryTruth=JSON.parse(fs.readFileSync(path.join(__dirname,'../fixtures/public-observatory-truth.json'),'utf8'));
 
 function viewerDocument() {
   const elements=new Map();
@@ -68,6 +69,18 @@ test('viewer selects only the latest valid Scoring V2 result as current',()=>{
   assert.equal(latestValidScoringV2([v1,invalid]),null);
 });
 
+test('viewer headline savings requires a valid strict success',()=>{
+  const source=html.match(/function bestStrictScoringV2\(tests\) \{([\s\S]*?)\n\}/);
+  assert.ok(source,'bestStrictScoringV2 must remain independently testable');
+  const bestStrictScoringV2=Function('tests',source[1]);
+  const best=bestStrictScoringV2(observatoryTruth.tests);
+  assert.equal(best.turn,1650);
+  assert.equal(best.orig_tokens,469);
+  assert.equal(best.enc_tokens,269);
+  assert.equal(best.message_body_savings_pct,43);
+  assert.equal(best.semantic_coverage_pct,100);
+});
+
 test('viewer labels V2, V1, and pre-V1 without comparing scores',()=>{
   const source=html.match(/function scoringLabel\(t\) \{([\s\S]*?)\n\}/);
   assert.ok(source,'scoringLabel must remain independently testable');
@@ -130,7 +143,7 @@ test('completed V2 exams persist coverage and body savings independently',()=>{
     compression_success:null,orig_tokens:428,enc_tokens:231
   };
 
-  assert.equal(api.bestMessageBodySavingsV2([validFailure,invalid]),46);
+  assert.equal(api.bestMessageBodySavingsV2([validFailure,invalid]),null);
   api.render({
     conversation:[validFailure,invalid],
     rulebook:{version:'0.1',rules:[]},collaboration:{},conversations:[],x:{},meta:{updated:'fixture'}
@@ -142,9 +155,9 @@ test('completed V2 exams persist coverage and body savings independently',()=>{
     '<span>rules adopted<b>0</b></span>'+
     '<span>latest meaning pass · V2<b>FAIL</b></span>'+
     '<span>latest semantic coverage · V2<b>63%</b></span>'+
-    '<span>best message-body savings · V2<b>+46%</b></span>',
+    '<span>best strict savings · V2<b>—</b></span>',
     'full-history rendering must keep the same six-field headline contract as bootstrap.js');
-  assert.match(elements.get('metrics').innerHTML,/best message-body savings · V2<b>\+46%/);
+  assert.match(elements.get('metrics').innerHTML,/best strict savings · V2<b>—/);
   assert.match(elements.get('metrics').innerHTML,/latest semantic coverage · V2<b>63%/);
   assert.match(elements.get('exams').innerHTML,/t203[\s\S]*INVALID JUDGE RESULT[\s\S]*coverage unavailable[\s\S]*body savings \+46%/);
   assert.match(elements.get('exams').innerHTML,/t200[\s\S]*coverage 63%[\s\S]*body savings \+37%/);
@@ -173,10 +186,10 @@ test('last deployed savings remain visible when the live refresh fails',async()=
     script.slice(0,loadCall)+'\nreturn {loadState};')(viewer.document,window,failedFetch);
 
   api.loadState();
-  assert.match(viewer.elements.get('metrics').innerHTML,/best message-body savings · V2<b>\+44%/,
+  assert.match(viewer.elements.get('metrics').innerHTML,/best strict savings · V2<b>\+44%/,
     'the deployed snapshot must render synchronously before refresh settles');
   await new Promise(resolve=>setImmediate(resolve));
-  assert.match(viewer.elements.get('metrics').innerHTML,/best message-body savings · V2<b>\+44%/,
+  assert.match(viewer.elements.get('metrics').innerHTML,/best strict savings · V2<b>\+44%/,
     'a failed refresh must not clear the last deployed savings');
   assert.match(viewer.elements.get('exams').innerHTML,/coverage 100%[\s\S]*body savings \+44%/);
 });
@@ -214,7 +227,7 @@ test('failed live refresh dynamically loads and renders the bundled archive',asy
   };
   appended[0].onload();
   await new Promise(resolve=>setImmediate(resolve));
-  assert.match(viewer.elements.get('metrics').innerHTML,/best message-body savings · V2<b>\+44%/);
+  assert.match(viewer.elements.get('metrics').innerHTML,/best strict savings · V2<b>\+44%/);
   assert.match(viewer.elements.get('exams').innerHTML,/coverage 100%[\s\S]*body savings \+44%/);
 });
 
@@ -238,17 +251,56 @@ test('headline counters render before the full historical archive loads',()=>{
   const window={
     PUBLIC_BOOTSTRAP:{
       turn:2193,updated:new Date(Date.now()-5*60*1000).toISOString(),
-      metrics:[['turns','2193'],['rules adopted','24']]
+      metrics:[['turns','2193'],['rules adopted','24']],
+      runtime:{status:'active',turn:2193,next_exam_turn:2196,next_conversation_turn:2202}
     },
     setInterval(fn){intervals.push(fn); return 1;},
     setTimeout(){ return 1; }
   };
   Function('window','document',startup)(window,viewer.document);
 
-  assert.match(viewer.elements.get('t-turn').textContent,/^(?:\d\d:\d\d|running now|delayed)$/);
-  assert.match(viewer.elements.get('t-test').textContent,/^(?:\d\d:\d\d|running now)$/);
+  assert.match(viewer.elements.get('t-exam').textContent,/^(?:\d\d:\d\d|running now)$/);
+  assert.match(viewer.elements.get('t-conversation').textContent,/^(?:\d+:\d\d|running now)$/);
   assert.match(viewer.elements.get('metrics').innerHTML,/turns<b>2193<\/b>/);
   assert.equal(intervals.length,1,'one lightweight timer owns the countdown refresh');
+});
+
+test('paused runtime never advances exam or Conversation clocks',()=>{
+  const startup=fs.readFileSync(path.join(__dirname,'../../viewer/startup.js'),'utf8');
+  const viewer=viewerDocument();
+  let now=Date.parse('2026-08-13T00:00:00Z');
+  const realNow=Date.now;
+  Date.now=()=>now;
+  const window={
+    PUBLIC_BOOTSTRAP:{
+      turn:2400,updated:'2026-08-13T00:00:00Z',metrics:[],
+      runtime:{status:'paused',turn:2400,message:'Experiment paused at turn 2400. No new turn or exam is running. The public record remains available.',next_exam_turn:null,next_conversation_turn:null}
+    },
+    setInterval(){return 1;},setTimeout(){return 1;}
+  };
+  try {
+    Function('window','document',startup)(window,viewer.document);
+    assert.equal(viewer.elements.get('t-exam').textContent,'Paused');
+    assert.equal(viewer.elements.get('t-conversation').textContent,'Paused');
+    assert.equal(viewer.elements.get('runtime-status-detail').textContent,window.PUBLIC_BOOTSTRAP.runtime.message);
+    now+=24*60*60*1000;
+    window.ALATO_STARTUP.updateCounters();
+    assert.equal(viewer.elements.get('t-exam').textContent,'Paused');
+    assert.equal(viewer.elements.get('t-conversation').textContent,'Paused');
+  } finally { Date.now=realNow; }
+});
+
+test('full-history runtime status uses the same persisted pause contract',()=>{
+  const source=html.match(/function runtimeStatusView\(runtime, when, now, turn\) \{([\s\S]*?)\n\}/);
+  assert.ok(source);
+  const runtimeView=()=>({visible:false});
+  const runtimeStatusView=Function('runtimeView','runtime','when','now','turn',
+    source[1])(runtimeView,{
+      status:'paused',turn:2400,
+      message:'Experiment paused at turn 2400. No new turn or exam is running. The public record remains available.'
+    },null,Date.now(),2400);
+  assert.equal(runtimeStatusView.visible,true);
+  assert.equal(runtimeStatusView.detail,'Experiment paused at turn 2400. No new turn or exam is running. The public record remains available.');
 });
 
 test('stale active claims and Composition are absent',()=>{
@@ -310,7 +362,7 @@ test('stale runtime notice is truthful and self-clearing',()=>{
   assert.match(html,/path=state%2Fconversation\.json&per_page=1/);
   assert.match(html,/runtimeStatus\.classList\.remove\("visible"\)/);
 
-  const source=html.match(/function runtimeView\(when, now, turn\) \{([\s\S]*?)\n\}\n\nvar bundledStatePromise/);
+  const source=html.match(/function runtimeView\(when, now, turn\) \{([\s\S]*?)\n\}\n\nfunction runtimeStatusView/);
   assert.ok(source,'runtimeView must remain executable as a pure status decision');
   const runtimeView=Function('when','now','turn',source[1]);
   const now=Date.parse('2026-07-31T10:00:00Z');

@@ -452,6 +452,7 @@ class StructuredLoopTests(unittest.TestCase):
                 "scoring_version": "v2",
                 "judge_valid": True,
                 "meaning_pass": True,
+                "compression_success": True,
                 "semantic_coverage_pct": 100,
                 "message_body_savings_pct": 31,
             },
@@ -495,9 +496,39 @@ class StructuredLoopTests(unittest.TestCase):
                 ["rules adopted", "1"],
                 ["latest meaning pass · V2", "PASS"],
                 ["latest semantic coverage · V2", "100%"],
-                ["best message-body savings · V2", "+38%"],
+                ["best strict savings · V2", "+31%"],
             ],
         )
+        self.assertEqual(bootstrap["runtime"]["status"], "active")
+
+    def test_viewer_truth_fixture_selects_strict_success_and_paused_clocks(self):
+        fixture = json.loads(
+            (Path(__file__).parents[1] / "fixtures" / "public-observatory-truth.json").read_text()
+        )
+        conversation = fixture["tests"]
+        rulebook = open_book()
+        rulebook["version"] = "0.9"
+        rulebook["rules"][0]["status"] = "adopted"
+        meta = {"spend_usd": loop.SPEND_CAP, "tests_run": 794}
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            (root / "viewer").mkdir()
+            with mock.patch.object(loop, "ROOT", root), mock.patch.object(
+                loop, "now_iso", return_value="2026-08-13T00:00:00Z"
+            ):
+                loop.write_viewer_state(conversation, rulebook, meta)
+            payload = (root / "viewer" / "bootstrap.js").read_text()
+            persisted_runtime = json.loads((root / "state" / "public-runtime.json").read_text())
+        bootstrap = json.loads(payload.removeprefix("window.PUBLIC_BOOTSTRAP = ").removesuffix(";\n"))
+        self.assertEqual(bootstrap["metrics"][-1], ["best strict savings · V2", "+43%"])
+        self.assertEqual(bootstrap["runtime"], {
+            "status": "paused",
+            "turn": 2400,
+            "message": "Experiment paused at turn 2400. No new turn or exam is running. The public record remains available.",
+            "next_exam_turn": None,
+            "next_conversation_turn": None,
+        })
+        self.assertEqual(persisted_runtime, bootstrap["runtime"])
 
     def test_archive_moves_local_cost_ledger_with_the_matching_meta(self):
         with tempfile.TemporaryDirectory() as directory:
