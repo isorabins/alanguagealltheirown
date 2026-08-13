@@ -494,9 +494,9 @@ class StructuredLoopTests(unittest.TestCase):
                 ["rulebook revisions", "9"],
                 ["turns", "22"],
                 ["rules adopted", "1"],
-                ["latest meaning pass · V2", "PASS"],
-                ["latest semantic coverage · V2", "100%"],
                 ["best strict savings · V2", "+31%"],
+                ["latest coverage · V2", "100% · pass"],
+                ["latest Conversation", "unavailable"],
             ],
         )
         self.assertEqual(bootstrap["runtime"]["status"], "active")
@@ -519,8 +519,10 @@ class StructuredLoopTests(unittest.TestCase):
                 loop.write_viewer_state(conversation, rulebook, meta)
             payload = (root / "viewer" / "bootstrap.js").read_text()
             persisted_runtime = json.loads((root / "state" / "public-runtime.json").read_text())
+            state_payload = (root / "viewer" / "state.js").read_text()
+            public_language_exists = (root / "state" / "public-language.json").exists()
         bootstrap = json.loads(payload.removeprefix("window.PUBLIC_BOOTSTRAP = ").removesuffix(";\n"))
-        self.assertEqual(bootstrap["metrics"][-1], ["best strict savings · V2", "+43%"])
+        self.assertIn(["best strict savings · V2", "+43%"], bootstrap["metrics"])
         self.assertEqual(bootstrap["runtime"], {
             "status": "paused",
             "turn": 2400,
@@ -529,6 +531,9 @@ class StructuredLoopTests(unittest.TestCase):
             "next_conversation_turn": None,
         })
         self.assertEqual(persisted_runtime, bootstrap["runtime"])
+        self.assertIn('"language": {"version": "adopted-', state_payload)
+        self.assertIn('LANGUAGE adopted-', state_payload)
+        self.assertTrue(public_language_exists)
 
     def test_archive_moves_local_cost_ledger_with_the_matching_meta(self):
         with tempfile.TemporaryDirectory() as directory:

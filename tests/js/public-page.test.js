@@ -29,8 +29,42 @@ test('public page has mobile disclosure and suggestion placement',()=>{
   assert.match(html,/<details class="sect">/); assert.match(html,/Full transcript/);
 });
 
+test('production Observatory implements locked prototype B hierarchy without prototype controls',()=>{
+  for(const id of ['evidence-chain','tx','conversation-exam','language-panel','featured-note','field-note-archive','lab-categories']){
+    assert.match(html,new RegExp(`id="${id}"`));
+  }
+  assert.match(html,/Agent-to-agent communication is growing exponentially/);
+  assert.match(html,/exam-flow/);
+  assert.match(html,/copy current rulebook/);
+  assert.match(html,/Try this with your own agent/);
+  assert.doesNotMatch(html,/prototype-switcher|preview trace|prototype simulation|variant-name/);
+  assert.doesNotMatch(html,/preserve exact identifiers before compressing surrounding prose/);
+});
+
+test('six metric explanations are available to mouse keyboard and tap',()=>{
+  assert.match(html,/class="help"/);
+  assert.match(html,/aria-expanded/);
+  assert.match(html,/addEventListener\("click"/);
+  assert.match(html,/\.help:hover \+ \.tip/);
+  assert.match(html,/\.help:focus \+ \.tip/);
+});
+
+test('latest exam joins every canonical atom to verdict and decoded evidence',()=>{
+  assert.match(html,/function latestExamHtml/);
+  assert.match(html,/class="exam-flow"/);
+  assert.match(html,/atom-evidence/);
+  assert.match(html,/01 · Original/);
+  assert.match(html,/04 · Semantic audit/);
+});
+
+test('Lab Notebook exposes all six source-backed categories',()=>{
+  for(const label of ['Complete legislature','Development exams','Conversation archive','Research and human questions','Prompts and judging machinery','Raw public records']){
+    assert.match(html,new RegExp(label));
+  }
+});
+
 test('public page explains Scoring V2 and labels immutable history honestly',()=>{
-  assert.match(html,/Five corrected development benchmarks repeat/);
+  assert.match(html,/Five repeating messages retain original/);
   assert.match(html,/legacy V1/);
   assert.match(html,/V1 and V2 results are not compared/);
   assert.match(html,/INVALID JUDGE RESULT/);
@@ -149,16 +183,9 @@ test('completed V2 exams persist coverage and body savings independently',()=>{
     rulebook:{version:'0.1',rules:[]},collaboration:{},conversations:[],x:{},meta:{updated:'fixture'}
   });
 
-  assert.equal(elements.get('metrics').innerHTML,
-    '<span>rulebook revisions<b>1</b></span>'+
-    '<span>turns<b>203</b></span>'+
-    '<span>rules adopted<b>0</b></span>'+
-    '<span>latest meaning pass · V2<b>FAIL</b></span>'+
-    '<span>latest semantic coverage · V2<b>63%</b></span>'+
-    '<span>best strict savings · V2<b>—</b></span>',
-    'full-history rendering must keep the same six-field headline contract as bootstrap.js');
-  assert.match(elements.get('metrics').innerHTML,/best strict savings · V2<b>—/);
-  assert.match(elements.get('metrics').innerHTML,/latest semantic coverage · V2<b>63%/);
+  for(const label of ['rulebook revisions','turns','rules adopted','best strict savings · V2','latest coverage · V2','latest Conversation']) assert.match(elements.get('metrics').innerHTML,new RegExp(label));
+  assert.match(elements.get('metrics').innerHTML,/best strict savings · V2[\s\S]*<b>—/);
+  assert.match(elements.get('metrics').innerHTML,/latest coverage · V2[\s\S]*<b>63% · fail/);
   assert.match(elements.get('exams').innerHTML,/t203[\s\S]*INVALID JUDGE RESULT[\s\S]*coverage unavailable[\s\S]*body savings \+46%/);
   assert.match(elements.get('exams').innerHTML,/t200[\s\S]*coverage 63%[\s\S]*body savings \+37%/);
   assert.doesNotMatch(elements.get('exams').innerHTML,/&lt;span/,
@@ -186,10 +213,10 @@ test('last deployed savings remain visible when the live refresh fails',async()=
     script.slice(0,loadCall)+'\nreturn {loadState};')(viewer.document,window,failedFetch);
 
   api.loadState();
-  assert.match(viewer.elements.get('metrics').innerHTML,/best strict savings · V2<b>\+44%/,
+  assert.match(viewer.elements.get('metrics').innerHTML,/best strict savings · V2[\s\S]*<b>\+44%/,
     'the deployed snapshot must render synchronously before refresh settles');
   await new Promise(resolve=>setImmediate(resolve));
-  assert.match(viewer.elements.get('metrics').innerHTML,/best strict savings · V2<b>\+44%/,
+  assert.match(viewer.elements.get('metrics').innerHTML,/best strict savings · V2[\s\S]*<b>\+44%/,
     'a failed refresh must not clear the last deployed savings');
   assert.match(viewer.elements.get('exams').innerHTML,/coverage 100%[\s\S]*body savings \+44%/);
 });
@@ -227,7 +254,7 @@ test('failed live refresh dynamically loads and renders the bundled archive',asy
   };
   appended[0].onload();
   await new Promise(resolve=>setImmediate(resolve));
-  assert.match(viewer.elements.get('metrics').innerHTML,/best strict savings · V2<b>\+44%/);
+  assert.match(viewer.elements.get('metrics').innerHTML,/best strict savings · V2[\s\S]*<b>\+44%/);
   assert.match(viewer.elements.get('exams').innerHTML,/coverage 100%[\s\S]*body savings \+44%/);
 });
 
@@ -261,7 +288,7 @@ test('headline counters render before the full historical archive loads',()=>{
 
   assert.match(viewer.elements.get('t-exam').textContent,/^(?:\d\d:\d\d|running now)$/);
   assert.match(viewer.elements.get('t-conversation').textContent,/^(?:\d+:\d\d|running now)$/);
-  assert.match(viewer.elements.get('metrics').innerHTML,/turns<b>2193<\/b>/);
+  assert.match(viewer.elements.get('metrics').innerHTML,/turns[\s\S]*<b>2193<\/b>/);
   assert.equal(intervals.length,1,'one lightweight timer owns the countdown refresh');
 });
 
@@ -319,7 +346,7 @@ test('public page fetches only the sanitized collaboration snapshot',()=>{
 test('public page curates collaboration, judgment, and proposal history',()=>{
   assert.match(html,/id="experiment-status"/);
   assert.doesNotMatch(html,/stale proposal-state deadlock/);
-  assert.match(html,/Lab notebook · research, methods &amp; archive/);
+  assert.match(html,/Lab notebook · methods, machinery &amp; complete archive/);
   assert.match(html,/outward web research/);
   assert.match(html,/project lookup/);
   assert.match(html,/function conversationJudgmentHtml/);

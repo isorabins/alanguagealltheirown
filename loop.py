@@ -596,8 +596,30 @@ def write_viewer_state(conv, rb, meta, collaboration=None, conversations=None):
     runtime_path = ROOT / "state" / "public-runtime.json"
     runtime_path.parent.mkdir(exist_ok=True)
     atomic_write_json(runtime_path, runtime)
+    language = language_payload(rb)
+    public_language = {
+        "version": language["version"],
+        "hash": language["hash"],
+        "rules": language["rules"],
+        "text": render_language(rb),
+    }
+    atomic_write_json(ROOT / "state" / "public-language.json", public_language)
+    notes = load_json(ROOT / "notes.json", [])
     adopted_count = sum(rule.get("status") == "adopted" for rule in rb.get("rules", []))
     pct = lambda value: ("+" if value > 0 else "") + f"{value}%"
+    latest_conversation = (conversations or [])[-1] if conversations else None
+    conversation_judgment = (
+        latest_conversation.get("judgment", {}) if latest_conversation else {}
+    )
+    conversation_rows = conversation_judgment.get("requirements", [])
+    conversation_passes = sum(
+        row.get("pass") is True for row in conversation_rows if isinstance(row, dict)
+    )
+    conversation_metric = (
+        f"{conversation_passes} / {len(conversation_rows)} pass"
+        if conversation_judgment.get("valid") is True and conversation_rows
+        else "unavailable"
+    )
     bootstrap = {
         "turn": turn,
         "updated": updated,
@@ -607,27 +629,19 @@ def write_viewer_state(conv, rb, meta, collaboration=None, conversations=None):
             ["turns", str(turn)],
             ["rules adopted", str(adopted_count)],
             [
-                "latest meaning pass · V2",
-                (
-                    "PASS"
-                    if latest_valid_v2 and latest_valid_v2.get("meaning_pass")
-                    else "FAIL"
-                    if latest_valid_v2
-                    else "awaiting V2"
-                ),
-            ],
-            [
-                "latest semantic coverage · V2",
-                (
-                    f'{latest_valid_v2.get("semantic_coverage_pct")}%'
-                    if latest_valid_v2
-                    else "awaiting V2"
-                ),
-            ],
-            [
                 "best strict savings · V2",
                 pct(best_savings) if best_savings is not None else "—",
             ],
+            [
+                "latest coverage · V2",
+                (
+                    f'{latest_valid_v2.get("semantic_coverage_pct")}% · '
+                    f'{"pass" if latest_valid_v2.get("meaning_pass") else "fail"}'
+                    if latest_valid_v2
+                    else "awaiting V2"
+                ),
+            ],
+            ["latest Conversation", conversation_metric],
         ],
     }
     (ROOT / "viewer" / "bootstrap.js").write_text(
@@ -639,7 +653,8 @@ def write_viewer_state(conv, rb, meta, collaboration=None, conversations=None):
         "window.STATE = " + json.dumps(
             {"conversation": public_conversation, "rulebook": rb,
              "collaboration": public_state(collaboration or empty_state()),
-             "conversations": conversations or [],
+             "conversations": conversations or [], "language": public_language,
+             "notes": notes if isinstance(notes, list) else [],
              "meta": {"spend_usd": meta.get("spend_usd", 0), "model": MODEL_A,
                       "spend_usd_historical_estimate":
                           meta.get("spend_usd_historical_estimate"),
