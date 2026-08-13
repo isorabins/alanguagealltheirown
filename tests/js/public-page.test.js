@@ -46,11 +46,12 @@ test('locked opening copy and timer order are preserved',()=>{
   assert.match(html,/That’s crazy\. What if we made a shorthand/);
   assert.match(html,/This is a public experiment reaching toward that goal\./);
   assert.doesNotMatch(html,/public experiment and art project|The agents invent the language|timers-cap/);
-  assert.ok(html.indexOf('id="t-conversation"') < html.indexOf('id="t-exam"'));
+  assert.ok(html.indexOf('id="t-turn"') < html.indexOf('id="t-exam"'));
+  assert.match(html,/id="t-turn">--:--<\/span><span class="tlab">next turn<\/span>/);
+  assert.doesNotMatch(html,/id="t-conversation"|class="tlab">next Conversation<\/span>/);
   assert.match(html,/Scoring V2 calls compression successful only when 100% of the semantic meaning in the conversation survives encoding and decoding\./);
   assert.match(html,/DeepSeek Agent A invents or revises one focused idea\. Kimi Agent B audits it and alone may adopt or reject it\./);
   assert.match(copyDeck,/This is a public experiment reaching toward that goal\./);
-  assert.ok(copyDeck.indexOf('Paused — next Conversation') < copyDeck.indexOf('Paused — next exam'));
   assert.match(html,/id="exam-jump" href="#live-test-section">see last test ↓<\/a>/);
 });
 
@@ -355,6 +356,25 @@ test('failed live refresh dynamically loads and renders the bundled archive',asy
   assert.match(viewer.elements.get('exams').innerHTML,/coverage 100%[\s\S]*body savings \+44%/);
 });
 
+test('left clock always counts down to the next 15-minute turn',()=>{
+  const startup=fs.readFileSync(path.join(__dirname,'../../viewer/startup.js'),'utf8');
+  const viewer=viewerDocument();
+  const realNow=Date.now;
+  Date.now=()=>Date.parse('2026-08-13T00:05:00Z');
+  const window={
+    PUBLIC_BOOTSTRAP:{
+      turn:2403,updated:'2026-08-13T00:00:00Z',metrics:[],
+      runtime:{status:'active',turn:2403,next_exam_turn:2406,next_conversation_turn:2418}
+    },
+    setInterval(){return 1;},setTimeout(){return 1;}
+  };
+  try {
+    Function('window','document',startup)(window,viewer.document);
+    assert.equal(viewer.elements.get('t-turn').textContent,'10:00');
+    assert.equal(viewer.elements.get('t-exam').textContent,'40:00');
+  } finally { Date.now=realNow; }
+});
+
 test('headline counters render before the full historical archive loads',()=>{
   const bootstrapTag='<script src="bootstrap.js"></script>';
   const startupTag='<script src="startup.js"></script>';
@@ -384,13 +404,13 @@ test('headline counters render before the full historical archive loads',()=>{
   Function('window','document',startup)(window,viewer.document);
 
   assert.match(viewer.elements.get('t-exam').textContent,/^(?:\d\d:\d\d|running now)$/);
-  assert.match(viewer.elements.get('t-conversation').textContent,/^(?:\d+:\d\d|running now)$/);
+  assert.match(viewer.elements.get('t-turn').textContent,/^(?:\d\d:\d\d|running now)$/);
   assert.match(viewer.elements.get('exam-jump').textContent,/^(?:watch next test|watch live test now) ↓$/);
   assert.match(viewer.elements.get('metrics').innerHTML,/turns[\s\S]*<b>2193<\/b>/);
   assert.equal(intervals.length,1,'one lightweight timer owns the countdown refresh');
 });
 
-test('paused runtime never advances exam or Conversation clocks',()=>{
+test('paused runtime never advances turn or exam clocks',()=>{
   const startup=fs.readFileSync(path.join(__dirname,'../../viewer/startup.js'),'utf8');
   const viewer=viewerDocument();
   let now=Date.parse('2026-08-13T00:00:00Z');
@@ -406,13 +426,13 @@ test('paused runtime never advances exam or Conversation clocks',()=>{
   try {
     Function('window','document',startup)(window,viewer.document);
     assert.equal(viewer.elements.get('t-exam').textContent,'Paused');
-    assert.equal(viewer.elements.get('t-conversation').textContent,'Paused');
+    assert.equal(viewer.elements.get('t-turn').textContent,'Paused');
     assert.equal(viewer.elements.get('exam-jump').textContent,'see last test ↓');
     assert.equal(viewer.elements.get('runtime-status-detail').textContent,window.PUBLIC_BOOTSTRAP.runtime.message);
     now+=24*60*60*1000;
     window.ALATO_STARTUP.updateCounters();
     assert.equal(viewer.elements.get('t-exam').textContent,'Paused');
-    assert.equal(viewer.elements.get('t-conversation').textContent,'Paused');
+    assert.equal(viewer.elements.get('t-turn').textContent,'Paused');
   } finally { Date.now=realNow; }
 });
 

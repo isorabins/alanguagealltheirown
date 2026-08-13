@@ -44,14 +44,14 @@
 
   function updateCounters() {
     var examElement = document.getElementById("t-exam");
-    var conversationElement = document.getElementById("t-conversation");
+    var turnElement = document.getElementById("t-turn");
     var examLink = document.getElementById("exam-jump");
-    if (!examElement || !conversationElement) return;
+    if (!examElement || !turnElement) return;
     if (runtime.status === "paused") {
       examElement.textContent = "Paused";
-      conversationElement.textContent = "Paused";
+      turnElement.textContent = "Paused";
       examElement.classList.remove("running");
-      conversationElement.classList.remove("running");
+      turnElement.classList.remove("running");
       var status = document.getElementById("runtime-status");
       var detail = document.getElementById("runtime-status-detail");
       if (status) status.classList.add("visible");
@@ -61,36 +61,34 @@
     }
     if (lastTurnAt === null) {
       examElement.textContent = "unavailable";
-      conversationElement.textContent = "unavailable";
+      turnElement.textContent = "unavailable";
       if (examLink) examLink.textContent = "open test terminal ↓";
       return;
     }
     var remaining = lastTurnAt + TURN_MS - Date.now();
     var nextTurn = lastTurnNum + 1;
     var examTurn = Number(runtime.next_exam_turn || nextTurn);
-    var conversationTurn = Number(runtime.next_conversation_turn || examTurn);
     var examRemaining = remaining + Math.max(0, examTurn - nextTurn) * TURN_MS;
-    var conversationRemaining = remaining + Math.max(0, conversationTurn - nextTurn) * TURN_MS;
-    if (examRemaining <= 0) {
-      examElement.textContent = "running now";
-      examElement.classList.add("running");
-      if (examLink) examLink.textContent = "watch live test now ↓";
+    if (remaining <= 0) {
+      turnElement.textContent = "running now";
+      turnElement.classList.add("running");
       if (!refetchArmed && typeof window.loadState === "function") {
         refetchArmed = true;
         window.setTimeout(window.loadState, refetchDelay);
         refetchDelay = Math.min(refetchDelay * 2, 300000);
       }
     } else {
+      turnElement.textContent = formatRemaining(remaining);
+      turnElement.classList.remove("running");
+    }
+    if (examRemaining <= 0) {
+      examElement.textContent = "running now";
+      examElement.classList.add("running");
+      if (examLink) examLink.textContent = "watch live test now ↓";
+    } else {
       examElement.textContent = formatRemaining(examRemaining);
       examElement.classList.remove("running");
       if (examLink) examLink.textContent = "watch next test ↓";
-    }
-    if (conversationRemaining <= 0) {
-      conversationElement.textContent = "running now";
-      conversationElement.classList.add("running");
-    } else {
-      conversationElement.textContent = formatRemaining(conversationRemaining);
-      conversationElement.classList.remove("running");
     }
   }
 
