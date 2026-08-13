@@ -581,6 +581,9 @@ var lastPublicProgressRenderKey=null;
 var publicProgressPathExists=null;
 var publicProgressPathCheck=null;
 var currentRenderedState=null;
+var publicProgressAwaitedTurn=null;
+var publicProgressReplay=null;
+var publicProgressReplayTimer=null;
 function publicProgressEsc(value){return String(value==null?"":value).replace(/[&<>"]/g,function(character){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[character];});}
 function publicProgressExcerpt(value,expected){
   var text=String(value||"").replace(/\s+/g," ").trim(),meaning=String(expected||"");
@@ -627,15 +630,25 @@ function completedProgressMatchesExam(snapshot,exam) {
 
 function publicExamProgressView(snapshot,options) {
   options=options||{};
-  if(options.loadStatus&&options.loadStatus!=="ok")return {state:options.loadStatus,clock:"unavailable",detail:"The public exam snapshot is "+options.loadStatus+". The verified Latest Exam and the rest of the Observatory remain available.",lines:[]};
-  if(!snapshot)return {state:(options.runtime&&options.runtime.status==="paused")?"Paused":"missing",clock:(options.runtime&&options.runtime.status==="paused")?"Paused":"unavailable",detail:"No public exam-progress snapshot is available. The verified Latest Exam is unchanged.",lines:[]};
+  var paused=options.runtime&&options.runtime.status==="paused",awaitedTurn=Number(options.awaitedTurn||0);
+  var waitingState=function(active){return {state:active?"test in progress":"waiting for next test",clock:active?"running now":"next test",detail:active?"The scheduled test is running. Its recorded trace will appear after Git publishes the completed turn.":"The next scheduled test has not begun. The previous verified Latest Exam remains available.",lines:[],showSnapshot:false};};
+  if(options.loadStatus&&options.loadStatus!=="ok"){
+    if(options.loadStatus==="missing"&&!paused)return waitingState(!!awaitedTurn);
+    return {state:options.loadStatus,clock:"unavailable",detail:"The public exam snapshot is "+options.loadStatus+". The verified Latest Exam and the rest of the Observatory remain available.",lines:[]};
+  }
+  if(!snapshot)return paused?{state:"Paused",clock:"Paused",detail:"No test is running. The previous verified Latest Exam remains available.",lines:[]}:waitingState(!!awaitedTurn);
   if(!validPublicExamProgress(snapshot))return {state:"malformed",clock:"unavailable",detail:"The public exam snapshot failed validation. The verified Latest Exam is unchanged.",lines:[]};
+  if(awaitedTurn&&snapshot.turn<awaitedTurn)return waitingState(true);
   var active=["completed","interrupted","failed"].indexOf(snapshot.phase)<0;
   var age=(Number(options.now||Date.now())-Date.parse(snapshot.updated_at))/60000;
   if(active&&(!Number.isFinite(age)||age>30))return {state:"stale",clock:"unavailable",detail:"The in-progress exam snapshot is stale. No completed result is inferred.",lines:[]};
-  if(!completedProgressMatchesExam(snapshot,options.latestExam))return {state:"malformed",clock:"unavailable",detail:"The completed trace does not match the canonical Latest Exam. The canonical record wins.",lines:[]};
   var labels={exam_started:"live · exam boundary",benchmark_selected:"live · benchmark selected",language_loaded:"live · language loaded",encoder_started:"live · encoder running",encoder_completed:"live · encoder complete",decoder_started:"live · decoder running",decoder_completed:"live · decoder complete",judge_started:"live · judge running",audit_progress:"live · semantic audit",completed:"verified complete",interrupted:"interrupted",failed:"failed"};
-  return {state:labels[snapshot.phase],clock:active?"running now":((options.runtime&&options.runtime.status==="paused")?"Paused":"next exam"),detail:active?"This is the matching persisted scheduled exam.":(snapshot.phase==="completed"?"The terminal trace agrees with the canonical Latest Exam.":"No result was inferred; the previous verified Latest Exam remains authoritative."),lines:snapshot.receipts,encoded:snapshot.encoded,decoded:snapshot.decoded,tokens:snapshot.tokens,result:snapshot.result,errorClass:snapshot.error_class};
+  var matches=completedProgressMatchesExam(snapshot,options.latestExam),state=labels[snapshot.phase],clock=active?"running now":(paused?"Paused":"next test"),detail=active?"This is the matching persisted scheduled exam.":(snapshot.phase==="completed"?"The terminal trace agrees with the canonical Latest Exam.":"No result was inferred; the previous verified Latest Exam remains authoritative.");
+  if(snapshot.phase==="completed"&&!matches){state="result published";clock="syncing final record";detail="Git published the completed test trace. The separately cached Latest Exam is still catching up.";}
+  var lines=snapshot.receipts,limit=Number(options.replayLimit),replaying=Number.isInteger(limit);
+  if(replaying){lines=lines.slice(0,Math.max(0,Math.min(limit,lines.length)));state="publishing recorded test";clock="replaying now";detail="Git published this completed test. The terminal is revealing its genuine recorded receipts in order.";}
+  var visiblePhases=lines.map(function(receipt){return receipt.phase;}),revealed=function(phase){return visiblePhases.indexOf(phase)>=0;},complete=revealed("completed");
+  return {state:state,clock:clock,detail:detail,lines:lines,encoded:(!replaying||revealed("encoder_completed"))?snapshot.encoded:null,decoded:(!replaying||revealed("decoder_completed"))?snapshot.decoded:null,tokens:(!replaying||complete)?snapshot.tokens:null,result:(!replaying||complete)?snapshot.result:null,errorClass:snapshot.error_class,showAudit:!replaying||revealed("audit_progress")||complete,showEvidence:!replaying||complete};
 }
 
 function renderPublicExamProgress(snapshot,options) {
@@ -651,12 +664,12 @@ function renderPublicExamProgress(snapshot,options) {
   }
   var exam=options&&options.latestExam;
   var matchingExam=!!(snapshot&&exam&&snapshot.turn===exam.turn&&snapshot.benchmark_id===exam.benchmark_id&&snapshot.language_version===exam.language_version);
-  var renderKey=String(options&&options.loadStatus||"ok")+"|"+JSON.stringify(snapshot||null)+"|"+(matchingExam?JSON.stringify(exam.atom_results||[]):"");
+  var renderKey=String(options&&options.loadStatus||"ok")+"|"+String(options&&options.replayLimit==null?"":options.replayLimit)+"|"+JSON.stringify(snapshot||null)+"|"+(matchingExam?JSON.stringify(exam.atom_results||[]):"");
   if(renderKey===lastPublicProgressRenderKey)return view;
   var priorTop=body.scrollTop||0,shouldFollow=body._followPublicProgress!==false;
   var traceTips={exam_started:"The scheduler crossed a real exam boundary and created this run identity.",benchmark_selected:"The fixed benchmark chosen by the canonical rotation for this exam.",language_loaded:"The exact adopted-language version and hash captured before encoding began.",encoder_started:"The scheduled encoder call began. No partial provider output is published.",encoder_completed:"The encoder returned a complete response and it passed the public sanitizer.",decoder_started:"A fresh decoder received only the adopted rulebook and completed encoded message.",decoder_completed:"The decoder returned a complete reconstruction and it passed the public sanitizer.",judge_started:"The Scoring V2 judge began its fact-by-fact semantic audit.",audit_progress:"A safe aggregate receipt from the semantic audit; it contains no hidden reasoning.",completed:"The trace agrees exactly with the canonical Latest Exam artifact.",interrupted:"The exam stopped before a verified result existed.",failed:"The exam ended with an allowlisted public error class; raw errors remain private."};
   var rows="",shownEncoded=false,shownDecoded=false;
-  if(snapshot&&validPublicExamProgress(snapshot)){
+  if(snapshot&&view.showSnapshot!==false&&validPublicExamProgress(snapshot)){
     rows+='<div class="trace-meta"><span>run<b>'+publicProgressEsc(snapshot.run_id)+'</b></span><span>turn<b>'+snapshot.turn+'</b></span><span>benchmark<b>'+publicProgressEsc(snapshot.benchmark_id+' · '+(snapshot.benchmark_name||"unnamed"))+'</b></span><span>language<b>'+publicProgressEsc(snapshot.language_version||"unavailable")+'</b></span><span>language hash<b>'+publicProgressEsc((snapshot.language_hash||"unavailable").slice(0,16))+'…</b></span><span>persisted<b>'+publicProgressEsc(snapshot.updated_at)+'</b></span></div>';
   }
   (view.lines||[]).forEach(function(receipt){
@@ -668,8 +681,8 @@ function renderPublicExamProgress(snapshot,options) {
   });
   if(view.encoded&&!shownEncoded)rows+='<div class="trace-artifact"><b>sanitized encoded response</b><pre>'+publicProgressEsc(view.encoded)+'</pre></div>';
   if(view.decoded&&!shownDecoded)rows+='<div class="trace-artifact"><b>sanitized decoded response</b><pre>'+publicProgressEsc(view.decoded)+'</pre></div>';
-  if(snapshot&&snapshot.audit)rows+='<div class="trace-audit-summary">semantic audit · '+snapshot.audit.completed+'/'+snapshot.audit.total+' checked · '+snapshot.audit.survived+' survived · '+snapshot.audit.corrupted+' corrupted · '+snapshot.audit.missing+' missing · '+snapshot.audit.inventions+' inventions</div>';
-  if(snapshot&&snapshot.phase==="completed"&&matchingExam&&Array.isArray(exam.atom_results)){
+  if(snapshot&&snapshot.audit&&view.showAudit)rows+='<div class="trace-audit-summary">semantic audit · '+snapshot.audit.completed+'/'+snapshot.audit.total+' checked · '+snapshot.audit.survived+' survived · '+snapshot.audit.corrupted+' corrupted · '+snapshot.audit.missing+' missing · '+snapshot.audit.inventions+' inventions</div>';
+  if(snapshot&&snapshot.phase==="completed"&&view.showEvidence&&matchingExam&&Array.isArray(exam.atom_results)){
     var meanings={};(exam.answer_key||[]).forEach(function(atom){meanings[atom.id]=atom.meaning;});
     rows+='<div class="trace-section-label">fact-by-fact judgment evidence</div>';
     exam.atom_results.forEach(function(atom){var bad=atom.verdict!=="SURVIVED";rows+='<div class="trace-audit-row"><b class="'+(bad?'bad':'')+'">'+publicProgressEsc(atom.id)+' · '+publicProgressEsc(atom.verdict)+'</b><span>'+publicProgressEsc(meanings[atom.id]||"semantic requirement")+'<small>decoded evidence: '+(atom.evidence?'“'+publicProgressEsc(atom.evidence)+'”':'none')+'</small></span></div>';});
@@ -692,6 +705,23 @@ function renderPublicExamProgress(snapshot,options) {
   lastPublicProgressRenderKey=renderKey;
   if((!options||!options.loadStatus||options.loadStatus==="ok")&&validPublicExamProgress(snapshot))lastPublicProgress=snapshot;
   return view;
+}
+
+function publicExamDueNow(){var element=document.getElementById("t-exam");return !!(element&&(element.textContent==="running now"||(element.classList&&element.classList.contains("running"))));}
+function advancePublicExamReplay(){
+  if(!publicProgressReplay)return;
+  publicProgressReplay.visible=Math.min(publicProgressReplay.visible+1,publicProgressReplay.snapshot.receipts.length);
+  var options=Object.assign({},publicProgressReplay.options,{replayLimit:publicProgressReplay.visible});
+  renderPublicExamProgress(publicProgressReplay.snapshot,options);
+  if(publicProgressReplay.visible<publicProgressReplay.snapshot.receipts.length){publicProgressReplayTimer=window.setTimeout(advancePublicExamReplay,220);return;}
+  publicProgressAwaitedTurn=null;publicProgressReplay=null;publicProgressReplayTimer=null;
+}
+function startPublicExamReplay(snapshot,options){
+  if(publicProgressReplay&&publicProgressReplay.snapshot.run_id===snapshot.run_id){publicProgressReplay.options=options;return;}
+  if(publicProgressReplayTimer)window.clearTimeout(publicProgressReplayTimer);
+  var reducedMotion=window.matchMedia&&window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  publicProgressReplay={snapshot:snapshot,options:options,visible:reducedMotion?snapshot.receipts.length-1:0};
+  advancePublicExamReplay();
 }
 
 function render(S) {
@@ -1184,6 +1214,10 @@ function refreshPublicExamProgress() {
   var local=window.location&&/^(localhost|127\.0\.0\.1)$/.test(window.location.hostname);
   var url=local?"../state/public-exam-progress.json":"https://raw.githubusercontent.com/isorabins/alanguagealltheirown/main/state/public-exam-progress.json";
   var current=currentRenderedState||window.STATE||{},runtime=current.meta&&current.meta.runtime;
+  if(runtime&&runtime.status!=="paused"&&publicExamDueNow()){
+    var dueTurn=Number(runtime.next_exam_turn);
+    if(Number.isInteger(dueTurn)&&dueTurn>0)publicProgressAwaitedTurn=dueTurn;
+  }
   if(!local&&(!runtime||runtime.status==="paused")&&publicProgressPathExists!==true){
     if(publicProgressPathExists===false){
       var pausedTests=(current.conversation||[]).filter(function(event){return event.type==="test";});
@@ -1203,11 +1237,14 @@ function refreshPublicExamProgress() {
   fetch(url,{cache:"no-store"}).then(function(response){
     if(response.status===404){status="missing";publicProgressPathExists=false;return null;}
     if(!response.ok){status="unavailable";return null;}
+    publicProgressPathExists=true;
     return response.text().then(function(text){try{return JSON.parse(text);}catch(error){status="malformed";return null;}});
   }).then(function(snapshot){
     var state=currentRenderedState||window.STATE||{},tests=(state.conversation||[]).filter(function(event){return event.type==="test";}),latest=latestValidScoringV2(tests),runtime=state.meta&&state.meta.runtime;
     if(status==="ok"&&snapshot&&lastPublicProgress&&validPublicExamProgress(lastPublicProgress)&&validPublicExamProgress(snapshot)&&lastPublicProgress.run_id!==snapshot.run_id&&["completed","interrupted","failed"].indexOf(lastPublicProgress.phase)<0){status="malformed";snapshot=null;}
-    renderPublicExamProgress(snapshot,{loadStatus:status,runtime:runtime,latestExam:latest,now:Date.now()});
+    var options={loadStatus:status,runtime:runtime,latestExam:latest,now:Date.now(),awaitedTurn:publicProgressAwaitedTurn};
+    if(status==="ok"&&snapshot&&snapshot.phase==="completed"&&publicProgressAwaitedTurn&&snapshot.turn>=publicProgressAwaitedTurn){startPublicExamReplay(snapshot,options);return;}
+    renderPublicExamProgress(snapshot,options);
   }).catch(function(){
     var state=currentRenderedState||window.STATE||{},tests=(state.conversation||[]).filter(function(event){return event.type==="test";});
     renderPublicExamProgress(null,{loadStatus:"unavailable",runtime:state.meta&&state.meta.runtime,latestExam:latestValidScoringV2(tests),now:Date.now()});

@@ -85,6 +85,12 @@ function progressApi(){
   return Function(html.slice(start,end)+'\nreturn {validPublicExamProgress,validPublicExamTransition,completedProgressMatchesExam,publicExamProgressView};')();
 }
 
+function progressRuntime(window,document){
+  const start=html.indexOf('var PUBLIC_PROGRESS_PHASES=');
+  const end=html.indexOf('\nfunction render(S)',start);
+  return Function('window','document',html.slice(start,end)+'\nreturn {startPublicExamReplay,getReplay:function(){return publicProgressReplay;}};')(window,document);
+}
+
 function progressSnapshot(phase='completed'){
   const phases=['exam_started','benchmark_selected','language_loaded','encoder_started','encoder_completed','decoder_started','decoder_completed','judge_started','audit_progress','completed'];
   const active=phases.slice(0,phases.indexOf(phase)+1);
@@ -128,10 +134,48 @@ test('public trace renders complete interrupted failed stale missing malformed a
     assert.equal(api.publicExamProgressView(snapshot,{now:Date.parse('2026-08-13T00:00:03Z')}).state,phase);
   }
   assert.equal(api.publicExamProgressView(progressSnapshot('encoder_started'),{now:Date.parse('2026-08-13T01:00:00Z')}).state,'stale');
-  assert.equal(api.publicExamProgressView(null,{loadStatus:'missing'}).state,'missing');
+  assert.equal(api.publicExamProgressView(null,{loadStatus:'missing',runtime:{status:'active'}}).state,'waiting for next test');
+  assert.equal(api.publicExamProgressView(null,{loadStatus:'missing',runtime:{status:'active'},awaitedTurn:2401}).state,'test in progress');
   assert.equal(api.publicExamProgressView(null,{loadStatus:'malformed'}).state,'malformed');
   assert.equal(api.publicExamProgressView(null,{loadStatus:'unavailable'}).state,'unavailable');
-  assert.equal(api.publicExamProgressView({...completed,encoded:'mismatch'},{latestExam:exam}).state,'malformed');
+  assert.equal(api.publicExamProgressView({...completed,encoded:'mismatch'},{latestExam:exam}).state,'result published');
+  assert.equal(api.publicExamProgressView(completed,{latestExam:exam,replayLimit:4}).lines.length,4);
+  assert.equal(api.publicExamProgressView(completed,{latestExam:exam,replayLimit:4}).encoded,null);
+  assert.equal(api.publicExamProgressView(completed,{latestExam:exam,replayLimit:5}).encoded,'SAFE ENCODED');
+  assert.equal(api.publicExamProgressView(completed,{latestExam:exam,replayLimit:9}).result,null);
+  assert.equal(api.publicExamProgressView(completed,{latestExam:exam,replayLimit:10}).result.status,'VALID');
+});
+
+test('completed Git trace is revealed receipt by receipt before its final verdict',()=>{
+  const viewer=viewerDocument(),timers=[];
+  const window={
+    setTimeout(fn,delay){timers.push({fn,delay});return timers.length;},
+    clearTimeout(){}
+  };
+  const api=progressRuntime(window,viewer.document),snapshot=progressSnapshot();
+  api.startPublicExamReplay(snapshot,{latestExam:null,now:Date.parse('2026-08-13T00:00:10Z')});
+  assert.equal(viewer.elements.get('trace-state').textContent,'publishing recorded test');
+  assert.match(viewer.elements.get('trace-body').innerHTML,/exam boundary/);
+  assert.doesNotMatch(viewer.elements.get('trace-body').innerHTML,/SAFE ENCODED|TEST FAILURE/);
+  assert.equal(timers[0].delay,220);
+  while(timers.length)timers.shift().fn();
+  assert.equal(api.getReplay(),null);
+  assert.match(viewer.elements.get('trace-body').innerHTML,/SAFE ENCODED/);
+  assert.match(viewer.elements.get('trace-body').innerHTML,/TEST FAILURE/);
+});
+
+test('reduced-motion viewers receive the completed recorded trace without animation',()=>{
+  const viewer=viewerDocument(),timers=[];
+  const window={
+    matchMedia(){return {matches:true};},
+    setTimeout(fn,delay){timers.push({fn,delay});return timers.length;},
+    clearTimeout(){}
+  };
+  const api=progressRuntime(window,viewer.document);
+  api.startPublicExamReplay(progressSnapshot(),{latestExam:null,now:Date.parse('2026-08-13T00:00:10Z')});
+  assert.equal(timers.length,0);
+  assert.equal(api.getReplay(),null);
+  assert.match(viewer.elements.get('trace-body').innerHTML,/TEST FAILURE/);
 });
 
 test('Watch the Live Test is persisted-state only and matches the locked terminal design',()=>{
@@ -157,6 +201,8 @@ test('Watch the Live Test is persisted-state only and matches the locked termina
   assert.match(refresh,/commits\?sha=main&path=state%2Fpublic-exam-progress\.json&per_page=1/);
   assert.match(refresh,/\(!runtime\|\|runtime\.status==="paused"\)&&publicProgressPathExists!==true/);
   assert.doesNotMatch(refresh,/\/api\/|encode|decode|judge|OPENROUTER|provider/i);
+  assert.match(html,/function startPublicExamReplay\(snapshot,options\)/);
+  assert.match(html,/window\.setTimeout\(advancePublicExamReplay,220\)/);
   assert.doesNotMatch(html,/preview trace|prototype simulation|replay trace/);
 });
 
