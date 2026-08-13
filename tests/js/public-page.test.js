@@ -1,5 +1,6 @@
 const test=require('node:test'); const assert=require('node:assert/strict'); const fs=require('node:fs'); const path=require('node:path'); const vm=require('node:vm');
 const html=fs.readFileSync(path.join(__dirname,'../../viewer/index.html'),'utf8');
+const copyDeck=fs.readFileSync(path.join(__dirname,'../../viewer/prototype-observatory-copy.md'),'utf8');
 const scoringFixtures=JSON.parse(fs.readFileSync(path.join(__dirname,'../fixtures/scoring-v2-events.json'),'utf8'));
 const observatoryTruth=JSON.parse(fs.readFileSync(path.join(__dirname,'../fixtures/public-observatory-truth.json'),'utf8'));
 
@@ -41,12 +42,26 @@ test('production Observatory implements locked prototype B hierarchy without pro
   assert.doesNotMatch(html,/preserve exact identifiers before compressing surrounding prose/);
 });
 
-test('six metric explanations are available to mouse keyboard and tap',()=>{
-  assert.match(html,/class="help"/);
-  assert.match(html,/aria-expanded/);
-  assert.match(html,/addEventListener\("click"/);
-  assert.match(html,/\.help:hover \+ \.tip/);
-  assert.match(html,/\.help:focus \+ \.tip/);
+test('locked opening copy and timer order are preserved',()=>{
+  assert.match(html,/That’s crazy\. What if we made a shorthand/);
+  assert.match(html,/This is a public experiment reaching toward that goal\./);
+  assert.doesNotMatch(html,/public experiment and art project|The agents invent the language|timers-cap/);
+  assert.ok(html.indexOf('id="t-conversation"') < html.indexOf('id="t-exam"'));
+  assert.match(html,/Scoring V2 calls compression successful only when 100% of the semantic meaning in the conversation survives encoding and decoding\./);
+  assert.match(html,/DeepSeek Agent A invents or revises one focused idea\. Kimi Agent B audits it and alone may adopt or reject it\./);
+  assert.match(copyDeck,/This is a public experiment reaching toward that goal\./);
+  assert.ok(copyDeck.indexOf('Paused — next Conversation') < copyDeck.indexOf('Paused — next exam'));
+  assert.match(html,/id="exam-jump" href="#live-test-section">see last test ↓<\/a>/);
+});
+
+test('explanations appear from the meaningful label without visible question marks',()=>{
+  assert.match(html,/class="metric info-hover" tabindex="0" data-tip=/);
+  assert.match(html,/\.info-hover:hover::after,\.info-hover:focus-visible::after\{display:block\}/);
+  assert.doesNotMatch(html,/class="help"|aria-label="Explain |<button[^>]*>\?<\/button>/);
+  for(const surface of ['evidence-card pass info-hover','trace-stage info-hover','status-count info-hover']){
+    assert.match(html,new RegExp(surface));
+  }
+  assert.doesNotMatch(html,/exam-stage-head info-hover/);
 });
 
 test('latest exam joins every canonical atom to verdict and decoded evidence',()=>{
@@ -122,8 +137,20 @@ test('public trace renders complete interrupted failed stale missing malformed a
 test('Watch the Live Test is persisted-state only and matches the locked terminal design',()=>{
   assert.match(html,/id="live-test-section"/);
   assert.match(html,/id="trace-body" role="log" aria-live="polite" tabindex="0"/);
-  assert.match(html,/\.trace-body\{height:14rem;overflow:auto/);
+  assert.match(html,/\.trace-body\{height:28rem;overflow:auto/);
   assert.match(html,/\.trace-body::-webkit-scrollbar/);
+  assert.match(html,/body\._followPublicProgress=body\.scrollHeight-body\.scrollTop-body\.clientHeight<32/);
+  assert.match(html,/if\(renderKey===lastPublicProgressRenderKey\)return view/);
+  assert.match(html,/if\(shouldFollow\)body\.scrollTop=body\.scrollHeight;else body\.scrollTop=priorTop/);
+  assert.match(html,/class="trace-meta"/);
+  assert.match(html,/fact-by-fact judgment evidence/);
+  assert.match(html,/class="trace-verdict/);
+  assert.match(html,/TEST PASS|TEST FAILURE/);
+  assert.match(html,/class="trace-conclusion-grid"/);
+  assert.match(html,/message-body savings/);
+  assert.match(html,/Expected meaning:/);
+  assert.match(html,/Test failed\./);
+  assert.match(html,/\.trace-verdict> b\{[^}]*clamp\(\.8rem,1\.25vw,1rem\)/);
   assert.match(html,/@media \(max-width: 760px\)[\s\S]*?\.trace-line\{grid-template-columns:/);
   const refresh=html.slice(html.indexOf('function refreshPublicExamProgress'),html.indexOf('window.ALATO_PUBLIC_PROGRESS'));
   assert.match(refresh,/public-exam-progress\.json/);
@@ -356,6 +383,7 @@ test('headline counters render before the full historical archive loads',()=>{
 
   assert.match(viewer.elements.get('t-exam').textContent,/^(?:\d\d:\d\d|running now)$/);
   assert.match(viewer.elements.get('t-conversation').textContent,/^(?:\d+:\d\d|running now)$/);
+  assert.match(viewer.elements.get('exam-jump').textContent,/^(?:watch next test|watch live test now) ↓$/);
   assert.match(viewer.elements.get('metrics').innerHTML,/turns[\s\S]*<b>2193<\/b>/);
   assert.equal(intervals.length,1,'one lightweight timer owns the countdown refresh');
 });
@@ -377,6 +405,7 @@ test('paused runtime never advances exam or Conversation clocks',()=>{
     Function('window','document',startup)(window,viewer.document);
     assert.equal(viewer.elements.get('t-exam').textContent,'Paused');
     assert.equal(viewer.elements.get('t-conversation').textContent,'Paused');
+    assert.equal(viewer.elements.get('exam-jump').textContent,'see last test ↓');
     assert.equal(viewer.elements.get('runtime-status-detail').textContent,window.PUBLIC_BOOTSTRAP.runtime.message);
     now+=24*60*60*1000;
     window.ALATO_STARTUP.updateCounters();
@@ -477,6 +506,11 @@ test('public page contains overflow and keyboard-focus safeguards',()=>{
   assert.match(html,/\.archive-list summary\s*\{[^}]*overflow-wrap:\s*anywhere/s);
   assert.match(html,/:focus-visible\s*\{[^}]*outline:\s*2px solid var\(--accent\)/s);
   assert.match(html,/body\s*\{[^}]*width:\s*min\(1100px,\s*100%\)/s);
+});
+
+test('major section headings keep the shared vertical rhythm',()=>{
+  assert.match(html,/body > h2:first-of-type \{ margin-top: 0; \}/);
+  assert.doesNotMatch(html,/\n\s*h2:first-of-type \{/);
 });
 
 test('stale runtime notice is truthful and self-clearing',()=>{

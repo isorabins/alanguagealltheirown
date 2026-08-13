@@ -23,18 +23,15 @@
     var explanations = {
       "rulebook revisions":"The numbered version of the adopted language. It advances when the official rulebook changes; it is not the number of rules currently in force.",
       "turns":"Numbered steps in the public experiment, including legislation and tests. A turn is a place in the record, not necessarily a new rule.",
-      "rules adopted":"The rules currently in force and given to an encoder or decoder. Rejected, repealed, and historical rules are excluded.",
-      "best strict savings · V2":"The largest message-body reduction from a valid exam where every meaning survived and the encoded body was smaller. Rulebook overhead is excluded.",
-      "latest coverage · V2":"The share of explicit facts that survived the latest valid encode-and-decode exam. Strict passing requires 100%.",
-      "latest Conversation":"A six-message coordination test using the captured adopted language. The judge checks each explicit scenario requirement."
+      "rules adopted":"The rules currently in force and given to an encoder or decoder. Rejected, repealed, and historical rules are not part of the current language.",
+      "best strict savings · V2":"The largest reduction in message-body tokens among valid exams where 100% of the required meaning survived and the encoded message was actually smaller. Rulebook overhead is not included.",
+      "latest coverage · V2":"The share of explicit facts that survived the latest encode-and-decode exam. Strict passing requires 100%; this result also grew from 469 to 471 tokens.",
+      "latest Conversation":"A six-message coordination test using the captured current language. In this scenario the judge checked four specific required facts, and all four survived."
     };
     element.innerHTML = metrics.map(function (metric) {
       var label=escapeHtml(metric[0]),tip=escapeHtml(explanations[metric[0]] || "Public experiment metric.");
-      return '<span class="metric">' + label + '<button class="help" type="button" aria-label="Explain '+label+'" aria-expanded="false">?</button><span class="tip" role="tooltip">'+tip+'</span><b>'+escapeHtml(metric[1])+'</b></span>';
+      return '<span class="metric info-hover" tabindex="0" data-tip="'+tip+'" aria-label="'+label+'. '+tip+'">' + label + '<b>'+escapeHtml(metric[1])+'</b></span>';
     }).join("");
-    Array.prototype.forEach.call(element.querySelectorAll ? element.querySelectorAll(".help") : [], function(button){
-      button.addEventListener("click",function(){button.setAttribute("aria-expanded",button.getAttribute("aria-expanded") === "true" ? "false" : "true");});
-    });
   }
 
   function formatRemaining(milliseconds) {
@@ -48,6 +45,7 @@
   function updateCounters() {
     var examElement = document.getElementById("t-exam");
     var conversationElement = document.getElementById("t-conversation");
+    var examLink = document.getElementById("exam-jump");
     if (!examElement || !conversationElement) return;
     if (runtime.status === "paused") {
       examElement.textContent = "Paused";
@@ -58,11 +56,13 @@
       var detail = document.getElementById("runtime-status-detail");
       if (status) status.classList.add("visible");
       if (detail) detail.textContent = runtime.message || "Experiment paused.";
+      if (examLink) examLink.textContent = "see last test ↓";
       return;
     }
     if (lastTurnAt === null) {
       examElement.textContent = "unavailable";
       conversationElement.textContent = "unavailable";
+      if (examLink) examLink.textContent = "open test terminal ↓";
       return;
     }
     var remaining = lastTurnAt + TURN_MS - Date.now();
@@ -74,6 +74,7 @@
     if (examRemaining <= 0) {
       examElement.textContent = "running now";
       examElement.classList.add("running");
+      if (examLink) examLink.textContent = "watch live test now ↓";
       if (!refetchArmed && typeof window.loadState === "function") {
         refetchArmed = true;
         window.setTimeout(window.loadState, refetchDelay);
@@ -82,6 +83,7 @@
     } else {
       examElement.textContent = formatRemaining(examRemaining);
       examElement.classList.remove("running");
+      if (examLink) examLink.textContent = "watch next test ↓";
     }
     if (conversationRemaining <= 0) {
       conversationElement.textContent = "running now";

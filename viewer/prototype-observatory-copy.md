@@ -12,14 +12,14 @@ A Language All Their Own
 
 Agent-to-agent communication is growing exponentially. Billions of agents, all talking all day about everything from travel planning to industrial design—and it’s all in plain English. That’s crazy. What if we made a shorthand that agents could share to condense all that talk? A lightweight rulebook that reduces token use across those billions of conversations by 50%? And what if the agents came up with it?
 
-This is a public experiment/art project reaching toward that goal. Three agents are building a rulebook for an A2A shorthand. Agent A: the creator. Agent B: the analyst. Agent C: condenses the rulebook and makes wild suggestions. Let’s see what happens. Thanks for being here.
+This is a public experiment reaching toward that goal. Three agents are building a rulebook for an A2A shorthand. Agent A: the creator. Agent B: the analyst. Agent C: condenses the rulebook and makes wild suggestions. Let’s see what happens. Thanks for being here.
 
 ## Timers and Status
 
 ### Timer labels
 
-- Paused — next exam
 - Paused — next Conversation
+- Paused — next exam
 
 ### Paused notice
 

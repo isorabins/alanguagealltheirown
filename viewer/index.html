@@ -58,7 +58,8 @@
   .timers .tval { display: block; font-family: var(--mono); font-size: 2.7rem; color: var(--ink); letter-spacing: 0.04em; font-variant-numeric: tabular-nums; }
   .timers .tval.running { color: var(--accent); font-size: 1.5rem; padding: 0.6rem 0; }
   .timers .tlab { display: block; font-family: var(--mono); font-size: 0.64rem; letter-spacing: 0.22em; text-transform: uppercase; color: var(--ink-faint); margin-top: 0.3rem; }
-  .timers-cap { text-align: center; font-size: 0.84rem; color: var(--ink-dim); margin: 0 0 2.2rem; }
+  .timer-link { display: inline-block; margin-top: 0.55rem; color: var(--accent); font: 400 0.6rem var(--mono); letter-spacing: 0.12em; text-transform: uppercase; text-decoration: none; border-bottom: 1px solid rgba(201,168,106,.45); }
+  .timer-link:hover { color: var(--ink); border-color: var(--ink); }
 
   .prompt-intro { max-width: 44rem; margin: 0 auto 1.2rem; font-size: 0.92rem; color: var(--ink-dim); }
   .prompt-intro a { color: var(--ink); }
@@ -71,7 +72,7 @@
     font-weight: 400; font-size: 0.72rem; letter-spacing: 0.26em; text-transform: uppercase;
     color: var(--ink-faint); margin: 2.8rem 0 0.4rem; text-align: center;
   }
-  h2:first-of-type { margin-top: 0; }
+  body > h2:first-of-type { margin-top: 0; }
   .how {
     text-align: center; font-style: italic; color: var(--ink-faint); font-size: 0.84rem;
     max-width: 38rem; margin: 0 auto 1.2rem;
@@ -216,6 +217,7 @@
     letter-spacing: 0.1em; text-transform: uppercase; }
   .status-count b { display: block; color: var(--ink); font-size: 0.92rem; font-weight: 400;
     letter-spacing: 0.02em; margin-top: 0.2rem; text-transform: none; }
+  .status-count b.bad { color: var(--bad); }
   .status-line { font-family: var(--mono); color: var(--ink-faint); font-size: 0.62rem;
     letter-spacing: 0.06em; margin-top: 1rem; }
 
@@ -235,11 +237,10 @@
   .raw-evidence pre { font-family: var(--mono); font-size: 0.66rem; line-height: 1.55;
     color: var(--ink-dim); padding: 0.7rem 0.2rem 0.2rem; }
 
-  .metric,.help-wrap{position:relative}.help{display:inline-grid;place-items:center;width:1.05rem;height:1.05rem;margin-left:.24rem;padding:0;border:1px solid var(--hairline);border-radius:50%;background:transparent;color:var(--ink-faint);font:400 .58rem var(--mono);cursor:help}.help:hover,.help:focus-visible,.help[aria-expanded="true"]{border-color:var(--accent);color:var(--accent)}
-  .tip{display:none;position:absolute;z-index:40;left:50%;top:calc(100% + .55rem);transform:translateX(-50%);width:min(21rem,calc(100vw - 2rem));padding:.8rem .9rem;border:1px solid var(--accent);background:#11100d;color:var(--ink);box-shadow:0 12px 38px #000;text-align:left;text-transform:none;letter-spacing:0;font:400 .82rem/1.5 var(--serif)}.help:hover + .tip,.help:focus + .tip,.help[aria-expanded="true"] + .tip{display:block}
+  .metric,.info-hover{position:relative}.info-hover::after{content:attr(data-tip);display:none;position:absolute;z-index:80;left:50%;top:calc(100% + .55rem);transform:translateX(-50%);width:min(22rem,calc(100vw - 2rem));padding:.8rem .9rem;border:1px solid var(--accent);background:#11100d;color:var(--ink);box-shadow:0 12px 38px #000;text-align:left;text-transform:none;letter-spacing:0;white-space:normal;font:400 .82rem/1.5 var(--serif)}.info-hover:hover::after,.info-hover:focus-visible::after{display:block}.info-hover:focus-visible{outline:1px solid var(--accent);outline-offset:4px}
   .evidence-chain{display:grid;grid-template-columns:1fr 1fr;gap:1.4rem}.evidence-card{border:1px solid var(--hairline);padding:1rem 1.2rem}.evidence-card.pass{border-left:2px solid var(--accent)}.evidence-card.fail{border-left:2px solid var(--bad)}.evidence-card .lab{font:400 .62rem var(--mono);letter-spacing:.18em;text-transform:uppercase;color:var(--ink-faint)}.evidence-card .result{font:400 1rem var(--mono);margin:.35rem 0}.evidence-card.pass .result{color:var(--accent)}.evidence-card.fail .result{color:var(--bad)}.evidence-card p{color:var(--ink-dim);font-size:.88rem}
   .exam-flow{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));border:1px solid var(--hairline)}.exam-stage{min-height:25rem;padding:1rem;border-left:1px solid var(--hairline);overflow:hidden}.exam-stage:first-child{border-left:0}.exam-stage-head{font:400 .62rem var(--mono);letter-spacing:.14em;text-transform:uppercase;color:var(--accent);margin-bottom:.7rem}.exam-stage-meta{display:block;color:var(--ink-faint);font:400 .59rem var(--mono);letter-spacing:.05em;margin-top:.2rem}.exam-text,.audit-list{height:20rem;overflow:auto}.exam-text{white-space:pre-wrap;overflow-wrap:anywhere;color:var(--ink-dim);font:400 .7rem/1.55 var(--mono)}.audit-list{list-style:none}.audit-list li{padding:.55rem 0;border-top:1px solid var(--hairline);font:400 .62rem/1.45 var(--mono);color:var(--ink-dim)}.audit-list li:first-child{border-top:0}.audit-list b{display:block;font-weight:400;color:var(--accent)}.audit-list b.bad{color:var(--bad)}.atom-evidence{display:block;color:var(--ink-faint);margin-top:.2rem}.exam-verdict{padding:.8rem 1rem;border:1px solid var(--bad);border-top:0;color:var(--ink-dim);font-size:.83rem}.exam-verdict b{color:var(--bad);font-family:var(--mono)}
-  .live-trace{border:1px solid var(--hairline);border-left:2px solid var(--accent);margin:.8rem 0 2.3rem;background:#080806}.trace-head{display:flex;justify-content:space-between;gap:1rem;padding:.7rem .9rem;border-bottom:1px solid var(--hairline);font:400 .64rem var(--mono);letter-spacing:.13em;text-transform:uppercase;color:var(--accent)}.trace-clock{color:var(--ink-faint);text-align:right}.trace-clock b{display:block;color:var(--ink);font-weight:400}.trace-body{height:14rem;overflow:auto;padding:.8rem .95rem;font:400 .66rem/1.65 var(--mono);color:var(--ink-dim)}.trace-line{display:grid;grid-template-columns:7.5rem 7.8rem 1fr;gap:.7rem;padding:.08rem 0}.trace-time{color:var(--ink-faint)}.trace-stage{color:var(--accent);text-transform:uppercase}.trace-artifact{margin:.8rem 0;padding:.75rem;border:1px solid var(--hairline)}.trace-artifact b{display:block;color:var(--accent);font:400 .6rem var(--mono);letter-spacing:.12em;margin-bottom:.4rem}.trace-artifact pre{white-space:pre-wrap;overflow-wrap:anywhere;color:var(--ink-dim);font:400 .64rem/1.55 var(--mono)}.trace-actions{padding:.65rem .9rem;border-top:1px solid var(--hairline);font:400 .61rem var(--mono);color:var(--ink-faint)}
+  .live-trace{border:1px solid var(--hairline);border-left:2px solid var(--accent);margin:.8rem 0 2.3rem;background:#080806}.trace-head{display:flex;justify-content:space-between;gap:1rem;padding:.7rem .9rem;border-bottom:1px solid var(--hairline);font:400 .64rem var(--mono);letter-spacing:.13em;text-transform:uppercase;color:var(--accent)}.trace-clock{color:var(--ink-faint);text-align:right}.trace-clock b{display:block;color:var(--ink);font-weight:400}.trace-body{height:28rem;overflow:auto;padding:.8rem .95rem;font:400 .66rem/1.65 var(--mono);color:var(--ink-dim)}.trace-meta{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:.55rem;margin:0 0 .9rem}.trace-meta span{border:1px solid var(--hairline);padding:.5rem .6rem;color:var(--ink-faint);overflow-wrap:anywhere}.trace-meta b{display:block;color:var(--ink);font-weight:400}.trace-line{display:grid;grid-template-columns:7.5rem 7.8rem 1fr;gap:.7rem;padding:.08rem 0}.trace-time{color:var(--ink-faint)}.trace-stage{color:var(--accent);text-transform:uppercase}.trace-artifact{margin:.8rem 0;padding:.75rem;border:1px solid var(--hairline)}.trace-artifact b,.trace-section-label{display:block;color:var(--accent);font:400 .6rem var(--mono);letter-spacing:.12em;margin-bottom:.4rem;text-transform:uppercase}.trace-artifact pre{white-space:pre-wrap;overflow-wrap:anywhere;color:var(--ink-dim);font:400 .64rem/1.55 var(--mono)}.trace-audit-summary{margin:.85rem 0;padding:.65rem .75rem;border-left:2px solid var(--accent);color:var(--ink)}.trace-audit-row{display:grid;grid-template-columns:8rem 1fr;gap:.7rem;padding:.5rem 0;border-top:1px solid var(--hairline)}.trace-audit-row b{color:var(--accent);font-weight:400}.trace-audit-row b.bad{color:var(--bad)}.trace-audit-row small{display:block;color:var(--ink-faint);font:400 .61rem/1.5 var(--mono);margin-top:.18rem}.trace-verdict{margin:1rem 0 .2rem;padding:1rem 1.1rem 1.15rem;border:1px solid var(--accent);text-align:center;color:var(--accent)}.trace-verdict.fail{border-color:var(--bad);color:var(--bad)}.trace-verdict> b{display:block;font:400 clamp(.8rem,1.25vw,1rem)/1 var(--mono);letter-spacing:.12em}.trace-conclusion-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:.55rem;margin:.9rem 0}.trace-conclusion-grid span{border-top:1px solid var(--hairline);padding:.5rem;color:var(--ink-faint);text-align:left}.trace-conclusion-grid b{display:block;color:var(--ink);font-weight:400;font-size:.74rem;letter-spacing:0}.trace-conclusion{color:var(--ink);text-align:left;font:400 .74rem/1.55 var(--serif)}.trace-conclusion strong{color:var(--bad);font-weight:400}.trace-verdict.pass .trace-conclusion strong{color:var(--accent)}.trace-failure{margin-top:.65rem;padding:.65rem .75rem;border-left:2px solid var(--bad);color:var(--ink-dim);text-align:left}.trace-failure b{display:block;color:var(--bad);font-weight:400}.trace-failure small{display:block;color:var(--ink-faint);margin-top:.25rem;overflow-wrap:anywhere}.trace-actions{padding:.65rem .9rem;border-top:1px solid var(--hairline);font:400 .61rem var(--mono);color:var(--ink-faint)}
   .language-panel{border:1px solid var(--hairline);padding:1.25rem 1.4rem}.rule-preview{display:grid;grid-template-columns:1fr 1fr;gap:1rem}.copy-row{display:flex;justify-content:center;align-items:center;gap:1rem;flex-wrap:wrap;margin:1.1rem 0}.copy-button{background:transparent;border:1px solid var(--accent);color:var(--ink);font:400 .67rem var(--mono);letter-spacing:.16em;text-transform:uppercase;padding:.75rem 1.1rem;cursor:pointer}.copy-status{min-height:1rem;color:var(--accent);font:400 .64rem var(--mono)}.try-note{border-left:2px solid var(--accent);padding:.65rem .9rem;color:var(--ink)}.try-note small{display:block;color:var(--ink-faint);font-family:var(--mono)}.full-rulebook{max-height:28rem;overflow:auto;padding:1rem;color:var(--ink-dim);font:400 .68rem/1.6 var(--mono);text-align:left}
   .featured-note{border:1px solid var(--hairline);border-left:2px solid var(--accent);padding:1.1rem 1.3rem;color:var(--ink)}.field-note-archive details,.archive-index details{margin:0;border-top:1px solid var(--hairline)}.field-note-archive summary,.archive-index summary{text-align:left;text-transform:none;letter-spacing:.03em;color:var(--ink);font-size:.72rem}.archive-body{padding:.1rem .45rem 1.2rem;color:var(--ink-dim);font-size:.88rem}.archive-links{display:flex;flex-wrap:wrap;gap:.55rem;margin-top:.8rem}.archive-links a{border:1px solid var(--hairline);padding:.48rem .65rem;color:var(--accent);font:400 .62rem var(--mono);text-decoration:none}
   .pane-body,.trace-body,.exam-text,.audit-list,.full-rulebook{scrollbar-width:thin;scrollbar-color:#37342d #090806}.pane-body::-webkit-scrollbar,.trace-body::-webkit-scrollbar,.exam-text::-webkit-scrollbar,.audit-list::-webkit-scrollbar,.full-rulebook::-webkit-scrollbar{width:7px;height:7px}.pane-body::-webkit-scrollbar-track,.trace-body::-webkit-scrollbar-track,.exam-text::-webkit-scrollbar-track,.audit-list::-webkit-scrollbar-track,.full-rulebook::-webkit-scrollbar-track{background:#090806}.pane-body::-webkit-scrollbar-thumb,.trace-body::-webkit-scrollbar-thumb,.exam-text::-webkit-scrollbar-thumb,.audit-list::-webkit-scrollbar-thumb,.full-rulebook::-webkit-scrollbar-thumb{background:#37342d;border:2px solid #090806;border-radius:10px}
@@ -318,7 +319,7 @@
     body { padding: 2.4rem 1rem 4rem; }
     h1 { font-size: 1.42rem; letter-spacing: 0.16em; }
     .panes, .decisions, .tx-cols, .status-main, .v2-results, .evidence-chain, .rule-preview, .exam-flow { grid-template-columns: 1fr; }
-    .exam-stage{min-height:18rem;border-left:0;border-top:1px solid var(--hairline)}.exam-stage:first-child{border-top:0}.exam-text,.audit-list{height:14rem}.trace-line{grid-template-columns:4.2rem 5.8rem minmax(0,1fr);gap:.45rem;font-size:.58rem}.trace-head{align-items:flex-start}.tip{position:fixed;left:1rem;right:1rem;top:auto;bottom:1rem;transform:none;width:auto}
+    .exam-stage{min-height:18rem;border-left:0;border-top:1px solid var(--hairline)}.exam-stage:first-child{border-top:0}.exam-text,.audit-list{height:14rem}.trace-meta,.trace-conclusion-grid{grid-template-columns:1fr 1fr}.trace-line{grid-template-columns:4.2rem 5.8rem minmax(0,1fr);gap:.45rem;font-size:.58rem}.trace-audit-row{grid-template-columns:6rem 1fr}.trace-head{align-items:flex-start}.info-hover::after{position:fixed;left:1rem;right:1rem;top:auto;bottom:1rem;transform:none;width:auto}
     .pane { height: 340px; }
     .timers { gap: 2rem; }
     .metrics { gap: 1.2rem 1.8rem; }
@@ -339,27 +340,24 @@
 <body>
 <header>
   <h1>A Language All Their Own</h1>
-  <p class="statement">Agent-to-agent communication is growing exponentially. Billions of agents,
-  all talking all day in plain English. What if they shared a shorthand that cut that traffic by 50%?
-  This is a public experiment and art project: Agent A creates, Agent B analyzes, and Agent C condenses
-  the rulebook and makes wild suggestions. <em>The agents invent the language. The public record shows what survives.</em></p>
+  <p class="statement">Agent-to-agent communication is growing exponentially. Billions of agents, all talking all day about everything from travel planning to industrial design—and it’s all in plain English. That’s crazy. What if we made a shorthand that agents could share to condense all that talk? A lightweight rulebook that reduces token use across those billions of conversations by 50%? And what if the agents came up with it?</p>
+  <p class="statement">This is a public experiment reaching toward that goal. Three agents are building a rulebook for an A2A shorthand. Agent A: the creator. Agent B: the analyst. Agent C: condenses the rulebook and makes wild suggestions. Let’s see what happens. Thanks for being here.</p>
 </header>
 
 <div class="timers">
-  <div><span class="tval" id="t-exam">--:--</span><span class="tlab">next exam</span></div>
   <div><span class="tval" id="t-conversation">--:--</span><span class="tlab">next Conversation</span></div>
+  <div><span class="tval" id="t-exam">--:--</span><span class="tlab">next exam</span><a class="timer-link" id="exam-jump" href="#live-test-section">see last test ↓</a></div>
 </div>
-<p class="timers-cap">The agents normally take one turn every 15 minutes, around the clock. Every third turn, the next fixed benchmark must survive the round trip through their current language.</p>
 <aside class="runtime-status" id="runtime-status" aria-live="polite">
-  <strong id="runtime-status-heading">The scheduled loop is not advancing.</strong>
+  <strong id="runtime-status-heading">The experiment is paused.</strong>
   <span id="runtime-status-detail"></span>
 </aside>
 
 <div class="metrics" id="metrics"></div>
-<div class="legend"><b>Scoring V2</b> keeps meaning pass, semantic coverage, critical failures, inventions, and message-body savings separate. Compression succeeds only when every meaning survives, nothing is invented, and the encoded body is smaller. Historical fidelity percentages are labelled legacy V1 and are never compared with V2.</div>
+<div class="legend">Scoring V2 calls compression successful only when 100% of the semantic meaning in the conversation survives encoding and decoding.</div>
 
-<h2>The Negotiation, Live</h2>
-<p class="how">DeepSeek Agent A invents or revises one focused idea. Kimi Agent B audits that idea and alone may adopt or reject it. The harness blocks role violations and malformed or repeated motions.</p>
+<h2>The Negotiation</h2>
+<p class="how">DeepSeek Agent A invents or revises one focused idea. Kimi Agent B audits it and alone may adopt or reject it.</p>
 <div class="panes">
   <div class="pane"><div class="pane-head">Agent A · DeepSeek inventor</div><div class="pane-body" id="paneA"></div></div>
   <div class="pane"><div class="pane-head">Agent B · Kimi auditor</div><div class="pane-body" id="paneB"></div></div>
@@ -378,35 +376,30 @@
 </section>
 
 <section id="live-test-section"><h2>Watch the Live Test</h2>
-<p class="how">When the next scheduled exam begins, this window follows that real run from benchmark selection through encoding, decoding, semantic audit, and final verdict. It reads persisted public state; it cannot start an exam.</p>
+<p class="how">When the next exam begins, this window follows the real test from benchmark selection through encoding, decoding, semantic audit, and final verdict. It reads persisted public state; it cannot start an exam.</p>
 <div class="live-trace">
-  <div class="trace-head"><span id="trace-state">checking persisted exam state</span><span class="trace-clock"><b id="trace-clock">—</b>next test</span></div>
+  <div class="trace-head"><span class="info-hover" id="trace-state" tabindex="0" data-tip="The validated state of the one persisted scheduled-exam snapshot. It never starts a test or infers a result.">checking persisted exam state</span><span class="trace-clock"><b id="trace-clock">—</b>next test</span></div>
   <div class="trace-body" id="trace-body" role="log" aria-live="polite" tabindex="0"><p class="empty">No public exam snapshot loaded.</p></div>
   <div class="trace-actions" id="trace-detail">Completed provider responses appear only after sanitization. No prompts, reasoning, partial tokens, or raw errors are published.</div>
 </div></section>
 
 <section id="experiment-status-section" aria-labelledby="experiment-status">
 <h2 id="experiment-status">Experiment Status</h2>
-<p class="how">The one thing that needs attention now, with the operational record kept out of the main story.</p>
+<p class="how">Status describes the preserved evidence honestly; it does not imply that a scheduled process is currently advancing.</p>
 <div class="status-band">
   <div class="status-main">
     <div>
-      <span class="status-kicker">operator review</span>
-      <p class="status-question" id="ask-summary">No open operator question.</p>
-      <p class="status-question-meta" id="ask-meta"></p>
-      <details class="status-question-detail" id="ask-detail" hidden>
-        <summary>read the latest technical question</summary>
-        <div id="asks"></div>
-      </details>
+      <span class="status-kicker">paused public record</span>
+      <p>Experiment paused at turn 2400. No new turn or exam is running. The public record remains available.</p>
+      <p style="margin-top:.6rem">Agent C is bounded cleanup/editorial machinery. Its repeated structural failures are quarantined; no cleanup has been applied.</p>
     </div>
-    <div class="status-counts" aria-label="Collaboration status">
-      <div class="status-count">evidence notes<b id="research-count">0</b></div>
-      <div class="status-count">operator issue<b id="ask-count">0</b></div>
-      <div class="status-count">approved suggestions<b id="suggestion-count">0</b></div>
-      <div class="status-count">language state<b id="language-state">current</b></div>
+    <div class="status-counts" aria-label="Experiment status">
+      <div class="status-count info-hover" tabindex="0" data-tip="The scheduled exam clock is stopped while the experiment is paused.">next exam<b>paused</b></div>
+      <div class="status-count info-hover" tabindex="0" data-tip="The scheduled Conversation clock is stopped while the experiment is paused.">next Conversation<b>paused</b></div>
+      <div class="status-count info-hover" tabindex="0" data-tip="Every bounded Agent C cleanup attempt failed structural validation and was retained as evidence.">Agent C attempts<b>13 failed</b></div>
+      <div class="status-count info-hover" tabindex="0" data-tip="No Agent C cleanup changed the adopted language; all failed attempts remain quarantined.">cleanups applied<b class="bad">0 · quarantined</b></div>
     </div>
   </div>
-  <p class="status-line" id="x-status">X delivery status unavailable.</p>
 </div>
 </section>
 
@@ -435,7 +428,7 @@ abuse, and maximum-cost limits.</p>
 <div class="language-panel" id="language-panel"><p>A small piece is visible here. Open the complete rulebook to inspect it, or copy the exact current adopted language and try it with an agent of your own.</p>
   <div class="rule-preview" id="adopted-preview"></div>
   <div class="copy-row"><button class="copy-button" id="copy-rulebook" type="button">copy current rulebook</button><span class="copy-status" id="copy-status" role="status" aria-live="polite"></span></div>
-  <p class="try-note">Try this with your own agent: paste the rulebook, then ask it to encode or decode a message.<small>This is a manual experiment, separate from the fixed Scoring V2 benchmark.</small></p>
+  <p class="try-note">Try this with your own agent: paste the rulebook, then ask it to encode or decode a message.<small>This is a manual experiment, not the fixed Scoring V2 benchmark. The paid automated “Try It” path remains unavailable.</small></p>
   <details><summary id="lang-sum">the complete adopted language</summary><pre class="full-rulebook" id="adopted"></pre></details>
 </div></section>
 
@@ -447,7 +440,7 @@ abuse, and maximum-cost limits.</p>
   <ul class="table-note" id="proposed"></ul>
 </details>
 
-<section id="field-notes"><h2>Field Notes</h2><p class="how">Notes from the human running the experiment: what happened, what broke, and what changed in the apparatus. The agents do not see these notes.</p><article class="featured-note" id="featured-note"></article><details class="field-note-archive"><summary id="field-note-summary">all Field Notes</summary><div id="field-note-archive"></div></details></section>
+<section id="field-notes"><h2>Field Notes</h2><p class="how">Notes from the human running the experiment remain distinct from agent evidence.</p><article class="featured-note" id="featured-note"></article><details class="field-note-archive"><summary id="field-note-summary">all Field Notes</summary><div id="field-note-archive"></div></details></section>
 
 <details class="lab-book">
 <summary>Lab notebook · methods, machinery &amp; complete archive</summary>
@@ -584,8 +577,18 @@ var PUBLIC_PROGRESS_PHASES=["exam_started","benchmark_selected","language_loaded
 var PUBLIC_PROGRESS_FIELDS=["schema_version","run_id","turn","phase","updated_at","receipts","benchmark_id","benchmark_name","language_version","language_hash","encoded","decoded","audit","tokens","result","error_class"];
 var PUBLIC_PROGRESS_UNSAFE=/(?:\b(?:OPENROUTER_API_KEY|API_KEY|PASSWORD|CLIENT_SECRET|AUTHORIZATION)\s*[:=]|\bBearer\s+[A-Za-z0-9._~+/=-]{12,}|\bsk-[A-Za-z0-9_-]{12,}|(?:BEGIN|END)\s+(?:SYSTEM|DEVELOPER|HIDDEN)\s+PROMPT|\b(?:system|developer|hidden)\s+prompt\s*[:=]|\bchain[- ]of[- ]thought\b|\bprivate collaboration state\b|Traceback \(most recent call last\))/i;
 var lastPublicProgress=null;
+var lastPublicProgressRenderKey=null;
 var currentRenderedState=null;
 function publicProgressEsc(value){return String(value==null?"":value).replace(/[&<>"]/g,function(character){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[character];});}
+function publicProgressExcerpt(value,expected){
+  var text=String(value||"").replace(/\s+/g," ").trim(),meaning=String(expected||"");
+  if(text.length<=280)return text;
+  var identifier=(meaning.match(/[A-Za-z0-9]+[-_][A-Za-z0-9]+/)||[])[0],index=-1;
+  if(identifier){index=text.indexOf(identifier);if(index<0)index=text.indexOf(identifier.replace(/-/g,"_"));if(index<0)index=text.indexOf(identifier.replace(/_/g,"-"));}
+  if(index<0)index=140;
+  var start=Math.max(0,index-110),end=Math.min(text.length,index+170);
+  return (start?"…":"")+text.slice(start,end)+(end<text.length?"…":"");
+}
 
 function validPublicExamProgress(snapshot) {
   if(!snapshot||typeof snapshot!=="object"||Array.isArray(snapshot))return false;
@@ -639,14 +642,52 @@ function renderPublicExamProgress(snapshot,options) {
   document.getElementById("trace-state").textContent=view.state;
   document.getElementById("trace-clock").textContent=view.clock;
   document.getElementById("trace-detail").textContent=view.detail;
-  var rows=(view.lines||[]).map(function(receipt){return '<div class="trace-line"><span class="trace-time">'+publicProgressEsc(receipt.at.slice(11,19))+' UTC</span><span class="trace-stage">'+publicProgressEsc(receipt.phase.replace(/_/g," "))+'</span><span>'+publicProgressEsc(receipt.message)+'</span></div>';}).join("");
-  if(view.encoded)rows+='<div class="trace-artifact"><b>sanitized encoded response</b><pre>'+publicProgressEsc(view.encoded)+'</pre></div>';
-  if(view.decoded)rows+='<div class="trace-artifact"><b>sanitized decoded response</b><pre>'+publicProgressEsc(view.decoded)+'</pre></div>';
+  if(!body._publicProgressScrollBound&&body.addEventListener){
+    body._publicProgressScrollBound=true;
+    body._followPublicProgress=true;
+    body.addEventListener("scroll",function(){body._followPublicProgress=body.scrollHeight-body.scrollTop-body.clientHeight<32;});
+  }
+  var exam=options&&options.latestExam;
+  var matchingExam=!!(snapshot&&exam&&snapshot.turn===exam.turn&&snapshot.benchmark_id===exam.benchmark_id&&snapshot.language_version===exam.language_version);
+  var renderKey=String(options&&options.loadStatus||"ok")+"|"+JSON.stringify(snapshot||null)+"|"+(matchingExam?JSON.stringify(exam.atom_results||[]):"");
+  if(renderKey===lastPublicProgressRenderKey)return view;
+  var priorTop=body.scrollTop||0,shouldFollow=body._followPublicProgress!==false;
+  var traceTips={exam_started:"The scheduler crossed a real exam boundary and created this run identity.",benchmark_selected:"The fixed benchmark chosen by the canonical rotation for this exam.",language_loaded:"The exact adopted-language version and hash captured before encoding began.",encoder_started:"The scheduled encoder call began. No partial provider output is published.",encoder_completed:"The encoder returned a complete response and it passed the public sanitizer.",decoder_started:"A fresh decoder received only the adopted rulebook and completed encoded message.",decoder_completed:"The decoder returned a complete reconstruction and it passed the public sanitizer.",judge_started:"The Scoring V2 judge began its fact-by-fact semantic audit.",audit_progress:"A safe aggregate receipt from the semantic audit; it contains no hidden reasoning.",completed:"The trace agrees exactly with the canonical Latest Exam artifact.",interrupted:"The exam stopped before a verified result existed.",failed:"The exam ended with an allowlisted public error class; raw errors remain private."};
+  var rows="",shownEncoded=false,shownDecoded=false;
+  if(snapshot&&validPublicExamProgress(snapshot)){
+    rows+='<div class="trace-meta"><span>run<b>'+publicProgressEsc(snapshot.run_id)+'</b></span><span>turn<b>'+snapshot.turn+'</b></span><span>benchmark<b>'+publicProgressEsc(snapshot.benchmark_id+' · '+(snapshot.benchmark_name||"unnamed"))+'</b></span><span>language<b>'+publicProgressEsc(snapshot.language_version||"unavailable")+'</b></span><span>language hash<b>'+publicProgressEsc((snapshot.language_hash||"unavailable").slice(0,16))+'…</b></span><span>persisted<b>'+publicProgressEsc(snapshot.updated_at)+'</b></span></div>';
+  }
+  (view.lines||[]).forEach(function(receipt){
+    var tip=traceTips[receipt.phase]||"A safe receipt from the persisted scheduled-exam path.";
+    rows+='<div class="trace-line"><span class="trace-time">'+publicProgressEsc(receipt.at.slice(11,19))+' UTC</span><span class="trace-stage info-hover" tabindex="0" data-tip="'+publicProgressEsc(tip)+'">'+publicProgressEsc(receipt.phase.replace(/_/g," "))+'</span><span>'+publicProgressEsc(receipt.message)+'</span></div>';
+    if(receipt.phase==="benchmark_selected"&&matchingExam&&exam.original)rows+='<div class="trace-artifact"><b>selected benchmark input</b><pre>'+publicProgressEsc(exam.original)+'</pre></div>';
+    if(receipt.phase==="encoder_completed"&&view.encoded&&!shownEncoded){shownEncoded=true;rows+='<div class="trace-artifact"><b>sanitized encoded response</b><pre>'+publicProgressEsc(view.encoded)+'</pre></div>';}
+    if(receipt.phase==="decoder_completed"&&view.decoded&&!shownDecoded){shownDecoded=true;rows+='<div class="trace-artifact"><b>sanitized decoded response</b><pre>'+publicProgressEsc(view.decoded)+'</pre></div>';}
+  });
+  if(view.encoded&&!shownEncoded)rows+='<div class="trace-artifact"><b>sanitized encoded response</b><pre>'+publicProgressEsc(view.encoded)+'</pre></div>';
+  if(view.decoded&&!shownDecoded)rows+='<div class="trace-artifact"><b>sanitized decoded response</b><pre>'+publicProgressEsc(view.decoded)+'</pre></div>';
+  if(snapshot&&snapshot.audit)rows+='<div class="trace-audit-summary">semantic audit · '+snapshot.audit.completed+'/'+snapshot.audit.total+' checked · '+snapshot.audit.survived+' survived · '+snapshot.audit.corrupted+' corrupted · '+snapshot.audit.missing+' missing · '+snapshot.audit.inventions+' inventions</div>';
+  if(snapshot&&snapshot.phase==="completed"&&matchingExam&&Array.isArray(exam.atom_results)){
+    var meanings={};(exam.answer_key||[]).forEach(function(atom){meanings[atom.id]=atom.meaning;});
+    rows+='<div class="trace-section-label">fact-by-fact judgment evidence</div>';
+    exam.atom_results.forEach(function(atom){var bad=atom.verdict!=="SURVIVED";rows+='<div class="trace-audit-row"><b class="'+(bad?'bad':'')+'">'+publicProgressEsc(atom.id)+' · '+publicProgressEsc(atom.verdict)+'</b><span>'+publicProgressEsc(meanings[atom.id]||"semantic requirement")+'<small>decoded evidence: '+(atom.evidence?'“'+publicProgressEsc(atom.evidence)+'”':'none')+'</small></span></div>';});
+  }
   if(view.tokens)rows+='<div class="trace-line"><span class="trace-time">FINAL</span><span class="trace-stage">tokens</span><span>'+view.tokens.original+' original → '+view.tokens.encoded+' encoded</span></div>';
-  if(view.result)rows+='<div class="trace-line"><span class="trace-time">FINAL</span><span class="trace-stage">verdict</span><span>'+publicProgressEsc(view.result.status)+' · '+publicProgressEsc(view.result.semantic_coverage_pct)+'% coverage · meaning '+(view.result.meaning_pass?'pass':'fail')+'</span></div>';
+  if(view.result){
+    var strict=view.result.judge_valid&&view.result.meaning_pass&&view.result.compression_success;
+    var original=view.tokens&&view.tokens.original,encoded=view.tokens&&view.tokens.encoded,delta=view.tokens?encoded-original:null;
+    var rawSavings=view.tokens&&original?((original-encoded)/original)*100:null;
+    var savingsLabel=rawSavings==null?"unavailable":(rawSavings<0?"−"+Math.abs(rawSavings).toFixed(1):rawSavings.toFixed(1))+"%";
+    var total=snapshot&&snapshot.audit?snapshot.audit.total:"?",survived=snapshot&&snapshot.audit?snapshot.audit.survived:"?";
+    var failures=matchingExam&&Array.isArray(exam.critical_failures)?exam.critical_failures:[];
+    var failureHtml=failures.map(function(failure){return '<div class="trace-failure"><b>'+publicProgressEsc(failure.atom_id||"critical meaning")+' · '+publicProgressEsc(failure.verdict||"FAILED")+'</b>Expected meaning: '+publicProgressEsc(failure.expected_meaning||"required meaning unavailable")+'<small>decoded evidence: “'+publicProgressEsc(publicProgressExcerpt(failure.decoded_evidence,failure.expected_meaning))+'”</small></div>';}).join("");
+    var conclusion=strict?'Test passed. All '+total+' required meanings survived, nothing was invented, and the encoded message was smaller.':'Test failed. '+survived+' of '+total+' required meanings survived. A strict pass requires every meaning to survive and the encoded message to be smaller.';
+    rows+='<div class="trace-verdict '+(strict?'pass':'fail')+'"><b>'+(strict?'TEST PASS':'TEST FAILURE')+' · '+publicProgressEsc(view.result.semantic_coverage_pct)+'%</b><div class="trace-conclusion-grid"><span>semantic coverage<b>'+publicProgressEsc(view.result.semantic_coverage_pct)+'%</b></span><span>meaning<b>'+(view.result.meaning_pass?'pass':'fail')+'</b></span><span>compression<b>'+(view.result.compression_success?'success':'fail')+'</b></span><span>tokens<b>'+(view.tokens?original+' → '+encoded:'unavailable')+'</b></span><span>token change<b>'+(delta==null?'unavailable':(delta>0?'+':'')+delta+' tokens')+'</b></span><span>message-body savings<b>'+savingsLabel+'</b></span></div><p class="trace-conclusion"><strong>Conclusion.</strong> '+publicProgressEsc(conclusion)+'</p>'+failureHtml+'</div>';
+  }
   if(view.errorClass)rows+='<div class="trace-line"><span class="trace-time">STOP</span><span class="trace-stage">safe error</span><span>'+publicProgressEsc(view.errorClass.replace(/_/g," "))+'</span></div>';
   body.innerHTML=rows||'<p class="empty">'+publicProgressEsc(view.detail)+'</p>';
-  body.scrollTop=body.scrollHeight;
+  if(shouldFollow)body.scrollTop=body.scrollHeight;else body.scrollTop=priorTop;
+  lastPublicProgressRenderKey=renderKey;
   if((!options||!options.loadStatus||options.loadStatus==="ok")&&validPublicExamProgress(snapshot))lastPublicProgress=snapshot;
   return view;
 }
@@ -713,11 +754,10 @@ function render(S) {
     ["latest coverage · V2", latestValidV2 ? latestValidV2.semantic_coverage_pct + "% · " + (latestValidV2.meaning_pass ? "pass" : "fail") : "awaiting V2"],
     ["latest Conversation", latestConversation && latestConversation.judgment.valid === true ? conversationPasses + " / " + conversationRows.length + " pass" : "unavailable"]
   ];
-  var metricTips={"rulebook revisions":"The numbered version of the adopted language. It advances when the official rulebook changes; it is not the number of rules currently in force.","turns":"Numbered steps in the public experiment, including legislation and tests. A turn is a place in the record, not necessarily a new rule.","rules adopted":"The rules currently in force and given to an encoder or decoder.","best strict savings · V2":"The largest message-body reduction from a valid exam where every meaning survived and the encoded body was smaller.","latest coverage · V2":"The share of explicit facts that survived the latest valid exam. Strict passing requires 100%.","latest Conversation":"A six-message coordination test using the captured adopted language."};
+  var metricTips={"rulebook revisions":"The numbered version of the adopted language. It advances when the official rulebook changes; it is not the number of rules currently in force.","turns":"Numbered steps in the public experiment, including legislation and tests. A turn is a place in the record, not necessarily a new rule.","rules adopted":"The rules currently in force and given to an encoder or decoder. Rejected, repealed, and historical rules are not part of the current language.","best strict savings · V2":"The largest reduction in message-body tokens among valid exams where 100% of the required meaning survived and the encoded message was actually smaller. Rulebook overhead is not included.","latest coverage · V2":"The share of explicit facts that survived the latest encode-and-decode exam. Strict passing requires 100%; this result also grew from 469 to 471 tokens.","latest Conversation":"A six-message coordination test using the captured current language. In this scenario the judge checked four specific required facts, and all four survived."};
   document.getElementById("metrics").innerHTML = m.map(function (x) {
-    return '<span class="metric">'+esc(x[0])+'<button class="help" type="button" aria-label="Explain '+esc(x[0])+'" aria-expanded="false">?</button><span class="tip" role="tooltip">'+esc(metricTips[x[0]])+'</span><b>'+esc(x[1])+'</b></span>';
+    return '<span class="metric info-hover" tabindex="0" data-tip="'+esc(metricTips[x[0]])+'" aria-label="'+esc(x[0])+'. '+esc(metricTips[x[0]])+'">'+esc(x[0])+'<b>'+esc(x[1])+'</b></span>';
   }).join("");
-  Array.prototype.forEach.call(document.querySelectorAll ? document.querySelectorAll("#metrics .help") : [],function(button){button.addEventListener("click",function(){button.setAttribute("aria-expanded",button.getAttribute("aria-expanded") === "true" ? "false" : "true");});});
 
   function msgHtml(e, cls) {
     var body = esc(String(e.content == null ? "" : e.content).replace(/\*\*/g, "")).replace(/^(PROPOSE|REPEAL|ADOPT|REJECT|REVISE|REQUEST(?:-REVISION|-TEST)?)\s*:/gm, '<span class="verb">$1:</span>');
@@ -775,8 +815,8 @@ function render(S) {
 
   var strictBest = bestStrictScoringV2(tests);
   document.getElementById("evidence-chain").innerHTML =
-    (strictBest ? '<article class="evidence-card pass"><div class="lab">strongest strict pass · turn '+strictBest.turn+'</div><div class="result">'+strictBest.orig_tokens+' → '+strictBest.enc_tokens+' tokens · '+pct(strictBest.message_body_savings_pct)+' savings</div><p>'+strictBest.semantic_coverage_pct+'% semantic coverage. Every required meaning survived; nothing was invented; the encoded body was smaller.</p></article>' : '<article class="evidence-card"><p>No strict pass yet.</p></article>')+
-    (latestValidV2 ? '<article class="evidence-card '+(latestValidV2.meaning_pass&&latestValidV2.compression_success?'pass':'fail')+'"><div class="lab">latest exam · turn '+latestValidV2.turn+'</div><div class="result">'+latestValidV2.orig_tokens+' → '+latestValidV2.enc_tokens+' tokens · '+(latestValidV2.meaning_pass&&latestValidV2.compression_success?'strict pass':'strict failure')+'</div><p>'+latestValidV2.semantic_coverage_pct+'% semantic coverage. '+((latestValidV2.critical_failures||[])[0]?'The latest critical failure remains inspectable below.':'No critical failure recorded.')+' A historical 61% body-savings result failed meaning preservation and is not promoted as success.</p></article>' : '<article class="evidence-card"><p>No valid V2 exam yet.</p></article>');
+    (strictBest ? '<article class="evidence-card pass info-hover" tabindex="0" data-tip="The best valid Scoring V2 exam where every required meaning survived, nothing was invented, and the encoded body was smaller."><div class="lab">strongest strict pass · turn '+strictBest.turn+'</div><div class="result">'+strictBest.orig_tokens+' → '+strictBest.enc_tokens+' tokens · '+pct(strictBest.message_body_savings_pct)+' savings</div><p>'+strictBest.semantic_coverage_pct+'% semantic coverage. Every required meaning survived; nothing was invented; the encoded body was smaller.</p></article>' : '<article class="evidence-card"><p>No strict pass yet.</p></article>')+
+    (latestValidV2 ? '<article class="evidence-card info-hover '+(latestValidV2.meaning_pass&&latestValidV2.compression_success?'pass':'fail')+'" tabindex="0" data-tip="The newest valid Scoring V2 exam, shown even when it fails so progress cannot hide the latest evidence."><div class="lab">latest exam · turn '+latestValidV2.turn+'</div><div class="result">'+latestValidV2.orig_tokens+' → '+latestValidV2.enc_tokens+' tokens · '+(latestValidV2.meaning_pass&&latestValidV2.compression_success?'strict pass':'strict failure')+'</div><p>'+latestValidV2.semantic_coverage_pct+'% semantic coverage. The encoded body grew by two tokens, and vendor code CAT-882 was corrupted to CAT_882. A historical 61% savings result also failed meaning preservation and is not promoted as success.</p></article>' : '<article class="evidence-card"><p>No valid V2 exam yet.</p></article>');
 
   // THE JUDGMENT — shared by the latest-exam card and every history row
   function judgeHtml(t) {
@@ -933,23 +973,6 @@ function render(S) {
   var asks = collaboration.asks || [];
   var suggestions = collaboration.suggestions || [];
   var openAsks = asks.filter(function (r) { return r.status === "awaiting_iso"; });
-  var latestAsk = openAsks[openAsks.length - 1];
-  var operatorView = operatorQuestionView(openAsks);
-  document.getElementById("research-count").textContent = research.length;
-  document.getElementById("ask-count").textContent = openAsks.length ? "1 current" : "0";
-  document.getElementById("suggestion-count").textContent = suggestions.length;
-  document.getElementById("language-state").textContent =
-    unresolved.length > 1 && openAsks.length ? "review needed" : "current";
-  document.getElementById("ask-summary").textContent = operatorView.summary;
-  document.getElementById("ask-meta").textContent = operatorView.meta;
-  if (latestAsk) {
-    document.getElementById("ask-detail").hidden = false;
-    document.getElementById("asks").innerHTML = '<p>' + esc(latestAsk.question) + '</p>' +
-      (latestAsk.answer ? '<p>Iso: “' + esc(latestAsk.answer) + '”</p>' : "");
-  } else {
-    document.getElementById("ask-detail").hidden = true;
-    document.getElementById("asks").innerHTML = "";
-  }
   document.getElementById("research").innerHTML = research.slice().reverse().map(function (r) {
     var links = (r.citations || []).map(function (c) {
       return '<a href="' + esc(c.url) + '" rel="noreferrer">' + esc(c.title || c.url) + "</a>";
@@ -1004,11 +1027,13 @@ function render(S) {
   }
   var conversation = (S.conversations || []).slice(-1)[0];
   document.getElementById("conversation-exam").innerHTML = conversation ?
-    '<div class="tx-head">captured ' + esc(conversation.language_version) + ' · turn ' + esc(conversation.turn) + '</div>' +
+    '<div class="tx-head">' + esc(conversation.id || "conversation-" + conversation.turn) + ' · turn ' + esc(conversation.turn) +
+    ' · ' + (conversation.judgment && conversation.judgment.valid === true ? 'valid judgment' : 'judgment held') +
+    ' · ' + conversationPasses + ' / ' + conversationRows.length + ' pass</div>' +
     (conversation.scenario && conversation.scenario.prompt
       ? '<p class="prompt-intro">' + esc(conversation.scenario.prompt) + "</p>" : "") +
     conversationJudgmentHtml(conversation.judgment) +
-    '<details class="exchange"><summary>read the six-message exchange</summary>' +
+    '<details class="exchange"><summary>all six messages + raw judgment evidence</summary>' +
     (conversation.messages || []).map(function (m) {
       return '<div class="m"><span class="t">speaker ' + esc(m.speaker) + "</span>" + esc(m.content) + "</div>";
     }).join("") + "</details>" :
@@ -1023,10 +1048,6 @@ function render(S) {
     languageSection.parentNode.insertBefore(recentSection,languageSection.nextSibling);
     fieldSection.parentNode.insertBefore(statusSection,fieldSection);
   }
-  var x = S.x || {};
-  document.getElementById("x-status").textContent = "Confirmed single-post delivery only · " +
-    Number(x.blocked_count || 0) + " blocked item(s) · " + Number(x.tweets_sent || 0) + " confirmed automated post(s).";
-
   document.getElementById("foot").innerHTML =
     'a live experiment in machine language · ' + esc((S.meta && S.meta.updated) || "—") +
     ' · <a href="https://github.com/isorabins/alanguagealltheirown">all code &amp; every turn: github</a>' +
