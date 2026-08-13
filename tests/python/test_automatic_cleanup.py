@@ -1,3 +1,4 @@
+import copy
 import tempfile
 import unittest
 from pathlib import Path
@@ -21,6 +22,85 @@ def source_rulebook(kernel_tokens=100):
 
 
 class AutomaticCleanupTests(unittest.TestCase):
+    def test_structural_failure_quarantines_changed_hashes_and_survives_restart(self):
+        with tempfile.TemporaryDirectory() as directory:
+            state_dir = Path(directory)
+            rb = source_rulebook(110)
+            original = copy.deepcopy(rb)
+            meta = {
+                "last_agent": "B",
+                "spend_usd": 4.0,
+                "automatic_cleanup": {
+                    "schema_version": 2,
+                    "baseline_tokens": 100,
+                    "baseline_language_hash": "x" * 64,
+                    "baseline_turn": 1,
+                    "last_attempt_language_hash": None,
+                    "last_status": "armed",
+                },
+            }
+            conv = []
+            atomic_write_json(state_dir / "rulebook.json", rb)
+
+            with patch.object(loop, "STATE", state_dir), patch.object(
+                loop, "run_shadow_cleanup"
+            ) as cleanup:
+                cleanup.return_value = {
+                    "status": "FAIL",
+                    "stage": "c_call",
+                    "error_type": "ValueError",
+                    "reason": "Agent C did not return valid JSON",
+                    "source_hash": "a" * 64,
+                    "models": {"c": loop.MODEL_C, "b": loop.MODEL_B},
+                    "run_spend_usd": 0.08,
+                }
+                self.assertFalse(loop.maybe_run_automatic_cleanup(conv, rb, meta, 10))
+                self.assertEqual(cleanup.call_count, 1)
+                self.assertEqual(meta["automatic_cleanup"]["last_status"], "quarantined")
+                self.assertEqual(conv[-1]["status"], "failed")
+                self.assertEqual(conv[-1]["failure_class"], "structural_output")
+                self.assertEqual(rb, original)
+
+                restarted_meta = copy.deepcopy(meta)
+                starting_spend = restarted_meta["spend_usd"]
+                for turn in (11, 12, 13):
+                    rb["version"] = f"0.{turn}"
+                    atomic_write_json(state_dir / "rulebook.json", rb)
+                    self.assertFalse(
+                        loop.maybe_run_automatic_cleanup(conv, rb, restarted_meta, turn)
+                    )
+
+                self.assertEqual(cleanup.call_count, 1)
+                self.assertEqual(restarted_meta["spend_usd"], starting_spend)
+                self.assertEqual([row["status"] for row in conv[-3:]], [
+                    "quarantined", "quarantined", "quarantined"
+                ])
+                self.assertEqual(rb["rules"], original["rules"])
+
+    def test_quarantine_reset_requires_new_reviewed_edition_and_operator_action(self):
+        state = {
+            "schema_version": 2,
+            "last_status": "quarantined",
+            "quarantine": {
+                "reason": "structural_output",
+                "edition": "cleanup-edition-v1",
+            },
+        }
+        with self.assertRaises(ValueError):
+            loop.reset_automatic_cleanup_quarantine(
+                state, reviewed_edition="cleanup-edition-v1", operator="Iso"
+            )
+        with self.assertRaises(ValueError):
+            loop.reset_automatic_cleanup_quarantine(
+                state, reviewed_edition="cleanup-edition-v2", operator=""
+            )
+        loop.reset_automatic_cleanup_quarantine(
+            state, reviewed_edition="cleanup-edition-v2", operator="Iso"
+        )
+        self.assertEqual(state["last_status"], "armed")
+        self.assertEqual(state["reset"]["reviewed_edition"], "cleanup-edition-v2")
+        self.assertNotIn("quarantine", state)
+
     def test_arms_then_applies_at_ten_percent_growth(self):
         with tempfile.TemporaryDirectory() as directory:
             state_dir = Path(directory)
@@ -98,7 +178,7 @@ class AutomaticCleanupTests(unittest.TestCase):
             meta = {
                 "last_agent": "A",
                 "automatic_cleanup": {
-                    "schema_version": 1,
+                    "schema_version": 2,
                     "baseline_tokens": 100,
                     "baseline_language_hash": "x" * 64,
                     "baseline_turn": 1,

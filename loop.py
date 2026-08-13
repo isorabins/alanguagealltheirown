@@ -660,6 +660,58 @@ def ensure_structured_protocol_cutover(conv, rb, meta, *, activation_turn):
     return receipt
 
 
+AUTOMATIC_CLEANUP_STATE_SCHEMA_VERSION = 2
+AUTOMATIC_CLEANUP_EDITION = "automatic-cleanup-v2"
+
+
+def _structural_cleanup_failure(report):
+    reason = str(report.get("reason", ""))
+    return (
+        report.get("error_type") == "ValueError"
+        and report.get("stage") in {"c_call", "c_validation"}
+        and reason.startswith("Agent C ")
+    )
+
+
+def _upgrade_automatic_cleanup_state(state, turn):
+    """Upgrade the pre-quarantine state without buying another known-bad call."""
+    if state.get("schema_version") != 1:
+        return state
+    state["schema_version"] = AUTOMATIC_CLEANUP_STATE_SCHEMA_VERSION
+    reason = str(state.get("last_reason", ""))
+    if state.get("last_status") == "failed" and reason.startswith("Agent C "):
+        state["last_status"] = "quarantined"
+        state["quarantine"] = {
+            "reason": "structural_output",
+            "edition": "pre-quarantine-edition",
+            "entered_turn": state.get("last_attempt_turn", turn),
+            "failure_reason": reason[:500],
+        }
+    return state
+
+
+def reset_automatic_cleanup_quarantine(state, *, reviewed_edition, operator):
+    """Explicitly re-arm C only after an operator reviews a different edition."""
+    quarantine = state.get("quarantine")
+    if not isinstance(quarantine, dict) or state.get("last_status") != "quarantined":
+        raise ValueError("automatic cleanup is not quarantined")
+    if not isinstance(reviewed_edition, str) or not reviewed_edition.strip():
+        raise ValueError("reset requires a reviewed cleanup edition")
+    if reviewed_edition == quarantine.get("edition"):
+        raise ValueError("reset requires a different reviewed cleanup edition")
+    if not isinstance(operator, str) or not operator.strip():
+        raise ValueError("reset requires explicit operator action")
+    state["reset"] = {
+        "reviewed_edition": reviewed_edition,
+        "operator": operator.strip(),
+        "prior_quarantine": copy.deepcopy(quarantine),
+    }
+    state["last_status"] = "armed"
+    state["last_reason"] = "explicit operator reset for reviewed edition"
+    state["last_attempt_language_hash"] = None
+    state.pop("quarantine")
+
+
 def maybe_run_automatic_cleanup(conv, rb, meta, turn):
     """Apply the proven shadow workflow after 10% adopted-language growth."""
     current_tokens = rb.get("kernel_tokens")
@@ -673,7 +725,7 @@ def maybe_run_automatic_cleanup(conv, rb, meta, turn):
     state = meta.get("automatic_cleanup")
     if state is None:
         meta["automatic_cleanup"] = {
-            "schema_version": 1,
+            "schema_version": AUTOMATIC_CLEANUP_STATE_SCHEMA_VERSION,
             "baseline_tokens": current_tokens,
             "baseline_language_hash": language["hash"],
             "baseline_turn": turn,
@@ -681,7 +733,10 @@ def maybe_run_automatic_cleanup(conv, rb, meta, turn):
             "last_status": "armed",
         }
         return False
-    if not isinstance(state, dict) or state.get("schema_version") != 1:
+    if not isinstance(state, dict):
+        raise RuntimeError("automatic cleanup state is invalid")
+    state = _upgrade_automatic_cleanup_state(state, turn)
+    if state.get("schema_version") != AUTOMATIC_CLEANUP_STATE_SCHEMA_VERSION:
         raise RuntimeError("automatic cleanup state is invalid")
     baseline_tokens = state.get("baseline_tokens")
     if (
@@ -696,6 +751,22 @@ def maybe_run_automatic_cleanup(conv, rb, meta, turn):
     if current_tokens < cleanup_threshold:
         return False
     if current_open_motion(rb) is not None:
+        return False
+    if state.get("last_status") == "quarantined":
+        quarantine = state.get("quarantine")
+        if not isinstance(quarantine, dict):
+            raise RuntimeError("automatic cleanup quarantine is invalid")
+        conv.append({
+            "turn": turn,
+            "agent": "harness",
+            "type": "cleanup",
+            "status": "quarantined",
+            "failure_class": quarantine.get("reason"),
+            "quarantined_edition": quarantine.get("edition"),
+            "language_hash": language["hash"],
+            "reason": "automatic Agent C cleanup remains quarantined",
+            "run_spend_usd": 0.0,
+        })
         return False
     if state.get("last_attempt_language_hash") == language["hash"]:
         return False
@@ -724,15 +795,26 @@ def maybe_run_automatic_cleanup(conv, rb, meta, turn):
         if report.get("error_type") == "CostAccountingError":
             raise CostAccountingError(str(report.get("reason")))
         if report.get("status") != "PASS":
+            structural_failure = _structural_cleanup_failure(report)
             state.update({
-                "last_status": "failed",
+                "last_status": "quarantined" if structural_failure else "failed",
                 "last_reason": str(report.get("reason", "cleanup failed"))[:500],
             })
+            if structural_failure:
+                state["quarantine"] = {
+                    "reason": "structural_output",
+                    "edition": AUTOMATIC_CLEANUP_EDITION,
+                    "entered_turn": turn,
+                    "failure_reason": state["last_reason"],
+                }
             conv.append({
                 "turn": turn,
                 "agent": "harness",
                 "type": "cleanup",
                 "status": "failed",
+                "failure_class": (
+                    "structural_output" if structural_failure else "other"
+                ),
                 "source_hash": report.get("source_hash"),
                 "reason": state["last_reason"],
                 "models": report.get("models"),
