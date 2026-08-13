@@ -1184,7 +1184,7 @@ function refreshPublicExamProgress() {
   var local=window.location&&/^(localhost|127\.0\.0\.1)$/.test(window.location.hostname);
   var url=local?"../state/public-exam-progress.json":"https://raw.githubusercontent.com/isorabins/alanguagealltheirown/main/state/public-exam-progress.json";
   var current=currentRenderedState||window.STATE||{},runtime=current.meta&&current.meta.runtime;
-  if(!local&&runtime&&runtime.status==="paused"&&publicProgressPathExists!==true){
+  if(!local&&(!runtime||runtime.status==="paused")&&publicProgressPathExists!==true){
     if(publicProgressPathExists===false){
       var pausedTests=(current.conversation||[]).filter(function(event){return event.type==="test";});
       renderPublicExamProgress(null,{runtime:runtime,latestExam:latestValidScoringV2(pausedTests),now:Date.now()});
