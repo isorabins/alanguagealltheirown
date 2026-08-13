@@ -15,22 +15,22 @@ test('JavaScript adopted hash matches the canonical Python fixture receipt',()=>
   assert.equal(view.version,'adopted-4a3d2eb8f3eb');
 });
 
-test('judge refuses incomplete item coverage', async () => {
+test('disabled judge endpoint rejects incomplete item coverage before provider work', async () => {
   const original={call:L.call,getGraderPrompt:L.getGraderPrompt,guard:L.guard};
   L.guard=()=> 'original'; L.getGraderPrompt=async()=> 'grader';
   let count=0; L.call=async()=>({text:++count===1?'1. first\n2. second':'{"mode":"RELAY","items":[{"n":1,"verdict":"SURVIVED"}],"invented":[]}',usage:{}});
   delete require.cache[require.resolve('../../viewer/api/judge.js')]; const handler=require('../../viewer/api/judge.js');
   const res=response(); await handler({method:'POST',body:{text:'original',decoded:'decoded'},headers:{'content-type':'application/json'}},res);
-  assert.equal(res.statusCode,502); assert.equal(res.body.code,'invalid_judgment'); Object.assign(L,original);
+  assert.equal(res.statusCode,404); assert.equal(res.body.code,'try_it_disabled'); assert.equal(count,0); Object.assign(L,original);
 });
 
-test('judge refuses boolean and string-coerced item identifiers', async () => {
+test('disabled judge endpoint rejects coerced item identifiers before provider work', async () => {
   for(const id of [true,'1']){
     const original={call:L.call,getGraderPrompt:L.getGraderPrompt,guard:L.guard};
     L.guard=()=> 'original'; L.getGraderPrompt=async()=> 'grader'; let count=0;
     L.call=async()=>({text:++count===1?'1. first\n2. second':JSON.stringify({mode:'RELAY',items:[{n:id,verdict:'SURVIVED'},{n:2,verdict:'SURVIVED'}],invented:[]}),usage:{}});
     delete require.cache[require.resolve('../../viewer/api/judge.js')]; const handler=require('../../viewer/api/judge.js');
     const res=response(); await handler({method:'POST',body:{text:'original',decoded:'decoded'},headers:{'content-type':'application/json'}},res);
-    assert.equal(res.statusCode,502); assert.equal(res.body.code,'invalid_judgment'); Object.assign(L,original);
+    assert.equal(res.statusCode,404); assert.equal(res.body.code,'try_it_disabled'); assert.equal(count,0); Object.assign(L,original);
   }
 });

@@ -45,6 +45,8 @@ from legislative_protocol import (
     validation_reason,
 )
 from project_lookup import is_project_question, project_lookup
+from public_exam_progress import (PublicExamProgressWriter, classify_public_error,
+                                  sanitize_completed_text)
 from rulebook import (_literal_set_survives, apply_typed_motion, language_payload,
                       render_language, render_legislature, score_judgment_v2)
 from shadow_cleanup import run_shadow_cleanup
@@ -1561,7 +1563,7 @@ def _invalid_judge_diagnostic(grade, reason):
     return diagnostic
 
 
-def test_turn(conv, rb, meta, turn):
+def _test_turn_impl(conv, rb, meta, turn, *, progress_path=None, progress_box=None):
     suite = load_benchmark_suite()
     benchmark, benchmark_cycle = select_benchmark(meta, suite)
     pname = f"{benchmark['id']} · {benchmark['name']}"
@@ -1570,21 +1572,57 @@ def test_turn(conv, rb, meta, turn):
     previous = previous_benchmark_result(meta, benchmark)
     captured = language_payload(rb)
     rbook = render_language(rb)
+    progress = None
+    if progress_path is not None:
+        progress = PublicExamProgressWriter(
+            progress_path,
+            turn=turn,
+            benchmark_id=benchmark["id"],
+            benchmark_name=benchmark["name"],
+            language_version=captured["version"],
+            language_hash=captured["hash"],
+        )
+        if progress_box is not None:
+            progress_box[:] = [progress]
+
+    def publish_progress(phase, **fields):
+        nonlocal progress
+        if progress is None:
+            return
+        try:
+            progress.advance(phase, **fields)
+        except Exception:
+            # Public observability is deliberately fail-open for the canonical
+            # exam. Losing its tiny snapshot must not lose the real result.
+            progress = None
+            if progress_box is not None:
+                progress_box[:] = []
+
+    publish_progress("exam_started")
+    publish_progress("benchmark_selected")
+    publish_progress("language_loaded")
+    publish_progress("encoder_started")
     enc_sys = ("You are the encoder. Encode the message below into the project language "
                "using ONLY this rulebook. Where the rulebook is silent, fall back to plain "
                "English for that part. Output ONLY the encoded message, nothing else.\n\n" + rbook)
     encoded, _ = call(MODEL_A, enc_sys, payload, max_tokens=4000, temperature=0.3, meta=meta)
+    encoded = sanitize_completed_text(encoded)
+    publish_progress("encoder_completed", encoded=encoded)
+    publish_progress("decoder_started")
     dec_sys = ("You are a fresh agent. You have never seen any prior conversation. Below is the "
                "complete rulebook of a constructed language. Decode the message you receive: "
                "reconstruct the original content as faithfully as you can. Do not invent anything "
                "the message does not encode. Output ONLY the reconstruction.\n\n" + rbook)
     decoded, _ = call(MODEL_DECODER, dec_sys, encoded.strip(), max_tokens=4000, temperature=0.1, meta=meta)
+    decoded = sanitize_completed_text(decoded)
+    publish_progress("decoder_completed", decoded=decoded)
     orig_t = token_count(payload, meta)
     enc_t = token_count(encoded.strip(), meta)
     delta = round((enc_t - orig_t) / orig_t * 100)
     savings_pct = -delta
     grade_sys = (ROOT / "prompts" / "grader_v2.md").read_text()
     if key:
+        publish_progress("judge_started")
         numbered_decoded = _numbered_decoded(decoded.strip())
         key_txt = json.dumps(_grader_answer_key(key, decoded.strip()), ensure_ascii=False)
         grade_user = (
@@ -1652,6 +1690,34 @@ def test_turn(conv, rb, meta, turn):
                              for atom in key],
              "prior_valid_v2_turn": previous.get("turn") if previous else None}
     event.update(audit)
+    if scored["valid"]:
+        verdicts = [item.get("verdict") for item in audit["atom_results"]]
+        for completed in range(1, len(verdicts) + 1):
+            observed = verdicts[:completed]
+            publish_progress("audit_progress", audit={
+                "completed": completed,
+                "total": audit["total"],
+                "survived": observed.count("SURVIVED"),
+                "corrupted": observed.count("CORRUPTED"),
+                "missing": observed.count("MISSING"),
+                "inventions": len(audit["inventions"]),
+            })
+        publish_progress(
+            "completed",
+            tokens={"original": orig_t, "encoded": enc_t},
+            result={
+                "judge_valid": audit["judge_valid"],
+                "meaning_pass": audit["meaning_pass"],
+                "compression_success": audit["compression_success"],
+                "semantic_coverage_pct": audit["semantic_coverage_pct"],
+                "status": audit["judge_status"],
+            },
+        )
+    elif progress is not None:
+        try:
+            progress.fail("invalid_judge_result")
+        except Exception:
+            pass
     conv.append(event)
     exams = meta.setdefault("corpus_exams", [])
     exams.append({"turn": turn, "language_version": captured["version"],
@@ -1684,6 +1750,27 @@ def test_turn(conv, rb, meta, turn):
     print(f"[t{turn} TEST] {pname}  {orig_t}->{enc_t}tok ({delta:+d}%)  "
           f"{audit['judge_status']} coverage {audit['semantic_coverage_pct']}  "
           f"${meta['spend_usd']:.3f}", flush=True)
+
+
+def test_turn(conv, rb, meta, turn, *, progress_path=None):
+    """Run one canonical exam and optionally expose only its safe receipts."""
+    progress_box = []
+    try:
+        return _test_turn_impl(
+            conv, rb, meta, turn,
+            progress_path=progress_path,
+            progress_box=progress_box,
+        )
+    except BaseException as error:
+        if progress_box:
+            try:
+                progress_box[0].fail(
+                    classify_public_error(error),
+                    interrupted=isinstance(error, KeyboardInterrupt),
+                )
+            except Exception:
+                pass
+        raise
 
 
 def consume_notice(conv, turn):
@@ -1865,7 +1952,10 @@ def run(turns):
         process_one_research(collaboration, meta, turn)
         maybe_run_automatic_cleanup(conv, rb, meta, turn)
         if turn % TEST_EVERY == 0:
-            test_turn(conv, rb, meta, turn)
+            test_turn(
+                conv, rb, meta, turn,
+                progress_path=STATE / "public-exam-progress.json",
+            )
             maybe_run_conversation(rb, meta, turn, conversations)
         else:
             agent_turn(conv, rb, meta, collaboration, turn)

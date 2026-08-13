@@ -63,6 +63,74 @@ test('Lab Notebook exposes all six source-backed categories',()=>{
   }
 });
 
+function progressApi(){
+  const start=html.indexOf('var PUBLIC_PROGRESS_PHASES=');
+  const end=html.indexOf('\nfunction render(S)',start);
+  assert.ok(start>=0&&end>start,'public exam progress functions must be independently testable');
+  return Function(html.slice(start,end)+'\nreturn {validPublicExamProgress,validPublicExamTransition,completedProgressMatchesExam,publicExamProgressView};')();
+}
+
+function progressSnapshot(phase='completed'){
+  const phases=['exam_started','benchmark_selected','language_loaded','encoder_started','encoder_completed','decoder_started','decoder_completed','judge_started','audit_progress','completed'];
+  const active=phases.slice(0,phases.indexOf(phase)+1);
+  const snapshot={
+    schema_version:1,run_id:'exam-2400-0123456789abcdef',turn:2400,phase,
+    updated_at:'2026-08-13T00:00:10Z',benchmark_id:'B1',benchmark_name:'Event prose',
+    language_version:'adopted-test',language_hash:'a'.repeat(64),
+    receipts:active.map((step,index)=>({phase:step,at:`2026-08-13T00:00:${String(index).padStart(2,'0')}Z`,message:step.replaceAll('_',' ')}))
+  };
+  if(['encoder_completed','decoder_started','decoder_completed','judge_started','audit_progress','completed'].includes(phase))snapshot.encoded='SAFE ENCODED';
+  if(['decoder_completed','judge_started','audit_progress','completed'].includes(phase))snapshot.decoded='Safe decoded response';
+  if(['audit_progress','completed'].includes(phase))snapshot.audit={completed:4,total:4,survived:3,corrupted:1,missing:0,inventions:0};
+  if(phase==='completed'){
+    snapshot.tokens={original:100,encoded:61};
+    snapshot.result={judge_valid:true,meaning_pass:false,compression_success:false,semantic_coverage_pct:75,status:'VALID'};
+  }
+  return snapshot;
+}
+
+test('public trace validates bounded snapshots and rejects hostile or mixed data',()=>{
+  const api=progressApi(),completed=progressSnapshot();
+  assert.equal(api.validPublicExamProgress(completed),true);
+  assert.equal(api.validPublicExamProgress({...completed,raw_exception:'secret'}),false);
+  assert.equal(api.validPublicExamProgress({...completed,encoded:'x'.repeat(20001)}),false);
+  assert.equal(api.validPublicExamProgress({...completed,decoded:'OPENROUTER_API_KEY=do-not-publish'}),false);
+  const started=progressSnapshot('exam_started');
+  const selected=progressSnapshot('benchmark_selected');
+  assert.equal(api.validPublicExamTransition(started,selected),true);
+  assert.equal(api.validPublicExamTransition(started,{...selected,run_id:'exam-2401-fedcba9876543210'}),false);
+  assert.equal(api.validPublicExamTransition(started,progressSnapshot('encoder_started')),false);
+});
+
+test('public trace renders complete interrupted failed stale missing malformed and unavailable truthfully',()=>{
+  const api=progressApi(),completed=progressSnapshot();
+  const exam={turn:2400,benchmark_id:'B1',language_version:'adopted-test',language_hash:'a'.repeat(64),encoded:'SAFE ENCODED',decoded:'Safe decoded response',orig_tokens:100,enc_tokens:61,judge_valid:true,meaning_pass:false,compression_success:false,semantic_coverage_pct:75};
+  assert.equal(api.publicExamProgressView(completed,{latestExam:exam,runtime:{status:'paused'},now:Date.parse('2026-08-13T01:00:00Z')}).state,'verified complete');
+  for(const phase of ['interrupted','failed']){
+    const snapshot=progressSnapshot('exam_started');
+    snapshot.phase=phase;snapshot.error_class=phase==='interrupted'?'interrupted':'provider_timeout';
+    snapshot.receipts.push({phase,at:'2026-08-13T00:00:02Z',message:`exam ${phase}`});
+    assert.equal(api.publicExamProgressView(snapshot,{now:Date.parse('2026-08-13T00:00:03Z')}).state,phase);
+  }
+  assert.equal(api.publicExamProgressView(progressSnapshot('encoder_started'),{now:Date.parse('2026-08-13T01:00:00Z')}).state,'stale');
+  assert.equal(api.publicExamProgressView(null,{loadStatus:'missing'}).state,'missing');
+  assert.equal(api.publicExamProgressView(null,{loadStatus:'malformed'}).state,'malformed');
+  assert.equal(api.publicExamProgressView(null,{loadStatus:'unavailable'}).state,'unavailable');
+  assert.equal(api.publicExamProgressView({...completed,encoded:'mismatch'},{latestExam:exam}).state,'malformed');
+});
+
+test('Watch the Live Test is persisted-state only and matches the locked terminal design',()=>{
+  assert.match(html,/id="live-test-section"/);
+  assert.match(html,/id="trace-body" role="log" aria-live="polite" tabindex="0"/);
+  assert.match(html,/\.trace-body\{height:14rem;overflow:auto/);
+  assert.match(html,/\.trace-body::-webkit-scrollbar/);
+  assert.match(html,/@media \(max-width: 760px\)[\s\S]*?\.trace-line\{grid-template-columns:/);
+  const refresh=html.slice(html.indexOf('function refreshPublicExamProgress'),html.indexOf('window.ALATO_PUBLIC_PROGRESS'));
+  assert.match(refresh,/public-exam-progress\.json/);
+  assert.doesNotMatch(refresh,/\/api\/|encode|decode|judge|OPENROUTER|provider/i);
+  assert.doesNotMatch(html,/preview trace|prototype simulation|replay trace/);
+});
+
 test('public page explains Scoring V2 and labels immutable history honestly',()=>{
   assert.match(html,/Five repeating messages retain original/);
   assert.match(html,/legacy V1/);
