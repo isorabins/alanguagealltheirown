@@ -78,7 +78,7 @@ MAX_TEST_GRADER_LOSS_CHARS = 600
 PRIVATE_FAULT_PROMPT_REDACTION = (
     "[private validation-overlapping text withheld from this legislative prompt]"
 )
-SPEND_CAP = 25.00   # dollars, hard stop across all runs — anomaly tripwire, ~50 days at gloves-off burn
+SPEND_CAP = 100.00  # dollars, hard stop across all runs — operator-approved cumulative ceiling
 AGENT_TEMP = 0.9
 COST_LEDGER_SCHEMA_VERSION = 1
 COST_LEDGER_FILENAME = "cost-receipts.local.json"
