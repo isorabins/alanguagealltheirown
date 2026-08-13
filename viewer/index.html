@@ -578,6 +578,8 @@ var PUBLIC_PROGRESS_FIELDS=["schema_version","run_id","turn","phase","updated_at
 var PUBLIC_PROGRESS_UNSAFE=/(?:\b(?:OPENROUTER_API_KEY|API_KEY|PASSWORD|CLIENT_SECRET|AUTHORIZATION)\s*[:=]|\bBearer\s+[A-Za-z0-9._~+/=-]{12,}|\bsk-[A-Za-z0-9_-]{12,}|(?:BEGIN|END)\s+(?:SYSTEM|DEVELOPER|HIDDEN)\s+PROMPT|\b(?:system|developer|hidden)\s+prompt\s*[:=]|\bchain[- ]of[- ]thought\b|\bprivate collaboration state\b|Traceback \(most recent call last\))/i;
 var lastPublicProgress=null;
 var lastPublicProgressRenderKey=null;
+var publicProgressPathExists=null;
+var publicProgressPathCheck=null;
 var currentRenderedState=null;
 function publicProgressEsc(value){return String(value==null?"":value).replace(/[&<>"]/g,function(character){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[character];});}
 function publicProgressExcerpt(value,expected){
@@ -1181,9 +1183,25 @@ loadState();
 function refreshPublicExamProgress() {
   var local=window.location&&/^(localhost|127\.0\.0\.1)$/.test(window.location.hostname);
   var url=local?"../state/public-exam-progress.json":"https://raw.githubusercontent.com/isorabins/alanguagealltheirown/main/state/public-exam-progress.json";
+  var current=currentRenderedState||window.STATE||{},runtime=current.meta&&current.meta.runtime;
+  if(!local&&runtime&&runtime.status==="paused"&&publicProgressPathExists!==true){
+    if(publicProgressPathExists===false){
+      var pausedTests=(current.conversation||[]).filter(function(event){return event.type==="test";});
+      renderPublicExamProgress(null,{runtime:runtime,latestExam:latestValidScoringV2(pausedTests),now:Date.now()});
+      return;
+    }
+    if(!publicProgressPathCheck){
+      publicProgressPathCheck=fetch("https://api.github.com/repos/isorabins/alanguagealltheirown/commits?sha=main&path=state%2Fpublic-exam-progress.json&per_page=1",{cache:"no-store"})
+        .then(function(response){if(!response.ok)throw new Error("progress history unavailable");return response.json();})
+        .then(function(rows){return Array.isArray(rows)&&rows.length>0;})
+        .catch(function(){return true;});
+    }
+    publicProgressPathCheck.then(function(exists){publicProgressPathExists=exists;refreshPublicExamProgress();});
+    return;
+  }
   var status="ok";
   fetch(url,{cache:"no-store"}).then(function(response){
-    if(response.status===404){status="missing";return null;}
+    if(response.status===404){status="missing";publicProgressPathExists=false;return null;}
     if(!response.ok){status="unavailable";return null;}
     return response.text().then(function(text){try{return JSON.parse(text);}catch(error){status="malformed";return null;}});
   }).then(function(snapshot){

@@ -154,6 +154,8 @@ test('Watch the Live Test is persisted-state only and matches the locked termina
   assert.match(html,/@media \(max-width: 760px\)[\s\S]*?\.trace-line\{grid-template-columns:/);
   const refresh=html.slice(html.indexOf('function refreshPublicExamProgress'),html.indexOf('window.ALATO_PUBLIC_PROGRESS'));
   assert.match(refresh,/public-exam-progress\.json/);
+  assert.match(refresh,/commits\?sha=main&path=state%2Fpublic-exam-progress\.json&per_page=1/);
+  assert.match(refresh,/runtime\.status==="paused"&&publicProgressPathExists!==true/);
   assert.doesNotMatch(refresh,/\/api\/|encode|decode|judge|OPENROUTER|provider/i);
   assert.doesNotMatch(html,/preview trace|prototype simulation|replay trace/);
 });
