@@ -530,6 +530,18 @@ test('public page contains overflow and keyboard-focus safeguards',()=>{
   assert.match(html,/body\s*\{[^}]*width:\s*min\(1100px,\s*100%\)/s);
 });
 
+test('375px header and both clock columns have explicit containment safeguards',()=>{
+  const mobile=html.match(/@media \(max-width: 420px\) \{([\s\S]*?)\n  \}\n<\/style>/);
+  assert.ok(mobile,'the exact-phone breakpoint must remain present');
+  assert.match(mobile[1],/h1 \{[^}]*max-width: 100%[^}]*overflow-wrap: anywhere/);
+  assert.match(mobile[1],/\.timers \{[^}]*width: 100%[^}]*gap: 1\.3rem/);
+  assert.match(mobile[1],/\.timers > div \{[^}]*flex: 1 1 0[^}]*min-width: 0/);
+  assert.match(mobile[1],/\.timers \.tval \{[^}]*max-width: 100%[^}]*overflow-wrap: anywhere/);
+  assert.match(mobile[1],/\.timers \.tval\.running \{[^}]*font-size: 1\.35rem/);
+  assert.match(html,/class="tlab">next turn<\/span>/);
+  assert.match(html,/class="tlab">next exam<\/span>/);
+});
+
 test('major section headings keep the shared vertical rhythm',()=>{
   assert.match(html,/body > h2:first-of-type \{ margin-top: 0; \}/);
   assert.doesNotMatch(html,/\n\s*h2:first-of-type \{/);
