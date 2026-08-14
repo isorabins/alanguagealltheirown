@@ -54,12 +54,20 @@
   }
   .metrics b { display: block; color: var(--ink); font-size: 1.02rem; font-weight: 400; margin-top: 0.2rem; }
 
-  .timers { display: flex; justify-content: center; gap: 4rem; margin: 0 0 1.6rem; text-align: center; }
+  .timers { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); align-items: stretch;
+    gap: 2rem; width: min(48rem, 100%); margin: 0 auto 1.6rem; text-align: center; }
+  .timers > div { min-width: 0; }
   .timers .tval { display: block; font-family: var(--mono); font-size: 2.7rem; color: var(--ink); letter-spacing: 0.04em; font-variant-numeric: tabular-nums; }
   .timers .tval.running { color: var(--accent); font-size: 1.5rem; padding: 0.6rem 0; }
   .timers .tlab { display: block; font-family: var(--mono); font-size: 0.64rem; letter-spacing: 0.22em; text-transform: uppercase; color: var(--ink-faint); margin-top: 0.3rem; }
   .timer-link { display: inline-block; margin-top: 0.55rem; color: var(--accent); font: 400 0.6rem var(--mono); letter-spacing: 0.12em; text-transform: uppercase; text-decoration: none; border-bottom: 1px solid rgba(201,168,106,.45); }
   .timer-link:hover { color: var(--ink); border-color: var(--ink); }
+  .agent-c-summary { min-width: 0; display: flex; flex-direction: column; justify-content: center;
+    border: 1px solid var(--hairline); border-left: 2px solid var(--accent); padding: 0.7rem 0.8rem;
+    color: var(--ink); text-decoration: none; font: 400 0.72rem/1.45 var(--mono); overflow-wrap: anywhere; }
+  .agent-c-summary:hover { border-color: var(--accent); }
+  .agent-c-summary-bar { height: 3px; margin-top: 0.55rem; background: var(--hairline); overflow: hidden; }
+  .agent-c-summary-bar i { display: block; width: 0; height: 100%; background: var(--accent); }
 
   .prompt-intro { max-width: 44rem; margin: 0 auto 1.2rem; font-size: 0.92rem; color: var(--ink-dim); }
   .prompt-intro a { color: var(--ink); }
@@ -241,6 +249,15 @@
   .evidence-chain{display:grid;grid-template-columns:1fr 1fr;gap:1.4rem}.evidence-card{border:1px solid var(--hairline);padding:1rem 1.2rem}.evidence-card.pass{border-left:2px solid var(--accent)}.evidence-card.fail{border-left:2px solid var(--bad)}.evidence-card .lab{font:400 .62rem var(--mono);letter-spacing:.18em;text-transform:uppercase;color:var(--ink-faint)}.evidence-card .result{font:400 1rem var(--mono);margin:.35rem 0}.evidence-card.pass .result{color:var(--accent)}.evidence-card.fail .result{color:var(--bad)}.evidence-card p{color:var(--ink-dim);font-size:.88rem}
   .exam-flow{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));border:1px solid var(--hairline)}.exam-stage{min-height:25rem;padding:1rem;border-left:1px solid var(--hairline);overflow:hidden}.exam-stage:first-child{border-left:0}.exam-stage-head{font:400 .62rem var(--mono);letter-spacing:.14em;text-transform:uppercase;color:var(--accent);margin-bottom:.7rem}.exam-stage-meta{display:block;color:var(--ink-faint);font:400 .59rem var(--mono);letter-spacing:.05em;margin-top:.2rem}.exam-text,.audit-list{height:20rem;overflow:auto}.exam-text{white-space:pre-wrap;overflow-wrap:anywhere;color:var(--ink-dim);font:400 .7rem/1.55 var(--mono)}.audit-list{list-style:none}.audit-list li{padding:.55rem 0;border-top:1px solid var(--hairline);font:400 .62rem/1.45 var(--mono);color:var(--ink-dim)}.audit-list li:first-child{border-top:0}.audit-list b{display:block;font-weight:400;color:var(--accent)}.audit-list b.bad{color:var(--bad)}.atom-evidence{display:block;color:var(--ink-faint);margin-top:.2rem}.exam-verdict{padding:.8rem 1rem;border:1px solid var(--bad);border-top:0;color:var(--ink-dim);font-size:.83rem}.exam-verdict b{color:var(--bad);font-family:var(--mono)}
   .live-trace{border:1px solid var(--hairline);border-left:2px solid var(--accent);margin:.8rem 0 2.3rem;background:#080806}.trace-head{display:flex;justify-content:space-between;gap:1rem;padding:.7rem .9rem;border-bottom:1px solid var(--hairline);font:400 .64rem var(--mono);letter-spacing:.13em;text-transform:uppercase;color:var(--accent)}.trace-clock{color:var(--ink-faint);text-align:right}.trace-clock b{display:block;color:var(--ink);font-weight:400}.trace-body{height:28rem;overflow:auto;padding:.8rem .95rem;font:400 .66rem/1.65 var(--mono);color:var(--ink-dim)}.trace-meta{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:.55rem;margin:0 0 .9rem}.trace-meta span{border:1px solid var(--hairline);padding:.5rem .6rem;color:var(--ink-faint);overflow-wrap:anywhere}.trace-meta b{display:block;color:var(--ink);font-weight:400}.trace-line{display:grid;grid-template-columns:7.5rem 7.8rem 1fr;gap:.7rem;padding:.08rem 0}.trace-time{color:var(--ink-faint)}.trace-stage{color:var(--accent);text-transform:uppercase}.trace-artifact{margin:.8rem 0;padding:.75rem;border:1px solid var(--hairline)}.trace-artifact b,.trace-section-label{display:block;color:var(--accent);font:400 .6rem var(--mono);letter-spacing:.12em;margin-bottom:.4rem;text-transform:uppercase}.trace-artifact pre{white-space:pre-wrap;overflow-wrap:anywhere;color:var(--ink-dim);font:400 .64rem/1.55 var(--mono)}.trace-audit-summary{margin:.85rem 0;padding:.65rem .75rem;border-left:2px solid var(--accent);color:var(--ink)}.trace-audit-row{display:grid;grid-template-columns:8rem 1fr;gap:.7rem;padding:.5rem 0;border-top:1px solid var(--hairline)}.trace-audit-row b{color:var(--accent);font-weight:400}.trace-audit-row b.bad{color:var(--bad)}.trace-audit-row small{display:block;color:var(--ink-faint);font:400 .61rem/1.5 var(--mono);margin-top:.18rem}.trace-verdict{margin:1rem 0 .2rem;padding:1rem 1.1rem 1.15rem;border:1px solid var(--accent);text-align:center;color:var(--accent)}.trace-verdict.fail{border-color:var(--bad);color:var(--bad)}.trace-verdict> b{display:block;font:400 clamp(.8rem,1.25vw,1rem)/1 var(--mono);letter-spacing:.12em}.trace-conclusion-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:.55rem;margin:.9rem 0}.trace-conclusion-grid span{border-top:1px solid var(--hairline);padding:.5rem;color:var(--ink-faint);text-align:left}.trace-conclusion-grid b{display:block;color:var(--ink);font-weight:400;font-size:.74rem;letter-spacing:0}.trace-conclusion{color:var(--ink);text-align:left;font:400 .74rem/1.55 var(--serif)}.trace-conclusion strong{color:var(--bad);font-weight:400}.trace-verdict.pass .trace-conclusion strong{color:var(--accent)}.trace-failure{margin-top:.65rem;padding:.65rem .75rem;border-left:2px solid var(--bad);color:var(--ink-dim);text-align:left}.trace-failure b{display:block;color:var(--bad);font-weight:400}.trace-failure small{display:block;color:var(--ink-faint);margin-top:.25rem;overflow-wrap:anywhere}.trace-actions{padding:.65rem .9rem;border-top:1px solid var(--hairline);font:400 .61rem var(--mono);color:var(--ink-faint)}
+  .cleanup-trace .trace-body { height: auto; min-height: 18rem; }
+  .cleanup-growth { margin-bottom: 1rem; }
+  .cleanup-growth-label { display: flex; justify-content: space-between; gap: 1rem; color: var(--ink); }
+  .cleanup-growth-bar { height: 6px; margin-top: 0.45rem; background: var(--hairline); overflow: hidden; }
+  .cleanup-growth-bar i { display: block; height: 100%; width: 0; background: var(--accent); }
+  .cleanup-current { margin: 0 0 1rem; padding: 0.65rem 0.75rem; border-left: 2px solid var(--accent); color: var(--ink); }
+  .cleanup-final { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0.55rem; margin-top: 1rem; }
+  .cleanup-final span { border-top: 1px solid var(--hairline); padding: 0.5rem; color: var(--ink-faint); overflow-wrap: anywhere; }
+  .cleanup-final b { display: block; color: var(--ink); font-weight: 400; font-size: 0.74rem; }
   .language-panel{border:1px solid var(--hairline);padding:1.25rem 1.4rem}.rule-preview{display:grid;grid-template-columns:1fr 1fr;gap:1rem}.copy-row{display:flex;justify-content:center;align-items:center;gap:1rem;flex-wrap:wrap;margin:1.1rem 0}.copy-button{background:transparent;border:1px solid var(--accent);color:var(--ink);font:400 .67rem var(--mono);letter-spacing:.16em;text-transform:uppercase;padding:.75rem 1.1rem;cursor:pointer}.copy-status{min-height:1rem;color:var(--accent);font:400 .64rem var(--mono)}.try-note{border-left:2px solid var(--accent);padding:.65rem .9rem;color:var(--ink)}.try-note small{display:block;color:var(--ink-faint);font-family:var(--mono)}.full-rulebook{max-height:28rem;overflow:auto;padding:1rem;color:var(--ink-dim);font:400 .68rem/1.6 var(--mono);text-align:left}
   .featured-note{border:1px solid var(--hairline);border-left:2px solid var(--accent);padding:1.1rem 1.3rem;color:var(--ink)}.field-note-archive details,.archive-index details{margin:0;border-top:1px solid var(--hairline)}.field-note-archive summary,.archive-index summary{text-align:left;text-transform:none;letter-spacing:.03em;color:var(--ink);font-size:.72rem}.archive-body{padding:.1rem .45rem 1.2rem;color:var(--ink-dim);font-size:.88rem}.archive-links{display:flex;flex-wrap:wrap;gap:.55rem;margin-top:.8rem}.archive-links a{border:1px solid var(--hairline);padding:.48rem .65rem;color:var(--accent);font:400 .62rem var(--mono);text-decoration:none}
   .pane-body,.trace-body,.exam-text,.audit-list,.full-rulebook{scrollbar-width:thin;scrollbar-color:#37342d #090806}.pane-body::-webkit-scrollbar,.trace-body::-webkit-scrollbar,.exam-text::-webkit-scrollbar,.audit-list::-webkit-scrollbar,.full-rulebook::-webkit-scrollbar{width:7px;height:7px}.pane-body::-webkit-scrollbar-track,.trace-body::-webkit-scrollbar-track,.exam-text::-webkit-scrollbar-track,.audit-list::-webkit-scrollbar-track,.full-rulebook::-webkit-scrollbar-track{background:#090806}.pane-body::-webkit-scrollbar-thumb,.trace-body::-webkit-scrollbar-thumb,.exam-text::-webkit-scrollbar-thumb,.audit-list::-webkit-scrollbar-thumb,.full-rulebook::-webkit-scrollbar-thumb{background:#37342d;border:2px solid #090806;border-radius:10px}
@@ -321,7 +338,8 @@
     .panes, .decisions, .tx-cols, .status-main, .v2-results, .evidence-chain, .rule-preview, .exam-flow { grid-template-columns: 1fr; }
     .exam-stage{min-height:18rem;border-left:0;border-top:1px solid var(--hairline)}.exam-stage:first-child{border-top:0}.exam-text,.audit-list{height:14rem}.trace-meta,.trace-conclusion-grid{grid-template-columns:1fr 1fr}.trace-line{grid-template-columns:4.2rem 5.8rem minmax(0,1fr);gap:.45rem;font-size:.58rem}.trace-audit-row{grid-template-columns:6rem 1fr}.trace-head{align-items:flex-start}.info-hover::after{position:fixed;left:1rem;right:1rem;top:auto;bottom:1rem;transform:none;width:auto}
     .pane { height: 340px; }
-    .timers { gap: 2rem; }
+    .timers { grid-template-columns: 1fr 1fr; gap: 2rem; }
+    .agent-c-summary { grid-column: 1 / -1; }
     .metrics { gap: 1.2rem 1.8rem; }
     .status-counts { grid-template-columns: 1fr 1fr; }
     .ti-row { align-items: flex-start; gap: 0.8rem; }
@@ -331,7 +349,7 @@
     h1 { max-width: 100%; font-size: 1.24rem; letter-spacing: 0.13em; overflow-wrap: anywhere; }
     .statement { font-size: 0.92rem; }
     .timers { width: 100%; gap: 1.3rem; }
-    .timers > div { flex: 1 1 0; min-width: 0; }
+    .timers > div { min-width: 0; }
     .timers .tval { max-width: 100%; font-size: 2.2rem; overflow-wrap: anywhere; }
     .timers .tval.running { font-size: 1.35rem; }
     .status-counts { grid-template-columns: 1fr; }
@@ -349,6 +367,7 @@
 <div class="timers">
   <div><span class="tval" id="t-turn">--:--</span><span class="tlab">next turn</span></div>
   <div><span class="tval" id="t-exam">--:--</span><span class="tlab">next exam</span><a class="timer-link" id="exam-jump" href="#live-test-section">see last test ↓</a></div>
+  <a class="agent-c-summary" id="agent-c-summary" href="#agent-c-cleanup-section"><span id="agent-c-summary-label">Agent C · status unavailable</span><span class="agent-c-summary-bar" aria-hidden="true"><i id="agent-c-summary-progress"></i></span></a>
 </div>
 <aside class="runtime-status" id="runtime-status" aria-live="polite">
   <strong id="runtime-status-heading">The experiment is paused.</strong>
@@ -385,6 +404,14 @@
   <div class="trace-actions" id="trace-detail">Completed provider responses appear only after sanitization. No prompts, reasoning, partial tokens, or raw errors are published.</div>
 </div></section>
 
+<section id="agent-c-cleanup-section"><h2>Watch Agent C Cleanup</h2>
+<p class="how">This window reads persisted public state. Cleanup phases become visible only after the canonical turn commits; it does not stream provider activity or infer an unfinished result.</p>
+<div class="live-trace cleanup-trace">
+  <div class="trace-head"><span id="agent-c-trace-state">checking persisted cleanup state</span><span class="trace-clock"><b id="agent-c-trace-growth">—</b>cleanup threshold</span></div>
+  <div class="trace-body" id="agent-c-trace-body" role="log" aria-live="polite" tabindex="0"><p class="empty">No public cleanup state loaded.</p></div>
+  <div class="trace-actions" id="agent-c-trace-detail">Only bounded receipts are shown. Prompts, reasoning, provider errors, and candidate JSON remain out of this presentation.</div>
+</div></section>
+
 <section id="experiment-status-section" aria-labelledby="experiment-status">
 <h2 id="experiment-status">Experiment Status</h2>
 <p class="how">Status describes the preserved evidence honestly; it does not imply that a scheduled process is currently advancing.</p>
@@ -393,13 +420,10 @@
     <div>
       <span class="status-kicker">paused public record</span>
       <p>Experiment paused at turn 2400. No new turn or exam is running. The public record remains available.</p>
-      <p style="margin-top:.6rem">Agent C is bounded cleanup/editorial machinery. Its repeated structural failures are quarantined; no cleanup has been applied.</p>
     </div>
     <div class="status-counts" aria-label="Experiment status">
       <div class="status-count info-hover" tabindex="0" data-tip="The scheduled exam clock is stopped while the experiment is paused.">next exam<b>paused</b></div>
       <div class="status-count info-hover" tabindex="0" data-tip="The scheduled Conversation clock is stopped while the experiment is paused.">next Conversation<b>paused</b></div>
-      <div class="status-count info-hover" tabindex="0" data-tip="Every bounded Agent C cleanup attempt failed structural validation and was retained as evidence.">Agent C attempts<b>13 failed</b></div>
-      <div class="status-count info-hover" tabindex="0" data-tip="No Agent C cleanup changed the adopted language; all failed attempts remain quarantined.">cleanups applied<b class="bad">0 · quarantined</b></div>
     </div>
   </div>
 </div>
@@ -696,6 +720,82 @@ function renderPublicExamProgress(snapshot,options) {
   return view;
 }
 
+function agentCCleanupView(agentC, conversation) {
+  agentC=agentC&&typeof agentC==="object"?agentC:{};
+  conversation=Array.isArray(conversation)?conversation:[];
+  var cleanupEvents=conversation.filter(function(event){return event&&event.type==="cleanup";});
+  var attempts=cleanupEvents.filter(function(event){return event.status==="failed"||event.status==="applied";});
+  var attempt=attempts.length?attempts[attempts.length-1]:null;
+  var quarantineReceipts=cleanupEvents.filter(function(event){return event.status==="quarantined"&&(!attempt||event.turn>=attempt.turn);});
+  var rounds=attempt&&Array.isArray(attempt.rounds)?attempt.rounds:[];
+  var verdict="not reached";
+  rounds.forEach(function(round){
+    if(["pass","REJECT","unavailable","invalid"].indexOf(round&&round.b_verdict)>=0)verdict=round.b_verdict;
+  });
+  var timeline=[];
+  if(!attempt){
+    timeline.push({stage:"Agent C candidate",status:"no persisted attempt"});
+    timeline.push({stage:"Agent B advisory",status:"not reached"});
+    timeline.push({stage:"local validation",status:"not reached"});
+    timeline.push({stage:"canonical application",status:"not reached"});
+  }else{
+    var structuralFailure=attempt.failure_class==="structural_output"||(
+      agentC.state==="quarantined"&&agentC.blocker==="structural_output"&&agentC.last_attempt_turn===attempt.turn
+    );
+    timeline.push({
+      stage:"Agent C candidate",
+      status:attempt.status==="applied"?"completed":(structuralFailure?"failed structural validation":"failed safely")
+    });
+    timeline.push({stage:"Agent B advisory",status:verdict});
+    if(rounds.length>1)timeline.push({stage:"Agent C finalization",status:"completed"});
+    timeline.push({stage:"local validation",status:attempt.status==="applied"?"passed":"not completed"});
+    timeline.push({stage:"canonical application",status:attempt.status==="applied"?"applied":(agentC.state==="quarantined"?"failed · quarantined":"failed")});
+  }
+  var growth=Number(agentC.growth_pct),trigger=Number(agentC.trigger_pct),progress=Number(agentC.progress_pct);
+  if(!Number.isFinite(growth))growth=0;
+  if(!Number.isFinite(trigger))trigger=10;
+  if(!Number.isFinite(progress))progress=0;
+  progress=Math.max(0,Math.min(100,progress));
+  var state=agentC.state||"unavailable",detail="Agent C status is unavailable.";
+  if(state==="growing")detail="The adopted language is still growing toward the cleanup threshold.";
+  if(state==="blocked_motion")detail="The threshold is reached; cleanup waits for "+String(agentC.blocker||"the open motion")+" to settle.";
+  if(state==="quarantined")detail="Cleanup is quarantined after a structural Agent C failure. No automatic retry is eligible.";
+  if(state==="blocked_attempt")detail="The prior attempt failed; cleanup waits for the adopted language to change before retrying.";
+  if(state==="eligible")detail="The threshold is reached and no authoritative blocker is open.";
+  var sourceTokens=attempt&&Number.isFinite(attempt.source_tokens)?attempt.source_tokens:null;
+  var appliedTokens=attempt&&Number.isFinite(attempt.applied_tokens)?attempt.applied_tokens:null;
+  var reduction=attempt&&Number.isFinite(attempt.reduction_pct)?attempt.reduction_pct:null;
+  var spend=attempt&&Number.isFinite(attempt.run_spend_usd)?attempt.run_spend_usd:null;
+  return {
+    state:state,detail:detail,growth:growth,trigger:trigger,progress:progress,
+    attempt:attempt?{turn:attempt.turn,status:attempt.status}:null,
+    quarantineReceiptCount:quarantineReceipts.length,timeline:timeline,
+    evidence:{
+      turn:attempt&&Number.isInteger(attempt.turn)?attempt.turn:null,
+      tokens:sourceTokens!==null&&appliedTokens!==null?sourceTokens+" → "+appliedTokens:"unavailable",
+      reduction:reduction!==null?reduction+"%":"unavailable",
+      spend:spend!==null?"$"+spend.toFixed(4):"unavailable",
+      bVerdict:verdict,
+      application:attempt?(attempt.status==="failed"&&agentC.state==="quarantined"?"failed · quarantined":attempt.status):"unavailable"
+    }
+  };
+}
+
+function renderAgentCCleanup(agentC,conversation) {
+  var view=agentCCleanupView(agentC,conversation),body=document.getElementById("agent-c-trace-body");
+  if(!body)return view;
+  document.getElementById("agent-c-trace-state").textContent=view.state.replace(/_/g," ");
+  document.getElementById("agent-c-trace-growth").textContent=view.growth.toFixed(1)+"% / "+view.trigger+"%";
+  document.getElementById("agent-c-trace-detail").textContent="Persisted public state only. "+view.quarantineReceiptCount+" later zero-cost quarantine receipt"+(view.quarantineReceiptCount===1?"":"s")+" retained; prompts, reasoning, provider errors, and candidate JSON are not shown.";
+  var rows='<div class="cleanup-growth"><div class="cleanup-growth-label"><span>'+publicProgressEsc(view.growth.toFixed(1))+'% growth</span><span>cleanup at '+publicProgressEsc(view.trigger)+'%</span></div><div class="cleanup-growth-bar" aria-hidden="true"><i style="width:'+view.progress+'%"></i></div></div>';
+  rows+='<div class="cleanup-current">'+publicProgressEsc(view.detail)+'</div>';
+  view.timeline.forEach(function(item,index){rows+='<div class="trace-line"><span class="trace-time">'+String(index+1).padStart(2,"0")+'</span><span class="trace-stage">'+publicProgressEsc(item.stage)+'</span><span>'+publicProgressEsc(item.status)+'</span></div>';});
+  var evidence=view.evidence;
+  rows+='<div class="cleanup-final"><span>turn<b>'+publicProgressEsc(evidence.turn===null?"unavailable":evidence.turn)+'</b></span><span>source → applied tokens<b>'+publicProgressEsc(evidence.tokens)+'</b></span><span>reduction<b>'+publicProgressEsc(evidence.reduction)+'</b></span><span>run spend<b>'+publicProgressEsc(evidence.spend)+'</b></span><span>B verdict<b>'+publicProgressEsc(evidence.bVerdict)+'</b></span><span>canonical application<b>'+publicProgressEsc(evidence.application)+'</b></span></div>';
+  body.innerHTML=rows;
+  return view;
+}
+
 function render(S) {
   currentRenderedState=S;
   var conv = S.conversation || [], rb = S.rulebook || {rules: []};
@@ -746,6 +846,7 @@ function render(S) {
   var best = bestMessageBodySavingsV2(tests);
   var latestValidV2 = latestValidScoringV2(tests);
   renderPublicExamProgress(S.exam_progress||null,{loadStatus:S.exam_progress?"ok":null,runtime:S.meta&&S.meta.runtime,latestExam:latestValidV2,now:Date.now()});
+  renderAgentCCleanup(S.meta&&S.meta.runtime&&S.meta.runtime.agent_c,conv);
   var latestConversation = (S.conversations || []).slice(-1)[0];
   var conversationRows = latestConversation && latestConversation.judgment && latestConversation.judgment.requirements || [];
   var conversationPasses = conversationRows.filter(function (row) { return row.pass === true; }).length;

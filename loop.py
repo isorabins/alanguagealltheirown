@@ -540,7 +540,74 @@ def _strict_scoring_success(event):
     )
 
 
-def _public_runtime_state(turn, meta):
+def _public_agent_c_state(rb, meta):
+    """Project the bounded, non-operative Agent C cleanup status."""
+    current_tokens = rb.get("kernel_tokens")
+    if isinstance(current_tokens, bool) or not isinstance(current_tokens, int):
+        current_tokens = 0
+    cleanup = meta.get("automatic_cleanup")
+    cleanup = cleanup if isinstance(cleanup, dict) else {}
+    baseline_tokens = cleanup.get("baseline_tokens")
+    if isinstance(baseline_tokens, bool) or not isinstance(baseline_tokens, int):
+        baseline_tokens = current_tokens
+    if baseline_tokens > 0:
+        threshold_tokens = (
+            baseline_tokens * (100 + AUTOMATIC_CLEANUP_GROWTH_PERCENT) + 99
+        ) // 100
+        growth_pct = round(
+            (current_tokens - baseline_tokens) / baseline_tokens * 100, 1
+        )
+        progress_pct = round(max(0.0, min(100.0, growth_pct * 10)), 1)
+    else:
+        threshold_tokens = 0
+        growth_pct = 0.0
+        progress_pct = 0.0
+
+    last_status = cleanup.get("last_status")
+    if last_status not in {"armed", "failed", "quarantined", "applied"}:
+        last_status = None
+    open_motion = current_open_motion(rb)
+    blocker = None
+    if last_status == "quarantined":
+        public_state = "quarantined"
+        quarantine = cleanup.get("quarantine")
+        if (
+            isinstance(quarantine, dict)
+            and quarantine.get("reason") == "structural_output"
+        ):
+            blocker = "structural_output"
+    elif baseline_tokens <= 0 or current_tokens < threshold_tokens:
+        public_state = "growing"
+    elif open_motion is not None:
+        public_state = "blocked_motion"
+        blocker = open_motion.target_rule_id
+    elif (
+        last_status == "failed"
+        and cleanup.get("last_attempt_language_hash") == language_payload(rb)["hash"]
+    ):
+        public_state = "blocked_attempt"
+        blocker = "prior_failure_same_language"
+    else:
+        public_state = "eligible"
+    last_attempt_turn = cleanup.get("last_attempt_turn")
+    if isinstance(last_attempt_turn, bool) or not isinstance(last_attempt_turn, int):
+        last_attempt_turn = None
+    return {
+        "state": public_state,
+        "current_tokens": current_tokens,
+        "baseline_tokens": baseline_tokens,
+        "threshold_tokens": threshold_tokens,
+        "growth_pct": growth_pct,
+        "trigger_pct": AUTOMATIC_CLEANUP_GROWTH_PERCENT,
+        "progress_pct": progress_pct,
+        "blocker": blocker,
+        "last_attempt_turn": last_attempt_turn,
+        "last_status": last_status,
+    }
+
+
+def _public_runtime_state(turn, meta, rb):
+    agent_c = _public_agent_c_state(rb, meta)
     if float(meta.get("spend_usd", 0.0)) >= SPEND_CAP:
         return {
             "status": "paused",
@@ -551,6 +618,7 @@ def _public_runtime_state(turn, meta):
             ),
             "next_exam_turn": None,
             "next_conversation_turn": None,
+            "agent_c": agent_c,
         }
     next_exam_turn = turn + (TEST_EVERY - (turn % TEST_EVERY))
     tests_run = meta.get("tests_run")
@@ -564,6 +632,7 @@ def _public_runtime_state(turn, meta):
         "message": "The experiment is active.",
         "next_exam_turn": next_exam_turn,
         "next_conversation_turn": next_conversation_turn,
+        "agent_c": agent_c,
     }
 
 
@@ -594,7 +663,7 @@ def write_viewer_state(conv, rb, meta, collaboration=None, conversations=None):
     revision_parts = str(rb.get("version", "0.0")).split(".", 1)
     revisions = revision_parts[1] if len(revision_parts) == 2 else "0"
     turn = public_conversation[-1].get("turn", 0) if public_conversation else 0
-    runtime = _public_runtime_state(turn, meta)
+    runtime = _public_runtime_state(turn, meta, rb)
     runtime_path = ROOT / "state" / "public-runtime.json"
     runtime_path.parent.mkdir(exist_ok=True)
     atomic_write_json(runtime_path, runtime)

@@ -500,6 +500,110 @@ class StructuredLoopTests(unittest.TestCase):
             ],
         )
         self.assertEqual(bootstrap["runtime"]["status"], "active")
+        self.assertEqual(
+            bootstrap["runtime"]["agent_c"],
+            {
+                "state": "growing",
+                "current_tokens": 0,
+                "baseline_tokens": 0,
+                "threshold_tokens": 0,
+                "growth_pct": 0.0,
+                "trigger_pct": 10,
+                "progress_pct": 0.0,
+                "blocker": None,
+                "last_attempt_turn": None,
+                "last_status": None,
+            },
+        )
+
+    def test_public_agent_c_projection_covers_every_authoritative_state(self):
+        def book(tokens=106, proposed=False):
+            rules = [{
+                "id": "rule-001",
+                "text_en": "Keep identifiers exact.",
+                "status": "adopted",
+                "history": [],
+            }]
+            if proposed:
+                rules.append({
+                    "id": "rule-382",
+                    "text_en": "An unresolved proposal.",
+                    "status": "proposed",
+                    "proposed_turn": 20,
+                    "history": [],
+                })
+            return {
+                "version": "0.2",
+                "kernel_tokens": tokens,
+                "changes": 2,
+                "next_id": 383,
+                "rules": rules,
+            }
+
+        armed = {
+            "automatic_cleanup": {
+                "schema_version": 2,
+                "baseline_tokens": 100,
+                "last_status": "armed",
+            }
+        }
+        growing = loop._public_agent_c_state(book(), armed)
+        self.assertEqual(growing, {
+            "state": "growing",
+            "current_tokens": 106,
+            "baseline_tokens": 100,
+            "threshold_tokens": 110,
+            "growth_pct": 6.0,
+            "trigger_pct": 10,
+            "progress_pct": 60.0,
+            "blocker": None,
+            "last_attempt_turn": None,
+            "last_status": "armed",
+        })
+        self.assertEqual(
+            loop._public_agent_c_state(
+                book(111),
+                {"automatic_cleanup": {"baseline_tokens": 101, "last_status": "armed"}},
+            )["threshold_tokens"],
+            112,
+        )
+        blocked = loop._public_agent_c_state(book(110, proposed=True), armed)
+        self.assertEqual((blocked["state"], blocked["blocker"]),
+                         ("blocked_motion", "rule-382"))
+        quarantined_meta = copy.deepcopy(armed)
+        quarantined_meta["automatic_cleanup"].update({
+            "last_status": "quarantined",
+            "last_attempt_turn": 19,
+            "quarantine": {
+                "reason": "structural_output",
+                "failure_reason": "private provider detail",
+            },
+        })
+        quarantined = loop._public_agent_c_state(
+            book(150, proposed=True), quarantined_meta
+        )
+        self.assertEqual((quarantined["state"], quarantined["blocker"]),
+                         ("quarantined", "structural_output"))
+        self.assertNotIn("private provider detail", json.dumps(quarantined))
+
+        failed_book = book(150)
+        failed_meta = copy.deepcopy(armed)
+        failed_meta["automatic_cleanup"].update({
+            "last_status": "failed",
+            "last_attempt_turn": 21,
+            "last_attempt_language_hash": loop.language_payload(failed_book)["hash"],
+            "last_reason": "private provider detail",
+        })
+        failed = loop._public_agent_c_state(failed_book, failed_meta)
+        self.assertEqual((failed["state"], failed["blocker"]),
+                         ("blocked_attempt", "prior_failure_same_language"))
+        self.assertNotIn("private provider detail", json.dumps(failed))
+        eligible = loop._public_agent_c_state(book(150), armed)
+        self.assertEqual((eligible["state"], eligible["progress_pct"]),
+                         ("eligible", 100.0))
+        uninitialized = loop._public_agent_c_state(book(100), {})
+        self.assertEqual((uninitialized["state"], uninitialized["baseline_tokens"]),
+                         ("growing", 100))
 
     def test_viewer_truth_fixture_selects_strict_success_and_paused_clocks(self):
         fixture = json.loads(
@@ -529,6 +633,18 @@ class StructuredLoopTests(unittest.TestCase):
             "message": "Experiment paused at turn 2400. No new turn or exam is running. The public record remains available.",
             "next_exam_turn": None,
             "next_conversation_turn": None,
+            "agent_c": {
+                "state": "growing",
+                "current_tokens": 0,
+                "baseline_tokens": 0,
+                "threshold_tokens": 0,
+                "growth_pct": 0.0,
+                "trigger_pct": 10,
+                "progress_pct": 0.0,
+                "blocker": None,
+                "last_attempt_turn": None,
+                "last_status": None,
+            },
         })
         self.assertEqual(persisted_runtime, bootstrap["runtime"])
         self.assertIn('"language": {"version": "adopted-', state_payload)
