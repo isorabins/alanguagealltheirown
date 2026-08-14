@@ -88,6 +88,14 @@ class ShadowCleanupTests(unittest.TestCase):
             MAX_C_TOKENS, required_with_json_and_cross_tokenizer_headroom
         )
 
+    def test_b_budget_has_bounded_headroom_over_observed_truncation(self):
+        observed_truncated_completion = 1_500
+
+        self.assertEqual(MAX_B_TOKENS, 8_000)
+        self.assertGreaterEqual(
+            MAX_B_TOKENS, observed_truncated_completion * 4
+        )
+
     def test_b_prompt_requires_paired_semantic_evidence(self):
         prompt = (ROOT / "prompts/cleanup_b_v1.md").read_text()
         contract = " ".join(prompt.split())

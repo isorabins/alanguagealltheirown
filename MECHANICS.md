@@ -74,6 +74,8 @@ prompt's version, SHA-256, path, and complete content. Optional `--prompt-c` and
 `--prompt-b` paths use the named repository version when available and otherwise
 receive a content-addressed `custom` version in the evidence directory.
 Agent B performs one structured advisory review and has no acceptance authority.
+Its 8,000-token completion allowance provides bounded headroom over the observed
+1,500-token truncated audit while remaining within the cleanup run's `$1.00` cap.
 An invalid or unavailable B review fails closed; automatic cleanup quarantines the
 reviewed cleanup edition and permanently records the exact validation error and any
 B response receipt without buying another attempt.

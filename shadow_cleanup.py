@@ -17,7 +17,7 @@ from state_store import atomic_write_json, load_json, snapshot_hash
 
 MIN_REDUCTION_PCT = 5.0
 MAX_C_TOKENS = 22_000
-MAX_B_TOKENS = 1500
+MAX_B_TOKENS = 8_000
 MAX_C_CALLS = 2
 MAX_B_CALLS = 1
 DEFAULT_MAX_SPEND_USD = 1.00
