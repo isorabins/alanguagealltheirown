@@ -77,6 +77,9 @@ Agent B performs one structured advisory review and has no acceptance authority.
 An invalid or unavailable B review fails closed; automatic cleanup quarantines the
 reviewed cleanup edition and permanently records the exact validation error and any
 B response receipt without buying another attempt.
+Every provider call receipt also retains the OpenRouter response id, returned model,
+finish reason, and routing metadata. An explicitly incomplete completion fails before
+JSON validation, and automatic-cleanup failure events preserve those receipts.
 If B returns a structured rejection, the runner gives C the frozen original, complete
 prior candidate, and only B's actionable findings under the versioned C
 finalizer prompt. C returns the complete final edition; no second B review runs.

@@ -340,10 +340,17 @@ def call(model, system, user, max_tokens=600, temperature=0.7, meta=None,
         if "error" in d:
             print(f"  ! provider error {str(d['error'])[:120]}, retry {i}", flush=True)
             continue
-        usage = d.get("usage", {})
+        choice = d["choices"][0]
+        usage = copy.deepcopy(d.get("usage", {}))
+        usage["response_receipt"] = {
+            "id": d.get("id"),
+            "model": d.get("model"),
+            "finish_reason": choice.get("finish_reason"),
+            "openrouter_metadata": copy.deepcopy(d.get("openrouter_metadata")),
+        }
         if meta is not None:
             record_provider_cost(meta, usage, response_id=d.get("id"))
-        return d["choices"][0]["message"]["content"] or "", usage
+        return choice["message"]["content"] or "", usage
     raise RuntimeError("api: retries exhausted")
 
 
@@ -881,6 +888,7 @@ def maybe_run_automatic_cleanup(conv, rb, meta, turn):
                 "candidate_hash": report.get("candidate_hash"),
                 "reason": state["last_reason"],
                 "models": report.get("models"),
+                "provider_calls": copy.deepcopy(report.get("provider_calls")),
                 "rounds": copy.deepcopy(report.get("rounds")),
                 "b_advisory_error": copy.deepcopy(
                     report.get("b_advisory_error")

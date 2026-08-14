@@ -458,6 +458,50 @@ class ShadowCleanupTests(unittest.TestCase):
             })
             self.assertFalse((output / "rounds/02").exists())
 
+    def test_truncated_c_completion_fails_with_routing_receipt(self):
+        with tempfile.TemporaryDirectory() as directory:
+            self.source_path = self._source_copy(directory)
+            receipt = {
+                "id": "generation-truncated",
+                "model": "moonshotai/kimi-k3",
+                "finish_reason": "length",
+                "openrouter_metadata": {
+                    "summary": "available=2, selected=Example Provider",
+                },
+            }
+
+            def call(_model, _system, _user, **kwargs):
+                self.assertEqual(kwargs["max_tokens"], MAX_C_TOKENS)
+                return '{"assignments":', {
+                    "cost": 0.125,
+                    "completion_tokens": 3894,
+                    "response_receipt": receipt,
+                }
+
+            output = Path(directory) / "shadow"
+            report = run_shadow_cleanup(
+                self.source_path,
+                output,
+                model_c="c",
+                model_b="b",
+                call_model=call,
+                token_counter=self._token_counter,
+                meta={"spend_usd": 0.0},
+            )
+
+            self.assertEqual(report["status"], "FAIL")
+            self.assertEqual(report["stage"], "c_call")
+            self.assertEqual(
+                report["reason"],
+                "Agent C completion truncated: finish_reason=length",
+            )
+            self.assertEqual(
+                report["provider_calls"][0]["usage"]["response_receipt"],
+                receipt,
+            )
+            stored_call = json.loads((output / "rounds/01/c-call.json").read_text())
+            self.assertEqual(stored_call["usage"]["response_receipt"], receipt)
+
     def test_source_drift_is_detected_before_b(self):
         with tempfile.TemporaryDirectory() as directory:
             self.source_path = self._source_copy(directory)

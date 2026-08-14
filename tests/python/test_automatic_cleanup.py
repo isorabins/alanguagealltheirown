@@ -126,6 +126,16 @@ class AutomaticCleanupTests(unittest.TestCase):
                     "reason": "Agent C did not return valid JSON",
                     "source_hash": "a" * 64,
                     "models": {"c": loop.MODEL_C, "b": loop.MODEL_B},
+                    "provider_calls": [{
+                        "round": 1,
+                        "role": "C",
+                        "usage": {
+                            "response_receipt": {
+                                "id": "generation-truncated",
+                                "finish_reason": "length",
+                            },
+                        },
+                    }],
                     "run_spend_usd": 0.08,
                 }
                 self.assertFalse(loop.maybe_run_automatic_cleanup(conv, rb, meta, 10))
@@ -142,6 +152,13 @@ class AutomaticCleanupTests(unittest.TestCase):
                 )
                 self.assertEqual(conv[-1]["status"], "failed")
                 self.assertEqual(conv[-1]["failure_class"], "structural_output")
+                self.assertEqual(
+                    conv[-1]["provider_calls"][0]["usage"]["response_receipt"],
+                    {
+                        "id": "generation-truncated",
+                        "finish_reason": "length",
+                    },
+                )
                 self.assertEqual(rb, original)
 
                 restarted_meta = copy.deepcopy(meta)

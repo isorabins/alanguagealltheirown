@@ -160,6 +160,23 @@ def _parse_object(text: str, label: str) -> dict[str, Any]:
     return value
 
 
+def _require_clean_completion(usage: dict[str, Any], label: str) -> None:
+    receipt = usage.get("response_receipt")
+    if not isinstance(receipt, dict):
+        return
+    finish_reason = receipt.get("finish_reason")
+    if finish_reason == "stop":
+        return
+    if finish_reason == "length":
+        raise ValueError(
+            f"{label} completion truncated: finish_reason=length"
+        )
+    raise ValueError(
+        f"{label} completion did not finish cleanly: "
+        f"finish_reason={finish_reason}"
+    )
+
+
 def compile_c_response(source: dict[str, Any], response: dict[str, Any]) -> tuple[dict[str, Any], list[dict[str, str]]]:
     expected = {"assignments", "groups", "exclusions", "creative_seeds"}
     if set(response) != expected:
@@ -365,6 +382,7 @@ def run_shadow_cleanup(
             atomic_write_json(output_dir / "c-call.json", c_call)
             if run_spend() > max_spend_usd:
                 raise ValueError("shadow spend cap exceeded after Agent C")
+            _require_clean_completion(c_usage, "Agent C")
             c_response = _parse_object(c_text, "Agent C")
             atomic_write_json(round_dir / "c-response.json", c_response)
             atomic_write_json(output_dir / "c-response.json", c_response)
@@ -477,6 +495,7 @@ def run_shadow_cleanup(
                 raise ValueError("shadow spend cap exceeded after Agent B")
             report["stage"] = "b_audit"
             try:
+                _require_clean_completion(b_usage, "Agent B")
                 audit = _parse_object(b_text, "Agent B")
                 validate_b_audit(source, candidate, audit)
             except Exception as exc:

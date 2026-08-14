@@ -31,15 +31,32 @@ class Response:
     status_code = 200
     text = ""
 
-    def __init__(self, content, cost, response_id="generation-test"):
+    def __init__(
+        self,
+        content,
+        cost,
+        response_id="generation-test",
+        *,
+        finish_reason="stop",
+        model="test/model",
+        openrouter_metadata=None,
+    ):
         self._content = content
         self._cost = cost
         self._response_id = response_id
+        self._finish_reason = finish_reason
+        self._model = model
+        self._openrouter_metadata = openrouter_metadata
 
     def json(self):
         return {
             "id": self._response_id,
-            "choices": [{"message": {"content": self._content}}],
+            "model": self._model,
+            "choices": [{
+                "finish_reason": self._finish_reason,
+                "message": {"content": self._content},
+            }],
+            "openrouter_metadata": self._openrouter_metadata,
             "usage": {
                 "prompt_tokens": 100,
                 "completion_tokens": 50,
@@ -308,6 +325,40 @@ class StructuredLoopTests(unittest.TestCase):
                 {"generation-call": 0.075},
             )
             self.assertEqual(meta["spend_usd_provider_exact_since_cutover"], 0.075)
+
+    def test_call_returns_completion_routing_receipt_with_usage(self):
+        metadata = {
+            "requested": "moonshotai/kimi-k3",
+            "summary": "available=2, selected=Example Provider",
+        }
+        response = Response(
+            "truncated content",
+            0.125,
+            "generation-truncated",
+            finish_reason="length",
+            model="moonshotai/kimi-k3",
+            openrouter_metadata=metadata,
+        )
+        meta = {"spend_usd": 0.0}
+        loop.initialize_exact_cost_accounting(meta, cutover_turn=0)
+
+        with mock.patch.object(
+            loop, "api_key", return_value="test-key"
+        ), mock.patch.object(loop.requests, "post", return_value=response):
+            _text, usage = loop.call(
+                loop.MODEL_C,
+                "system",
+                "user",
+                max_tokens=22_000,
+                meta=meta,
+            )
+
+        self.assertEqual(usage["response_receipt"], {
+            "id": "generation-truncated",
+            "model": "moonshotai/kimi-k3",
+            "finish_reason": "length",
+            "openrouter_metadata": metadata,
+        })
 
     def test_existing_cost_ledger_inconsistent_with_meta_fails_closed(self):
         with tempfile.TemporaryDirectory() as directory:
