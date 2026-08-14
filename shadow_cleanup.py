@@ -16,10 +16,11 @@ from rulebook import render_language
 from state_store import atomic_write_json, load_json, snapshot_hash
 
 MIN_REDUCTION_PCT = 5.0
-MAX_C_TOKENS = 2200
+MAX_C_TOKENS = 22_000
 MAX_B_TOKENS = 1500
 MAX_C_CALLS = 2
 MAX_B_CALLS = 1
+DEFAULT_MAX_SPEND_USD = 1.00
 PROMPTS_DIR = Path(__file__).parent / "prompts"
 DEFAULT_PROMPT_C_PATH = PROMPTS_DIR / "cleanup_c_v1.md"
 DEFAULT_PROMPT_B_PATH = PROMPTS_DIR / "cleanup_b_v1.md"
@@ -216,7 +217,7 @@ def run_shadow_cleanup(
     prompt_c_path: Path | None = None,
     prompt_b_path: Path | None = None,
     min_reduction_pct: float = MIN_REDUCTION_PCT,
-    max_spend_usd: float = 0.25,
+    max_spend_usd: float = DEFAULT_MAX_SPEND_USD,
 ) -> dict[str, Any]:
     """Create evidence only. This function has no active-state or apply argument."""
     source_path = Path(source_path)
@@ -540,7 +541,9 @@ def main() -> int:
     parser.add_argument("--prompt-c", type=Path, default=None)
     parser.add_argument("--prompt-b", type=Path, default=None)
     parser.add_argument("--min-reduction-pct", type=float, default=MIN_REDUCTION_PCT)
-    parser.add_argument("--max-spend-usd", type=float, default=0.25)
+    parser.add_argument(
+        "--max-spend-usd", type=float, default=DEFAULT_MAX_SPEND_USD
+    )
     args = parser.parse_args()
 
     from loop import MODEL_B, call, initialize_exact_cost_accounting, token_count

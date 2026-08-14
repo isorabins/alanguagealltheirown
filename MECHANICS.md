@@ -89,6 +89,23 @@ full-history ledger builder, resets the baseline, and sends C's three
 non-operative creative seeds to the next Agent A turn. Ordinary Agent B
 legislative authority is unchanged.
 
+To force the same cleanup workflow locally without waiting for the growth
+schedule, first copy `state/rulebook.json` to a frozen snapshot, then run:
+
+```bash
+cp state/rulebook.json /tmp/alato-rulebook-shadow.json
+python3 shadow_cleanup.py \
+  --source /tmp/alato-rulebook-shadow.json \
+  --output /tmp/alato-cleanup-shadow \
+  --model-c moonshotai/kimi-k3 \
+  --prompt-c prompts/cleanup_c_v2.md \
+  --prompt-b prompts/cleanup_b_v2.md
+```
+
+This is a paid provider run capped at `$1.00`. It writes evidence only and does
+not inspect or reset automatic-cleanup quarantine, bypass an open motion in the
+production loop, or apply the candidate.
+
 `legacy_motion_repair.py` is a separate metadata-only migration for the live deadlock. `prepare` terminalizes proposed and reverted records on a copied source, records each prior status, refuses any pending repeal, proves every adopted record plus the adopted-language version/hash is exact, and emits original/replacement/diff/manifest hashes. `apply` requires a matching external approval receipt, rejects source or artifact drift, and treats a retry after the replacement write as idempotent. It does not run semantic cleanup, change adopted text, increment the language version, or default to production paths.
 
 ## Collaboration inbox

@@ -56,7 +56,16 @@ class AutomaticCleanupTests(unittest.TestCase):
                 }
                 self.assertFalse(loop.maybe_run_automatic_cleanup(conv, rb, meta, 10))
                 self.assertEqual(cleanup.call_count, 1)
+                self.assertEqual(
+                    cleanup.call_args.kwargs["max_spend_usd"],
+                    loop.AUTOMATIC_CLEANUP_MAX_SPEND_USD,
+                )
+                self.assertEqual(loop.AUTOMATIC_CLEANUP_MAX_SPEND_USD, 1.00)
                 self.assertEqual(meta["automatic_cleanup"]["last_status"], "quarantined")
+                self.assertEqual(
+                    meta["automatic_cleanup"]["quarantine"]["edition"],
+                    loop.AUTOMATIC_CLEANUP_EDITION,
+                )
                 self.assertEqual(conv[-1]["status"], "failed")
                 self.assertEqual(conv[-1]["failure_class"], "structural_output")
                 self.assertEqual(rb, original)
@@ -94,11 +103,17 @@ class AutomaticCleanupTests(unittest.TestCase):
             loop.reset_automatic_cleanup_quarantine(
                 state, reviewed_edition="cleanup-edition-v2", operator=""
             )
+        with self.assertRaisesRegex(ValueError, "current reviewed cleanup edition"):
+            loop.reset_automatic_cleanup_quarantine(
+                state, reviewed_edition="invented-future-edition", operator="Iso"
+            )
         loop.reset_automatic_cleanup_quarantine(
-            state, reviewed_edition="cleanup-edition-v2", operator="Iso"
+            state, reviewed_edition=loop.AUTOMATIC_CLEANUP_EDITION, operator="Iso"
         )
         self.assertEqual(state["last_status"], "armed")
-        self.assertEqual(state["reset"]["reviewed_edition"], "cleanup-edition-v2")
+        self.assertEqual(
+            state["reset"]["reviewed_edition"], loop.AUTOMATIC_CLEANUP_EDITION
+        )
         self.assertNotIn("quarantine", state)
 
     def test_arms_then_applies_at_ten_percent_growth(self):
