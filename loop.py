@@ -340,10 +340,17 @@ def call(model, system, user, max_tokens=600, temperature=0.7, meta=None,
         if "error" in d:
             print(f"  ! provider error {str(d['error'])[:120]}, retry {i}", flush=True)
             continue
-        usage = d.get("usage", {})
+        choice = d["choices"][0]
+        usage = copy.deepcopy(d.get("usage", {}))
+        usage["response_receipt"] = {
+            "id": d.get("id"),
+            "model": d.get("model"),
+            "finish_reason": choice.get("finish_reason"),
+            "openrouter_metadata": copy.deepcopy(d.get("openrouter_metadata")),
+        }
         if meta is not None:
             record_provider_cost(meta, usage, response_id=d.get("id"))
-        return d["choices"][0]["message"]["content"] or "", usage
+        return choice["message"]["content"] or "", usage
     raise RuntimeError("api: retries exhausted")
 
 
@@ -540,7 +547,73 @@ def _strict_scoring_success(event):
     )
 
 
-def _public_runtime_state(turn, meta):
+def _public_agent_c_state(rb, meta):
+    """Project the bounded, non-operative Agent C cleanup status."""
+    current_tokens = rb.get("kernel_tokens")
+    if isinstance(current_tokens, bool) or not isinstance(current_tokens, int):
+        current_tokens = 0
+    cleanup = meta.get("automatic_cleanup")
+    cleanup = cleanup if isinstance(cleanup, dict) else {}
+    baseline_tokens = cleanup.get("baseline_tokens")
+    if isinstance(baseline_tokens, bool) or not isinstance(baseline_tokens, int):
+        baseline_tokens = current_tokens
+    if baseline_tokens > 0:
+        threshold_tokens = (
+            baseline_tokens * (100 + AUTOMATIC_CLEANUP_GROWTH_PERCENT) + 99
+        ) // 100
+        growth_pct = round(
+            (current_tokens - baseline_tokens) / baseline_tokens * 100, 1
+        )
+        progress_pct = round(max(0.0, min(100.0, growth_pct * 10)), 1)
+    else:
+        threshold_tokens = 0
+        growth_pct = 0.0
+        progress_pct = 0.0
+
+    last_status = cleanup.get("last_status")
+    if last_status not in {"armed", "failed", "quarantined", "applied"}:
+        last_status = None
+    open_motion = current_open_motion(rb)
+    blocker = None
+    if last_status == "quarantined":
+        public_state = "quarantined"
+        quarantine = cleanup.get("quarantine")
+        if isinstance(quarantine, dict) and quarantine.get("reason") in {
+            "structural_output", "invalid_advisory"
+        }:
+            blocker = quarantine["reason"]
+    elif baseline_tokens <= 0 or current_tokens < threshold_tokens:
+        public_state = "growing"
+    elif open_motion is not None:
+        public_state = "blocked_motion"
+        blocker = open_motion.target_rule_id
+    elif (
+        last_status == "failed"
+        and cleanup.get("last_attempt_language_hash") == language_payload(rb)["hash"]
+    ):
+        public_state = "blocked_attempt"
+        blocker = "prior_failure_same_language"
+    else:
+        public_state = "eligible"
+    last_attempt_turn = cleanup.get("last_attempt_turn")
+    if isinstance(last_attempt_turn, bool) or not isinstance(last_attempt_turn, int):
+        last_attempt_turn = None
+    return {
+        "state": public_state,
+        "current_tokens": current_tokens,
+        "baseline_tokens": baseline_tokens,
+        "threshold_tokens": threshold_tokens,
+        "growth_pct": growth_pct,
+        "trigger_pct": AUTOMATIC_CLEANUP_GROWTH_PERCENT,
+        "progress_pct": progress_pct,
+        "blocker": blocker,
+        "last_attempt_turn": last_attempt_turn,
+        "last_status": last_status,
+    }
+
+
+def _public_runtime_state(turn, meta, rb):
+    agent_c = _public_agent_c_state(rb, meta)
     if float(meta.get("spend_usd", 0.0)) >= SPEND_CAP:
         return {
             "status": "paused",
@@ -551,6 +624,7 @@ def _public_runtime_state(turn, meta):
             ),
             "next_exam_turn": None,
             "next_conversation_turn": None,
+            "agent_c": agent_c,
         }
     next_exam_turn = turn + (TEST_EVERY - (turn % TEST_EVERY))
     tests_run = meta.get("tests_run")
@@ -564,16 +638,50 @@ def _public_runtime_state(turn, meta):
         "message": "The experiment is active.",
         "next_exam_turn": next_exam_turn,
         "next_conversation_turn": next_conversation_turn,
+        "agent_c": agent_c,
     }
+
+
+def _public_cleanup_event(event):
+    """Whitelist the bounded cleanup receipt safe for the public viewer."""
+    public = {
+        key: copy.deepcopy(event[key])
+        for key in (
+            "turn", "agent", "type", "status", "failure_class",
+            "source_tokens", "candidate_tokens", "applied_tokens",
+            "reduction_pct", "run_spend_usd",
+        )
+        if key in event
+    }
+    public["rounds"] = []
+    for round_item in event.get("rounds", []):
+        if not isinstance(round_item, dict):
+            continue
+        public_round = {
+            key: copy.deepcopy(round_item[key])
+            for key in (
+                "round", "b_verdict", "candidate_tokens", "reduction_pct",
+                "candidate_changed_from_previous", "finding_counts",
+            )
+            if key in round_item
+        }
+        public["rounds"].append(public_round)
+    return public
 
 
 def write_viewer_state(conv, rb, meta, collaboration=None, conversations=None):
     # Protocol cutover receipts are canonical harness bookkeeping, not public
     # conversation events. Keep them in the persisted source log and out of the
     # unchanged viewer renderer, which has no cutover event presentation.
-    public_conversation = [
-        event for event in conv if event.get("type") != "protocol_cutover"
-    ]
+    public_conversation = []
+    for event in conv:
+        if event.get("type") == "protocol_cutover":
+            continue
+        public_conversation.append(
+            _public_cleanup_event(event)
+            if event.get("type") == "cleanup"
+            else event
+        )
     updated = now_iso()
     tests = [event for event in public_conversation if event.get("type") == "test"]
     latest_valid_v2 = next(
@@ -594,7 +702,7 @@ def write_viewer_state(conv, rb, meta, collaboration=None, conversations=None):
     revision_parts = str(rb.get("version", "0.0")).split(".", 1)
     revisions = revision_parts[1] if len(revision_parts) == 2 else "0"
     turn = public_conversation[-1].get("turn", 0) if public_conversation else 0
-    runtime = _public_runtime_state(turn, meta)
+    runtime = _public_runtime_state(turn, meta, rb)
     runtime_path = ROOT / "state" / "public-runtime.json"
     runtime_path.parent.mkdir(exist_ok=True)
     atomic_write_json(runtime_path, runtime)
@@ -717,7 +825,7 @@ def ensure_structured_protocol_cutover(conv, rb, meta, *, activation_turn):
 
 
 AUTOMATIC_CLEANUP_STATE_SCHEMA_VERSION = 2
-AUTOMATIC_CLEANUP_EDITION = "automatic-cleanup-v3-c-budget"
+AUTOMATIC_CLEANUP_EDITION = "automatic-cleanup-v4-valid-b-review"
 
 
 def _structural_cleanup_failure(report):
@@ -854,13 +962,19 @@ def maybe_run_automatic_cleanup(conv, rb, meta, turn):
             raise CostAccountingError(str(report.get("reason")))
         if report.get("status") != "PASS":
             structural_failure = _structural_cleanup_failure(report)
+            invalid_advisory = report.get("failure_class") == "invalid_advisory"
+            quarantine_class = (
+                "structural_output" if structural_failure
+                else "invalid_advisory" if invalid_advisory
+                else None
+            )
             state.update({
-                "last_status": "quarantined" if structural_failure else "failed",
+                "last_status": "quarantined" if quarantine_class else "failed",
                 "last_reason": str(report.get("reason", "cleanup failed"))[:500],
             })
-            if structural_failure:
+            if quarantine_class:
                 state["quarantine"] = {
-                    "reason": "structural_output",
+                    "reason": quarantine_class,
                     "edition": AUTOMATIC_CLEANUP_EDITION,
                     "entered_turn": turn,
                     "failure_reason": state["last_reason"],
@@ -870,12 +984,19 @@ def maybe_run_automatic_cleanup(conv, rb, meta, turn):
                 "agent": "harness",
                 "type": "cleanup",
                 "status": "failed",
-                "failure_class": (
-                    "structural_output" if structural_failure else "other"
-                ),
+                "failure_class": quarantine_class or "other",
                 "source_hash": report.get("source_hash"),
+                "candidate_hash": report.get("candidate_hash"),
+                "source_tokens": report.get("source_tokens"),
+                "candidate_tokens": report.get("candidate_tokens"),
+                "reduction_pct": report.get("reduction_pct"),
                 "reason": state["last_reason"],
                 "models": report.get("models"),
+                "provider_calls": copy.deepcopy(report.get("provider_calls")),
+                "rounds": copy.deepcopy(report.get("rounds")),
+                "b_advisory_error": copy.deepcopy(
+                    report.get("b_advisory_error")
+                ),
                 "run_spend_usd": report.get("run_spend_usd"),
             })
             print(f"[t{turn} CLEANUP] failed: {state['last_reason']}", flush=True)

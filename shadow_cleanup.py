@@ -17,7 +17,7 @@ from state_store import atomic_write_json, load_json, snapshot_hash
 
 MIN_REDUCTION_PCT = 5.0
 MAX_C_TOKENS = 22_000
-MAX_B_TOKENS = 1500
+MAX_B_TOKENS = 22_000
 MAX_C_CALLS = 2
 MAX_B_CALLS = 1
 DEFAULT_MAX_SPEND_USD = 1.00
@@ -158,6 +158,23 @@ def _parse_object(text: str, label: str) -> dict[str, Any]:
     if not isinstance(value, dict):
         raise ValueError(f"{label} must return one JSON object")
     return value
+
+
+def _require_clean_completion(usage: dict[str, Any], label: str) -> None:
+    receipt = usage.get("response_receipt")
+    if not isinstance(receipt, dict):
+        return
+    finish_reason = receipt.get("finish_reason")
+    if finish_reason == "stop":
+        return
+    if finish_reason == "length":
+        raise ValueError(
+            f"{label} completion truncated: finish_reason=length"
+        )
+    raise ValueError(
+        f"{label} completion did not finish cleanly: "
+        f"finish_reason={finish_reason}"
+    )
 
 
 def compile_c_response(source: dict[str, Any], response: dict[str, Any]) -> tuple[dict[str, Any], list[dict[str, str]]]:
@@ -365,6 +382,7 @@ def run_shadow_cleanup(
             atomic_write_json(output_dir / "c-call.json", c_call)
             if run_spend() > max_spend_usd:
                 raise ValueError("shadow spend cap exceeded after Agent C")
+            _require_clean_completion(c_usage, "Agent C")
             c_response = _parse_object(c_text, "Agent C")
             atomic_write_json(round_dir / "c-response.json", c_response)
             atomic_write_json(output_dir / "c-response.json", c_response)
@@ -450,9 +468,10 @@ def run_shadow_cleanup(
                 report["rounds"].append(round_summary)
                 atomic_write_json(round_dir / "round-report.json", round_summary)
                 report.update({
-                    "status": "PASS",
-                    "stage": "complete",
-                    "reason": "Agent C draft passed deterministic gates; B advisory unavailable",
+                    "status": "FAIL",
+                    "stage": "b_call",
+                    "failure_class": "invalid_advisory",
+                    "reason": f"Agent B advisory unavailable: {exc}",
                 })
                 break
             report["provider_calls"].append({
@@ -476,6 +495,7 @@ def run_shadow_cleanup(
                 raise ValueError("shadow spend cap exceeded after Agent B")
             report["stage"] = "b_audit"
             try:
+                _require_clean_completion(b_usage, "Agent B")
                 audit = _parse_object(b_text, "Agent B")
                 validate_b_audit(source, candidate, audit)
             except Exception as exc:
@@ -483,6 +503,7 @@ def run_shadow_cleanup(
                     "status": "invalid",
                     "error_type": exc.__class__.__name__,
                     "reason": str(exc),
+                    "response_receipt": copy.deepcopy(b_call),
                 }
                 atomic_write_json(round_dir / "b-advisory-error.json", advisory_error)
                 report["b_advisory_error"] = advisory_error
@@ -490,9 +511,10 @@ def run_shadow_cleanup(
                 report["rounds"].append(round_summary)
                 atomic_write_json(round_dir / "round-report.json", round_summary)
                 report.update({
-                    "status": "PASS",
-                    "stage": "complete",
-                    "reason": "Agent C draft passed deterministic gates; B advisory invalid",
+                    "status": "FAIL",
+                    "stage": "b_audit",
+                    "failure_class": "invalid_advisory",
+                    "reason": f"Agent B advisory invalid: {exc}",
                 })
                 break
             atomic_write_json(round_dir / "b-audit.json", audit)

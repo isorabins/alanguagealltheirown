@@ -88,6 +88,10 @@ class ShadowCleanupTests(unittest.TestCase):
             MAX_C_TOKENS, required_with_json_and_cross_tokenizer_headroom
         )
 
+    def test_b_budget_can_represent_a_full_size_c_audit(self):
+        self.assertEqual(MAX_B_TOKENS, MAX_C_TOKENS)
+        self.assertEqual(MAX_B_TOKENS, 22_000)
+
     def test_b_prompt_requires_paired_semantic_evidence(self):
         prompt = (ROOT / "prompts/cleanup_b_v1.md").read_text()
         contract = " ".join(prompt.split())
@@ -388,7 +392,7 @@ class ShadowCleanupTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "actionable"):
             validate_b_audit(source, candidate, audit)
 
-    def test_invalid_b_advisory_cannot_block_valid_c_draft(self):
+    def test_invalid_b_advisory_fails_with_exact_response_receipt(self):
         with tempfile.TemporaryDirectory() as directory:
             self.source_path = self._source_copy(directory)
             calls = []
@@ -409,12 +413,98 @@ class ShadowCleanupTests(unittest.TestCase):
                 token_counter=self._token_counter,
                 meta={"spend_usd": 0.0},
             )
-            self.assertEqual(report["status"], "PASS")
+            self.assertEqual(report["status"], "FAIL")
+            self.assertEqual(report["stage"], "b_audit")
+            self.assertEqual(report["failure_class"], "invalid_advisory")
             self.assertEqual(calls, ["c", "b"])
             self.assertEqual(report["rounds"][0]["b_verdict"], "invalid")
-            self.assertEqual(report["b_advisory_error"]["status"], "invalid")
+            error = report["b_advisory_error"]
+            self.assertEqual(error["status"], "invalid")
+            self.assertEqual(error["reason"], "Agent B did not return valid JSON")
+            self.assertEqual(error["response_receipt"]["model"], "b")
+            self.assertEqual(error["response_receipt"]["content"], "not json")
+            self.assertEqual(error["response_receipt"]["usage"], {"cost": 0.01})
+            stored_report = json.loads((output / "report.json").read_text())
+            self.assertEqual(stored_report["b_advisory_error"], error)
             self.assertTrue((output / "candidate.json").exists())
             self.assertFalse((output / "rounds/02").exists())
+
+    def test_unavailable_b_advisory_fails_without_second_c_call(self):
+        with tempfile.TemporaryDirectory() as directory:
+            self.source_path = self._source_copy(directory)
+            calls = []
+
+            def call(model, _system, _user, **_kwargs):
+                calls.append(model)
+                if model == "c":
+                    return json.dumps(c_response()), {"cost": 0.01}
+                raise RuntimeError("provider timeout")
+
+            output = Path(directory) / "shadow"
+            report = run_shadow_cleanup(
+                self.source_path,
+                output,
+                model_c="c",
+                model_b="b",
+                call_model=call,
+                token_counter=self._token_counter,
+                meta={"spend_usd": 0.0},
+            )
+            self.assertEqual(report["status"], "FAIL")
+            self.assertEqual(report["stage"], "b_call")
+            self.assertEqual(report["failure_class"], "invalid_advisory")
+            self.assertEqual(calls, ["c", "b"])
+            self.assertEqual(report["rounds"][0]["b_verdict"], "unavailable")
+            self.assertEqual(report["b_advisory_error"], {
+                "status": "unavailable",
+                "error_type": "RuntimeError",
+                "reason": "provider timeout",
+            })
+            self.assertFalse((output / "rounds/02").exists())
+
+    def test_truncated_c_completion_fails_with_routing_receipt(self):
+        with tempfile.TemporaryDirectory() as directory:
+            self.source_path = self._source_copy(directory)
+            receipt = {
+                "id": "generation-truncated",
+                "model": "moonshotai/kimi-k3",
+                "finish_reason": "length",
+                "openrouter_metadata": {
+                    "summary": "available=2, selected=Example Provider",
+                },
+            }
+
+            def call(_model, _system, _user, **kwargs):
+                self.assertEqual(kwargs["max_tokens"], MAX_C_TOKENS)
+                return '{"assignments":', {
+                    "cost": 0.125,
+                    "completion_tokens": 3894,
+                    "response_receipt": receipt,
+                }
+
+            output = Path(directory) / "shadow"
+            report = run_shadow_cleanup(
+                self.source_path,
+                output,
+                model_c="c",
+                model_b="b",
+                call_model=call,
+                token_counter=self._token_counter,
+                meta={"spend_usd": 0.0},
+            )
+
+            self.assertEqual(report["status"], "FAIL")
+            self.assertEqual(report["stage"], "c_call")
+            self.assertEqual(
+                report["reason"],
+                "Agent C completion truncated: finish_reason=length",
+            )
+            self.assertEqual(
+                report["provider_calls"][0]["usage"]["response_receipt"],
+                receipt,
+            )
+            stored_call = json.loads((output / "rounds/01/c-call.json").read_text())
+            self.assertEqual(stored_call["usage"]["response_receipt"], receipt)
 
     def test_source_drift_is_detected_before_b(self):
         with tempfile.TemporaryDirectory() as directory:

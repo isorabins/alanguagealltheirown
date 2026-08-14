@@ -31,15 +31,32 @@ class Response:
     status_code = 200
     text = ""
 
-    def __init__(self, content, cost, response_id="generation-test"):
+    def __init__(
+        self,
+        content,
+        cost,
+        response_id="generation-test",
+        *,
+        finish_reason="stop",
+        model="test/model",
+        openrouter_metadata=None,
+    ):
         self._content = content
         self._cost = cost
         self._response_id = response_id
+        self._finish_reason = finish_reason
+        self._model = model
+        self._openrouter_metadata = openrouter_metadata
 
     def json(self):
         return {
             "id": self._response_id,
-            "choices": [{"message": {"content": self._content}}],
+            "model": self._model,
+            "choices": [{
+                "finish_reason": self._finish_reason,
+                "message": {"content": self._content},
+            }],
+            "openrouter_metadata": self._openrouter_metadata,
             "usage": {
                 "prompt_tokens": 100,
                 "completion_tokens": 50,
@@ -309,6 +326,40 @@ class StructuredLoopTests(unittest.TestCase):
             )
             self.assertEqual(meta["spend_usd_provider_exact_since_cutover"], 0.075)
 
+    def test_call_returns_completion_routing_receipt_with_usage(self):
+        metadata = {
+            "requested": "moonshotai/kimi-k3",
+            "summary": "available=2, selected=Example Provider",
+        }
+        response = Response(
+            "truncated content",
+            0.125,
+            "generation-truncated",
+            finish_reason="length",
+            model="moonshotai/kimi-k3",
+            openrouter_metadata=metadata,
+        )
+        meta = {"spend_usd": 0.0}
+        loop.initialize_exact_cost_accounting(meta, cutover_turn=0)
+
+        with mock.patch.object(
+            loop, "api_key", return_value="test-key"
+        ), mock.patch.object(loop.requests, "post", return_value=response):
+            _text, usage = loop.call(
+                loop.MODEL_C,
+                "system",
+                "user",
+                max_tokens=22_000,
+                meta=meta,
+            )
+
+        self.assertEqual(usage["response_receipt"], {
+            "id": "generation-truncated",
+            "model": "moonshotai/kimi-k3",
+            "finish_reason": "length",
+            "openrouter_metadata": metadata,
+        })
+
     def test_existing_cost_ledger_inconsistent_with_meta_fails_closed(self):
         with tempfile.TemporaryDirectory() as directory:
             ledger_path = Path(directory) / "cost-receipts.local.json"
@@ -500,6 +551,120 @@ class StructuredLoopTests(unittest.TestCase):
             ],
         )
         self.assertEqual(bootstrap["runtime"]["status"], "active")
+        self.assertEqual(
+            bootstrap["runtime"]["agent_c"],
+            {
+                "state": "growing",
+                "current_tokens": 0,
+                "baseline_tokens": 0,
+                "threshold_tokens": 0,
+                "growth_pct": 0.0,
+                "trigger_pct": 10,
+                "progress_pct": 0.0,
+                "blocker": None,
+                "last_attempt_turn": None,
+                "last_status": None,
+            },
+        )
+
+    def test_public_agent_c_projection_covers_every_authoritative_state(self):
+        def book(tokens=106, proposed=False):
+            rules = [{
+                "id": "rule-001",
+                "text_en": "Keep identifiers exact.",
+                "status": "adopted",
+                "history": [],
+            }]
+            if proposed:
+                rules.append({
+                    "id": "rule-382",
+                    "text_en": "An unresolved proposal.",
+                    "status": "proposed",
+                    "proposed_turn": 20,
+                    "history": [],
+                })
+            return {
+                "version": "0.2",
+                "kernel_tokens": tokens,
+                "changes": 2,
+                "next_id": 383,
+                "rules": rules,
+            }
+
+        armed = {
+            "automatic_cleanup": {
+                "schema_version": 2,
+                "baseline_tokens": 100,
+                "last_status": "armed",
+            }
+        }
+        growing = loop._public_agent_c_state(book(), armed)
+        self.assertEqual(growing, {
+            "state": "growing",
+            "current_tokens": 106,
+            "baseline_tokens": 100,
+            "threshold_tokens": 110,
+            "growth_pct": 6.0,
+            "trigger_pct": 10,
+            "progress_pct": 60.0,
+            "blocker": None,
+            "last_attempt_turn": None,
+            "last_status": "armed",
+        })
+        self.assertEqual(
+            loop._public_agent_c_state(
+                book(111),
+                {"automatic_cleanup": {"baseline_tokens": 101, "last_status": "armed"}},
+            )["threshold_tokens"],
+            112,
+        )
+        blocked = loop._public_agent_c_state(book(110, proposed=True), armed)
+        self.assertEqual((blocked["state"], blocked["blocker"]),
+                         ("blocked_motion", "rule-382"))
+        quarantined_meta = copy.deepcopy(armed)
+        quarantined_meta["automatic_cleanup"].update({
+            "last_status": "quarantined",
+            "last_attempt_turn": 19,
+            "quarantine": {
+                "reason": "structural_output",
+                "failure_reason": "private provider detail",
+            },
+        })
+        quarantined = loop._public_agent_c_state(
+            book(150, proposed=True), quarantined_meta
+        )
+        self.assertEqual((quarantined["state"], quarantined["blocker"]),
+                         ("quarantined", "structural_output"))
+        self.assertNotIn("private provider detail", json.dumps(quarantined))
+        quarantined_meta["automatic_cleanup"]["quarantine"]["reason"] = (
+            "invalid_advisory"
+        )
+        invalid_advisory = loop._public_agent_c_state(
+            book(150), quarantined_meta
+        )
+        self.assertEqual(
+            (invalid_advisory["state"], invalid_advisory["blocker"]),
+            ("quarantined", "invalid_advisory"),
+        )
+
+        failed_book = book(150)
+        failed_meta = copy.deepcopy(armed)
+        failed_meta["automatic_cleanup"].update({
+            "last_status": "failed",
+            "last_attempt_turn": 21,
+            "last_attempt_language_hash": loop.language_payload(failed_book)["hash"],
+            "last_reason": "private provider detail",
+        })
+        failed = loop._public_agent_c_state(failed_book, failed_meta)
+        self.assertEqual((failed["state"], failed["blocker"]),
+                         ("blocked_attempt", "prior_failure_same_language"))
+        self.assertNotIn("private provider detail", json.dumps(failed))
+        eligible = loop._public_agent_c_state(book(150), armed)
+        self.assertEqual((eligible["state"], eligible["progress_pct"]),
+                         ("eligible", 100.0))
+        uninitialized = loop._public_agent_c_state(book(100), {})
+        self.assertEqual((uninitialized["state"], uninitialized["baseline_tokens"]),
+                         ("growing", 100))
 
     def test_viewer_truth_fixture_selects_strict_success_and_paused_clocks(self):
         fixture = json.loads(
@@ -529,11 +694,69 @@ class StructuredLoopTests(unittest.TestCase):
             "message": "Experiment paused at turn 2400. No new turn or exam is running. The public record remains available.",
             "next_exam_turn": None,
             "next_conversation_turn": None,
+            "agent_c": {
+                "state": "growing",
+                "current_tokens": 0,
+                "baseline_tokens": 0,
+                "threshold_tokens": 0,
+                "growth_pct": 0.0,
+                "trigger_pct": 10,
+                "progress_pct": 0.0,
+                "blocker": None,
+                "last_attempt_turn": None,
+                "last_status": None,
+            },
         })
         self.assertEqual(persisted_runtime, bootstrap["runtime"])
         self.assertIn('"language": {"version": "adopted-', state_payload)
         self.assertIn('LANGUAGE adopted-', state_payload)
         self.assertTrue(public_language_exists)
+
+    def test_viewer_cleanup_projection_excludes_private_failure_receipts(self):
+        conversation = [{
+            "turn": 24,
+            "agent": "harness",
+            "type": "cleanup",
+            "status": "failed",
+            "failure_class": "invalid_advisory",
+            "source_tokens": 19080,
+            "candidate_tokens": 3600,
+            "reduction_pct": 81.13,
+            "reason": "PRIVATE FAILURE REASON",
+            "provider_calls": [{"content": "PRIVATE PROVIDER CALL"}],
+            "b_advisory_error": {
+                "response_receipt": {"content": "PRIVATE B RESPONSE"}
+            },
+            "rounds": [{
+                "round": 1,
+                "candidate_hash": "private-hash",
+                "candidate_tokens": 3600,
+                "reduction_pct": 81.13,
+                "b_verdict": "invalid",
+                "finding_counts": None,
+            }],
+            "run_spend_usd": 0.42,
+        }]
+        rulebook = open_book()
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            (root / "viewer").mkdir()
+            with mock.patch.object(loop, "ROOT", root):
+                loop.write_viewer_state(conversation, rulebook, {})
+            raw = (root / "viewer" / "state.js").read_text()
+        for private_value in (
+            "PRIVATE FAILURE REASON", "PRIVATE PROVIDER CALL",
+            "PRIVATE B RESPONSE", "private-hash", "provider_calls",
+            "b_advisory_error",
+        ):
+            self.assertNotIn(private_value, raw)
+        payload = json.loads(
+            raw.removeprefix("window.STATE = ").removesuffix(";\n")
+        )
+        event = payload["conversation"][0]
+        self.assertEqual(event["failure_class"], "invalid_advisory")
+        self.assertEqual(event["source_tokens"], 19080)
+        self.assertEqual(event["rounds"][0]["b_verdict"], "invalid")
 
     def test_archive_moves_local_cost_ledger_with_the_matching_meta(self):
         with tempfile.TemporaryDirectory() as directory:
