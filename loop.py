@@ -717,7 +717,7 @@ def ensure_structured_protocol_cutover(conv, rb, meta, *, activation_turn):
 
 
 AUTOMATIC_CLEANUP_STATE_SCHEMA_VERSION = 2
-AUTOMATIC_CLEANUP_EDITION = "automatic-cleanup-v3-c-budget"
+AUTOMATIC_CLEANUP_EDITION = "automatic-cleanup-v4-valid-b-review"
 
 
 def _structural_cleanup_failure(report):
@@ -854,13 +854,19 @@ def maybe_run_automatic_cleanup(conv, rb, meta, turn):
             raise CostAccountingError(str(report.get("reason")))
         if report.get("status") != "PASS":
             structural_failure = _structural_cleanup_failure(report)
+            invalid_advisory = report.get("failure_class") == "invalid_advisory"
+            quarantine_class = (
+                "structural_output" if structural_failure
+                else "invalid_advisory" if invalid_advisory
+                else None
+            )
             state.update({
-                "last_status": "quarantined" if structural_failure else "failed",
+                "last_status": "quarantined" if quarantine_class else "failed",
                 "last_reason": str(report.get("reason", "cleanup failed"))[:500],
             })
-            if structural_failure:
+            if quarantine_class:
                 state["quarantine"] = {
-                    "reason": "structural_output",
+                    "reason": quarantine_class,
                     "edition": AUTOMATIC_CLEANUP_EDITION,
                     "entered_turn": turn,
                     "failure_reason": state["last_reason"],
@@ -870,12 +876,15 @@ def maybe_run_automatic_cleanup(conv, rb, meta, turn):
                 "agent": "harness",
                 "type": "cleanup",
                 "status": "failed",
-                "failure_class": (
-                    "structural_output" if structural_failure else "other"
-                ),
+                "failure_class": quarantine_class or "other",
                 "source_hash": report.get("source_hash"),
+                "candidate_hash": report.get("candidate_hash"),
                 "reason": state["last_reason"],
                 "models": report.get("models"),
+                "rounds": copy.deepcopy(report.get("rounds")),
+                "b_advisory_error": copy.deepcopy(
+                    report.get("b_advisory_error")
+                ),
                 "run_spend_usd": report.get("run_spend_usd"),
             })
             print(f"[t{turn} CLEANUP] failed: {state['last_reason']}", flush=True)

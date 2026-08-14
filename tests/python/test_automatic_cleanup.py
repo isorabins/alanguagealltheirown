@@ -22,6 +22,80 @@ def source_rulebook(kernel_tokens=100):
 
 
 class AutomaticCleanupTests(unittest.TestCase):
+    def test_invalid_b_advisory_quarantines_with_permanent_evidence(self):
+        with tempfile.TemporaryDirectory() as directory:
+            state_dir = Path(directory)
+            rb = source_rulebook(110)
+            original = copy.deepcopy(rb)
+            meta = {
+                "last_agent": "B",
+                "spend_usd": 4.0,
+                "automatic_cleanup": {
+                    "schema_version": 2,
+                    "baseline_tokens": 100,
+                    "baseline_language_hash": "x" * 64,
+                    "baseline_turn": 1,
+                    "last_attempt_language_hash": None,
+                    "last_status": "armed",
+                },
+            }
+            conv = []
+            error = {
+                "status": "invalid",
+                "error_type": "ValueError",
+                "reason": "Agent B did not return valid JSON",
+                "response_receipt": {
+                    "model": loop.MODEL_B,
+                    "prompt_version": "cleanup-b-v2",
+                    "prompt_sha256": "b" * 64,
+                    "content": "not json",
+                    "usage": {"cost": 0.02},
+                },
+            }
+            rounds = [{"round": 1, "b_verdict": "invalid"}]
+            atomic_write_json(state_dir / "rulebook.json", rb)
+
+            with patch.object(loop, "STATE", state_dir), patch.object(
+                loop, "run_shadow_cleanup"
+            ) as cleanup:
+                cleanup.return_value = {
+                    "status": "FAIL",
+                    "stage": "b_audit",
+                    "failure_class": "invalid_advisory",
+                    "reason": "Agent B advisory invalid: Agent B did not return valid JSON",
+                    "source_hash": "a" * 64,
+                    "candidate_hash": "c" * 64,
+                    "models": {"c": loop.MODEL_C, "b": loop.MODEL_B},
+                    "rounds": rounds,
+                    "b_advisory_error": error,
+                    "run_spend_usd": 0.18,
+                }
+                self.assertFalse(loop.maybe_run_automatic_cleanup(conv, rb, meta, 10))
+                self.assertEqual(cleanup.call_count, 1)
+                self.assertEqual(meta["automatic_cleanup"]["last_status"], "quarantined")
+                self.assertEqual(
+                    meta["automatic_cleanup"]["quarantine"]["reason"],
+                    "invalid_advisory",
+                )
+                event = conv[-1]
+                self.assertEqual(event["failure_class"], "invalid_advisory")
+                self.assertEqual(event["candidate_hash"], "c" * 64)
+                self.assertEqual(event["rounds"], rounds)
+                self.assertEqual(event["b_advisory_error"], error)
+                self.assertEqual(rb, original)
+
+                starting_spend = meta["spend_usd"]
+                for turn in (11, 12):
+                    rb["version"] = f"0.{turn}"
+                    atomic_write_json(state_dir / "rulebook.json", rb)
+                    self.assertFalse(
+                        loop.maybe_run_automatic_cleanup(conv, rb, meta, turn)
+                    )
+
+                self.assertEqual(cleanup.call_count, 1)
+                self.assertEqual(meta["spend_usd"], starting_spend)
+                self.assertEqual([row["run_spend_usd"] for row in conv[-2:]], [0.0, 0.0])
+
     def test_structural_failure_quarantines_changed_hashes_and_survives_restart(self):
         with tempfile.TemporaryDirectory() as directory:
             state_dir = Path(directory)

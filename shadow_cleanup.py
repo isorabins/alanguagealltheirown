@@ -450,9 +450,10 @@ def run_shadow_cleanup(
                 report["rounds"].append(round_summary)
                 atomic_write_json(round_dir / "round-report.json", round_summary)
                 report.update({
-                    "status": "PASS",
-                    "stage": "complete",
-                    "reason": "Agent C draft passed deterministic gates; B advisory unavailable",
+                    "status": "FAIL",
+                    "stage": "b_call",
+                    "failure_class": "invalid_advisory",
+                    "reason": f"Agent B advisory unavailable: {exc}",
                 })
                 break
             report["provider_calls"].append({
@@ -483,6 +484,7 @@ def run_shadow_cleanup(
                     "status": "invalid",
                     "error_type": exc.__class__.__name__,
                     "reason": str(exc),
+                    "response_receipt": copy.deepcopy(b_call),
                 }
                 atomic_write_json(round_dir / "b-advisory-error.json", advisory_error)
                 report["b_advisory_error"] = advisory_error
@@ -490,9 +492,10 @@ def run_shadow_cleanup(
                 report["rounds"].append(round_summary)
                 atomic_write_json(round_dir / "round-report.json", round_summary)
                 report.update({
-                    "status": "PASS",
-                    "stage": "complete",
-                    "reason": "Agent C draft passed deterministic gates; B advisory invalid",
+                    "status": "FAIL",
+                    "stage": "b_audit",
+                    "failure_class": "invalid_advisory",
+                    "reason": f"Agent B advisory invalid: {exc}",
                 })
                 break
             atomic_write_json(round_dir / "b-audit.json", audit)

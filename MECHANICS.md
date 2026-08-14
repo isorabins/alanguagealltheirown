@@ -65,8 +65,8 @@ source snapshot and a new output directory, asks Agent C for one consolidated
 edition plus three separately stored creative seeds, requires at least 5% fewer
 decoder-visible tokens, and sends only the edition to Agent B for audit. It emits
 `original.json`, the candidate, seeds, audit, and `report.json`. It has no apply
-command or active-state argument, and any invalid response, source drift, weak
-reduction, or B rejection leaves the source untouched and reports `FAIL`.
+command or active-state argument, and any invalid response, source drift, or weak
+reduction leaves the source untouched and reports `FAIL`.
 The incumbent C and B prompts are immutable `v1` files. The exact longer prompts
 used in the August 10 shadow tests are preserved as `v2` candidates; they remain
 explicit overrides until evidence supports promotion. Every run records each
@@ -74,6 +74,9 @@ prompt's version, SHA-256, path, and complete content. Optional `--prompt-c` and
 `--prompt-b` paths use the named repository version when available and otherwise
 receive a content-addressed `custom` version in the evidence directory.
 Agent B performs one structured advisory review and has no acceptance authority.
+An invalid or unavailable B review fails closed; automatic cleanup quarantines the
+reviewed cleanup edition and permanently records the exact validation error and any
+B response receipt without buying another attempt.
 If B returns a structured rejection, the runner gives C the frozen original, complete
 prior candidate, and only B's actionable findings under the versioned C
 finalizer prompt. C returns the complete final edition; no second B review runs.

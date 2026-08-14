@@ -388,7 +388,7 @@ class ShadowCleanupTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "actionable"):
             validate_b_audit(source, candidate, audit)
 
-    def test_invalid_b_advisory_cannot_block_valid_c_draft(self):
+    def test_invalid_b_advisory_fails_with_exact_response_receipt(self):
         with tempfile.TemporaryDirectory() as directory:
             self.source_path = self._source_copy(directory)
             calls = []
@@ -409,11 +409,53 @@ class ShadowCleanupTests(unittest.TestCase):
                 token_counter=self._token_counter,
                 meta={"spend_usd": 0.0},
             )
-            self.assertEqual(report["status"], "PASS")
+            self.assertEqual(report["status"], "FAIL")
+            self.assertEqual(report["stage"], "b_audit")
+            self.assertEqual(report["failure_class"], "invalid_advisory")
             self.assertEqual(calls, ["c", "b"])
             self.assertEqual(report["rounds"][0]["b_verdict"], "invalid")
-            self.assertEqual(report["b_advisory_error"]["status"], "invalid")
+            error = report["b_advisory_error"]
+            self.assertEqual(error["status"], "invalid")
+            self.assertEqual(error["reason"], "Agent B did not return valid JSON")
+            self.assertEqual(error["response_receipt"]["model"], "b")
+            self.assertEqual(error["response_receipt"]["content"], "not json")
+            self.assertEqual(error["response_receipt"]["usage"], {"cost": 0.01})
+            stored_report = json.loads((output / "report.json").read_text())
+            self.assertEqual(stored_report["b_advisory_error"], error)
             self.assertTrue((output / "candidate.json").exists())
+            self.assertFalse((output / "rounds/02").exists())
+
+    def test_unavailable_b_advisory_fails_without_second_c_call(self):
+        with tempfile.TemporaryDirectory() as directory:
+            self.source_path = self._source_copy(directory)
+            calls = []
+
+            def call(model, _system, _user, **_kwargs):
+                calls.append(model)
+                if model == "c":
+                    return json.dumps(c_response()), {"cost": 0.01}
+                raise RuntimeError("provider timeout")
+
+            output = Path(directory) / "shadow"
+            report = run_shadow_cleanup(
+                self.source_path,
+                output,
+                model_c="c",
+                model_b="b",
+                call_model=call,
+                token_counter=self._token_counter,
+                meta={"spend_usd": 0.0},
+            )
+            self.assertEqual(report["status"], "FAIL")
+            self.assertEqual(report["stage"], "b_call")
+            self.assertEqual(report["failure_class"], "invalid_advisory")
+            self.assertEqual(calls, ["c", "b"])
+            self.assertEqual(report["rounds"][0]["b_verdict"], "unavailable")
+            self.assertEqual(report["b_advisory_error"], {
+                "status": "unavailable",
+                "error_type": "RuntimeError",
+                "reason": "provider timeout",
+            })
             self.assertFalse((output / "rounds/02").exists())
 
     def test_source_drift_is_detected_before_b(self):
