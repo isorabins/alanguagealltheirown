@@ -42,10 +42,35 @@
       (seconds < 10 ? "0" : "") + seconds;
   }
 
+  function agentCLabel(agentC) {
+    agentC=agentC&&typeof agentC==="object"?agentC:{};
+    if(agentC.state==="growing"){
+      var growth=Number(agentC.growth_pct),trigger=Number(agentC.trigger_pct);
+      return "Agent C · "+(Number.isFinite(growth)?growth.toFixed(1):"0.0")+"% / "+(Number.isFinite(trigger)?trigger:10)+"%";
+    }
+    if(agentC.state==="blocked_motion")return "Agent C · ready, waiting on "+String(agentC.blocker||"open motion");
+    if(agentC.state==="quarantined")return "Agent C · quarantined";
+    if(agentC.state==="blocked_attempt")return "Agent C · retry waits for language change";
+    if(agentC.state==="eligible")return "Agent C · cleanup ready";
+    return "Agent C · status unavailable";
+  }
+
+  function renderAgentC(agentC) {
+    var label=document.getElementById("agent-c-summary-label");
+    var bar=document.getElementById("agent-c-summary-progress");
+    if(label)label.textContent=agentCLabel(agentC);
+    if(bar){
+      var progress=Number(agentC&&agentC.progress_pct);
+      if(!Number.isFinite(progress))progress=0;
+      bar.style.width=Math.max(0,Math.min(100,progress))+"%";
+    }
+  }
+
   function updateCounters() {
     var examElement = document.getElementById("t-exam");
     var turnElement = document.getElementById("t-turn");
     var examLink = document.getElementById("exam-jump");
+    renderAgentC(runtime.agent_c);
     if (!examElement || !turnElement) return;
     if (runtime.status === "paused") {
       examElement.textContent = "Paused";
@@ -109,5 +134,5 @@
   renderMetrics(bootstrap.metrics);
   updateCounters();
   window.setInterval(updateCounters, 1000);
-  window.ALATO_STARTUP = {setSnapshot: setSnapshot, updateCounters: updateCounters, renderMetrics: renderMetrics};
+  window.ALATO_STARTUP = {setSnapshot: setSnapshot, updateCounters: updateCounters, renderMetrics: renderMetrics, agentCLabel: agentCLabel, renderAgentC: renderAgentC};
 })(window, document);

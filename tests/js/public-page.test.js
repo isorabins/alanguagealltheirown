@@ -53,6 +53,7 @@ test('locked opening copy and timer order are preserved',()=>{
   assert.match(html,/DeepSeek Agent A invents or revises one focused idea\. Kimi Agent B audits it and alone may adopt or reject it\./);
   assert.match(copyDeck,/This is a public experiment reaching toward that goal\./);
   assert.match(html,/id="exam-jump" href="#live-test-section">see last test ↓<\/a>/);
+  assert.match(html,/id="agent-c-summary" href="#agent-c-cleanup-section"/);
 });
 
 test('explanations appear from the meaningful label without visible question marks',()=>{
@@ -159,6 +160,71 @@ test('Watch the Live Test is persisted-state only and matches the locked termina
   assert.match(refresh,/\(!runtime\|\|runtime\.status==="paused"\)&&publicProgressPathExists!==true/);
   assert.doesNotMatch(refresh,/\/api\/|encode|decode|judge|OPENROUTER|provider/i);
   assert.doesNotMatch(html,/preview trace|prototype simulation|replay trace/);
+});
+
+function cleanupView(){
+  const start=html.indexOf('function agentCCleanupView');
+  const end=html.indexOf('\nfunction renderAgentCCleanup',start);
+  assert.ok(start>=0&&end>start,'Agent C cleanup view must remain independently testable');
+  return Function(html.slice(start,end)+'\nreturn agentCCleanupView;')();
+}
+
+test('Agent C cleanup view separates substantive attempts from quarantine receipts',()=>{
+  const view=cleanupView()({
+    state:'quarantined',growth_pct:38.9,trigger_pct:10,progress_pct:100,
+    blocker:'structural_output',last_attempt_turn:2400,last_status:'quarantined'
+  },[
+    {type:'cleanup',turn:2400,status:'failed',run_spend_usd:0.0812,reason:'PRIVATE PROVIDER ERROR'},
+    {type:'cleanup',turn:2502,status:'quarantined',run_spend_usd:0},
+    {type:'cleanup',turn:2503,status:'quarantined',run_spend_usd:0}
+  ]);
+  assert.equal(view.attempt.turn,2400);
+  assert.equal(view.quarantineReceiptCount,2);
+  assert.equal(view.timeline[0].status,'failed structural validation');
+  assert.equal(view.timeline[1].status,'not reached');
+  assert.equal(view.evidence.tokens,'unavailable');
+  assert.equal(view.evidence.application,'failed · quarantined');
+  assert.doesNotMatch(JSON.stringify(view),/PRIVATE PROVIDER ERROR/);
+});
+
+test('Agent C cleanup view reconstructs B advisory finalization and applied evidence',()=>{
+  const event={
+    type:'cleanup',turn:2510,status:'applied',source_tokens:120,applied_tokens:68,
+    reduction_pct:43.33,run_spend_usd:0.1234,
+    rounds:[{round:1,b_verdict:'REJECT'},{round:2,b_verdict:null}]
+  };
+  const view=cleanupView()({state:'growing',growth_pct:0,trigger_pct:10,progress_pct:0},[event]);
+  assert.equal(view.evidence.tokens,'120 → 68');
+  assert.equal(view.evidence.bVerdict,'REJECT');
+  assert.equal(view.evidence.application,'applied');
+  assert.ok(view.timeline.some(row=>row.stage==='Agent C finalization'&&row.status==='completed'));
+  assert.ok(view.timeline.some(row=>row.stage==='local validation'&&row.status==='passed'));
+});
+
+test('Agent C cleanup view describes every authoritative state without client inference',()=>{
+  const view=cleanupView();
+  assert.match(view({state:'growing',growth_pct:2,trigger_pct:10},[]).detail,/still growing/);
+  assert.match(view({state:'blocked_motion',blocker:'rule-382'},[]).detail,/rule-382/);
+  assert.match(view({state:'quarantined',blocker:'structural_output'},[]).detail,/quarantined/);
+  assert.match(view({state:'blocked_attempt',blocker:'prior_failure_same_language'},[]).detail,/language to change/);
+  assert.match(view({state:'eligible'},[]).detail,/no authoritative blocker/);
+});
+
+test('Agent C cleanup window escapes canonical event values and removes stale hard-coded claims',()=>{
+  const script=html.match(/<script>\s*([\s\S]*?)<\/script>/)[1];
+  const end=script.indexOf('\nfunction runtimeView');
+  const viewer=viewerDocument();
+  const render=Function('document',script.slice(0,end)+'\nreturn render;')(viewer.document);
+  render({
+    conversation:[{type:'cleanup',turn:10,status:'applied',source_tokens:100,applied_tokens:60,reduction_pct:40,run_spend_usd:0.1,rounds:[{b_verdict:'<img src=x onerror=alert(1)>'}]}],
+    rulebook:{version:'0.1',rules:[]},collaboration:{},conversations:[],notes:[],meta:{runtime:{agent_c:{state:'blocked_motion',blocker:'<img src=x onerror=alert(1)>',growth_pct:10,trigger_pct:10,progress_pct:100}}}
+  });
+  const output=viewer.elements.get('agent-c-trace-body').innerHTML;
+  assert.doesNotMatch(output,/<img/);
+  assert.match(output,/&lt;img/);
+  assert.match(output,/not reached/);
+  assert.doesNotMatch(html,/13 failed|0 · quarantined|no cleanup has been applied/i);
+  assert.match(html,/phases become visible only after the canonical turn commits/);
 });
 
 test('public page explains Scoring V2 and labels immutable history honestly',()=>{
@@ -436,6 +502,24 @@ test('paused runtime never advances turn or exam clocks',()=>{
   } finally { Date.now=realNow; }
 });
 
+test('Agent C header renders every authoritative state from the existing runtime snapshot',()=>{
+  const startup=fs.readFileSync(path.join(__dirname,'../../viewer/startup.js'),'utf8');
+  const viewer=viewerDocument();
+  const window={
+    PUBLIC_BOOTSTRAP:{turn:2503,updated:'2026-08-14T09:00:00Z',metrics:[],runtime:{status:'active',turn:2503,next_exam_turn:2505,agent_c:{state:'growing',growth_pct:6.4,trigger_pct:10,progress_pct:64}}},
+    setInterval(){return 1;},setTimeout(){return 1;}
+  };
+  Function('window','document',startup)(window,viewer.document);
+  const labels=window.ALATO_STARTUP.agentCLabel;
+  assert.equal(labels({state:'growing',growth_pct:6.4,trigger_pct:10}),'Agent C · 6.4% / 10%');
+  assert.equal(labels({state:'blocked_motion',blocker:'rule-382'}),'Agent C · ready, waiting on rule-382');
+  assert.equal(labels({state:'quarantined'}),'Agent C · quarantined');
+  assert.equal(labels({state:'blocked_attempt'}),'Agent C · retry waits for language change');
+  assert.equal(labels({state:'eligible'}),'Agent C · cleanup ready');
+  assert.equal(viewer.elements.get('agent-c-summary-label').textContent,'Agent C · 6.4% / 10%');
+  assert.equal(viewer.elements.get('agent-c-summary-progress').style.width,'64%');
+});
+
 test('full-history runtime status uses the same persisted pause contract',()=>{
   const source=html.match(/function runtimeStatusView\(runtime, when, now, turn\) \{([\s\S]*?)\n\}/);
   assert.ok(source);
@@ -535,9 +619,11 @@ test('375px header and both clock columns have explicit containment safeguards',
   assert.ok(mobile,'the exact-phone breakpoint must remain present');
   assert.match(mobile[1],/h1 \{[^}]*max-width: 100%[^}]*overflow-wrap: anywhere/);
   assert.match(mobile[1],/\.timers \{[^}]*width: 100%[^}]*gap: 1\.3rem/);
-  assert.match(mobile[1],/\.timers > div \{[^}]*flex: 1 1 0[^}]*min-width: 0/);
+  assert.match(mobile[1],/\.timers > div \{[^}]*min-width: 0/);
   assert.match(mobile[1],/\.timers \.tval \{[^}]*max-width: 100%[^}]*overflow-wrap: anywhere/);
   assert.match(mobile[1],/\.timers \.tval\.running \{[^}]*font-size: 1\.35rem/);
+  assert.match(html,/\.timers \{[^}]*grid-template-columns: repeat\(3, minmax\(0, 1fr\)\)/);
+  assert.match(html,/@media \(max-width: 760px\)[\s\S]*\.agent-c-summary \{ grid-column: 1 \/ -1; \}/);
   assert.match(html,/class="tlab">next turn<\/span>/);
   assert.match(html,/class="tlab">next exam<\/span>/);
 });
