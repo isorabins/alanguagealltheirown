@@ -49,6 +49,13 @@ The public viewer renders its countdowns and headline metrics from a generated
 same-origin bootstrap under 2 KB. Canonical history loads asynchronously from the
 public repository; the deployed full snapshot is fetched only as a failure fallback.
 
+The latest verified roadmap-release state, completed gates, known Scoring V2
+limitation, and remaining human-surface closeout work are recorded in
+[the roadmap release progress note](docs/wayfinder/alato-roadmap-release-progress.md).
+The live evaluation pattern is separated into judge-conformance failures and
+genuine language-fidelity failures in
+[the Scoring V2 production field note](docs/wayfinder/field-note-scoring-v2-live-evaluations-2026-08-03.md).
+
 Offline tests:
 
 ```bash

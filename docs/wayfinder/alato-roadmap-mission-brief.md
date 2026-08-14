@@ -235,3 +235,23 @@ canonical event or language state.
 - Implementing roadmap code, changing prompts or benchmarks, calling a
   provider, changing live state, merging, deploying, restarting timers, or
   publishing a new public claim during Wayfinding.
+
+## Post-Wayfinder release follow-through
+
+Implementation and release later proceeded under the separately approved
+managed-autonomy envelope. PR #41 merged the retained roadmap scope at
+`dcd584d5bba39d93c28e17c887fb7a7bbb4117ab`; PR #42 merged the bounded
+literal-preflight repair at
+`286c674a2381d62f4558cac0e3861672de99c3f5`. The English-control feature
+remained removed.
+
+The 12-hour production monitor completed on 2026-08-02 WITA. It verified the
+live timer, public viewer, Scoring V2/V1 separation, valid-baseline
+preservation, active-feedback survival, and bounded V2 feedback delivery. It
+also established a known limitation: provider evidence citations remain
+intermittently non-conformant and are safely quarantined, so not every scheduled
+exam yields a usable score. See
+[the release progress note](alato-roadmap-release-progress.md) and
+[the production evaluation field note](field-note-scoring-v2-live-evaluations-2026-08-03.md)
+for the current status without changing this brief's historical planning
+boundary.
