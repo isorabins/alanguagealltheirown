@@ -742,9 +742,12 @@ function agentCCleanupView(agentC, conversation) {
     var structuralFailure=attempt.failure_class==="structural_output"||(
       agentC.state==="quarantined"&&agentC.blocker==="structural_output"&&agentC.last_attempt_turn===attempt.turn
     );
+    var invalidAdvisory=attempt.failure_class==="invalid_advisory"||(
+      agentC.state==="quarantined"&&agentC.blocker==="invalid_advisory"&&agentC.last_attempt_turn===attempt.turn
+    );
     timeline.push({
       stage:"Agent C candidate",
-      status:attempt.status==="applied"?"completed":(structuralFailure?"failed structural validation":"failed safely")
+      status:attempt.status==="applied"||invalidAdvisory?"completed":(structuralFailure?"failed structural validation":"failed safely")
     });
     timeline.push({stage:"Agent B advisory",status:verdict});
     if(rounds.length>1)timeline.push({stage:"Agent C finalization",status:"completed"});
@@ -759,7 +762,8 @@ function agentCCleanupView(agentC, conversation) {
   var state=agentC.state||"unavailable",detail="Agent C status is unavailable.";
   if(state==="growing")detail="The adopted language is still growing toward the cleanup threshold.";
   if(state==="blocked_motion")detail="The threshold is reached; cleanup waits for "+String(agentC.blocker||"the open motion")+" to settle.";
-  if(state==="quarantined")detail="Cleanup is quarantined after a structural Agent C failure. No automatic retry is eligible.";
+  if(state==="quarantined"&&agentC.blocker==="invalid_advisory")detail="Cleanup is quarantined because Agent B's review was invalid or unavailable. No automatic retry is eligible.";
+  if(state==="quarantined"&&agentC.blocker!=="invalid_advisory")detail="Cleanup is quarantined after a structural Agent C failure. No automatic retry is eligible.";
   if(state==="blocked_attempt")detail="The prior attempt failed; cleanup waits for the adopted language to change before retrying.";
   if(state==="eligible")detail="The threshold is reached and no authoritative blocker is open.";
   var sourceTokens=attempt&&Number.isFinite(attempt.source_tokens)?attempt.source_tokens:null;

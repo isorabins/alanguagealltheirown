@@ -578,11 +578,10 @@ def _public_agent_c_state(rb, meta):
     if last_status == "quarantined":
         public_state = "quarantined"
         quarantine = cleanup.get("quarantine")
-        if (
-            isinstance(quarantine, dict)
-            and quarantine.get("reason") == "structural_output"
-        ):
-            blocker = "structural_output"
+        if isinstance(quarantine, dict) and quarantine.get("reason") in {
+            "structural_output", "invalid_advisory"
+        }:
+            blocker = quarantine["reason"]
     elif baseline_tokens <= 0 or current_tokens < threshold_tokens:
         public_state = "growing"
     elif open_motion is not None:
@@ -643,13 +642,46 @@ def _public_runtime_state(turn, meta, rb):
     }
 
 
+def _public_cleanup_event(event):
+    """Whitelist the bounded cleanup receipt safe for the public viewer."""
+    public = {
+        key: copy.deepcopy(event[key])
+        for key in (
+            "turn", "agent", "type", "status", "failure_class",
+            "source_tokens", "candidate_tokens", "applied_tokens",
+            "reduction_pct", "run_spend_usd",
+        )
+        if key in event
+    }
+    public["rounds"] = []
+    for round_item in event.get("rounds", []):
+        if not isinstance(round_item, dict):
+            continue
+        public_round = {
+            key: copy.deepcopy(round_item[key])
+            for key in (
+                "round", "b_verdict", "candidate_tokens", "reduction_pct",
+                "candidate_changed_from_previous", "finding_counts",
+            )
+            if key in round_item
+        }
+        public["rounds"].append(public_round)
+    return public
+
+
 def write_viewer_state(conv, rb, meta, collaboration=None, conversations=None):
     # Protocol cutover receipts are canonical harness bookkeeping, not public
     # conversation events. Keep them in the persisted source log and out of the
     # unchanged viewer renderer, which has no cutover event presentation.
-    public_conversation = [
-        event for event in conv if event.get("type") != "protocol_cutover"
-    ]
+    public_conversation = []
+    for event in conv:
+        if event.get("type") == "protocol_cutover":
+            continue
+        public_conversation.append(
+            _public_cleanup_event(event)
+            if event.get("type") == "cleanup"
+            else event
+        )
     updated = now_iso()
     tests = [event for event in public_conversation if event.get("type") == "test"]
     latest_valid_v2 = next(
@@ -955,6 +987,9 @@ def maybe_run_automatic_cleanup(conv, rb, meta, turn):
                 "failure_class": quarantine_class or "other",
                 "source_hash": report.get("source_hash"),
                 "candidate_hash": report.get("candidate_hash"),
+                "source_tokens": report.get("source_tokens"),
+                "candidate_tokens": report.get("candidate_tokens"),
+                "reduction_pct": report.get("reduction_pct"),
                 "reason": state["last_reason"],
                 "models": report.get("models"),
                 "provider_calls": copy.deepcopy(report.get("provider_calls")),

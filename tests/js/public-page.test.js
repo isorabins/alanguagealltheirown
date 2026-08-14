@@ -201,6 +201,22 @@ test('Agent C cleanup view reconstructs B advisory finalization and applied evid
   assert.ok(view.timeline.some(row=>row.stage==='local validation'&&row.status==='passed'));
 });
 
+test('Agent C cleanup view attributes invalid advisory quarantine to Agent B',()=>{
+  const event={
+    type:'cleanup',turn:2511,status:'failed',failure_class:'invalid_advisory',
+    source_tokens:120,candidate_tokens:70,reduction_pct:41.67,
+    rounds:[{round:1,b_verdict:'invalid',candidate_tokens:70,reduction_pct:41.67}]
+  };
+  const view=cleanupView()({
+    state:'quarantined',blocker:'invalid_advisory',last_attempt_turn:2511,
+    growth_pct:20,trigger_pct:10,progress_pct:100
+  },[event]);
+  assert.equal(view.timeline[0].status,'completed');
+  assert.equal(view.timeline[1].status,'invalid');
+  assert.match(view.detail,/Agent B's review was invalid or unavailable/);
+  assert.doesNotMatch(view.detail,/structural Agent C failure/);
+});
+
 test('Agent C cleanup view describes every authoritative state without client inference',()=>{
   const view=cleanupView();
   assert.match(view({state:'growing',growth_pct:2,trigger_pct:10},[]).detail,/still growing/);

@@ -636,6 +636,16 @@ class StructuredLoopTests(unittest.TestCase):
         self.assertEqual((quarantined["state"], quarantined["blocker"]),
                          ("quarantined", "structural_output"))
         self.assertNotIn("private provider detail", json.dumps(quarantined))
+        quarantined_meta["automatic_cleanup"]["quarantine"]["reason"] = (
+            "invalid_advisory"
+        )
+        invalid_advisory = loop._public_agent_c_state(
+            book(150), quarantined_meta
+        )
+        self.assertEqual(
+            (invalid_advisory["state"], invalid_advisory["blocker"]),
+            ("quarantined", "invalid_advisory"),
+        )
 
         failed_book = book(150)
         failed_meta = copy.deepcopy(armed)
@@ -701,6 +711,52 @@ class StructuredLoopTests(unittest.TestCase):
         self.assertIn('"language": {"version": "adopted-', state_payload)
         self.assertIn('LANGUAGE adopted-', state_payload)
         self.assertTrue(public_language_exists)
+
+    def test_viewer_cleanup_projection_excludes_private_failure_receipts(self):
+        conversation = [{
+            "turn": 24,
+            "agent": "harness",
+            "type": "cleanup",
+            "status": "failed",
+            "failure_class": "invalid_advisory",
+            "source_tokens": 19080,
+            "candidate_tokens": 3600,
+            "reduction_pct": 81.13,
+            "reason": "PRIVATE FAILURE REASON",
+            "provider_calls": [{"content": "PRIVATE PROVIDER CALL"}],
+            "b_advisory_error": {
+                "response_receipt": {"content": "PRIVATE B RESPONSE"}
+            },
+            "rounds": [{
+                "round": 1,
+                "candidate_hash": "private-hash",
+                "candidate_tokens": 3600,
+                "reduction_pct": 81.13,
+                "b_verdict": "invalid",
+                "finding_counts": None,
+            }],
+            "run_spend_usd": 0.42,
+        }]
+        rulebook = open_book()
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            (root / "viewer").mkdir()
+            with mock.patch.object(loop, "ROOT", root):
+                loop.write_viewer_state(conversation, rulebook, {})
+            raw = (root / "viewer" / "state.js").read_text()
+        for private_value in (
+            "PRIVATE FAILURE REASON", "PRIVATE PROVIDER CALL",
+            "PRIVATE B RESPONSE", "private-hash", "provider_calls",
+            "b_advisory_error",
+        ):
+            self.assertNotIn(private_value, raw)
+        payload = json.loads(
+            raw.removeprefix("window.STATE = ").removesuffix(";\n")
+        )
+        event = payload["conversation"][0]
+        self.assertEqual(event["failure_class"], "invalid_advisory")
+        self.assertEqual(event["source_tokens"], 19080)
+        self.assertEqual(event["rounds"][0]["b_verdict"], "invalid")
 
     def test_archive_moves_local_cost_ledger_with_the_matching_meta(self):
         with tempfile.TemporaryDirectory() as directory:
