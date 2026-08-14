@@ -1,5 +1,6 @@
 import hashlib
 import json
+import math
 import tempfile
 import unittest
 from pathlib import Path
@@ -72,6 +73,20 @@ class ShadowCleanupTests(unittest.TestCase):
         self.assertEqual((seeds["minItems"], seeds["maxItems"]), (3, 3))
         self.assertIn("creative_seeds", schema["required"])
         self.assertFalse(seeds["items"]["additionalProperties"])
+
+    def test_c_budget_can_represent_a_minimally_passing_current_size_candidate(self):
+        source_tokens = 19_080
+        largest_minimally_passing_candidate = math.floor(
+            source_tokens * (100 - 5) / 100
+        )
+        required_with_json_and_cross_tokenizer_headroom = math.ceil(
+            largest_minimally_passing_candidate * 1.20
+        )
+
+        self.assertEqual(largest_minimally_passing_candidate, 18_126)
+        self.assertGreaterEqual(
+            MAX_C_TOKENS, required_with_json_and_cross_tokenizer_headroom
+        )
 
     def test_b_prompt_requires_paired_semantic_evidence(self):
         prompt = (ROOT / "prompts/cleanup_b_v1.md").read_text()
@@ -246,9 +261,11 @@ class ShadowCleanupTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as directory:
             self.source_path = self._source_copy(directory)
             calls = []
+            token_limits = []
 
-            def call(model, _system, user, **_kwargs):
+            def call(model, _system, user, **kwargs):
                 calls.append(model)
+                token_limits.append(kwargs["max_tokens"])
                 if model == "c":
                     return json.dumps(c_response()), {"cost": 0.01}
                 request = json.loads(user)
@@ -278,6 +295,9 @@ class ShadowCleanupTests(unittest.TestCase):
             self.assertIn("C finalized", report["reason"])
             self.assertEqual(report["round_count"], 2)
             self.assertEqual(calls, ["c", "b", "c"])
+            self.assertEqual(
+                token_limits, [MAX_C_TOKENS, MAX_B_TOKENS, MAX_C_TOKENS]
+            )
             self.assertEqual([item["b_verdict"] for item in report["rounds"]],
                              ["REJECT", None])
             self.assertTrue((output / "rounds/01/b-audit.json").exists())

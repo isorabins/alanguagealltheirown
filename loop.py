@@ -49,7 +49,7 @@ from public_exam_progress import (PublicExamProgressWriter, classify_public_erro
                                   sanitize_completed_text)
 from rulebook import (_literal_set_survives, apply_typed_motion, language_payload,
                       render_language, render_legislature, score_judgment_v2)
-from shadow_cleanup import run_shadow_cleanup
+from shadow_cleanup import DEFAULT_MAX_SPEND_USD, run_shadow_cleanup
 from state_store import atomic_write_json, load_json, snapshot_hash
 
 ROOT = Path(__file__).resolve().parent
@@ -67,7 +67,7 @@ ACTIVE_AGENT_PROMPTS = {
     "B": ("agent-b-v2", ROOT / "prompts" / "agent_b_v2.md"),
 }
 AUTOMATIC_CLEANUP_GROWTH_PERCENT = 10
-AUTOMATIC_CLEANUP_MAX_SPEND_USD = 0.25
+AUTOMATIC_CLEANUP_MAX_SPEND_USD = DEFAULT_MAX_SPEND_USD
 AUTOMATIC_CLEANUP_PROMPT_C = ROOT / "prompts" / "cleanup_c_v2.md"
 AUTOMATIC_CLEANUP_PROMPT_B = ROOT / "prompts" / "cleanup_b_v2.md"
 
@@ -717,7 +717,7 @@ def ensure_structured_protocol_cutover(conv, rb, meta, *, activation_turn):
 
 
 AUTOMATIC_CLEANUP_STATE_SCHEMA_VERSION = 2
-AUTOMATIC_CLEANUP_EDITION = "automatic-cleanup-v2"
+AUTOMATIC_CLEANUP_EDITION = "automatic-cleanup-v3-c-budget"
 
 
 def _structural_cleanup_failure(report):
@@ -755,6 +755,8 @@ def reset_automatic_cleanup_quarantine(state, *, reviewed_edition, operator):
         raise ValueError("reset requires a reviewed cleanup edition")
     if reviewed_edition == quarantine.get("edition"):
         raise ValueError("reset requires a different reviewed cleanup edition")
+    if reviewed_edition != AUTOMATIC_CLEANUP_EDITION:
+        raise ValueError("reset requires the current reviewed cleanup edition")
     if not isinstance(operator, str) or not operator.strip():
         raise ValueError("reset requires explicit operator action")
     state["reset"] = {
