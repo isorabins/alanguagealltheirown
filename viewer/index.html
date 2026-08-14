@@ -328,10 +328,12 @@
     .grave .kill { display: block; margin: 0.25rem 0 0; white-space: normal; }
   }
   @media (max-width: 420px) {
-    h1 { font-size: 1.24rem; letter-spacing: 0.13em; }
+    h1 { max-width: 100%; font-size: 1.24rem; letter-spacing: 0.13em; overflow-wrap: anywhere; }
     .statement { font-size: 0.92rem; }
-    .timers { gap: 1.3rem; }
-    .timers .tval { font-size: 2.2rem; }
+    .timers { width: 100%; gap: 1.3rem; }
+    .timers > div { flex: 1 1 0; min-width: 0; }
+    .timers .tval { max-width: 100%; font-size: 2.2rem; overflow-wrap: anywhere; }
+    .timers .tval.running { font-size: 1.35rem; }
     .status-counts { grid-template-columns: 1fr; }
     .ti-row { flex-direction: column; }
   }
