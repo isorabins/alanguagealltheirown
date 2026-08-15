@@ -56,18 +56,17 @@
 
   .timers { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); align-items: stretch;
     gap: 2rem; width: min(48rem, 100%); margin: 0 auto 1.6rem; text-align: center; }
-  .timers > div { min-width: 0; }
+  .timers > div, .timers > a { min-width: 0; }
   .timers .tval { display: block; font-family: var(--mono); font-size: 2.7rem; color: var(--ink); letter-spacing: 0.04em; font-variant-numeric: tabular-nums; }
   .timers .tval.running { color: var(--accent); font-size: 1.5rem; padding: 0.6rem 0; }
   .timers .tlab { display: block; font-family: var(--mono); font-size: 0.64rem; letter-spacing: 0.22em; text-transform: uppercase; color: var(--ink-faint); margin-top: 0.3rem; }
   .timer-link { display: inline-block; margin-top: 0.55rem; color: var(--accent); font: 400 0.6rem var(--mono); letter-spacing: 0.12em; text-transform: uppercase; text-decoration: none; border-bottom: 1px solid rgba(201,168,106,.45); }
   .timer-link:hover { color: var(--ink); border-color: var(--ink); }
-  .agent-c-summary { min-width: 0; display: flex; flex-direction: column; justify-content: center;
-    border: 1px solid var(--hairline); border-left: 2px solid var(--accent); padding: 0.7rem 0.8rem;
-    color: var(--ink); text-decoration: none; font: 400 0.72rem/1.45 var(--mono); overflow-wrap: anywhere; }
-  .agent-c-summary:hover { border-color: var(--accent); }
-  .agent-c-summary-bar { height: 3px; margin-top: 0.55rem; background: var(--hairline); overflow: hidden; }
-  .agent-c-summary-bar i { display: block; width: 0; height: 100%; background: var(--accent); }
+  .agent-c-summary { color: inherit; text-decoration: none; }
+  .agent-c-summary .tval { color: var(--accent); }
+  .agent-c-summary-detail { display: block; margin-top: 0.55rem; color: var(--ink-faint);
+    font: 400 0.6rem var(--mono); letter-spacing: 0.08em; }
+  .agent-c-summary:hover .tlab { color: var(--ink); }
 
   .prompt-intro { max-width: 44rem; margin: 0 auto 1.2rem; font-size: 0.92rem; color: var(--ink-dim); }
   .prompt-intro a { color: var(--ink); }
@@ -370,7 +369,7 @@
 <div class="timers">
   <div><span class="tval" id="t-turn">--:--</span><span class="tlab">next turn</span></div>
   <div><span class="tval" id="t-exam">--:--</span><span class="tlab">next exam</span><a class="timer-link" id="exam-jump" href="#live-test-section">see last test ↓</a></div>
-  <a class="agent-c-summary" id="agent-c-summary" href="#agent-c-cleanup-section"><span id="agent-c-summary-label">Agent C · status unavailable</span><span class="agent-c-summary-bar" aria-hidden="true"><i id="agent-c-summary-progress"></i></span></a>
+  <a class="agent-c-summary" id="agent-c-summary" href="#agent-c-cleanup-section"><span class="tval" id="agent-c-summary-value">—</span><span class="tlab">Agent C growth</span><span class="agent-c-summary-detail" id="agent-c-summary-label">status unavailable</span></a>
 </div>
 <aside class="runtime-status" id="runtime-status" aria-live="polite">
   <strong id="runtime-status-heading">The experiment is paused.</strong>
