@@ -158,7 +158,7 @@ class AutomaticCleanupTests(unittest.TestCase):
                     cleanup.call_args.kwargs["max_spend_usd"],
                     loop.AUTOMATIC_CLEANUP_MAX_SPEND_USD,
                 )
-                self.assertEqual(loop.AUTOMATIC_CLEANUP_MAX_SPEND_USD, 1.00)
+                self.assertEqual(loop.AUTOMATIC_CLEANUP_MAX_SPEND_USD, 1.10)
                 self.assertEqual(meta["automatic_cleanup"]["last_status"], "quarantined")
                 self.assertEqual(
                     meta["automatic_cleanup"]["quarantine"]["edition"],

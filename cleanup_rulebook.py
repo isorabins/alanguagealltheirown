@@ -19,7 +19,7 @@ EXCLUSION_REASONS = ("operational", "fragment", "contradiction")
 CONTRACT_FIELDS = ("id", "trigger", "encoder", "decoder", "invalid_if", "overrides")
 MEMORY_FIELDS = ("retired_mechanisms", "failure_modes", "unresolved_questions")
 MAX_CONTRACT_CLAUSES = 8
-MAX_MEMORY_ITEMS = 20
+MAX_MEMORY_ITEMS = 16
 MAX_STRUCTURED_ARTIFACT_CHARS = 25_000
 
 
@@ -301,10 +301,12 @@ def _validate_legislative_memory(source: dict[str, Any], memory: Any) -> None:
         "failure_modes": {"failure", "lesson", "source_ids"},
         "unresolved_questions": {"question", "source_ids"},
     }
+    total_items = 0
     for field, expected in shapes.items():
         rows = memory.get(field)
         if not isinstance(rows, list) or len(rows) > MAX_MEMORY_ITEMS:
             raise ValueError(f"legislative memory {field} must be a bounded list")
+        total_items += len(rows)
         for row in rows:
             if not isinstance(row, dict) or set(row) != expected:
                 raise ValueError(f"legislative memory {field} entry has an invalid shape")
@@ -320,6 +322,8 @@ def _validate_legislative_memory(source: dict[str, Any], memory: Any) -> None:
                         raise ValueError("retired mechanism outcome is invalid")
                 elif not isinstance(value, str) or not value.strip() or len(value) > 1000:
                     raise ValueError("legislative memory text must be bounded and non-empty")
+    if total_items > MAX_MEMORY_ITEMS:
+        raise ValueError("legislative memory exceeds the total item budget")
 
 
 def compile_structured_cleanup_draft(
@@ -425,7 +429,12 @@ def validate_structured_candidate(source: dict[str, Any], candidate: dict[str, A
     if structured_projection != canonical_projection:
         raise ValueError("structured rules do not match the canonical cleanup candidate")
     _validate_legislative_memory(source, candidate.get("legislative_memory"))
-    encoded = json.dumps(candidate, ensure_ascii=False, separators=(",", ":"))
+    encoded = json.dumps({
+        "checkpoint_turn": 9_999_999_999,
+        "source_hash": "0" * 64,
+        "rulebook": candidate["structured_rulebook"],
+        "legislative_memory": candidate["legislative_memory"],
+    }, ensure_ascii=False, separators=(",", ":"))
     if len(encoded) > MAX_STRUCTURED_ARTIFACT_CHARS:
         raise ValueError("structured cleanup artifact exceeds the deterministic size budget")
 

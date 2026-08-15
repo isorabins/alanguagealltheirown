@@ -75,7 +75,7 @@ prompt's version, SHA-256, path, and complete content. Optional `--prompt-c` and
 receive a content-addressed `custom` version in the evidence directory.
 Agent B performs one structured advisory review and has no acceptance authority.
 Its 22,000-token completion allowance can represent an audit of a near-full-size C
-candidate and remains bounded by the cleanup run's `$1.00` cap.
+candidate and remains bounded by the cleanup run's `$1.10` cap.
 An invalid or unavailable B review fails closed; automatic cleanup quarantines the
 reviewed cleanup edition and permanently records the exact validation error and any
 B response receipt without buying another attempt.
@@ -106,11 +106,11 @@ python3 shadow_cleanup.py \
   --source /tmp/alato-rulebook-shadow.json \
   --output /tmp/alato-cleanup-shadow \
   --model-c moonshotai/kimi-k3 \
-  --prompt-c prompts/cleanup_c_v3.md \
+  --prompt-c prompts/cleanup_c_v4.md \
   --prompt-b prompts/cleanup_b_v3.md
 ```
 
-This is a paid provider run capped at `$1.00`. It writes evidence only and does
+This is a paid provider run capped at `$1.10`. It writes evidence only and does
 not inspect or reset automatic-cleanup quarantine, bypass an open motion in the
 production loop, or apply the candidate.
 

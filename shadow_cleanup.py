@@ -25,11 +25,11 @@ MAX_C_TOKENS = 22_000
 MAX_B_TOKENS = 22_000
 MAX_C_CALLS = 2
 MAX_B_CALLS = 1
-DEFAULT_MAX_SPEND_USD = 1.00
+DEFAULT_MAX_SPEND_USD = 1.10
 PROMPTS_DIR = Path(__file__).parent / "prompts"
-DEFAULT_PROMPT_C_PATH = PROMPTS_DIR / "cleanup_c_v3.md"
+DEFAULT_PROMPT_C_PATH = PROMPTS_DIR / "cleanup_c_v4.md"
 DEFAULT_PROMPT_B_PATH = PROMPTS_DIR / "cleanup_b_v3.md"
-FINALIZER_PROMPT_PATH = PROMPTS_DIR / "cleanup_c_finalizer_v2.md"
+FINALIZER_PROMPT_PATH = PROMPTS_DIR / "cleanup_c_finalizer_v3.md"
 SEED_FIELDS = {"idea", "experiment", "risk"}
 AUDIT_FIELD_ORDER = (
     "verdict",

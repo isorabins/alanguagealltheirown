@@ -70,7 +70,7 @@ ACTIVE_AGENT_PROMPTS = {
 }
 AUTOMATIC_CLEANUP_GROWTH_PERCENT = 10
 AUTOMATIC_CLEANUP_MAX_SPEND_USD = DEFAULT_MAX_SPEND_USD
-AUTOMATIC_CLEANUP_PROMPT_C = ROOT / "prompts" / "cleanup_c_v3.md"
+AUTOMATIC_CLEANUP_PROMPT_C = ROOT / "prompts" / "cleanup_c_v4.md"
 AUTOMATIC_CLEANUP_PROMPT_B = ROOT / "prompts" / "cleanup_b_v3.md"
 
 TEST_EVERY = 3      # every Nth turn is a test turn

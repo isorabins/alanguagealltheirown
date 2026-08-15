@@ -87,13 +87,11 @@ class CleanupTests(unittest.TestCase):
             "retired_mechanisms": [{
                 "mechanism": long_text, "outcome": "rejected", "reason": long_text,
                 "source_ids": ["rule-001"],
-            } for _ in range(20)],
+            } for _ in range(8)],
             "failure_modes": [{
                 "failure": long_text, "lesson": long_text, "source_ids": ["rule-001"],
-            } for _ in range(20)],
-            "unresolved_questions": [{
-                "question": long_text, "source_ids": ["rule-001"],
-            } for _ in range(20)],
+            } for _ in range(8)],
+            "unresolved_questions": [],
         }
         with self.assertRaisesRegex(ValueError, "size budget"):
             compile_structured_cleanup_draft(source, oversize)

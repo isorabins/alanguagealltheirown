@@ -140,7 +140,7 @@ class ShadowCleanupTests(unittest.TestCase):
             self.assertEqual(self.source_path.read_bytes(), before)
             self.assertTrue(report["source_unchanged"])
             self.assertFalse(report["applied"])
-            self.assertEqual(report["prompt_c_version"], "cleanup-c-v3")
+            self.assertEqual(report["prompt_c_version"], "cleanup-c-v4")
             self.assertEqual(report["prompt_b_version"], "cleanup-b-v3")
             self.assertEqual(report["decision_authority"], "C")
             self.assertEqual(report["b_review_mode"], "single_advisory")
@@ -197,23 +197,23 @@ class ShadowCleanupTests(unittest.TestCase):
     def test_versioned_candidate_prompts_have_stable_ids_and_exact_test_content(self):
         prompt_c_v1 = ROOT / "prompts/cleanup_c_v1.md"
         prompt_b_v1 = ROOT / "prompts/cleanup_b_v1.md"
-        prompt_c = ROOT / "prompts/cleanup_c_v3.md"
+        prompt_c = ROOT / "prompts/cleanup_c_v4.md"
         prompt_b = ROOT / "prompts/cleanup_b_v3.md"
-        finalizer = ROOT / "prompts/cleanup_c_finalizer_v2.md"
+        finalizer = ROOT / "prompts/cleanup_c_finalizer_v3.md"
         c_hash = hashlib.sha256(prompt_c.read_bytes()).hexdigest()
         b_hash = hashlib.sha256(prompt_b.read_bytes()).hexdigest()
-        self.assertEqual(prompt_version(prompt_c, "c", c_hash), "cleanup-c-v3")
+        self.assertEqual(prompt_version(prompt_c, "c", c_hash), "cleanup-c-v4")
         self.assertEqual(prompt_version(prompt_b, "b", b_hash), "cleanup-b-v3")
         self.assertEqual(prompt_version(finalizer, "c-finalizer",
                                         hashlib.sha256(finalizer.read_bytes()).hexdigest()),
-                         "cleanup-c-finalizer-v2")
+                         "cleanup-c-finalizer-v3")
         self.assertEqual(hashlib.sha256(finalizer.read_bytes()).hexdigest(),
-                         "c8c76a98d6c2ec088f60a7886884d0ed60bc607bcf4a763d1cc3e47c820fcee1")
+                         "2e864b365b35e3d97981565f8db4f6c1b022f052793717597095fc701659486c")
         self.assertEqual(hashlib.sha256(prompt_c_v1.read_bytes()).hexdigest(),
                          "a7489096e4dedcab2f0287c45fc663f0daeab84e47311d0a7b7b92e04e17e730")
         self.assertEqual(hashlib.sha256(prompt_b_v1.read_bytes()).hexdigest(),
                          "39a9062ce640b760769bd70a8563f85b0358a962426c412c3d822ccc013ae32f")
-        self.assertEqual(c_hash, "63712681552b57e42a531bc2088925f69404193d2cbccc5ddc70e3ac32fc43b6")
+        self.assertEqual(c_hash, "0601eaa93bc5484ef31faa7a38259fb8f7ff7c6faf5b184b2ba2891a5ff8e5a8")
         self.assertEqual(b_hash, "34c3d859d7c519149f14d04565ce420bb0f2eb9ee307b2cbe0820b90c15029b4")
         self.assertEqual(
             hashlib.sha256((ROOT / "prompts/cleanup_c_v2.md").read_bytes()).hexdigest(),
@@ -222,6 +222,14 @@ class ShadowCleanupTests(unittest.TestCase):
         self.assertEqual(
             hashlib.sha256((ROOT / "prompts/cleanup_b_v2.md").read_bytes()).hexdigest(),
             "0d6ea9d93245cf1e714cccf928434724a9b13a5f3094f2c1f365b758416e850b",
+        )
+        self.assertEqual(
+            hashlib.sha256((ROOT / "prompts/cleanup_c_v3.md").read_bytes()).hexdigest(),
+            "63712681552b57e42a531bc2088925f69404193d2cbccc5ddc70e3ac32fc43b6",
+        )
+        self.assertEqual(
+            hashlib.sha256((ROOT / "prompts/cleanup_c_finalizer_v2.md").read_bytes()).hexdigest(),
+            "c8c76a98d6c2ec088f60a7886884d0ed60bc607bcf4a763d1cc3e47c820fcee1",
         )
         self.assertEqual(
             hashlib.sha256((ROOT / "prompts/cleanup_c_finalizer_v1.md").read_bytes()).hexdigest(),
@@ -402,7 +410,7 @@ class ShadowCleanupTests(unittest.TestCase):
             self.assertEqual(stored["b_advisory"], final["b_advisory"])
             assembled = json.loads((output / "rounds/02/c-system-prompt.json").read_text())
             self.assertEqual(assembled["content"], c_systems[1])
-            self.assertIn("cleanup-c-finalizer-v2", assembled["version"])
+            self.assertIn("cleanup-c-finalizer-v3", assembled["version"])
 
     def test_b_rejection_requires_an_actionable_finding(self):
         source = json.loads((FIX / "source.json").read_text())
