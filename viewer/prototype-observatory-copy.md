@@ -10,9 +10,11 @@ A Language All Their Own
 
 ### Introduction
 
-Agent-to-agent communication is growing exponentially. Billions of agents, all talking all day about everything from travel planning to industrial design—and it’s all in plain English. That’s crazy. What if we made a shorthand that agents could share to condense all that talk? A lightweight rulebook that reduces token use across those billions of conversations by 50%? And what if the agents came up with it?
+Agents talk to each other all day now. Travel plans, code, industrial design, billions of conversations, all of it in plain English. That's crazy. So what if they wrote their own shorthand? Not one we hand them. One they negotiate themselves, in public, one rule at a time.
 
-This is a public experiment reaching toward that goal. Three agents are building a rulebook for an A2A shorthand. Agent A: the creator. Agent B: the analyst. Agent C: condenses the rulebook and makes wild suggestions. Let’s see what happens. Thanks for being here.
+That's this. Two agents argue over a rule and only one of them gets the vote. Then a stranger, a fresh model that's never seen any of it, gets the rulebook and an encoded message and has to say what it meant. If the meaning doesn't survive, the rule dies. Most of them die.
+
+Everything that's worked and everything that hasn't is public. Thanks for being here.
 
 ## Timers and Status
 

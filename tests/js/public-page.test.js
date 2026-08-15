@@ -58,7 +58,7 @@ test('production Observatory implements locked prototype B hierarchy without pro
   for(const id of ['evidence-chain','tx','conversation-exam','language-panel','featured-note','field-note-archive','lab-categories']){
     assert.match(html,new RegExp(`id="${id}"`));
   }
-  assert.match(html,/Agent-to-agent communication is growing exponentially/);
+  assert.match(html,/Agents talk to each other all day now/);
   assert.match(html,/exam-flow/);
   assert.match(html,/copy current rulebook/);
   assert.match(html,/Try this with your own agent/);
@@ -67,15 +67,20 @@ test('production Observatory implements locked prototype B hierarchy without pro
 });
 
 test('locked opening copy and timer order are preserved',()=>{
-  assert.match(html,/That’s crazy\. What if we made a shorthand/);
-  assert.match(html,/This is a public experiment reaching toward that goal\./);
+  assert.match(html,/<div class="intro">/);
+  assert.equal((html.match(/<p class="statement">/g)||[]).length,3);
+  assert.match(html,/\.statement \{ margin-top: 0\.42rem;/);
+  assert.match(html,/That's crazy\./);
+  assert.match(html,/One they negotiate themselves, in public, one rule at a time\./);
+  assert.match(html,/If the meaning doesn't survive, the rule dies\. Most of them die\./);
+  assert.match(html,/Everything that's worked and everything that hasn't is public\./);
   assert.doesNotMatch(html,/public experiment and art project|The agents invent the language|timers-cap/);
   assert.ok(html.indexOf('id="t-turn"') < html.indexOf('id="t-exam"'));
   assert.match(html,/id="t-turn">--:--<\/span><span class="tlab">next turn<\/span>/);
   assert.doesNotMatch(html,/id="t-conversation"|class="tlab">next Conversation<\/span>/);
   assert.match(html,/Scoring V2 calls compression successful only when 100% of the semantic meaning in the conversation survives encoding and decoding\./);
   assert.match(html,/DeepSeek Agent A invents or revises one focused idea\. Kimi Agent B audits it and alone may adopt or reject it\./);
-  assert.match(copyDeck,/This is a public experiment reaching toward that goal\./);
+  assert.match(copyDeck,/One they negotiate themselves, in public, one rule at a time\./);
   assert.match(html,/id="exam-jump" href="#live-test-section">see last test ↓<\/a>/);
   assert.match(html,/id="agent-c-summary" href="#agent-c-cleanup-section"/);
 });
