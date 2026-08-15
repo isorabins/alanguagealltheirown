@@ -11,7 +11,12 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Callable
 
-from cleanup_rulebook import cleanup_draft_request_options, compile_cleanup_draft, validate_replacement
+from cleanup_rulebook import (
+    compile_structured_cleanup_draft,
+    structured_cleanup_request_options,
+    validate_replacement,
+    validate_structured_candidate,
+)
 from rulebook import render_language
 from state_store import atomic_write_json, load_json, snapshot_hash
 
@@ -20,11 +25,11 @@ MAX_C_TOKENS = 22_000
 MAX_B_TOKENS = 22_000
 MAX_C_CALLS = 2
 MAX_B_CALLS = 1
-DEFAULT_MAX_SPEND_USD = 1.00
+DEFAULT_MAX_SPEND_USD = 1.10
 PROMPTS_DIR = Path(__file__).parent / "prompts"
-DEFAULT_PROMPT_C_PATH = PROMPTS_DIR / "cleanup_c_v1.md"
-DEFAULT_PROMPT_B_PATH = PROMPTS_DIR / "cleanup_b_v1.md"
-FINALIZER_PROMPT_PATH = PROMPTS_DIR / "cleanup_c_finalizer_v1.md"
+DEFAULT_PROMPT_C_PATH = PROMPTS_DIR / "cleanup_c_v4.md"
+DEFAULT_PROMPT_B_PATH = PROMPTS_DIR / "cleanup_b_v3.md"
+FINALIZER_PROMPT_PATH = PROMPTS_DIR / "cleanup_c_finalizer_v3.md"
 SEED_FIELDS = {"idea", "experiment", "risk"}
 AUDIT_FIELD_ORDER = (
     "verdict",
@@ -76,7 +81,7 @@ def _adopted_rows(source: dict[str, Any]) -> list[dict[str, str]]:
 
 def cleanup_c_request_options(source: dict[str, Any]) -> dict[str, Any]:
     """Extend the proven cleanup schema with three non-operative creative seeds."""
-    options = copy.deepcopy(cleanup_draft_request_options(source))
+    options = copy.deepcopy(structured_cleanup_request_options(source))
     schema = options["response_format"]["json_schema"]["schema"]
     schema["properties"]["creative_seeds"] = {
         "type": "array",
@@ -178,7 +183,9 @@ def _require_clean_completion(usage: dict[str, Any], label: str) -> None:
 
 
 def compile_c_response(source: dict[str, Any], response: dict[str, Any]) -> tuple[dict[str, Any], list[dict[str, str]]]:
-    expected = {"assignments", "groups", "exclusions", "creative_seeds"}
+    expected = {
+        "assignments", "groups", "exclusions", "legislative_memory", "creative_seeds"
+    }
     if set(response) != expected:
         raise ValueError("Agent C response has an invalid top-level shape")
     seeds = response["creative_seeds"]
@@ -189,8 +196,11 @@ def compile_c_response(source: dict[str, Any], response: dict[str, Any]) -> tupl
             raise ValueError("every creative seed requires idea, experiment, and risk")
         if any(not isinstance(seed[field], str) or not seed[field].strip() for field in SEED_FIELDS):
             raise ValueError("creative seed fields must be non-empty strings")
-    draft = {key: copy.deepcopy(response[key]) for key in ("assignments", "groups", "exclusions")}
-    return compile_cleanup_draft(source, draft), copy.deepcopy(seeds)
+    draft = {
+        key: copy.deepcopy(response[key])
+        for key in ("assignments", "groups", "exclusions", "legislative_memory")
+    }
+    return compile_structured_cleanup_draft(source, draft), copy.deepcopy(seeds)
 
 
 def validate_b_audit(source: dict[str, Any], candidate: dict[str, Any], audit: dict[str, Any]) -> None:
@@ -210,6 +220,7 @@ def validate_b_audit(source: dict[str, Any], candidate: dict[str, Any], audit: d
         if not isinstance(audit.get(field), list):
             raise ValueError(f"Agent B audit {field} must be a list")
     if audit["verdict"] == "pass":
+        validate_structured_candidate(source, candidate)
         validate_replacement(source, candidate, audit)
     elif not any(audit[field] for field in ("omissions", "meaning_changes", "operational_text")):
         raise ValueError("Agent B rejection requires at least one actionable finding")
@@ -332,6 +343,7 @@ def run_shadow_cleanup(
             c_request: dict[str, Any] = {
                 "source_hash": source_hash,
                 "adopted_language": adopted,
+                "complete_legislature": copy.deepcopy(source.get("rules", [])),
             }
             c_system = prompt_c
             c_system_version = prompt_c_version
@@ -444,6 +456,7 @@ def run_shadow_cleanup(
                 "source_hash": source_hash,
                 "candidate_hash": candidate_hash,
                 "original_adopted_language": adopted,
+                "complete_legislature": copy.deepcopy(source.get("rules", [])),
                 "candidate": candidate,
             }
             try:

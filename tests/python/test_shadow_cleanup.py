@@ -25,8 +25,24 @@ FIX = ROOT / "tests/fixtures/cleanup"
 def c_response():
     return {
         "assignments": {"rule-001": "deadlines", "rule-002": "deadlines"},
-        "groups": [{"id": "deadlines", "text_en": "Mark each deadline or due time once."}],
+        "groups": [{
+            "id": "deadlines",
+            "trigger": "A message contains a deadline or due time.",
+            "encoder": ["Mark each deadline or due time once."],
+            "decoder": ["Restore the marked deadline at its original scope."],
+            "invalid_if": ["A deadline changes or loses its scope."],
+            "overrides": [],
+        }],
         "exclusions": [],
+        "legislative_memory": {
+            "retired_mechanisms": [],
+            "failure_modes": [{
+                "failure": "Deadline scope was lost during reconstruction.",
+                "lesson": "Keep the time and its governed action bound together.",
+                "source_ids": ["rule-001"],
+            }],
+            "unresolved_questions": [],
+        },
         "creative_seeds": [
             {"idea": "Try a scoped time marker.", "experiment": "Compare one deadline payload.", "risk": "The marker may be ambiguous."},
             {"idea": "Try positional task slots.", "experiment": "Compare one handoff payload.", "risk": "Slot order may be brittle."},
@@ -124,8 +140,8 @@ class ShadowCleanupTests(unittest.TestCase):
             self.assertEqual(self.source_path.read_bytes(), before)
             self.assertTrue(report["source_unchanged"])
             self.assertFalse(report["applied"])
-            self.assertEqual(report["prompt_c_version"], "cleanup-c-v1")
-            self.assertEqual(report["prompt_b_version"], "cleanup-b-v1")
+            self.assertEqual(report["prompt_c_version"], "cleanup-c-v4")
+            self.assertEqual(report["prompt_b_version"], "cleanup-b-v3")
             self.assertEqual(report["decision_authority"], "C")
             self.assertEqual(report["b_review_mode"], "single_advisory")
             self.assertEqual(len(json.loads((output / "creative-seeds.json").read_text())), 3)
@@ -181,24 +197,44 @@ class ShadowCleanupTests(unittest.TestCase):
     def test_versioned_candidate_prompts_have_stable_ids_and_exact_test_content(self):
         prompt_c_v1 = ROOT / "prompts/cleanup_c_v1.md"
         prompt_b_v1 = ROOT / "prompts/cleanup_b_v1.md"
-        prompt_c = ROOT / "prompts/cleanup_c_v2.md"
-        prompt_b = ROOT / "prompts/cleanup_b_v2.md"
-        finalizer = ROOT / "prompts/cleanup_c_finalizer_v1.md"
+        prompt_c = ROOT / "prompts/cleanup_c_v4.md"
+        prompt_b = ROOT / "prompts/cleanup_b_v3.md"
+        finalizer = ROOT / "prompts/cleanup_c_finalizer_v3.md"
         c_hash = hashlib.sha256(prompt_c.read_bytes()).hexdigest()
         b_hash = hashlib.sha256(prompt_b.read_bytes()).hexdigest()
-        self.assertEqual(prompt_version(prompt_c, "c", c_hash), "cleanup-c-v2")
-        self.assertEqual(prompt_version(prompt_b, "b", b_hash), "cleanup-b-v2")
+        self.assertEqual(prompt_version(prompt_c, "c", c_hash), "cleanup-c-v4")
+        self.assertEqual(prompt_version(prompt_b, "b", b_hash), "cleanup-b-v3")
         self.assertEqual(prompt_version(finalizer, "c-finalizer",
                                         hashlib.sha256(finalizer.read_bytes()).hexdigest()),
-                         "cleanup-c-finalizer-v1")
+                         "cleanup-c-finalizer-v3")
         self.assertEqual(hashlib.sha256(finalizer.read_bytes()).hexdigest(),
-                         "28b66aeb1cba08d1f905e062bda40d0eda82b0d19370694c201303fdfb8f8b10")
+                         "2e864b365b35e3d97981565f8db4f6c1b022f052793717597095fc701659486c")
         self.assertEqual(hashlib.sha256(prompt_c_v1.read_bytes()).hexdigest(),
                          "a7489096e4dedcab2f0287c45fc663f0daeab84e47311d0a7b7b92e04e17e730")
         self.assertEqual(hashlib.sha256(prompt_b_v1.read_bytes()).hexdigest(),
                          "39a9062ce640b760769bd70a8563f85b0358a962426c412c3d822ccc013ae32f")
-        self.assertEqual(c_hash, "aa454bf3c8f9ea4d124398716e91956529c33acd7206016003fa43bed6d71ad0")
-        self.assertEqual(b_hash, "0d6ea9d93245cf1e714cccf928434724a9b13a5f3094f2c1f365b758416e850b")
+        self.assertEqual(c_hash, "0601eaa93bc5484ef31faa7a38259fb8f7ff7c6faf5b184b2ba2891a5ff8e5a8")
+        self.assertEqual(b_hash, "34c3d859d7c519149f14d04565ce420bb0f2eb9ee307b2cbe0820b90c15029b4")
+        self.assertEqual(
+            hashlib.sha256((ROOT / "prompts/cleanup_c_v2.md").read_bytes()).hexdigest(),
+            "aa454bf3c8f9ea4d124398716e91956529c33acd7206016003fa43bed6d71ad0",
+        )
+        self.assertEqual(
+            hashlib.sha256((ROOT / "prompts/cleanup_b_v2.md").read_bytes()).hexdigest(),
+            "0d6ea9d93245cf1e714cccf928434724a9b13a5f3094f2c1f365b758416e850b",
+        )
+        self.assertEqual(
+            hashlib.sha256((ROOT / "prompts/cleanup_c_v3.md").read_bytes()).hexdigest(),
+            "63712681552b57e42a531bc2088925f69404193d2cbccc5ddc70e3ac32fc43b6",
+        )
+        self.assertEqual(
+            hashlib.sha256((ROOT / "prompts/cleanup_c_finalizer_v2.md").read_bytes()).hexdigest(),
+            "c8c76a98d6c2ec088f60a7886884d0ed60bc607bcf4a763d1cc3e47c820fcee1",
+        )
+        self.assertEqual(
+            hashlib.sha256((ROOT / "prompts/cleanup_c_finalizer_v1.md").read_bytes()).hexdigest(),
+            "28b66aeb1cba08d1f905e062bda40d0eda82b0d19370694c201303fdfb8f8b10",
+        )
 
     def test_shadow_refuses_the_same_model_for_c_and_b(self):
         with tempfile.TemporaryDirectory() as directory:
@@ -334,7 +370,7 @@ class ShadowCleanupTests(unittest.TestCase):
                     c_systems.append(system)
                     response = c_response()
                     if len(c_requests) == 2:
-                        response["groups"][0]["text_en"] = "Mark every deadline or due time once."
+                        response["groups"][0]["encoder"][0] = "Mark every deadline or due time once."
                     return json.dumps(response), {"cost": 0.01}
                 b_requests.append(request)
                 findings = [{"location": "rule-c001", "issue": "The deadline scope changed."}]
@@ -368,13 +404,13 @@ class ShadowCleanupTests(unittest.TestCase):
             self.assertIn(FINALIZER_PROMPT, c_systems[1])
             self.assertEqual(len(b_requests), 1)
             final_candidate = json.loads((output / "candidate.json").read_text())
-            self.assertEqual(final_candidate["rules"][0]["text_en"],
-                             "Mark every deadline or due time once.")
+            self.assertIn("Mark every deadline or due time once.",
+                          final_candidate["rules"][0]["text_en"])
             stored = json.loads((output / "rounds/02/c-request.json").read_text())
             self.assertEqual(stored["b_advisory"], final["b_advisory"])
             assembled = json.loads((output / "rounds/02/c-system-prompt.json").read_text())
             self.assertEqual(assembled["content"], c_systems[1])
-            self.assertIn("cleanup-c-finalizer-v1", assembled["version"])
+            self.assertIn("cleanup-c-finalizer-v3", assembled["version"])
 
     def test_b_rejection_requires_an_actionable_finding(self):
         source = json.loads((FIX / "source.json").read_text())

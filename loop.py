@@ -65,13 +65,13 @@ MODEL_DECODER = "moonshotai/kimi-k2.6"  # a FOREIGN decoder: the stranger must n
 MODEL_GRADER = "deepseek/deepseek-v3.2"
 
 ACTIVE_AGENT_PROMPTS = {
-    "A": ("agent-a-v2", ROOT / "prompts" / "agent_a_v2.md"),
-    "B": ("agent-b-v2", ROOT / "prompts" / "agent_b_v2.md"),
+    "A": ("agent-a-v3", ROOT / "prompts" / "agent_a_v3.md"),
+    "B": ("agent-b-v3", ROOT / "prompts" / "agent_b_v3.md"),
 }
 AUTOMATIC_CLEANUP_GROWTH_PERCENT = 10
 AUTOMATIC_CLEANUP_MAX_SPEND_USD = DEFAULT_MAX_SPEND_USD
-AUTOMATIC_CLEANUP_PROMPT_C = ROOT / "prompts" / "cleanup_c_v2.md"
-AUTOMATIC_CLEANUP_PROMPT_B = ROOT / "prompts" / "cleanup_b_v2.md"
+AUTOMATIC_CLEANUP_PROMPT_C = ROOT / "prompts" / "cleanup_c_v4.md"
+AUTOMATIC_CLEANUP_PROMPT_B = ROOT / "prompts" / "cleanup_b_v3.md"
 
 TEST_EVERY = 3      # every Nth turn is a test turn
 WINDOW = 30         # conversation events each agent sees
@@ -827,7 +827,61 @@ def ensure_structured_protocol_cutover(conv, rb, meta, *, activation_turn):
 
 
 AUTOMATIC_CLEANUP_STATE_SCHEMA_VERSION = 2
-AUTOMATIC_CLEANUP_EDITION = "automatic-cleanup-v4-valid-b-review"
+AUTOMATIC_CLEANUP_EDITION = "automatic-cleanup-v5-structured-context"
+MAX_POST_CHECKPOINT_CHANGES = 64
+MAX_STRUCTURED_PROMPT_CHARS = 120_000
+
+
+def build_structured_cleanup_snapshot(candidate, *, checkpoint_turn, source_hash):
+    """Bind one accepted C artifact to the automatic-cleanup checkpoint."""
+    structured_rulebook = candidate.get("structured_rulebook")
+    legislative_memory = candidate.get("legislative_memory")
+    if not isinstance(structured_rulebook, dict) or not isinstance(legislative_memory, dict):
+        raise ValueError("accepted cleanup candidate lacks structured context")
+    if isinstance(checkpoint_turn, bool) or not isinstance(checkpoint_turn, int) or checkpoint_turn < 0:
+        raise ValueError("structured snapshot checkpoint_turn is invalid")
+    if not isinstance(source_hash, str) or len(source_hash) != 64:
+        raise ValueError("structured snapshot source_hash is invalid")
+    snapshot = {
+        "checkpoint_turn": checkpoint_turn,
+        "source_hash": source_hash,
+        "rulebook": copy.deepcopy(structured_rulebook),
+        "legislative_memory": copy.deepcopy(legislative_memory),
+    }
+    if len(json.dumps(snapshot, ensure_ascii=False, separators=(",", ":"))) > 25_000:
+        raise ValueError("structured snapshot exceeds the deterministic size budget")
+    return snapshot
+
+
+def post_checkpoint_rule_changes(rb, checkpoint_turn):
+    """Project only adopted, revised, and repealed changes after C's checkpoint."""
+    relevant_verbs = {"adopt", "revise", "repeal_adopted", "repeal_revised"}
+    changes = []
+    for rule in rb.get("rules", []):
+        relevant = [
+            history for history in rule.get("history", [])
+            if isinstance(history, dict)
+            and history.get("verb") in relevant_verbs
+            and isinstance(history.get("turn"), int)
+            and history["turn"] > checkpoint_turn
+        ]
+        if not relevant:
+            continue
+        latest = max(relevant, key=lambda row: row["turn"])
+        changes.append({
+            "turn": latest["turn"],
+            "verb": latest["verb"],
+            "rule_id": rule.get("id"),
+            "status": rule.get("status"),
+            "text_en": rule.get("text_en"),
+            "source_ids": copy.deepcopy(rule.get("source_ids", [])),
+        })
+    changes.sort(key=lambda row: (row["turn"], str(row["rule_id"])))
+    if len(changes) > MAX_POST_CHECKPOINT_CHANGES:
+        raise RuntimeError("post-checkpoint rule projection exceeds the deterministic item budget")
+    if len(json.dumps(changes, ensure_ascii=False, separators=(",", ":"))) > 50_000:
+        raise RuntimeError("post-checkpoint rule projection exceeds the deterministic size budget")
+    return changes
 
 
 def _structural_cleanup_failure(report):
@@ -1008,6 +1062,11 @@ def maybe_run_automatic_cleanup(conv, rb, meta, turn):
         seeds = load_json(output / "creative-seeds.json", None)
         if not isinstance(candidate, dict) or not isinstance(seeds, list):
             raise RuntimeError("automatic cleanup output is incomplete")
+        structured_snapshot = build_structured_cleanup_snapshot(
+            candidate,
+            checkpoint_turn=turn,
+            source_hash=str(report.get("source_hash", "")),
+        )
         before_rulebook = copy.deepcopy(rb)
         applied = build_applied_rulebook(before_rulebook, candidate)
         applied_tokens = token_count(render_language(applied), meta)
@@ -1032,7 +1091,12 @@ def maybe_run_automatic_cleanup(conv, rb, meta, turn):
             "baseline_turn": turn,
             "last_status": "applied",
             "last_reason": report.get("reason"),
-            "pending_creative_seeds": {"cleanup_turn": turn, "seeds": seeds},
+            "structured_snapshot": structured_snapshot,
+            "pending_creative_seeds": {
+                "cleanup_turn": turn,
+                "seeds": seeds,
+                "delivered_roles": [],
+            },
         })
         conv.append({
             "turn": turn,
@@ -1071,6 +1135,7 @@ def assemble_legislative_prompt(
     turn,
     agent,
     collaboration_input,
+    structured_snapshot=None,
 ):
     """Assemble the one deterministic model-facing legislative projection."""
     prompt_version, role_prompt_path = ACTIVE_AGENT_PROMPTS[agent]
@@ -1120,9 +1185,13 @@ def assemble_legislative_prompt(
     )
     public_stem = "Public audit:" if agent == "B" else "Public proposal:"
     example_deliberation = (
-        f"Public audit: {target} needs a focused verification before adoption."
+        f"Public audit: {target} needs a focused verification before adoption. "
+        "The boundary must be explicit enough for a fresh decoder to apply."
         if agent == "B"
-        else "Public proposal: the current idea needs one focused revision."
+        else (
+            "Public proposal: the current idea needs one focused revision. "
+            "This change states the reusable mechanism and its decoding boundary."
+        )
     )
     if agent == "B":
         example_motion = (
@@ -1168,7 +1237,9 @@ def assemble_legislative_prompt(
     output_contract = (
         "=== MANDATORY PUBLIC OUTPUT CONTRACT ===\n"
         "`deliberation` is required public output, not private reasoning. It "
-        f"must be a complete sentence beginning exactly \"{public_stem}\". "
+        "must give a substantive, deliberately public conclusion and rationale "
+        f"beginning exactly \"{public_stem}\". Multiple paragraphs are allowed; "
+        "never expose hidden chain-of-thought. "
         "Return the exact object key and value types required by the schema; "
         "never substitute prose strings or differently named request fields. "
         f"Valid non-operative shape example: {example}\n"
@@ -1195,31 +1266,62 @@ def assemble_legislative_prompt(
         prompt_request = _projection_without_private_fault_material(
             prompt_request, fault_ledger
         )
-        prompt_language, prompt_legislature = (
-            _rulebook_views_without_private_fault_material(rb, fault_ledger)
+    if structured_snapshot is not None:
+        if not isinstance(structured_snapshot, dict):
+            raise RuntimeError("structured cleanup snapshot is invalid")
+        checkpoint_turn = structured_snapshot.get("checkpoint_turn")
+        if isinstance(checkpoint_turn, bool) or not isinstance(checkpoint_turn, int):
+            raise RuntimeError("structured cleanup checkpoint is invalid")
+        structured_context = {
+            "accepted_snapshot": copy.deepcopy(structured_snapshot),
+            "post_checkpoint_changes": post_checkpoint_rule_changes(rb, checkpoint_turn),
+            "current_machine_state": prompt_request,
+        }
+        if semantic_fault is not None:
+            structured_context = _projection_without_private_fault_material(
+                structured_context, fault_ledger
+            )
+        context_json = json.dumps(
+            structured_context, ensure_ascii=False, separators=(",", ":")
+        )
+        system = (
+            f"{output_contract}{constitution}\n\n{role_prompt}\n\n"
+            f"=== STRUCTURED WORKING CONTEXT ===\n{context_json}"
         )
     else:
-        prompt_language = render_language(rb)
-        prompt_legislature = render_legislature(rb)
-    system = (
-        f"{output_contract}{constitution}\n\n{role_prompt}\n\n"
-        f"=== ADOPTED LANGUAGE ===\n{prompt_language}\n\n"
-        f"=== COMPLETE LEGISLATURE ===\n{prompt_legislature}\n\n"
-        f"=== AUTHORITATIVE CURRENT MACHINE STATE AND RECEIPT ===\n"
-        f"{json.dumps(prompt_request, ensure_ascii=False, separators=(',', ':'))}"
+        if semantic_fault is not None:
+            prompt_language, prompt_legislature = (
+                _rulebook_views_without_private_fault_material(rb, fault_ledger)
+            )
+        else:
+            prompt_language = render_language(rb)
+            prompt_legislature = render_legislature(rb)
+        system = (
+            f"{output_contract}{constitution}\n\n{role_prompt}\n\n"
+            f"=== ADOPTED LANGUAGE ===\n{prompt_language}\n\n"
+            f"=== COMPLETE LEGISLATURE ===\n{prompt_legislature}\n\n"
+            f"=== AUTHORITATIVE CURRENT MACHINE STATE AND RECEIPT ===\n"
+            f"{json.dumps(prompt_request, ensure_ascii=False, separators=(',', ':'))}"
+        )
+    context_basis = (
+        "the structured working context"
+        if structured_snapshot is not None
+        else "the complete legislature, authoritative current state"
     )
     user = (
         f"It is turn {turn}. You are Agent B. Audit only {audit_focus} using "
-        "the complete legislature, authoritative current state, and "
-        "collaboration input above. Set `deliberation` to one public sentence "
-        "beginning exactly \"Public audit:\". Return only the required "
+        f"{context_basis}, and "
+        "collaboration input above. Write a complete deliberately public conclusion "
+        "and rationale in `deliberation`, beginning exactly \"Public audit:\". "
+        "Multiple paragraphs are allowed. Return only the required "
         "structured response."
         if agent == "B"
         else (
-            f"It is turn {turn}. You are Agent A. Use the complete legislature, "
-            "authoritative current state, and collaboration input above. Set "
-            "`deliberation` to one public sentence beginning exactly "
-            "\"Public proposal:\". Return only the required structured response."
+            f"It is turn {turn}. You are Agent A. Use {context_basis} and "
+            "collaboration input above. Write a "
+            "complete deliberately public conclusion and rationale in `deliberation`, "
+            "beginning exactly \"Public proposal:\". Multiple paragraphs are allowed. "
+            "Return only the required structured response."
         )
     )
     prompt_receipt = {
@@ -1229,6 +1331,9 @@ def assemble_legislative_prompt(
             f"SYSTEM\n{system}\nUSER\n{user}".encode()
         ).hexdigest(),
     }
+    total_chars = len(system) + len(user)
+    if structured_snapshot is not None and total_chars > MAX_STRUCTURED_PROMPT_CHARS:
+        raise RuntimeError("structured legislative prompt exceeds the deterministic size budget")
     return {
         "system": system,
         "user": user,
@@ -1239,7 +1344,7 @@ def assemble_legislative_prompt(
         "canonical_request": request,
         "prompt_request": prompt_request,
         "required_fault_token": required_fault_token,
-        "total_chars": len(system) + len(user),
+        "total_chars": total_chars,
     }
 
 
@@ -1324,19 +1429,29 @@ def agent_turn(conv, rb, meta, collaboration, turn):
                 deliver_one(collaboration, "SUGGESTION", agent, turn))
     prompt_input = copy.deepcopy(delivery) if delivery else {}
     cleanup_state = meta.get("automatic_cleanup", {})
-    pending_seeds = (
-        cleanup_state.get("pending_creative_seeds")
-        if agent == "A" and isinstance(cleanup_state, dict)
-        else None
-    )
+    pending_seeds = None
+    if isinstance(cleanup_state, dict):
+        candidate_seeds = cleanup_state.get("pending_creative_seeds")
+        if isinstance(candidate_seeds, dict):
+            delivered_roles = candidate_seeds.get("delivered_roles", [])
+            if isinstance(delivered_roles, list) and agent not in delivered_roles:
+                pending_seeds = candidate_seeds
     if pending_seeds:
-        prompt_input["cleanup_creative_seeds"] = copy.deepcopy(pending_seeds)
+        prompt_input["cleanup_creative_seeds"] = {
+            "cleanup_turn": pending_seeds.get("cleanup_turn"),
+            "seeds": copy.deepcopy(pending_seeds.get("seeds")),
+        }
     assembled = assemble_legislative_prompt(
         conv,
         rb,
         turn=turn,
         agent=agent,
         collaboration_input=prompt_input or None,
+        structured_snapshot=(
+            cleanup_state.get("structured_snapshot")
+            if isinstance(cleanup_state, dict)
+            else None
+        ),
     )
     system = assembled["system"]
     base_user = assembled["user"]
@@ -1492,8 +1607,15 @@ def agent_turn(conv, rb, meta, collaboration, turn):
                 record["request_turn"] = turn
                 collaboration[bucket].append(record)
     if pending_seeds:
-        cleanup_state["creative_seeds_delivered_turn"] = turn
-        cleanup_state.pop("pending_creative_seeds", None)
+        delivered_roles = pending_seeds.setdefault("delivered_roles", [])
+        if agent not in delivered_roles:
+            delivered_roles.append(agent)
+        pending_seeds.setdefault("delivered_turns", {})[agent] = turn
+        if set(delivered_roles) == {"A", "B"}:
+            cleanup_state["creative_seeds_delivered_turns"] = copy.deepcopy(
+                pending_seeds["delivered_turns"]
+            )
+            cleanup_state.pop("pending_creative_seeds", None)
     meta["last_agent"] = agent
     print(f"[t{turn} {agent}] {usage.get('completion_tokens', 0)}tok  "
           f"rules:{len(rb['rules'])}  ${meta['spend_usd']:.3f}", flush=True)

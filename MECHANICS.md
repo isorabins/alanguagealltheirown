@@ -28,13 +28,13 @@ All JSON replacement uses a temporary file, file sync, atomic rename, and direct
 
 ## Legislature
 
-Every new A/B call receives a strict JSON Schema generated from the canonical role and open-motion state. DeepSeek A may return one typed `PROPOSE`, `REPEAL`, or `REVISE` motion; Kimi B may return one typed `ADOPT`, `REJECT`, or focused `REQUEST`. An open motion constrains the schema to its one exact target, and B cannot omit the audit motion while that target remains open. Deliberation must contain a substantive English fragment rather than punctuation-only filler. `MEASURE`, `LOOKUP`, `RESEARCH`, and `ASK` use bounded typed arrays, and natural-language deliberation has no operative authority.
+Every new A/B call receives a strict JSON Schema generated from the canonical role and open-motion state. DeepSeek A may return one typed `PROPOSE`, `REPEAL`, or `REVISE` motion; Kimi B may return one typed `ADOPT`, `REJECT`, or focused `REQUEST`. An open motion constrains the schema to its one exact target, and B cannot omit the audit motion while that target remains open. Deliberation is complete deliberately public output, may contain multiple paragraphs, and must remain substantive rather than punctuation-only; it is not hidden chain-of-thought and has no operative authority. `MEASURE`, `LOOKUP`, `RESEARCH`, and `ASK` use bounded typed arrays.
 
 Pydantic validates the provider response locally. A structural failure gets at most two regeneration attempts against the unchanged state; exhaustion records one structural-failure receipt, mutates no rule, and retains the same next actor. A validated action enters the existing single-writer state machine directly, without live regex or prose extraction.
 
 Each attempted legislative turn persists an authoritative post-state receipt containing the attempted action, result/reason, exact changed and unchanged rule ids, current open motion, adopted count, adopted-language hash, rulebook hash, and next actor. The first run after cutover appends one reconciled cutover receipt without rewriting earlier events or rules. Request assembly renders the current machine state/latest receipt as authoritative, derives B's latest accepted typed `REQUEST` only when it targets that current open motion, and does not replay canonical prior events into a fresh legislative request. A revision, structural failure, restart, or no-motion outcome leaves that derived feedback eligible; a newer eligible request supersedes it, and settlement or a different open target omits it.
 
-Persistence stays complete while model rendering is compact. The single prompt assembler keeps `COMPLETE LEGISLATURE` as the full rule/status view, then projects current state without its duplicate `rule_states` array. The latest structured receipt retains turn, actor, result/reason, attempts, changed ids, open motion, adopted count/hash, rulebook version/hash, and next actor; the one active-feedback projection retains only its target, exact focus, and request turn. Duplicated attempted actions, unchanged ids, the rulebook change counter, and all prior events remain in canonical JSON but not the fresh legislative request. These deterministic omissions never replace the canonical Pydantic models or event records.
+Persistence stays complete while model rendering is compact. After the first successful reviewed C cleanup, the prompt assembler uses one accepted structured rulebook and bounded legislative memory plus every adopted, revised, or repealed rule change after its checkpoint. That read-only delta overrides the older snapshot until the next cleanup absorbs it; the complete legislature stays canonical but does not enter fresh A/B requests. Before any structured snapshot exists, the previous complete views remain the fail-closed compatibility basis. The latest structured receipt retains turn, actor, result/reason, attempts, changed ids, open motion, adopted count/hash, rulebook version/hash, and next actor; the one active-feedback projection retains only its target, exact focus, and request turn. Duplicated attempted actions, unchanged ids, the rulebook change counter, and all prior events remain in canonical JSON but not the structured-context request.
 
 Recent development-exam events remain complete in canonical persistence and directly renderable public history. Scoring V2 events keep the meaning pass, compression success, semantic coverage, critical failures, inventions, message-body savings, and exact decoded evidence separate. Invalid judge results remain evaluator evidence but never become benchmark failures or replace the prior valid V2 baseline. Starting at the turn-1506 migration boundary, judge-valid critical failures and authoritative legislature receipts deterministically reconstruct a private lifecycle ledger: `UNRESOLVED → REPAIR_PROPOSED → PENDING_RETEST → RESOLVED`. Unrelated language hashes do not change that lifecycle. A fresh legislative request contains at most one abstract fault receipt and never its benchmark id, atom id, expected meaning, literals, decoded evidence, or raw payload. While a receipt is active, the transient adopted-language, legislature, and request projections replace any whole text field that overlaps exact queued source material with a fixed withholding marker; canonical rulebook, collaboration, and event records are never changed. The eligible Agent A schema requires the exact opaque token with a focused proposal; Agent B's canonical action on the linked motion preserves or advances the association. A later judge-valid same-benchmark same-atom `SURVIVED` result after the recorded failure resolves either an unresolved or pending fault, whether or not that atom received its own linked adoption; a later valid failure reopens it. The structured-response schema retains the existing substantive English requirement on `deliberation`; local minimum length, alphanumeric check, retry count, model, and provider routing remain unchanged.
 
@@ -75,7 +75,7 @@ prompt's version, SHA-256, path, and complete content. Optional `--prompt-c` and
 receive a content-addressed `custom` version in the evidence directory.
 Agent B performs one structured advisory review and has no acceptance authority.
 Its 22,000-token completion allowance can represent an audit of a near-full-size C
-candidate and remains bounded by the cleanup run's `$1.00` cap.
+candidate and remains bounded by the cleanup run's `$1.10` cap.
 An invalid or unavailable B review fails closed; automatic cleanup quarantines the
 reviewed cleanup edition and permanently records the exact validation error and any
 B response receipt without buying another attempt.
@@ -106,11 +106,11 @@ python3 shadow_cleanup.py \
   --source /tmp/alato-rulebook-shadow.json \
   --output /tmp/alato-cleanup-shadow \
   --model-c moonshotai/kimi-k3 \
-  --prompt-c prompts/cleanup_c_v2.md \
-  --prompt-b prompts/cleanup_b_v2.md
+  --prompt-c prompts/cleanup_c_v4.md \
+  --prompt-b prompts/cleanup_b_v3.md
 ```
 
-This is a paid provider run capped at `$1.00`. It writes evidence only and does
+This is a paid provider run capped at `$1.10`. It writes evidence only and does
 not inspect or reset automatic-cleanup quarantine, bypass an open motion in the
 production loop, or apply the candidate.
 

@@ -69,6 +69,27 @@ def production_book():
     }
 
 
+def accepted_structured_snapshot(checkpoint_turn=1200):
+    return {
+        "checkpoint_turn": checkpoint_turn,
+        "source_hash": "a" * 64,
+        "rulebook": {"rules": [{
+            "id": "explicit-boundary",
+            "trigger": "A source boundary must remain explicit.",
+            "encoder": ["Mark the boundary once."],
+            "decoder": ["Restore the marked boundary."],
+            "invalid_if": ["The boundary changes or disappears."],
+            "overrides": [],
+            "source_ids": ["rule-001"],
+        }]},
+        "legislative_memory": {
+            "retired_mechanisms": [],
+            "failure_modes": [],
+            "unresolved_questions": [],
+        },
+    }
+
+
 def full_receipt(book, turn, actor):
     language = language_payload(book)
     return {
@@ -277,8 +298,9 @@ class ProjectionUnitTests(unittest.TestCase):
 
         self.assertEqual(deliberation["minLength"], 12)
         self.assertEqual(deliberation["pattern"], "[A-Za-z0-9]")
-        self.assertIn("public-facing summary", deliberation["description"])
+        self.assertIn("deliberately public conclusion and rationale", deliberation["description"])
         self.assertIn("not private reasoning", deliberation["description"])
+        self.assertIn("Multiple paragraphs are allowed", deliberation["description"])
 
     def test_research_projection_is_bounded_deterministic_and_preserves_full_delivery(self):
         state = empty_state()
@@ -834,6 +856,105 @@ class SemanticFaultFeedbackPromptTests(unittest.TestCase):
 
 
 class ProductionShapedPromptTests(unittest.TestCase):
+    def test_cleanup_suggestions_reach_first_a_and_b_once_then_expire(self):
+        book = {
+            "version": "0.2", "changes": 2, "next_id": 3,
+            "rules": [
+                {"id": "rule-001", "text_en": "Mark deadlines.", "status": "adopted", "history": []},
+                {"id": "rule-002", "text_en": "Keep identifiers exact.", "status": "adopted", "history": []},
+            ],
+        }
+        seeds = [{
+            "idea": f"SUGGESTION_SENTINEL_{index}",
+            "experiment": f"Experiment {index}",
+            "risk": f"Risk {index}",
+        } for index in range(1, 4)]
+        meta = {
+            "last_agent": "B", "spend_usd": 0.0,
+            "automatic_cleanup": {
+                "structured_snapshot": accepted_structured_snapshot(checkpoint_turn=0),
+                "pending_creative_seeds": {
+                    "cleanup_turn": 0, "seeds": seeds, "delivered_roles": [],
+                },
+            },
+        }
+        collaboration_state = empty_state()
+        events = []
+        systems = []
+        outputs = iter([
+            json.dumps({
+                "deliberation": "Public proposal: this reusable boundary is ready for public audit.\n\nIt preserves the exact governed span.",
+                "motion": {"kind": "PROPOSE", "text": "Preserve one governed span with an explicit boundary marker."},
+                "fault_response": None, "measurements": [], "requests": [],
+            }),
+            json.dumps({
+                "deliberation": "Public audit: the proposal adds a distinct reversible boundary.\n\nIts scope is explicit enough to adopt.",
+                "motion": {"kind": "ADOPT", "target_rule_id": "rule-003"},
+                "fault_response": None, "measurements": [], "requests": [],
+            }),
+            json.dumps({
+                "deliberation": "Public proposal: no further motion is earned from the current evidence.\n\nThe adopted boundary should be tested first.",
+                "motion": None, "fault_response": None, "measurements": [], "requests": [],
+            }),
+        ])
+
+        def fake_call(_model, system, _user, **_kwargs):
+            systems.append(system)
+            return next(outputs), {"completion_tokens": 40}
+
+        with mock.patch.object(loop, "call", side_effect=fake_call), mock.patch.object(
+            loop, "token_count", return_value=50
+        ):
+            self.assertEqual(loop.agent_turn(events, book, meta, collaboration_state, 1), "accepted")
+            self.assertEqual(loop.agent_turn(events, book, meta, collaboration_state, 2), "accepted")
+            self.assertEqual(loop.agent_turn(events, book, meta, collaboration_state, 3), "accepted")
+
+        self.assertIn("SUGGESTION_SENTINEL_1", systems[0])
+        self.assertIn("SUGGESTION_SENTINEL_1", systems[1])
+        self.assertNotIn("delivered_roles", systems[0])
+        self.assertNotIn("delivered_roles", systems[1])
+        self.assertNotIn("SUGGESTION_SENTINEL_1", systems[2])
+        self.assertNotIn("pending_creative_seeds", meta["automatic_cleanup"])
+        first_message = next(event for event in events if event.get("type") == "message")
+        self.assertIn("\n\n", first_message["content"])
+        self.assertEqual(first_message["content"], first_message["structured_action"]["deliberation"])
+        self.assertEqual(
+            meta["automatic_cleanup"]["creative_seeds_delivered_turns"],
+            {"A": 1, "B": 2},
+        )
+
+    def test_structured_context_replaces_full_views_and_keeps_all_post_checkpoint_changes(self):
+        book = production_book()
+        book["rules"][0]["history"].append({"verb": "adopt", "turn": 1201, "agent": "B"})
+        book["rules"][1]["history"].append({"verb": "revise", "turn": 1202, "agent": "A"})
+        book["rules"][2]["status"] = "repealed"
+        book["rules"][2]["history"].append({"verb": "repeal_adopted", "turn": 1203, "agent": "B"})
+        book["rules"][3]["text_en"] = "UNTOUCHED_HISTORICAL_SENTINEL"
+        original_hash = snapshot_hash(book)
+        assembled = loop.assemble_legislative_prompt(
+            production_window(book),
+            book,
+            turn=1210,
+            agent="B",
+            collaboration_input=None,
+            structured_snapshot=accepted_structured_snapshot(),
+        )
+        self.assertIn("=== STRUCTURED WORKING CONTEXT ===", assembled["system"])
+        self.assertNotIn("=== ADOPTED LANGUAGE ===", assembled["system"])
+        self.assertNotIn("=== COMPLETE LEGISLATURE ===", assembled["system"])
+        self.assertNotIn("UNTOUCHED_HISTORICAL_SENTINEL", assembled["system"])
+        self.assertIn('"rule_id":"rule-001"', assembled["system"])
+        self.assertIn('"rule_id":"rule-002"', assembled["system"])
+        self.assertIn('"rule_id":"rule-003"', assembled["system"])
+        self.assertIn("structured working context", assembled["user"])
+        self.assertNotIn("complete legislature", assembled["user"])
+        self.assertLessEqual(assembled["total_chars"], loop.MAX_STRUCTURED_PROMPT_CHARS)
+        self.assertLessEqual(
+            len(json.dumps(accepted_structured_snapshot(), separators=(",", ":"))),
+            25_000,
+        )
+        self.assertEqual(snapshot_hash(book), original_hash)
+
     def test_live_test_projection_keeps_outcome_not_duplicate_payloads(self):
         event = {
             "turn": 1209,
@@ -985,7 +1106,8 @@ class ProductionShapedPromptTests(unittest.TestCase):
         )
         self.assertIn(
             '"deliberation":"Public proposal: the current idea needs one '
-            'focused revision."',
+            'focused revision. This change states the reusable mechanism and '
+            'its decoding boundary."',
             assembled_a["system"],
         )
         self.assertIn(
@@ -1007,7 +1129,8 @@ class ProductionShapedPromptTests(unittest.TestCase):
         )
         self.assertIn(
             '"deliberation":"Public audit: the authoritative current state '
-            'needs a focused verification before adoption."',
+            'needs a focused verification before adoption. The boundary must '
+            'be explicit enough for a fresh decoder to apply."',
             assembled_b["system"],
         )
         self.assertIn('"motion":null', assembled_b["system"])
