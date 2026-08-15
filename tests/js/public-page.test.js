@@ -23,6 +23,30 @@ test('public viewer inline JavaScript parses',()=>{
   assert.ok(script); assert.doesNotThrow(()=>new vm.Script(script[1]));
 });
 
+test('agent panes render complete public deliberation and persisted structured action',()=>{
+  const script=html.match(/<script>\s*([\s\S]*?)<\/script>/)[1];
+  const end=script.indexOf('\nfunction runtimeView');
+  const viewer=viewerDocument();
+  const render=Function('document',script.slice(0,end)+'\nreturn render;')(viewer.document);
+  const deliberation='Public proposal: the mechanism is reversible.\n\nIts scope remains explicit.';
+  render({
+    conversation:[{
+      type:'message',turn:7,agent:'A',content:deliberation,
+      structured_action:{
+        deliberation,
+        motion:{kind:'PROPOSE',text:'Preserve one governed span with an explicit boundary marker.'},
+        fault_response:null,measurements:[],requests:[]
+      }
+    }],
+    rulebook:{version:'0.1',rules:[]},collaboration:{},conversations:[],x:{},meta:{}
+  });
+  const output=viewer.elements.get('paneA').innerHTML;
+  assert.match(output,/the mechanism is reversible\.\n\nIts scope remains explicit/);
+  assert.match(output,/structured action/);
+  assert.match(output,/&quot;kind&quot;: &quot;PROPOSE&quot;/);
+  assert.match(output,/Preserve one governed span/);
+});
+
 test('public page has mobile disclosure and suggestion placement',()=>{
   assert.match(html,/@media\s*\(max-width:\s*760px\)/); assert.match(html,/id="suggestion-form"/);
   assert.ok(html.indexOf('id="suggestion-form"')>html.indexOf('class="panes"'));

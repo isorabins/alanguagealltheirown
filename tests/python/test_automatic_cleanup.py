@@ -37,8 +37,19 @@ class AutomaticCleanupTests(unittest.TestCase):
                     "baseline_turn": 1,
                     "last_attempt_language_hash": None,
                     "last_status": "armed",
+                    "structured_snapshot": {
+                        "checkpoint_turn": 4,
+                        "source_hash": "z" * 64,
+                        "rulebook": {"rules": []},
+                        "legislative_memory": {
+                            "retired_mechanisms": [],
+                            "failure_modes": [],
+                            "unresolved_questions": [],
+                        },
+                    },
                 },
             }
+            previous_snapshot = copy.deepcopy(meta["automatic_cleanup"]["structured_snapshot"])
             conv = []
             error = {
                 "status": "invalid",
@@ -83,6 +94,9 @@ class AutomaticCleanupTests(unittest.TestCase):
                 self.assertEqual(event["rounds"], rounds)
                 self.assertEqual(event["b_advisory_error"], error)
                 self.assertEqual(rb, original)
+                self.assertEqual(
+                    meta["automatic_cleanup"]["structured_snapshot"], previous_snapshot
+                )
 
                 starting_spend = meta["spend_usd"]
                 for turn in (11, 12):
@@ -235,6 +249,20 @@ class AutomaticCleanupTests(unittest.TestCase):
                             "history": [],
                         }],
                         "excluded_sources": [],
+                        "structured_rulebook": {"rules": [{
+                            "id": "deadlines",
+                            "trigger": "A message contains a deadline.",
+                            "encoder": ["Mark the deadline once."],
+                            "decoder": ["Restore the marked deadline."],
+                            "invalid_if": ["The deadline changes."],
+                            "overrides": [],
+                            "source_ids": ["rule-001", "rule-002"],
+                        }]},
+                        "legislative_memory": {
+                            "retired_mechanisms": [],
+                            "failure_modes": [],
+                            "unresolved_questions": [],
+                        },
                     }
                     seeds = [
                         {"idea": f"idea {n}", "experiment": f"test {n}", "risk": f"risk {n}"}
@@ -251,9 +279,9 @@ class AutomaticCleanupTests(unittest.TestCase):
                         "candidate_tokens": 60,
                         "reduction_pct": 45.45,
                         "models": {"c": loop.MODEL_C, "b": loop.MODEL_B},
-                        "prompt_c_version": "cleanup-c-v2",
-                        "prompt_b_version": "cleanup-b-v2",
-                        "prompt_c_finalizer_version": "cleanup-c-finalizer-v1",
+                        "prompt_c_version": "cleanup-c-v3",
+                        "prompt_b_version": "cleanup-b-v3",
+                        "prompt_c_finalizer_version": "cleanup-c-finalizer-v2",
                         "rounds": [],
                         "run_spend_usd": 0.08,
                     }
@@ -266,7 +294,16 @@ class AutomaticCleanupTests(unittest.TestCase):
             self.assertEqual([r["status"] for r in rb["rules"]],
                              ["historical", "historical", "adopted"])
             self.assertEqual(meta["automatic_cleanup"]["baseline_tokens"], 65)
+            self.assertEqual(
+                meta["automatic_cleanup"]["structured_snapshot"]["checkpoint_turn"], 11
+            )
+            self.assertEqual(
+                meta["automatic_cleanup"]["structured_snapshot"]["source_hash"], "a" * 64
+            )
             self.assertEqual(len(meta["automatic_cleanup"]["pending_creative_seeds"]["seeds"]), 3)
+            self.assertEqual(
+                meta["automatic_cleanup"]["pending_creative_seeds"]["delivered_roles"], []
+            )
             self.assertEqual(conv[-1]["status"], "applied")
             self.assertEqual(conv[-1]["post_state_receipt"]["actor"], "harness")
 
@@ -299,12 +336,12 @@ class AutomaticCleanupTests(unittest.TestCase):
                 self.assertFalse(loop.maybe_run_automatic_cleanup([], rb, meta, 10))
                 cleanup.assert_not_called()
 
-    def test_active_regular_prompts_are_versioned_v2(self):
+    def test_active_regular_prompts_are_versioned_v3(self):
         rb = source_rulebook()
         assembled = loop.assemble_legislative_prompt(
             [], rb, turn=10, agent="A", collaboration_input=None
         )
-        self.assertEqual(assembled["prompt_receipt"]["role_version"], "agent-a-v2")
+        self.assertEqual(assembled["prompt_receipt"]["role_version"], "agent-a-v3")
         self.assertIn("The goal is not to create more rules", assembled["system"])
         self.assertEqual(len(assembled["prompt_receipt"]["assembled_sha256"]), 64)
 

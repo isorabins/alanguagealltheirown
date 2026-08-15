@@ -47,8 +47,9 @@ Deliberation = Annotated[
         max_length=4000,
         pattern=r"[A-Za-z0-9]",
         description=(
-            "Required concise public-facing summary, not private reasoning. "
-            "State your conclusion about the current turn in at least 12 "
+            "Required substantive deliberately public conclusion and rationale, "
+            "not private reasoning or hidden chain-of-thought. Multiple paragraphs "
+            "are allowed. State your conclusion about the current turn in at least 12 "
             "characters including a letter or digit; never leave this field "
             "empty or punctuation-only."
         ),

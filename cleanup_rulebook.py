@@ -16,6 +16,76 @@ from state_store import atomic_write_json, load_json, snapshot_hash
 OPERATIONAL = re.compile(r"\b(system prompt|api key|password|credential|deploy|timer|cron|harness|test(?:ing)?|vote|adopt|reject|rulebook|human approval)\b", re.I)
 EXCLUSION_SENTINEL = "__exclude__"
 EXCLUSION_REASONS = ("operational", "fragment", "contradiction")
+CONTRACT_FIELDS = ("id", "trigger", "encoder", "decoder", "invalid_if", "overrides")
+MEMORY_FIELDS = ("retired_mechanisms", "failure_modes", "unresolved_questions")
+MAX_CONTRACT_CLAUSES = 8
+MAX_MEMORY_ITEMS = 20
+MAX_STRUCTURED_ARTIFACT_CHARS = 25_000
+
+
+def _known_source_ids(source: dict[str, Any]) -> list[str]:
+    source_ids = [rule.get("id") for rule in source.get("rules", [])]
+    if any(not isinstance(rule_id, str) or not rule_id for rule_id in source_ids):
+        raise ValueError("every source rule requires a non-empty id")
+    if len(source_ids) != len(set(source_ids)):
+        raise ValueError("source rule ids must be unique")
+    return source_ids
+
+
+def _bounded_string_schema(max_length: int = 1000) -> dict[str, Any]:
+    return {"type": "string", "minLength": 1, "maxLength": max_length}
+
+
+def _source_ids_schema(source_ids: list[str]) -> dict[str, Any]:
+    return {
+        "type": "array",
+        "minItems": 1,
+        "maxItems": min(len(source_ids), 100),
+        "items": {"type": "string", "enum": source_ids},
+    }
+
+
+def _legislative_memory_schema(source_ids: list[str]) -> dict[str, Any]:
+    def item(properties: dict[str, Any], required: list[str]) -> dict[str, Any]:
+        return {
+            "type": "object",
+            "properties": {**properties, "source_ids": _source_ids_schema(source_ids)},
+            "required": [*required, "source_ids"],
+            "additionalProperties": False,
+        }
+
+    return {
+        "type": "object",
+        "properties": {
+            "retired_mechanisms": {
+                "type": "array", "maxItems": MAX_MEMORY_ITEMS,
+                "items": item({
+                    "mechanism": _bounded_string_schema(),
+                    "outcome": {"type": "string", "enum": ["rejected", "repealed", "superseded"]},
+                    "reason": _bounded_string_schema(),
+                }, ["mechanism", "outcome", "reason"]),
+            },
+            "failure_modes": {
+                "type": "array", "maxItems": MAX_MEMORY_ITEMS,
+                "items": item({
+                    "failure": _bounded_string_schema(),
+                    "lesson": _bounded_string_schema(),
+                }, ["failure", "lesson"]),
+            },
+            "unresolved_questions": {
+                "type": "array", "maxItems": MAX_MEMORY_ITEMS,
+                "items": item({"question": _bounded_string_schema()}, ["question"]),
+            },
+        },
+        "required": list(MEMORY_FIELDS),
+        "additionalProperties": False,
+    }
+
+
+def render_behavior_contract(contract: dict[str, Any]) -> str:
+    """Render structured law through the existing canonical text seam."""
+    operative = {field: copy.deepcopy(contract[field]) for field in CONTRACT_FIELDS[1:]}
+    return "CONTRACT " + json.dumps(operative, ensure_ascii=False, separators=(",", ":"))
 
 
 def _ordered_adopted_ids(source: dict[str, Any]) -> list[str]:
@@ -182,6 +252,182 @@ def compile_cleanup_draft(source: dict[str, Any], draft: dict[str, Any]) -> dict
     }
     validate_candidate(source, candidate)
     return candidate
+
+
+def structured_cleanup_request_options(source: dict[str, Any]) -> dict[str, Any]:
+    """Build C's contract-and-memory schema without changing the legacy compiler."""
+    options = copy.deepcopy(cleanup_draft_request_options(source))
+    schema = options["response_format"]["json_schema"]["schema"]
+    adopted_ids = _ordered_adopted_ids(source)
+    schema["properties"]["groups"]["items"] = {
+        "type": "object",
+        "properties": {
+            "id": {"type": "string", "minLength": 1, "maxLength": 128},
+            "trigger": _bounded_string_schema(),
+            "encoder": {
+                "type": "array", "minItems": 1, "maxItems": MAX_CONTRACT_CLAUSES,
+                "items": _bounded_string_schema(),
+            },
+            "decoder": {
+                "type": "array", "minItems": 1, "maxItems": MAX_CONTRACT_CLAUSES,
+                "items": _bounded_string_schema(),
+            },
+            "invalid_if": {
+                "type": "array", "minItems": 1, "maxItems": MAX_CONTRACT_CLAUSES,
+                "items": _bounded_string_schema(),
+            },
+            "overrides": {
+                "type": "array", "maxItems": len(adopted_ids),
+                "items": {"type": "string", "minLength": 1, "maxLength": 128},
+            },
+        },
+        "required": list(CONTRACT_FIELDS),
+        "additionalProperties": False,
+    }
+    schema["properties"]["legislative_memory"] = _legislative_memory_schema(
+        _known_source_ids(source)
+    )
+    schema["required"].append("legislative_memory")
+    options["response_format"]["json_schema"]["name"] = "structured_cleanup_draft"
+    return options
+
+
+def _validate_legislative_memory(source: dict[str, Any], memory: Any) -> None:
+    if not isinstance(memory, dict) or set(memory) != set(MEMORY_FIELDS):
+        raise ValueError("legislative memory requires the exact bounded fields")
+    known_ids = set(_known_source_ids(source))
+    shapes = {
+        "retired_mechanisms": {"mechanism", "outcome", "reason", "source_ids"},
+        "failure_modes": {"failure", "lesson", "source_ids"},
+        "unresolved_questions": {"question", "source_ids"},
+    }
+    for field, expected in shapes.items():
+        rows = memory.get(field)
+        if not isinstance(rows, list) or len(rows) > MAX_MEMORY_ITEMS:
+            raise ValueError(f"legislative memory {field} must be a bounded list")
+        for row in rows:
+            if not isinstance(row, dict) or set(row) != expected:
+                raise ValueError(f"legislative memory {field} entry has an invalid shape")
+            for key, value in row.items():
+                if key == "source_ids":
+                    if (
+                        not isinstance(value, list) or not value
+                        or len(value) != len(set(value)) or not set(value) <= known_ids
+                    ):
+                        raise ValueError("legislative memory source_ids must be unique known ids")
+                elif key == "outcome":
+                    if value not in {"rejected", "repealed", "superseded"}:
+                        raise ValueError("retired mechanism outcome is invalid")
+                elif not isinstance(value, str) or not value.strip() or len(value) > 1000:
+                    raise ValueError("legislative memory text must be bounded and non-empty")
+
+
+def compile_structured_cleanup_draft(
+    source: dict[str, Any], draft: dict[str, Any]
+) -> dict[str, Any]:
+    """Compile C contracts through the unchanged canonical cleanup candidate shape."""
+    if not isinstance(draft, dict) or set(draft) != {
+        "assignments", "groups", "exclusions", "legislative_memory"
+    }:
+        raise ValueError("structured cleanup draft has an invalid top-level shape")
+    groups = draft.get("groups")
+    if not isinstance(groups, list):
+        raise ValueError("groups must be a list")
+    group_ids = []
+    legacy_groups = []
+    structured_rules = []
+    for group in groups:
+        if not isinstance(group, dict) or set(group) != set(CONTRACT_FIELDS):
+            raise ValueError("each group requires the complete behavior contract fields")
+        group_id = group.get("id")
+        if not isinstance(group_id, str) or not group_id or len(group_id) > 128:
+            raise ValueError("every contract requires a valid non-empty id")
+        if group_id in group_ids or group_id == EXCLUSION_SENTINEL:
+            raise ValueError("contract ids must be unique and non-reserved")
+        group_ids.append(group_id)
+        trigger = group.get("trigger")
+        if not isinstance(trigger, str) or not trigger.strip() or len(trigger) > 1000:
+            raise ValueError("every contract requires a bounded non-empty trigger")
+        for field in ("encoder", "decoder", "invalid_if"):
+            clauses = group.get(field)
+            if not isinstance(clauses, list) or not 1 <= len(clauses) <= MAX_CONTRACT_CLAUSES:
+                raise ValueError(f"every contract requires bounded non-empty {field}")
+            if any(not isinstance(value, str) or not value.strip() or len(value) > 1000 for value in clauses):
+                raise ValueError(f"every {field} clause must be a bounded non-empty string")
+        overrides = group.get("overrides")
+        if not isinstance(overrides, list) or len(overrides) > len(_ordered_adopted_ids(source)):
+            raise ValueError("contract overrides must be a bounded list")
+        if any(not isinstance(value, str) or not value or len(value) > 128 for value in overrides):
+            raise ValueError("contract overrides require valid contract ids")
+        if len(overrides) != len(set(overrides)) or group_id in overrides:
+            raise ValueError("contract overrides must be unique and cannot reference self")
+        legacy_groups.append({"id": group_id, "text_en": render_behavior_contract(group)})
+
+    known_contracts = set(group_ids)
+    for group in groups:
+        if not set(group["overrides"]) <= known_contracts:
+            raise ValueError("contract contains an unknown override reference")
+
+    _validate_legislative_memory(source, draft["legislative_memory"])
+    legacy_draft = {
+        "assignments": copy.deepcopy(draft["assignments"]),
+        "groups": legacy_groups,
+        "exclusions": copy.deepcopy(draft["exclusions"]),
+    }
+    candidate = compile_cleanup_draft(source, legacy_draft)
+    source_ids_by_group = {
+        group_id: [
+            source_id for source_id in _ordered_adopted_ids(source)
+            if draft["assignments"].get(source_id) == group_id
+        ]
+        for group_id in group_ids
+    }
+    for group in groups:
+        structured_rules.append({
+            **copy.deepcopy(group),
+            "source_ids": source_ids_by_group[group["id"]],
+        })
+    candidate["structured_rulebook"] = {"rules": structured_rules}
+    candidate["legislative_memory"] = copy.deepcopy(draft["legislative_memory"])
+    validate_structured_candidate(source, candidate)
+    return candidate
+
+
+def validate_structured_candidate(source: dict[str, Any], candidate: dict[str, Any]) -> None:
+    validate_candidate(source, candidate)
+    structured = candidate.get("structured_rulebook")
+    if not isinstance(structured, dict) or set(structured) != {"rules"}:
+        raise ValueError("candidate requires one structured rulebook")
+    rules = structured.get("rules")
+    if not isinstance(rules, list) or not rules:
+        raise ValueError("structured rulebook requires rules")
+    ids = [rule.get("id") for rule in rules if isinstance(rule, dict)]
+    if len(ids) != len(rules) or len(ids) != len(set(ids)):
+        raise ValueError("structured rule ids must be unique")
+    for rule in rules:
+        if set(rule) != {*CONTRACT_FIELDS, "source_ids"}:
+            raise ValueError("structured rule has an invalid shape")
+        if not isinstance(rule["source_ids"], list) or not rule["source_ids"]:
+            raise ValueError("structured rule requires source_ids")
+        if not set(rule["overrides"]) <= set(ids):
+            raise ValueError("structured rule contains an unknown override reference")
+    structured_projection = sorted(
+        (
+            render_behavior_contract({field: rule[field] for field in CONTRACT_FIELDS}),
+            tuple(rule["source_ids"]),
+        )
+        for rule in rules
+    )
+    canonical_projection = sorted(
+        (rule.get("text_en"), tuple(rule.get("source_ids", [])))
+        for rule in candidate.get("rules", [])
+    )
+    if structured_projection != canonical_projection:
+        raise ValueError("structured rules do not match the canonical cleanup candidate")
+    _validate_legislative_memory(source, candidate.get("legislative_memory"))
+    encoded = json.dumps(candidate, ensure_ascii=False, separators=(",", ":"))
+    if len(encoded) > MAX_STRUCTURED_ARTIFACT_CHARS:
+        raise ValueError("structured cleanup artifact exceeds the deterministic size budget")
 
 
 def validate_candidate(source: dict[str, Any], replacement: dict[str, Any], *,

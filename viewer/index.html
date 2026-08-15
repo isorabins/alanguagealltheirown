@@ -101,6 +101,9 @@
        overflow-wrap: anywhere; color: var(--ink); margin-bottom: 1.15rem; }
   .m .t { color: var(--ink-faint); font-size: 0.62rem; letter-spacing: 0.14em; display: block; margin-bottom: 0.25rem; }
   .m .verb { color: var(--accent); }
+  .m .structured-action { margin-top: 0.7rem; padding: 0.55rem 0.65rem; border-left: 2px solid var(--hairline); color: var(--ink-dim); }
+  .m .structured-action b { display: block; color: var(--accent); font-size: 0.58rem; letter-spacing: 0.14em; text-transform: uppercase; }
+  .m .structured-action pre { margin: 0.3rem 0 0; white-space: pre-wrap; overflow-wrap: anywhere; font: inherit; color: inherit; }
   .tick {
     font-family: var(--mono); font-size: 0.62rem; color: var(--ink-faint);
     text-align: center; letter-spacing: 0.1em; margin: 0 0 1.15rem;
@@ -919,7 +922,10 @@ function render(S) {
 
   function msgHtml(e, cls) {
     var body = esc(String(e.content == null ? "" : e.content).replace(/\*\*/g, "")).replace(/^(PROPOSE|REPEAL|ADOPT|REJECT|REVISE|REQUEST(?:-REVISION|-TEST)?)\s*:/gm, '<span class="verb">$1:</span>');
-    return '<div class="m ' + cls + '"><span class="t">turn ' + e.turn + " · agent " + e.agent + "</span>" + body + "</div>";
+    var action = e.structured_action && typeof e.structured_action === "object" ? Object.assign({}, e.structured_action) : null;
+    if (action) delete action.deliberation;
+    var actionHtml = action ? '<div class="structured-action"><b>structured action</b><pre>' + esc(JSON.stringify(action, null, 2)) + '</pre></div>' : '';
+    return '<div class="m ' + cls + '"><span class="t">turn ' + e.turn + " · agent " + e.agent + "</span>" + body + actionHtml + "</div>";
   }
   function tickHtml(e) {
     if (e.type === "notice") {

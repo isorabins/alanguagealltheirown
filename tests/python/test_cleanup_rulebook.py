@@ -9,7 +9,9 @@ from cleanup_rulebook import (
     cleanup_draft_request_options,
     cleanup_revision_context,
     compile_cleanup_draft,
+    compile_structured_cleanup_draft,
     prepare,
+    structured_cleanup_request_options,
     validate_candidate,
 )
 from state_store import snapshot_hash
@@ -19,6 +21,83 @@ FIX = ROOT / "tests/fixtures/cleanup"
 
 
 class CleanupTests(unittest.TestCase):
+    def structured_draft(self):
+        return {
+            "assignments": {"rule-001": "deadlines", "rule-002": "deadlines"},
+            "groups": [{
+                "id": "deadlines",
+                "trigger": "A message contains a deadline.",
+                "encoder": ["Mark the deadline once."],
+                "decoder": ["Restore the deadline at its original scope."],
+                "invalid_if": ["The deadline changes or loses its scope."],
+                "overrides": [],
+            }],
+            "exclusions": [],
+            "legislative_memory": {
+                "retired_mechanisms": [],
+                "failure_modes": [{
+                    "failure": "A deadline lost its governed action.",
+                    "lesson": "Bind the time to its action.",
+                    "source_ids": ["rule-001"],
+                }],
+                "unresolved_questions": [],
+            },
+        }
+
+    def test_structured_cleanup_compiles_contracts_without_changing_canonical_shape(self):
+        source = json.loads((FIX / "source.json").read_text())
+        schema = structured_cleanup_request_options(source)["response_format"]["json_schema"]["schema"]
+        self.assertEqual(
+            schema["properties"]["groups"]["items"]["required"],
+            ["id", "trigger", "encoder", "decoder", "invalid_if", "overrides"],
+        )
+        self.assertIn("legislative_memory", schema["required"])
+        candidate = compile_structured_cleanup_draft(source, self.structured_draft())
+        self.assertEqual(set(candidate["rules"][0]), {
+            "id", "text_en", "status", "source_ids", "history"
+        })
+        self.assertTrue(candidate["rules"][0]["text_en"].startswith("CONTRACT {"))
+        self.assertEqual(
+            candidate["structured_rulebook"]["rules"][0]["source_ids"],
+            ["rule-001", "rule-002"],
+        )
+
+    def test_structured_cleanup_rejects_malformed_provenance_overrides_and_oversize(self):
+        source = json.loads((FIX / "source.json").read_text())
+        cases = []
+        missing = self.structured_draft()
+        del missing["groups"][0]["invalid_if"]
+        cases.append(missing)
+        empty_decoder = self.structured_draft()
+        empty_decoder["groups"][0]["decoder"] = []
+        cases.append(empty_decoder)
+        unknown_override = self.structured_draft()
+        unknown_override["groups"][0]["overrides"] = ["unknown-contract"]
+        cases.append(unknown_override)
+        unknown_source = self.structured_draft()
+        unknown_source["legislative_memory"]["failure_modes"][0]["source_ids"] = ["rule-999"]
+        cases.append(unknown_source)
+        for draft in cases:
+            with self.assertRaises(ValueError):
+                compile_structured_cleanup_draft(source, draft)
+
+        oversize = self.structured_draft()
+        long_text = "x" * 1000
+        oversize["legislative_memory"] = {
+            "retired_mechanisms": [{
+                "mechanism": long_text, "outcome": "rejected", "reason": long_text,
+                "source_ids": ["rule-001"],
+            } for _ in range(20)],
+            "failure_modes": [{
+                "failure": long_text, "lesson": long_text, "source_ids": ["rule-001"],
+            } for _ in range(20)],
+            "unresolved_questions": [{
+                "question": long_text, "source_ids": ["rule-001"],
+            } for _ in range(20)],
+        }
+        with self.assertRaisesRegex(ValueError, "size budget"):
+            compile_structured_cleanup_draft(source, oversize)
+
     def test_cleanup_draft_schema_requires_every_adopted_source_exactly(self):
         source = json.loads((FIX / "source.json").read_text())
         options = cleanup_draft_request_options(source)
