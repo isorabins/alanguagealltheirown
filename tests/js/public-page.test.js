@@ -84,7 +84,7 @@ function progressApi(){
   const start=html.indexOf('var PUBLIC_PROGRESS_PHASES=');
   const end=html.indexOf('\nfunction render(S)',start);
   assert.ok(start>=0&&end>start,'public exam progress functions must be independently testable');
-  return Function(html.slice(start,end)+'\nreturn {validPublicExamProgress,validPublicExamTransition,completedProgressMatchesExam,publicExamProgressView};')();
+  return Function(html.slice(start,end)+'\nreturn {validPublicExamProgress,validPublicExamTransition,completedProgressMatchesExam,publicExamProgressView,bufferedPublicExamProgressView};')();
 }
 
 function progressSnapshot(phase='completed'){
@@ -134,6 +134,24 @@ test('public trace renders complete interrupted failed stale missing malformed a
   assert.equal(api.publicExamProgressView(null,{loadStatus:'malformed'}).state,'malformed');
   assert.equal(api.publicExamProgressView(null,{loadStatus:'unavailable'}).state,'unavailable');
   assert.equal(api.publicExamProgressView({...completed,encoded:'mismatch'},{latestExam:exam}).state,'malformed');
+});
+
+test('committed exam trace plays as buffered LIVE without inventing intermediate backend state',()=>{
+  const api=progressApi(),completed=progressSnapshot();
+  const latestExam={turn:2400,benchmark_id:'B1',language_version:'adopted-test',language_hash:'a'.repeat(64),encoded:'SAFE ENCODED',decoded:'Safe decoded response',orig_tokens:100,enc_tokens:61,judge_valid:true,meaning_pass:false,compression_success:false,semantic_coverage_pct:75};
+  const early=api.bufferedPublicExamProgressView(completed,{playbackIndex:2,latestExam});
+  assert.equal(early.state,'● LIVE · benchmark selected');
+  assert.equal(early.clock,'● LIVE');
+  assert.equal(early.lines.length,2);
+  assert.equal(early.encoded,undefined);
+  assert.equal(early.decoded,undefined);
+  assert.equal(early.result,undefined);
+  const encoded=api.bufferedPublicExamProgressView(completed,{playbackIndex:5,latestExam});
+  assert.equal(encoded.encoded,'SAFE ENCODED');
+  assert.equal(encoded.decoded,undefined);
+  const final=api.bufferedPublicExamProgressView(completed,{playbackIndex:completed.receipts.length,latestExam});
+  assert.equal(final.state,'verified complete');
+  assert.equal(final.result.semantic_coverage_pct,75);
 });
 
 test('Watch the Live Test is persisted-state only and matches the locked terminal design',()=>{
@@ -485,9 +503,9 @@ test('headline counters render before the full historical archive loads',()=>{
   };
   Function('window','document',startup)(window,viewer.document);
 
-  assert.match(viewer.elements.get('t-exam').textContent,/^(?:\d\d:\d\d|running now)$/);
-  assert.match(viewer.elements.get('t-turn').textContent,/^(?:\d\d:\d\d|running now)$/);
-  assert.match(viewer.elements.get('exam-jump').textContent,/^(?:watch next test|watch live test now) ↓$/);
+  assert.match(viewer.elements.get('t-exam').textContent,/^(?:\d\d:\d\d|running now|stalled)$/);
+  assert.match(viewer.elements.get('t-turn').textContent,/^(?:\d\d:\d\d|running now|stalled)$/);
+  assert.match(viewer.elements.get('exam-jump').textContent,/^(?:watch next test|watch live test now|see last test) ↓$/);
   assert.match(viewer.elements.get('metrics').innerHTML,/turns[\s\S]*<b>2193<\/b>/);
   assert.equal(intervals.length,1,'one lightweight timer owns the countdown refresh');
 });
@@ -518,6 +536,35 @@ test('paused runtime never advances turn or exam clocks',()=>{
   } finally { Date.now=realNow; }
 });
 
+test('one runtime projection makes stale clocks warning and Experiment Status agree',()=>{
+  const startup=fs.readFileSync(path.join(__dirname,'../../viewer/startup.js'),'utf8');
+  const viewer=viewerDocument();
+  const realNow=Date.now;
+  Date.now=()=>Date.parse('2026-08-15T10:00:00Z');
+  const window={
+    PUBLIC_BOOTSTRAP:{turn:2549,updated:'2026-08-14T20:00:14Z',metrics:[],runtime:{status:'active',turn:2549,next_exam_turn:2550}},
+    setInterval(){return 1;},setTimeout(){return 1;}
+  };
+  try {
+    Function('window','document',startup)(window,viewer.document);
+    assert.equal(viewer.elements.get('t-turn').textContent,'stalled');
+    assert.equal(viewer.elements.get('t-exam').textContent,'stalled');
+    assert.match(viewer.elements.get('runtime-status-heading').textContent,/not advancing/);
+    assert.equal(viewer.elements.get('experiment-status-kicker').textContent,'stalled public record');
+    assert.match(viewer.elements.get('experiment-status-detail').textContent,/turn 2549/);
+    assert.equal(viewer.elements.get('status-next-turn').textContent,'stalled');
+    assert.equal(viewer.elements.get('status-next-exam').textContent,'stalled');
+  } finally { Date.now=realNow; }
+});
+
+test('Experiment Status contains no stale hard-coded turn or paused claim',()=>{
+  const section=html.slice(html.indexOf('<section id="experiment-status-section"'),html.indexOf('<section id="latest-exam-section"'));
+  assert.doesNotMatch(section,/turn 2400|paused public record|next Conversation/);
+  for(const id of ['experiment-status-kicker','experiment-status-detail','status-next-turn','status-next-exam']){
+    assert.match(section,new RegExp(`id="${id}"`));
+  }
+});
+
 test('Agent C header renders every authoritative state from the existing runtime snapshot',()=>{
   const startup=fs.readFileSync(path.join(__dirname,'../../viewer/startup.js'),'utf8');
   const viewer=viewerDocument();
@@ -537,16 +584,15 @@ test('Agent C header renders every authoritative state from the existing runtime
 });
 
 test('full-history runtime status uses the same persisted pause contract',()=>{
-  const source=html.match(/function runtimeStatusView\(runtime, when, now, turn\) \{([\s\S]*?)\n\}/);
-  assert.ok(source);
-  const runtimeView=()=>({visible:false});
-  const runtimeStatusView=Function('runtimeView','runtime','when','now','turn',
-    source[1])(runtimeView,{
-      status:'paused',turn:2400,
-      message:'Experiment paused at turn 2400. No new turn or exam is running. The public record remains available.'
-    },null,Date.now(),2400);
-  assert.equal(runtimeStatusView.visible,true);
-  assert.equal(runtimeStatusView.detail,'Experiment paused at turn 2400. No new turn or exam is running. The public record remains available.');
+  const startup=fs.readFileSync(path.join(__dirname,'../../viewer/startup.js'),'utf8');
+  const viewer=viewerDocument();
+  const window={PUBLIC_BOOTSTRAP:{},setInterval(){return 1;},setTimeout(){return 1;}};
+  Function('window','document',startup)(window,viewer.document);
+  const message='Experiment paused at turn 2400. No new turn or exam is running. The public record remains available.';
+  const projected=window.ALATO_STARTUP.projectRuntime(null,Date.now(),2400,{status:'paused',turn:2400,message});
+  assert.equal(projected.visible,true);
+  assert.equal(projected.detail,message);
+  assert.match(html,/return window\.ALATO_STARTUP\.projectRuntime\(when,now,turn,runtime\)/);
 });
 
 test('stale active claims and Composition are absent',()=>{
@@ -638,6 +684,8 @@ test('375px header and both clock columns have explicit containment safeguards',
   assert.match(mobile[1],/\.timers > div \{[^}]*min-width: 0/);
   assert.match(mobile[1],/\.timers \.tval \{[^}]*max-width: 100%[^}]*overflow-wrap: anywhere/);
   assert.match(mobile[1],/\.timers \.tval\.running \{[^}]*font-size: 1\.35rem/);
+  assert.match(mobile[1],/\.trace-head \{[^}]*flex-wrap: wrap/);
+  assert.match(mobile[1],/\.trace-head > span:first-child \{[^}]*overflow-wrap: anywhere/);
   assert.match(html,/\.timers \{[^}]*grid-template-columns: repeat\(3, minmax\(0, 1fr\)\)/);
   assert.match(html,/@media \(max-width: 760px\)[\s\S]*\.agent-c-summary \{ grid-column: 1 \/ -1; \}/);
   assert.match(html,/class="tlab">next turn<\/span>/);
@@ -650,15 +698,16 @@ test('major section headings keep the shared vertical rhythm',()=>{
 });
 
 test('stale runtime notice is truthful and self-clearing',()=>{
+  const startup=fs.readFileSync(path.join(__dirname,'../../viewer/startup.js'),'utf8');
   assert.match(html,/id="runtime-status"[^>]*aria-live="polite"/);
-  assert.match(html,/The scheduled loop is not advancing\./);
-  assert.match(html,/public record is preserved at turn/);
+  assert.match(startup,/The scheduled loop is not advancing\./);
+  assert.match(startup,/public record is preserved at turn/);
   assert.match(html,/path=state%2Fconversation\.json&per_page=1/);
   assert.match(html,/runtimeStatus\.classList\.remove\("visible"\)/);
 
-  const source=html.match(/function runtimeView\(when, now, turn\) \{([\s\S]*?)\n\}\n\nfunction runtimeStatusView/);
-  assert.ok(source,'runtimeView must remain executable as a pure status decision');
-  const runtimeView=Function('when','now','turn',source[1]);
+  const viewer=viewerDocument(),window={PUBLIC_BOOTSTRAP:{},setInterval(){return 1;},setTimeout(){return 1;}};
+  Function('window','document',startup)(window,viewer.document);
+  const runtimeView=(when,now,turn)=>window.ALATO_STARTUP.projectRuntime(when,now,turn,{});
   const now=Date.parse('2026-07-31T10:00:00Z');
   const stale=runtimeView('2026-07-31T09:00:00Z',now,1213);
   assert.equal(stale.visible,true);

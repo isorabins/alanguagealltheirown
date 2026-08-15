@@ -42,6 +42,45 @@
       (seconds < 10 ? "0" : "") + seconds;
   }
 
+  function projectRuntime(when, now, turn, runtimeState) {
+    runtimeState=runtimeState&&typeof runtimeState==="object"?runtimeState:{};
+    if(runtimeState.status==="paused"){
+      return {mode:"paused",visible:true,heading:"Experiment paused.",detail:runtimeState.message||"Experiment paused.",stamp:"paused at turn "+(runtimeState.turn||turn),kicker:"paused public record",turnClock:"Paused",examClock:"Paused",examLink:"see last test ↓"};
+    }
+    var timestamp=typeof when==="number"?when:Date.parse(when||"");
+    if(!Number.isFinite(timestamp)){
+      return {mode:"unavailable",visible:true,heading:"Live update status is unavailable.",detail:"The public record is preserved at turn "+turn+", but the timestamp of its latest canonical update could not be verified.",stamp:"live update status unavailable",kicker:"update status unavailable",turnClock:"unavailable",examClock:"unavailable",examLink:"see last test ↓"};
+    }
+    var age=now-timestamp;
+    var formatted=new Date(timestamp).toISOString().replace("T"," ").slice(0,16)+" UTC";
+    if(age>45*60*1000){
+      return {mode:"stalled",visible:true,heading:"The scheduled loop is not advancing.",detail:"The public record is preserved at turn "+turn+". New legislation is not being published, and no language rule changes during this hold. Last update: "+formatted+".",stamp:"the loop has been still since "+formatted,kicker:"stalled public record",turnClock:"stalled",examClock:"stalled",examLink:"see last test ↓"};
+    }
+    var remaining=timestamp+TURN_MS-now;
+    var nextTurn=Number(turn||0)+1;
+    var examTurn=Number(runtimeState.next_exam_turn||nextTurn);
+    var examRemaining=remaining+Math.max(0,examTurn-nextTurn)*TURN_MS;
+    var turnRunning=remaining<=0,examRunning=examRemaining<=0;
+    var mins=Math.max(0,Math.round(age/60000));
+    return {mode:"active",visible:false,heading:"",detail:"The scheduled experiment is advancing from the latest canonical turn.",stamp:"last turn "+mins+" min ago · live",kicker:"active public record",turnClock:turnRunning?"running now":formatRemaining(remaining),examClock:examRunning?"running now":formatRemaining(examRemaining),examLink:(examRunning?"watch live test now":"watch next test")+" ↓",turnRunning:turnRunning,examRunning:examRunning};
+  }
+
+  function applyRuntimeProjection(projection) {
+    var examElement=document.getElementById("t-exam"),turnElement=document.getElementById("t-turn"),examLink=document.getElementById("exam-jump");
+    if(turnElement){turnElement.textContent=projection.turnClock;turnElement.classList[projection.turnRunning?"add":"remove"]("running");}
+    if(examElement){examElement.textContent=projection.examClock;examElement.classList[projection.examRunning?"add":"remove"]("running");}
+    if(examLink)examLink.textContent=projection.examLink;
+    var status=document.getElementById("runtime-status"),heading=document.getElementById("runtime-status-heading"),detail=document.getElementById("runtime-status-detail");
+    if(heading)heading.textContent=projection.heading;
+    if(detail)detail.textContent=projection.detail;
+    if(status)status.classList[projection.visible?"add":"remove"]("visible");
+    var kicker=document.getElementById("experiment-status-kicker"),statusDetail=document.getElementById("experiment-status-detail"),statusTurn=document.getElementById("status-next-turn"),statusExam=document.getElementById("status-next-exam");
+    if(kicker)kicker.textContent=projection.kicker;
+    if(statusDetail)statusDetail.textContent=projection.detail;
+    if(statusTurn)statusTurn.textContent=projection.turnClock;
+    if(statusExam)statusExam.textContent=projection.examClock;
+  }
+
   function agentCLabel(agentC) {
     agentC=agentC&&typeof agentC==="object"?agentC:{};
     if(agentC.state==="growing"){
@@ -67,54 +106,17 @@
   }
 
   function updateCounters() {
-    var examElement = document.getElementById("t-exam");
-    var turnElement = document.getElementById("t-turn");
-    var examLink = document.getElementById("exam-jump");
     renderAgentC(runtime.agent_c);
-    if (!examElement || !turnElement) return;
-    if (runtime.status === "paused") {
-      examElement.textContent = "Paused";
-      turnElement.textContent = "Paused";
-      examElement.classList.remove("running");
-      turnElement.classList.remove("running");
-      var status = document.getElementById("runtime-status");
-      var detail = document.getElementById("runtime-status-detail");
-      if (status) status.classList.add("visible");
-      if (detail) detail.textContent = runtime.message || "Experiment paused.";
-      if (examLink) examLink.textContent = "see last test ↓";
-      return;
-    }
-    if (lastTurnAt === null) {
-      examElement.textContent = "unavailable";
-      turnElement.textContent = "unavailable";
-      if (examLink) examLink.textContent = "open test terminal ↓";
-      return;
-    }
-    var remaining = lastTurnAt + TURN_MS - Date.now();
-    var nextTurn = lastTurnNum + 1;
-    var examTurn = Number(runtime.next_exam_turn || nextTurn);
-    var examRemaining = remaining + Math.max(0, examTurn - nextTurn) * TURN_MS;
-    if (remaining <= 0) {
-      turnElement.textContent = "running now";
-      turnElement.classList.add("running");
-      if (!refetchArmed && typeof window.loadState === "function") {
+    var projection=projectRuntime(lastTurnAt,Date.now(),lastTurnNum,runtime);
+    applyRuntimeProjection(projection);
+    if(projection.mode==="active"&&projection.turnRunning){
+      if(!refetchArmed&&typeof window.loadState==="function"){
         refetchArmed = true;
         window.setTimeout(window.loadState, refetchDelay);
         refetchDelay = Math.min(refetchDelay * 2, 300000);
       }
-    } else {
-      turnElement.textContent = formatRemaining(remaining);
-      turnElement.classList.remove("running");
     }
-    if (examRemaining <= 0) {
-      examElement.textContent = "running now";
-      examElement.classList.add("running");
-      if (examLink) examLink.textContent = "watch live test now ↓";
-    } else {
-      examElement.textContent = formatRemaining(examRemaining);
-      examElement.classList.remove("running");
-      if (examLink) examLink.textContent = "watch next test ↓";
-    }
+    return projection;
   }
 
   function setSnapshot(when, turn) {
@@ -128,11 +130,11 @@
     lastTurnNum = Number(turn || 0);
     if (arguments.length > 2 && arguments[2]) runtime = arguments[2];
     refetchArmed = false;
-    updateCounters();
+    return updateCounters();
   }
 
   renderMetrics(bootstrap.metrics);
   updateCounters();
   window.setInterval(updateCounters, 1000);
-  window.ALATO_STARTUP = {setSnapshot: setSnapshot, updateCounters: updateCounters, renderMetrics: renderMetrics, agentCLabel: agentCLabel, renderAgentC: renderAgentC};
+  window.ALATO_STARTUP = {setSnapshot: setSnapshot, updateCounters: updateCounters, projectRuntime: projectRuntime, renderMetrics: renderMetrics, agentCLabel: agentCLabel, renderAgentC: renderAgentC};
 })(window, document);

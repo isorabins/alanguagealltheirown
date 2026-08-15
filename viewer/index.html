@@ -352,6 +352,9 @@
     .timers > div { min-width: 0; }
     .timers .tval { max-width: 100%; font-size: 2.2rem; overflow-wrap: anywhere; }
     .timers .tval.running { font-size: 1.35rem; }
+    .trace-head { flex-wrap: wrap; }
+    .trace-head > span:first-child { min-width: 0; overflow-wrap: anywhere; }
+    .trace-clock { margin-left: auto; }
     .status-counts { grid-template-columns: 1fr; }
     .ti-row { flex-direction: column; }
   }
@@ -418,12 +421,12 @@
 <div class="status-band">
   <div class="status-main">
     <div>
-      <span class="status-kicker">paused public record</span>
-      <p>Experiment paused at turn 2400. No new turn or exam is running. The public record remains available.</p>
+      <span class="status-kicker" id="experiment-status-kicker">checking public record</span>
+      <p id="experiment-status-detail">Checking the latest canonical runtime state.</p>
     </div>
     <div class="status-counts" aria-label="Experiment status">
-      <div class="status-count info-hover" tabindex="0" data-tip="The scheduled exam clock is stopped while the experiment is paused.">next exam<b>paused</b></div>
-      <div class="status-count info-hover" tabindex="0" data-tip="The scheduled Conversation clock is stopped while the experiment is paused.">next Conversation<b>paused</b></div>
+      <div class="status-count info-hover" tabindex="0" data-tip="The same canonical next-turn projection shown at the top of the page.">next turn<b id="status-next-turn">checking</b></div>
+      <div class="status-count info-hover" tabindex="0" data-tip="The same canonical next-exam projection shown at the top of the page.">next exam<b id="status-next-exam">checking</b></div>
     </div>
   </div>
 </div>
@@ -604,6 +607,7 @@ var PUBLIC_PROGRESS_FIELDS=["schema_version","run_id","turn","phase","updated_at
 var PUBLIC_PROGRESS_UNSAFE=/(?:\b(?:OPENROUTER_API_KEY|API_KEY|PASSWORD|CLIENT_SECRET|AUTHORIZATION)\s*[:=]|\bBearer\s+[A-Za-z0-9._~+/=-]{12,}|\bsk-[A-Za-z0-9_-]{12,}|(?:BEGIN|END)\s+(?:SYSTEM|DEVELOPER|HIDDEN)\s+PROMPT|\b(?:system|developer|hidden)\s+prompt\s*[:=]|\bchain[- ]of[- ]thought\b|\bprivate collaboration state\b|Traceback \(most recent call last\))/i;
 var lastPublicProgress=null;
 var lastPublicProgressRenderKey=null;
+var publicProgressPlayback=null;
 var publicProgressPathExists=null;
 var publicProgressPathCheck=null;
 var currentRenderedState=null;
@@ -661,11 +665,56 @@ function publicExamProgressView(snapshot,options) {
   if(active&&(!Number.isFinite(age)||age>30))return {state:"stale",clock:"unavailable",detail:"The in-progress exam snapshot is stale. No completed result is inferred.",lines:[]};
   if(!completedProgressMatchesExam(snapshot,options.latestExam))return {state:"malformed",clock:"unavailable",detail:"The completed trace does not match the canonical Latest Exam. The canonical record wins.",lines:[]};
   var labels={exam_started:"live · exam boundary",benchmark_selected:"live · benchmark selected",language_loaded:"live · language loaded",encoder_started:"live · encoder running",encoder_completed:"live · encoder complete",decoder_started:"live · decoder running",decoder_completed:"live · decoder complete",judge_started:"live · judge running",audit_progress:"live · semantic audit",completed:"verified complete",interrupted:"interrupted",failed:"failed"};
-  return {state:labels[snapshot.phase],clock:active?"running now":((options.runtime&&options.runtime.status==="paused")?"Paused":"next exam"),detail:active?"This is the matching persisted scheduled exam.":(snapshot.phase==="completed"?"The terminal trace agrees with the canonical Latest Exam.":"No result was inferred; the previous verified Latest Exam remains authoritative."),lines:snapshot.receipts,encoded:snapshot.encoded,decoded:snapshot.decoded,tokens:snapshot.tokens,result:snapshot.result,errorClass:snapshot.error_class};
+  return {state:labels[snapshot.phase],clock:active?"running now":((options.runtime&&options.runtime.status==="paused")?"Paused":"next exam"),detail:active?"This is the matching persisted scheduled exam.":(snapshot.phase==="completed"?"The terminal trace agrees with the canonical Latest Exam.":"No result was inferred; the previous verified Latest Exam remains authoritative."),lines:snapshot.receipts,encoded:snapshot.encoded,decoded:snapshot.decoded,audit:snapshot.audit,tokens:snapshot.tokens,result:snapshot.result,errorClass:snapshot.error_class};
+}
+
+function bufferedPublicExamProgressView(snapshot,options) {
+  options=options||{};
+  var index=Number(options.playbackIndex);
+  if(!validPublicExamProgress(snapshot)||snapshot.phase!=="completed"||!completedProgressMatchesExam(snapshot,options.latestExam)||!Number.isInteger(index)||index>=snapshot.receipts.length){
+    return publicExamProgressView(snapshot,options);
+  }
+  index=Math.max(1,index);
+  var lines=snapshot.receipts.slice(0,index),phase=lines[lines.length-1].phase;
+  var label=phase.replace(/_/g," ");
+  var phases=lines.map(function(receipt){return receipt.phase;});
+  return {
+    state:"● LIVE · "+label,
+    clock:"● LIVE",
+    detail:"The committed exam is playing from its verified receipt sequence.",
+    lines:lines,
+    encoded:phases.indexOf("encoder_completed")>=0?snapshot.encoded:undefined,
+    decoded:phases.indexOf("decoder_completed")>=0?snapshot.decoded:undefined,
+    audit:phases.indexOf("audit_progress")>=0?snapshot.audit:undefined,
+    tokens:undefined,
+    result:undefined,
+    errorClass:undefined,
+  };
+}
+
+function schedulePublicProgressPlayback() {
+  if(!publicProgressPlayback||publicProgressPlayback.timer)return;
+  if(publicProgressPlayback.index>=publicProgressPlayback.snapshot.receipts.length)return;
+  publicProgressPlayback.timer=window.setTimeout(function(){
+    if(!publicProgressPlayback)return;
+    publicProgressPlayback.timer=null;
+    publicProgressPlayback.index+=1;
+    renderPublicExamProgress(publicProgressPlayback.snapshot,publicProgressPlayback.options);
+  },900);
 }
 
 function renderPublicExamProgress(snapshot,options) {
-  var view=publicExamProgressView(snapshot,options),body=document.getElementById("trace-body");
+  options=options||{};
+  if(validPublicExamProgress(snapshot)&&snapshot.phase==="completed"&&completedProgressMatchesExam(snapshot,options.latestExam)){
+    if(!publicProgressPlayback||publicProgressPlayback.runId!==snapshot.run_id){
+      publicProgressPlayback={runId:snapshot.run_id,index:1,snapshot:snapshot,options:options,timer:null};
+    }else{
+      publicProgressPlayback.snapshot=snapshot;
+      publicProgressPlayback.options=options;
+    }
+    options=Object.assign({},options,{playbackIndex:publicProgressPlayback.index});
+  }
+  var view=bufferedPublicExamProgressView(snapshot,options),body=document.getElementById("trace-body");
   if(!body)return view;
   document.getElementById("trace-state").textContent=view.state;
   document.getElementById("trace-clock").textContent=view.clock;
@@ -677,7 +726,7 @@ function renderPublicExamProgress(snapshot,options) {
   }
   var exam=options&&options.latestExam;
   var matchingExam=!!(snapshot&&exam&&snapshot.turn===exam.turn&&snapshot.benchmark_id===exam.benchmark_id&&snapshot.language_version===exam.language_version);
-  var renderKey=String(options&&options.loadStatus||"ok")+"|"+JSON.stringify(snapshot||null)+"|"+(matchingExam?JSON.stringify(exam.atom_results||[]):"");
+  var renderKey=String(options&&options.loadStatus||"ok")+"|"+JSON.stringify(snapshot||null)+"|"+view.state+"|"+(view.lines||[]).length+"|"+(matchingExam?JSON.stringify(exam.atom_results||[]):"");
   if(renderKey===lastPublicProgressRenderKey)return view;
   var priorTop=body.scrollTop||0,shouldFollow=body._followPublicProgress!==false;
   var traceTips={exam_started:"The scheduler crossed a real exam boundary and created this run identity.",benchmark_selected:"The fixed benchmark chosen by the canonical rotation for this exam.",language_loaded:"The exact adopted-language version and hash captured before encoding began.",encoder_started:"The scheduled encoder call began. No partial provider output is published.",encoder_completed:"The encoder returned a complete response and it passed the public sanitizer.",decoder_started:"A fresh decoder received only the adopted rulebook and completed encoded message.",decoder_completed:"The decoder returned a complete reconstruction and it passed the public sanitizer.",judge_started:"The Scoring V2 judge began its fact-by-fact semantic audit.",audit_progress:"A safe aggregate receipt from the semantic audit; it contains no hidden reasoning.",completed:"The trace agrees exactly with the canonical Latest Exam artifact.",interrupted:"The exam stopped before a verified result existed.",failed:"The exam ended with an allowlisted public error class; raw errors remain private."};
@@ -694,8 +743,8 @@ function renderPublicExamProgress(snapshot,options) {
   });
   if(view.encoded&&!shownEncoded)rows+='<div class="trace-artifact"><b>sanitized encoded response</b><pre>'+publicProgressEsc(view.encoded)+'</pre></div>';
   if(view.decoded&&!shownDecoded)rows+='<div class="trace-artifact"><b>sanitized decoded response</b><pre>'+publicProgressEsc(view.decoded)+'</pre></div>';
-  if(snapshot&&snapshot.audit)rows+='<div class="trace-audit-summary">semantic audit · '+snapshot.audit.completed+'/'+snapshot.audit.total+' checked · '+snapshot.audit.survived+' survived · '+snapshot.audit.corrupted+' corrupted · '+snapshot.audit.missing+' missing · '+snapshot.audit.inventions+' inventions</div>';
-  if(snapshot&&snapshot.phase==="completed"&&matchingExam&&Array.isArray(exam.atom_results)){
+  if(view.audit)rows+='<div class="trace-audit-summary">semantic audit · '+view.audit.completed+'/'+view.audit.total+' checked · '+view.audit.survived+' survived · '+view.audit.corrupted+' corrupted · '+view.audit.missing+' missing · '+view.audit.inventions+' inventions</div>';
+  if(view.result&&snapshot&&snapshot.phase==="completed"&&matchingExam&&Array.isArray(exam.atom_results)){
     var meanings={};(exam.answer_key||[]).forEach(function(atom){meanings[atom.id]=atom.meaning;});
     rows+='<div class="trace-section-label">fact-by-fact judgment evidence</div>';
     exam.atom_results.forEach(function(atom){var bad=atom.verdict!=="SURVIVED";rows+='<div class="trace-audit-row"><b class="'+(bad?'bad':'')+'">'+publicProgressEsc(atom.id)+' · '+publicProgressEsc(atom.verdict)+'</b><span>'+publicProgressEsc(meanings[atom.id]||"semantic requirement")+'<small>decoded evidence: '+(atom.evidence?'“'+publicProgressEsc(atom.evidence)+'”':'none')+'</small></span></div>';});
@@ -717,6 +766,7 @@ function renderPublicExamProgress(snapshot,options) {
   if(shouldFollow)body.scrollTop=body.scrollHeight;else body.scrollTop=priorTop;
   lastPublicProgressRenderKey=renderKey;
   if((!options||!options.loadStatus||options.loadStatus==="ok")&&validPublicExamProgress(snapshot))lastPublicProgress=snapshot;
+  schedulePublicProgressPlayback();
   return view;
 }
 
@@ -1180,46 +1230,11 @@ function operatorQuestionView(openAsks) {
 }
 
 function runtimeView(when, now, turn) {
-  if (!when) {
-    return {
-      visible: true,
-      heading: "Live update status is unavailable.",
-      detail: "The public record is preserved at turn " + turn +
-        ", but the timestamp of its latest canonical update could not be verified.",
-      stamp: "live update status unavailable"
-    };
-  }
-  var date = new Date(when);
-  var mins = Math.round((now - date.getTime()) / 60000);
-  var formatted = date.toISOString().replace("T", " ").slice(0, 16) + " UTC";
-  if (mins > 45) {
-    return {
-      visible: true,
-      heading: "The scheduled loop is not advancing.",
-      detail: "The public record is preserved at turn " + turn +
-        ". New legislation is not being published, and no language rule " +
-        "changes during this hold. Last update: " + formatted + ".",
-      stamp: "the loop has been still since " + formatted
-    };
-  }
-  return {
-    visible: false,
-    heading: "",
-    detail: "",
-    stamp: "last turn " + mins + " min ago · live"
-  };
+  return window.ALATO_STARTUP.projectRuntime(when,now,turn,{});
 }
 
 function runtimeStatusView(runtime, when, now, turn) {
-  if (runtime && runtime.status === "paused") {
-    return {
-      visible: true,
-      heading: "Experiment paused.",
-      detail: runtime.message,
-      stamp: "paused at turn " + runtime.turn
-    };
-  }
-  return runtimeView(when, now, turn);
+  return window.ALATO_STARTUP.projectRuntime(when,now,turn,runtime);
 }
 
 var bundledStatePromise = null;

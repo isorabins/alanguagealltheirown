@@ -46,6 +46,8 @@ from legislative_protocol import (
 )
 from project_lookup import is_project_question, project_lookup
 from public_exam_progress import (PublicExamProgressWriter, classify_public_error,
+                                  public_error_diagnostic,
+                                  publish_completed_snapshot,
                                   sanitize_completed_text)
 from rulebook import (_literal_set_survives, apply_typed_motion, language_payload,
                       render_language, render_legislature, score_judgment_v2)
@@ -1704,6 +1706,7 @@ def _test_turn_impl(conv, rb, meta, turn, *, progress_path=None, progress_box=No
             benchmark_name=benchmark["name"],
             language_version=captured["version"],
             language_hash=captured["hash"],
+            replace_active=Path(progress_path).name.endswith(".local.json"),
         )
         if progress_box is not None:
             progress_box[:] = [progress]
@@ -1729,7 +1732,7 @@ def _test_turn_impl(conv, rb, meta, turn, *, progress_path=None, progress_box=No
                "using ONLY this rulebook. Where the rulebook is silent, fall back to plain "
                "English for that part. Output ONLY the encoded message, nothing else.\n\n" + rbook)
     encoded, _ = call(MODEL_A, enc_sys, payload, max_tokens=4000, temperature=0.3, meta=meta)
-    encoded = sanitize_completed_text(encoded)
+    encoded = sanitize_completed_text(encoded, stage="encoder")
     publish_progress("encoder_completed", encoded=encoded)
     publish_progress("decoder_started")
     dec_sys = ("You are a fresh agent. You have never seen any prior conversation. Below is the "
@@ -1737,7 +1740,7 @@ def _test_turn_impl(conv, rb, meta, turn, *, progress_path=None, progress_box=No
                "reconstruct the original content as faithfully as you can. Do not invent anything "
                "the message does not encode. Output ONLY the reconstruction.\n\n" + rbook)
     decoded, _ = call(MODEL_DECODER, dec_sys, encoded.strip(), max_tokens=4000, temperature=0.1, meta=meta)
-    decoded = sanitize_completed_text(decoded)
+    decoded = sanitize_completed_text(decoded, stage="decoder")
     publish_progress("decoder_completed", decoded=decoded)
     orig_t = token_count(payload, meta)
     enc_t = token_count(encoded.strip(), meta)
@@ -1873,6 +1876,9 @@ def _test_turn_impl(conv, rb, meta, turn, *, progress_path=None, progress_box=No
     print(f"[t{turn} TEST] {pname}  {orig_t}->{enc_t}tok ({delta:+d}%)  "
           f"{audit['judge_status']} coverage {audit['semantic_coverage_pct']}  "
           f"${meta['spend_usd']:.3f}", flush=True)
+    if progress is not None and progress.current and progress.current.get("phase") == "completed":
+        return copy.deepcopy(progress.current)
+    return None
 
 
 def test_turn(conv, rb, meta, turn, *, progress_path=None):
@@ -1890,6 +1896,7 @@ def test_turn(conv, rb, meta, turn, *, progress_path=None):
                 progress_box[0].fail(
                     classify_public_error(error),
                     interrupted=isinstance(error, KeyboardInterrupt),
+                    diagnostic=public_error_diagnostic(error),
                 )
             except Exception:
                 pass
@@ -2075,12 +2082,13 @@ def run(turns):
         process_one_research(collaboration, meta, turn)
         maybe_run_automatic_cleanup(conv, rb, meta, turn)
         if turn % TEST_EVERY == 0:
-            test_turn(
+            completed_public_exam = test_turn(
                 conv, rb, meta, turn,
-                progress_path=STATE / "public-exam-progress.json",
+                progress_path=STATE / "public-exam-progress.local.json",
             )
             maybe_run_conversation(rb, meta, turn, conversations)
         else:
+            completed_public_exam = None
             agent_turn(conv, rb, meta, collaboration, turn)
         save("conversation.json", conv)
         save("rulebook.json", rb)
@@ -2090,6 +2098,17 @@ def run(turns):
         save("public-collaboration.json", public_state(collaboration))
         save("conversations.json", conversations)
         write_viewer_state(conv, rb, meta, collaboration, conversations)
+        if completed_public_exam is not None:
+            try:
+                publish_completed_snapshot(
+                    STATE / "public-exam-progress.json", completed_public_exam,
+                )
+            except Exception as error:
+                print(
+                    f"[t{turn} PUBLIC EXAM] completed snapshot unavailable · "
+                    f"{error.__class__.__name__}",
+                    flush=True,
+                )
     print(f"done. turns {start_turn}..{turn}  rules {len(rb['rules'])}  "
           f"spend ${meta['spend_usd']:.3f}", flush=True)
 

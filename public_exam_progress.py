@@ -38,6 +38,7 @@ TOP_LEVEL_FIELDS = {
     "schema_version", "run_id", "turn", "phase", "updated_at", "receipts",
     "benchmark_id", "benchmark_name", "language_version", "language_hash",
     "encoded", "decoded", "audit", "tokens", "result", "error_class",
+    "diagnostic",
 }
 AUDIT_FIELDS = {"completed", "total", "survived", "corrupted", "missing", "inventions"}
 TOKEN_FIELDS = {"original", "encoded"}
@@ -46,6 +47,7 @@ RESULT_FIELDS = {
     "semantic_coverage_pct", "status",
 }
 RECEIPT_FIELDS = {"phase", "at", "message"}
+DIAGNOSTIC_FIELDS = {"stage", "reason", "response_chars"}
 _UNSAFE_TEXT = re.compile(
     r"(?i)(?:"
     r"\b(?:OPENROUTER_API_KEY|API_KEY|PASSWORD|CLIENT_SECRET|AUTHORIZATION)\s*[:=]|"
@@ -60,7 +62,12 @@ _UNSAFE_TEXT = re.compile(
 
 
 class ProgressValidationError(ValueError):
-    pass
+    def __init__(self, reason: str, *, stage: str | None = None,
+                 response_chars: int | None = None):
+        super().__init__(reason)
+        self.reason = reason
+        self.stage = stage
+        self.response_chars = response_chars
 
 
 def _now() -> str:
@@ -72,16 +79,22 @@ def build_run_id(turn: int, benchmark_id: str, language_hash: str) -> str:
     return f"exam-{int(turn)}-{hashlib.sha256(identity).hexdigest()[:16]}"
 
 
-def sanitize_completed_text(value: Any) -> str:
+def sanitize_completed_text(value: Any, *, stage: str | None = None) -> str:
     if not isinstance(value, str):
-        raise ProgressValidationError("public_text_not_string")
+        raise ProgressValidationError("public_text_not_string", stage=stage)
     value = value.replace("\r\n", "\n").replace("\r", "\n").strip()
     value = "".join(character for character in value
                     if character in "\n\t" or ord(character) >= 32)
-    if not value or len(value) > MAX_PUBLIC_TEXT:
-        raise ProgressValidationError("public_text_size_invalid")
+    if not value:
+        raise ProgressValidationError("public_text_empty", stage=stage, response_chars=0)
+    if len(value) > MAX_PUBLIC_TEXT:
+        raise ProgressValidationError(
+            "public_text_too_large", stage=stage, response_chars=len(value),
+        )
     if _UNSAFE_TEXT.search(value):
-        raise ProgressValidationError("unsafe_public_text")
+        raise ProgressValidationError(
+            "unsafe_public_text", stage=stage, response_chars=len(value),
+        )
     return value
 
 
@@ -90,7 +103,18 @@ def classify_public_error(error: BaseException) -> str:
         return "interrupted"
     if isinstance(error, TimeoutError):
         return "provider_timeout"
+    if isinstance(error, ProgressValidationError):
+        return "invalid_provider_response"
     return "provider_unavailable"
+
+
+def public_error_diagnostic(error: BaseException) -> dict[str, Any] | None:
+    if not isinstance(error, ProgressValidationError) or error.stage not in {"encoder", "decoder"}:
+        return None
+    diagnostic = {"stage": error.stage, "reason": error.reason}
+    if error.response_chars is not None:
+        diagnostic["response_chars"] = min(max(0, error.response_chars), 1_000_000_000)
+    return diagnostic
 
 
 def _bounded_int(value: Any, *, maximum: int = 1_000_000) -> int:
@@ -175,6 +199,21 @@ def validate_snapshot(snapshot: Any, previous: Any = None) -> dict[str, Any]:
             raise ProgressValidationError("result_status_invalid")
     if "error_class" in value and value["error_class"] not in PUBLIC_ERROR_CLASSES:
         raise ProgressValidationError("error_class_invalid")
+    if "diagnostic" in value:
+        if phase != "failed":
+            raise ProgressValidationError("diagnostic_phase_invalid")
+        diagnostic = _exact_fields(value["diagnostic"], DIAGNOSTIC_FIELDS, name="diagnostic")
+        if not {"stage", "reason"}.issubset(diagnostic):
+            raise ProgressValidationError("diagnostic_fields_invalid")
+        if diagnostic["stage"] not in {"encoder", "decoder"}:
+            raise ProgressValidationError("diagnostic_stage_invalid")
+        if diagnostic["reason"] not in {
+            "public_text_not_string", "public_text_empty",
+            "public_text_too_large", "unsafe_public_text",
+        }:
+            raise ProgressValidationError("diagnostic_reason_invalid")
+        if "response_chars" in diagnostic:
+            _bounded_int(diagnostic["response_chars"], maximum=1_000_000_000)
 
     required_by_phase = {
         "benchmark_selected": ("benchmark_id", "benchmark_name"),
@@ -219,7 +258,7 @@ class PublicExamProgressWriter:
 
     def __init__(self, path: Path, *, turn: int, benchmark_id: str,
                  benchmark_name: str, language_version: str, language_hash: str,
-                 clock=_now):
+                 clock=_now, replace_active: bool = False):
         self.path = Path(path)
         self.turn = int(turn)
         self.benchmark_id = benchmark_id
@@ -228,6 +267,7 @@ class PublicExamProgressWriter:
         self.language_hash = language_hash
         self.run_id = build_run_id(turn, benchmark_id, language_hash)
         self.clock = clock
+        self.replace_active = replace_active
         self.current = None
 
     def _receipt_message(self, phase: str, fields: dict[str, Any]) -> str:
@@ -246,6 +286,12 @@ class PublicExamProgressWriter:
                     f"{audit['missing']} missing · {audit['inventions']} inventions")
         if phase == "completed": return "final verified result available"
         if phase == "interrupted": return "exam interrupted before verification"
+        diagnostic = fields.get("diagnostic")
+        if diagnostic:
+            reason = diagnostic["reason"].replace("public_text_", "").replace("_", " ")
+            size = diagnostic.get("response_chars")
+            suffix = f" · {size} characters" if size is not None else ""
+            return f"exam failed · invalid {diagnostic['stage']} response · {reason}{suffix}"
         return f"exam failed · {fields['error_class'].replace('_', ' ')}"
 
     def advance(self, phase: str, **fields: Any) -> dict[str, Any]:
@@ -256,7 +302,7 @@ class PublicExamProgressWriter:
             existing = load_json(self.path, None)
             if isinstance(existing, dict):
                 existing = validate_snapshot(existing)
-                if existing["phase"] not in TERMINAL_PHASES:
+                if existing["phase"] not in TERMINAL_PHASES and not self.replace_active:
                     raise ProgressValidationError("active_exam_already_exists")
             snapshot = {
                 "schema_version": SCHEMA_VERSION,
@@ -285,7 +331,20 @@ class PublicExamProgressWriter:
         self.current = snapshot
         return copy.deepcopy(snapshot)
 
-    def fail(self, error_class: str, *, interrupted: bool = False) -> dict[str, Any]:
+    def fail(self, error_class: str, *, interrupted: bool = False,
+             diagnostic: dict[str, Any] | None = None) -> dict[str, Any]:
         if error_class not in PUBLIC_ERROR_CLASSES:
             error_class = "provider_unavailable"
-        return self.advance("interrupted" if interrupted else "failed", error_class=error_class)
+        fields = {"error_class": error_class}
+        if diagnostic is not None:
+            fields["diagnostic"] = diagnostic
+        return self.advance("interrupted" if interrupted else "failed", **fields)
+
+
+def publish_completed_snapshot(path: Path, snapshot: Any) -> dict[str, Any]:
+    """Publish only a fully validated terminal result to the tracked public path."""
+    validated = validate_snapshot(snapshot)
+    if validated["phase"] != "completed":
+        raise ProgressValidationError("completed_snapshot_required")
+    atomic_write_json(Path(path), validated)
+    return copy.deepcopy(validated)
