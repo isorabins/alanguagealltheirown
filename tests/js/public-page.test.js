@@ -575,13 +575,14 @@ test('Agent C header renders every authoritative state from the existing runtime
   };
   Function('window','document',startup)(window,viewer.document);
   const labels=window.ALATO_STARTUP.agentCLabel;
-  assert.equal(labels({state:'growing',growth_pct:6.4,trigger_pct:10}),'Agent C · 6.4% / 10%');
-  assert.equal(labels({state:'blocked_motion',blocker:'rule-382'}),'Agent C · ready, waiting on rule-382');
-  assert.equal(labels({state:'quarantined'}),'Agent C · quarantined');
-  assert.equal(labels({state:'blocked_attempt'}),'Agent C · retry waits for language change');
-  assert.equal(labels({state:'eligible'}),'Agent C · cleanup ready');
-  assert.equal(viewer.elements.get('agent-c-summary-label').textContent,'Agent C · 6.4% / 10%');
-  assert.equal(viewer.elements.get('agent-c-summary-progress').style.width,'64%');
+  assert.equal(labels({state:'growing',growth_pct:6.4,trigger_pct:10}),'cleanup at 10%');
+  assert.equal(labels({state:'blocked_motion',blocker:'rule-382'}),'ready · waiting on rule-382');
+  assert.equal(labels({state:'quarantined'}),'cleanup quarantined');
+  assert.equal(labels({state:'blocked_attempt'}),'retry waits for language change');
+  assert.equal(labels({state:'eligible'}),'cleanup ready');
+  assert.equal(viewer.elements.get('agent-c-summary-value').textContent,'6.4%');
+  assert.equal(viewer.elements.get('agent-c-summary-label').textContent,'cleanup at 10%');
+  assert.equal(viewer.elements.has('agent-c-summary-progress'),false);
 });
 
 test('full-history runtime status uses the same persisted pause contract',()=>{

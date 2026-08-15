@@ -84,25 +84,22 @@
   function agentCLabel(agentC) {
     agentC=agentC&&typeof agentC==="object"?agentC:{};
     if(agentC.state==="growing"){
-      var growth=Number(agentC.growth_pct),trigger=Number(agentC.trigger_pct);
-      return "Agent C · "+(Number.isFinite(growth)?growth.toFixed(1):"0.0")+"% / "+(Number.isFinite(trigger)?trigger:10)+"%";
+      var trigger=Number(agentC.trigger_pct);
+      return "cleanup at "+(Number.isFinite(trigger)?trigger:10)+"%";
     }
-    if(agentC.state==="blocked_motion")return "Agent C · ready, waiting on "+String(agentC.blocker||"open motion");
-    if(agentC.state==="quarantined")return "Agent C · quarantined";
-    if(agentC.state==="blocked_attempt")return "Agent C · retry waits for language change";
-    if(agentC.state==="eligible")return "Agent C · cleanup ready";
-    return "Agent C · status unavailable";
+    if(agentC.state==="blocked_motion")return "ready · waiting on "+String(agentC.blocker||"open motion");
+    if(agentC.state==="quarantined")return "cleanup quarantined";
+    if(agentC.state==="blocked_attempt")return "retry waits for language change";
+    if(agentC.state==="eligible")return "cleanup ready";
+    return "status unavailable";
   }
 
   function renderAgentC(agentC) {
+    var value=document.getElementById("agent-c-summary-value");
     var label=document.getElementById("agent-c-summary-label");
-    var bar=document.getElementById("agent-c-summary-progress");
+    var growth=Number(agentC&&agentC.growth_pct);
+    if(value)value.textContent=Number.isFinite(growth)?growth.toFixed(1)+"%":"—";
     if(label)label.textContent=agentCLabel(agentC);
-    if(bar){
-      var progress=Number(agentC&&agentC.progress_pct);
-      if(!Number.isFinite(progress))progress=0;
-      bar.style.width=Math.max(0,Math.min(100,progress))+"%";
-    }
   }
 
   function updateCounters() {
