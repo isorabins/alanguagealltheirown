@@ -516,6 +516,33 @@ test('tiny live runtime clears a stale bootstrap before full history finishes',a
   } finally { Date.now=realNow; }
 });
 
+test('deployed preview renders messages and adopted rules before live history finishes',()=>{
+  const script=html.match(/<script>\s*([\s\S]*?)<\/script>/)[1];
+  const loadCall=script.indexOf('\nloadState();');
+  const viewer=viewerDocument();
+  const window={
+    location:{hostname:'alanguagealltheirown.com'},
+    PUBLIC_BOOTSTRAP:{preview:{
+      conversation:[
+        {type:'message',turn:2933,agent:'A',content:'Latest deployed Agent A message.'},
+        {type:'message',turn:2934,agent:'B',content:'Latest deployed Agent B message.'}
+      ],
+      rulebook:{version:'0.1159',rules:[{id:'rule-515',status:'adopted',text_en:'Preserve exact identifiers.',history:[{verb:'adopt',turn:2932,agent:'B'}]}]},
+      collaboration:{research:[],asks:[],suggestions:[]},conversations:[],
+      language:{text:'LANGUAGE adopted-preview\n\nrule-515 — Preserve exact identifiers.',rules:[{id:'rule-515',text_en:'Preserve exact identifiers.'}]},
+      notes:[],meta:{runtime:{status:'active',turn:2934}},
+      metrics:[['turns','2934'],['rules adopted','35']]
+    }}
+  };
+  const pendingFetch=()=>new Promise(()=>{});
+  const api=Function('document','window','fetch',script.slice(0,loadCall)+'\nreturn {loadState};')(viewer.document,window,pendingFetch);
+  api.loadState();
+  assert.match(viewer.elements.get('paneA').innerHTML,/Latest deployed Agent A message/);
+  assert.match(viewer.elements.get('paneB').innerHTML,/Latest deployed Agent B message/);
+  assert.match(viewer.elements.get('adopted').textContent,/Preserve exact identifiers/);
+  assert.match(viewer.elements.get('metrics').innerHTML,/turns[\s\S]*2934/);
+});
+
 test('left clock always counts down to the next 15-minute turn',()=>{
   const startup=fs.readFileSync(path.join(__dirname,'../../viewer/startup.js'),'utf8');
   const viewer=viewerDocument();
