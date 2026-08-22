@@ -486,6 +486,36 @@ test('failed live refresh dynamically loads and renders the bundled archive',asy
   assert.match(viewer.elements.get('exams').innerHTML,/coverage 100%[\s\S]*body savings \+44%/);
 });
 
+test('tiny live runtime clears a stale bootstrap before full history finishes',async()=>{
+  const script=html.match(/<script>\s*([\s\S]*?)<\/script>/)[1];
+  const loadCall=script.indexOf('\nloadState();');
+  const startup=fs.readFileSync(path.join(__dirname,'../../viewer/startup.js'),'utf8');
+  const viewer=viewerDocument();
+  const realNow=Date.now;
+  Date.now=()=>Date.parse('2026-08-22T04:35:00Z');
+  const window={
+    location:{hostname:'alanguagealltheirown.com'},
+    PUBLIC_BOOTSTRAP:{turn:2569,updated:'2026-08-15T08:30:33Z',metrics:[],runtime:{status:'active',turn:2569,next_exam_turn:2571}},
+    setInterval(){return 1;},setTimeout(){return 1;}
+  };
+  const pending=new Promise(()=>{});
+  const fetch=url=>{
+    if(String(url).includes('public-runtime.json'))return Promise.resolve({ok:true,json:()=>Promise.resolve({status:'active',turn:2933,next_exam_turn:2934,agent_c:{state:'quarantined'}})});
+    if(String(url).includes('api.github.com/repos/'))return Promise.resolve({ok:true,json:()=>Promise.resolve([{commit:{committer:{date:'2026-08-22T04:30:53Z'}}}])});
+    return pending;
+  };
+  try {
+    Function('window','document',startup)(window,viewer.document);
+    assert.equal(viewer.elements.get('t-turn').textContent,'checking');
+    const api=Function('document','window','fetch',script.slice(0,loadCall)+'\nreturn {loadState};')(viewer.document,window,fetch);
+    api.loadState();
+    await new Promise(resolve=>setImmediate(resolve));
+    assert.notEqual(viewer.elements.get('t-turn').textContent,'checking');
+    assert.equal(viewer.elements.get('agent-c-summary-label').textContent,'cleanup quarantined');
+    assert.doesNotMatch(viewer.elements.get('runtime-status-heading').textContent,/not advancing/i);
+  } finally { Date.now=realNow; }
+});
+
 test('left clock always counts down to the next 15-minute turn',()=>{
   const startup=fs.readFileSync(path.join(__dirname,'../../viewer/startup.js'),'utf8');
   const viewer=viewerDocument();
@@ -577,6 +607,7 @@ test('one runtime projection makes stale clocks warning and Experiment Status ag
   };
   try {
     Function('window','document',startup)(window,viewer.document);
+    window.ALATO_STARTUP.setSnapshot('2026-08-14T20:00:14Z',2549,{status:'active',turn:2549,next_exam_turn:2550});
     assert.equal(viewer.elements.get('t-turn').textContent,'stalled');
     assert.equal(viewer.elements.get('t-exam').textContent,'stalled');
     assert.match(viewer.elements.get('runtime-status-heading').textContent,/not advancing/);
@@ -584,6 +615,27 @@ test('one runtime projection makes stale clocks warning and Experiment Status ag
     assert.match(viewer.elements.get('experiment-status-detail').textContent,/turn 2549/);
     assert.equal(viewer.elements.get('status-next-turn').textContent,'stalled');
     assert.equal(viewer.elements.get('status-next-exam').textContent,'stalled');
+  } finally { Date.now=realNow; }
+});
+
+test('stale bundled bootstrap waits for verified live freshness before warning',()=>{
+  const startup=fs.readFileSync(path.join(__dirname,'../../viewer/startup.js'),'utf8');
+  const viewer=viewerDocument();
+  const realNow=Date.now;
+  Date.now=()=>Date.parse('2026-08-22T04:35:00Z');
+  const window={
+    PUBLIC_BOOTSTRAP:{turn:2569,updated:'2026-08-15T08:30:33Z',metrics:[],runtime:{status:'active',turn:2569,next_exam_turn:2571}},
+    setInterval(){return 1;},setTimeout(){return 1;}
+  };
+  try {
+    Function('window','document',startup)(window,viewer.document);
+    assert.equal(viewer.elements.get('t-turn').textContent,'checking');
+    assert.equal(viewer.elements.get('t-exam').textContent,'checking');
+    assert.doesNotMatch(viewer.elements.get('runtime-status-heading').textContent,/not advancing/i);
+
+    window.ALATO_STARTUP.setSnapshot('2026-08-22T04:30:53Z',2933,{status:'active',turn:2933,next_exam_turn:2934});
+    assert.notEqual(viewer.elements.get('t-turn').textContent,'checking');
+    assert.doesNotMatch(viewer.elements.get('runtime-status-heading').textContent,/not advancing/i);
   } finally { Date.now=realNow; }
 });
 

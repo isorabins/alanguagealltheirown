@@ -1278,13 +1278,19 @@ function loadState() {
   }
   var get = function (f) { return fetch(RAW + f, {cache: "no-store"}).then(function (r) { if (!r.ok) throw 0; return r.json(); }); };
   var getOptional = function (f, fallbackValue) { return get(f).catch(function () { return fallbackValue; }); };
+  var liveRuntime = getOptional("public-runtime.json", null);
   var lastCommit = fetch(COMMITS, {cache: "no-store"}).then(function (r) {
     if (!r.ok) throw 0;
     return r.json();
   }).catch(function () { return null; });
+  Promise.all([liveRuntime, lastCommit]).then(function (fresh) {
+    var currentRuntime=fresh[0],latest=fresh[1]&&Array.isArray(fresh[1])&&fresh[1][0];
+    var when=latest&&latest.commit&&latest.commit.committer&&latest.commit.committer.date;
+    if(currentRuntime&&when&&window.ALATO_STARTUP)window.ALATO_STARTUP.setSnapshot(when,currentRuntime.turn,currentRuntime);
+  });
   Promise.all([get("conversation.json"), get("rulebook.json"), lastCommit,
     getOptional("public-collaboration.json", {research: [], asks: [], suggestions: []}), getOptional("conversations.json", []),
-    getOptional("tweet-state.json", {}), getOptional("public-runtime.json", null),
+    getOptional("tweet-state.json", {}), liveRuntime,
     getOptional("public-language.json", null),
     fetch("https://raw.githubusercontent.com/isorabins/alanguagealltheirown/main/notes.json",{cache:"no-store"}).then(function(r){return r.ok?r.json():[];}).catch(function(){return [];})]).then(function (both) {
     var latest = both[2] && Array.isArray(both[2]) && both[2][0];

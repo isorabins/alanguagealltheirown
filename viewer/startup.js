@@ -6,6 +6,7 @@
   var runtime = bootstrap.runtime || {};
   var lastTurnAt = Date.parse(bootstrap.updated || "");
   var lastTurnNum = Number(bootstrap.turn || 0);
+  var freshnessVerified = false;
   var refetchArmed = false;
   var refetchDelay = 45000;
 
@@ -105,6 +106,9 @@
   function updateCounters() {
     renderAgentC(runtime.agent_c);
     var projection=projectRuntime(lastTurnAt,Date.now(),lastTurnNum,runtime);
+    if(!freshnessVerified&&runtime.status==="active"&&projection.mode==="stalled"){
+      projection={mode:"checking",visible:false,heading:"",detail:"Checking the latest canonical runtime state.",stamp:"checking latest live update",kicker:"checking live update",turnClock:"checking",examClock:"checking",examLink:"see last test ↓"};
+    }
     applyRuntimeProjection(projection);
     if(projection.mode==="active"&&projection.turnRunning){
       if(!refetchArmed&&typeof window.loadState==="function"){
@@ -126,6 +130,7 @@
     }
     lastTurnNum = Number(turn || 0);
     if (arguments.length > 2 && arguments[2]) runtime = arguments[2];
+    freshnessVerified = true;
     refetchArmed = false;
     return updateCounters();
   }
