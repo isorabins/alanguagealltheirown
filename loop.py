@@ -732,29 +732,51 @@ def write_viewer_state(conv, rb, meta, collaboration=None, conversations=None):
         if conversation_judgment.get("valid") is True and conversation_rows
         else "unavailable"
     )
+    metrics = [
+        ["rulebook revisions", str(revisions)],
+        ["turns", str(turn)],
+        ["rules adopted", str(adopted_count)],
+        [
+            "best strict savings · V2",
+            pct(best_savings) if best_savings is not None else "—",
+        ],
+        [
+            "latest coverage · V2",
+            (
+                f'{latest_valid_v2.get("semantic_coverage_pct")}% · '
+                f'{"pass" if latest_valid_v2.get("meaning_pass") else "fail"}'
+                if latest_valid_v2
+                else "awaiting V2"
+            ),
+        ],
+        ["latest Conversation", conversation_metric],
+    ]
+    preview_rules = [
+        rule for rule in rb.get("rules", [])
+        if rule.get("status") in {"adopted", "proposed"}
+        or rule.get("pending_repeal")
+    ]
+    terminal_rules = [
+        rule for rule in rb.get("rules", []) if rule not in preview_rules
+    ][-10:]
     bootstrap = {
         "turn": turn,
         "updated": updated,
         "runtime": runtime,
-        "metrics": [
-            ["rulebook revisions", str(revisions)],
-            ["turns", str(turn)],
-            ["rules adopted", str(adopted_count)],
-            [
-                "best strict savings · V2",
-                pct(best_savings) if best_savings is not None else "—",
-            ],
-            [
-                "latest coverage · V2",
-                (
-                    f'{latest_valid_v2.get("semantic_coverage_pct")}% · '
-                    f'{"pass" if latest_valid_v2.get("meaning_pass") else "fail"}'
-                    if latest_valid_v2
-                    else "awaiting V2"
-                ),
-            ],
-            ["latest Conversation", conversation_metric],
-        ],
+        "metrics": metrics,
+        "preview": {
+            "conversation": public_conversation[-30:],
+            "rulebook": {
+                "version": rb.get("version", "0.0"),
+                "rules": preview_rules + terminal_rules,
+            },
+            "collaboration": {},
+            "conversations": (conversations or [])[-1:],
+            "language": public_language,
+            "notes": notes[-1:] if isinstance(notes, list) else [],
+            "meta": {"updated": updated, "runtime": runtime},
+            "metrics": metrics,
+        },
     }
     (ROOT / "viewer" / "bootstrap.js").write_text(
         "window.PUBLIC_BOOTSTRAP = "

@@ -913,7 +913,7 @@ function render(S) {
   var conversationRows = latestConversation && latestConversation.judgment && latestConversation.judgment.requirements || [];
   var conversationPasses = conversationRows.filter(function (row) { return row.pass === true; }).length;
   var revisions = String(rb.version == null ? "0.0" : rb.version).split(".")[1] || "0";
-  var m = [
+  var m = Array.isArray(S.metrics) ? S.metrics : [
     ["rulebook revisions", revisions],
     ["turns", conv.length ? conv[conv.length - 1].turn : 0],
     ["rules adopted", adopted.length],
@@ -1269,7 +1269,7 @@ function loadState() {
   var RAW = "https://raw.githubusercontent.com/isorabins/alanguagealltheirown/main/state/";
   var COMMITS = "https://api.github.com/repos/isorabins/alanguagealltheirown/commits" +
     "?sha=main&path=state%2Fconversation.json&per_page=1";
-  var fallback = window.STATE || null;
+  var fallback = window.STATE || (window.PUBLIC_BOOTSTRAP && window.PUBLIC_BOOTSTRAP.preview) || null;
   var isLocal = window.location && /^(localhost|127\.0\.0\.1)$/.test(window.location.hostname);
   if (fallback) render(fallback);
   if (isLocal) {

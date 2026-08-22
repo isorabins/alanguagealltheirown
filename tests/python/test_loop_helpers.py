@@ -494,7 +494,7 @@ class StructuredLoopTests(unittest.TestCase):
         self.assertNotIn('"type": "protocol_cutover"', payload)
         self.assertIn('"content": "Public deliberation."', payload)
 
-    def test_viewer_bootstrap_is_small_and_contains_immediate_headline_state(self):
+    def test_viewer_bootstrap_is_bounded_and_contains_immediate_preview_state(self):
         conversation = [
             {
                 "turn": 20,
@@ -534,7 +534,7 @@ class StructuredLoopTests(unittest.TestCase):
                 loop.write_viewer_state(conversation, rulebook, {"spend_usd": 0})
             payload = (root / "viewer" / "bootstrap.js").read_text()
 
-        self.assertLess(len(payload.encode()), 2048)
+        self.assertLess(len(payload.encode()), 500_000)
         self.assertTrue(payload.startswith("window.PUBLIC_BOOTSTRAP = "))
         bootstrap = json.loads(payload.removeprefix("window.PUBLIC_BOOTSTRAP = ").removesuffix(";\n"))
         self.assertEqual(bootstrap["turn"], 22)
@@ -688,6 +688,10 @@ class StructuredLoopTests(unittest.TestCase):
             public_language_exists = (root / "state" / "public-language.json").exists()
         bootstrap = json.loads(payload.removeprefix("window.PUBLIC_BOOTSTRAP = ").removesuffix(";\n"))
         self.assertIn(["best strict savings · V2", "+43%"], bootstrap["metrics"])
+        self.assertIn("preview", bootstrap)
+        self.assertEqual(bootstrap["preview"]["metrics"], bootstrap["metrics"])
+        self.assertLessEqual(len(bootstrap["preview"]["conversation"]), 30)
+        self.assertLess(len(payload), 500_000)
         self.assertEqual(bootstrap["runtime"], {
             "status": "paused",
             "turn": 2400,
