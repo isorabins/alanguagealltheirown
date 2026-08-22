@@ -955,6 +955,34 @@ class ProductionShapedPromptTests(unittest.TestCase):
         )
         self.assertEqual(snapshot_hash(book), original_hash)
 
+    def test_missing_snapshot_uses_bounded_adopted_language_and_current_state(self):
+        book = production_book()
+        book["rules"][30]["text_en"] = "UNTOUCHED_HISTORICAL_SENTINEL"
+        original_hash = snapshot_hash(book)
+
+        assembled = loop.assemble_legislative_prompt(
+            production_window(book),
+            book,
+            turn=1210,
+            agent="B",
+            collaboration_input=None,
+        )
+
+        self.assertIn("=== ADOPTED LANGUAGE ===", assembled["system"])
+        self.assertNotIn("=== COMPLETE LEGISLATURE ===", assembled["system"])
+        self.assertNotIn("UNTOUCHED_HISTORICAL_SENTINEL", assembled["system"])
+        self.assertIn('"target_rule_id":"rule-132"', assembled["system"])
+        self.assertIn(
+            '"id":"rule-132","status":"proposed","text_en":"Use one focused boundary marker',
+            assembled["system"],
+        )
+        self.assertIn(
+            "adopted language and authoritative current state",
+            assembled["user"],
+        )
+        self.assertLessEqual(assembled["total_chars"], loop.MAX_STRUCTURED_PROMPT_CHARS)
+        self.assertEqual(snapshot_hash(book), original_hash)
+
     def test_live_test_projection_keeps_outcome_not_duplicate_payloads(self):
         event = {
             "turn": 1209,
@@ -1060,7 +1088,10 @@ class ProductionShapedPromptTests(unittest.TestCase):
         self.assertEqual(snapshot_hash(events), event_hash)
         self.assertEqual(state["research"][0]["findings"], canonical_lookup["findings"])
         self.assertEqual(state["research"][0]["citations"], canonical_lookup["citations"])
-        self.assertIn("rule-132 [proposed]", assembled["system"])
+        self.assertIn(
+            '"id":"rule-132","status":"proposed","text_en":"Use one focused boundary marker',
+            assembled["system"],
+        )
         self.assertNotIn('"rule_states"', assembled["system"])
         self.assertNotIn('"attempted_action"', assembled["system"])
         self.assertNotIn('"unchanged_rule_ids"', assembled["system"])

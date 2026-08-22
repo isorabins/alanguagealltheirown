@@ -1266,6 +1266,24 @@ def assemble_legislative_prompt(
         prompt_request = _projection_without_private_fault_material(
             prompt_request, fault_ledger
         )
+    open_motion_record = None
+    if open_motion is not None:
+        rule = next(
+            (row for row in rb.get("rules", []) if row.get("id") == open_motion.target_rule_id),
+            None,
+        )
+        if rule is None:
+            raise RuntimeError("open motion target is missing from the legislature")
+        open_motion_record = {
+            "id": rule.get("id"),
+            "status": rule.get("status"),
+            "text_en": rule.get("text_en"),
+            "pending_repeal": copy.deepcopy(rule.get("pending_repeal")),
+        }
+        if semantic_fault is not None:
+            open_motion_record = _projection_without_private_fault_material(
+                open_motion_record, fault_ledger
+            )
     if structured_snapshot is not None:
         if not isinstance(structured_snapshot, dict):
             raise RuntimeError("structured cleanup snapshot is invalid")
@@ -1290,23 +1308,23 @@ def assemble_legislative_prompt(
         )
     else:
         if semantic_fault is not None:
-            prompt_language, prompt_legislature = (
+            prompt_language, _prompt_legislature = (
                 _rulebook_views_without_private_fault_material(rb, fault_ledger)
             )
         else:
             prompt_language = render_language(rb)
-            prompt_legislature = render_legislature(rb)
         system = (
             f"{output_contract}{constitution}\n\n{role_prompt}\n\n"
             f"=== ADOPTED LANGUAGE ===\n{prompt_language}\n\n"
-            f"=== COMPLETE LEGISLATURE ===\n{prompt_legislature}\n\n"
+            f"=== OPEN MOTION ===\n"
+            f"{json.dumps(open_motion_record, ensure_ascii=False, separators=(',', ':'))}\n\n"
             f"=== AUTHORITATIVE CURRENT MACHINE STATE AND RECEIPT ===\n"
             f"{json.dumps(prompt_request, ensure_ascii=False, separators=(',', ':'))}"
         )
     context_basis = (
         "the structured working context"
         if structured_snapshot is not None
-        else "the complete legislature, authoritative current state"
+        else "the adopted language and authoritative current state"
     )
     user = (
         f"It is turn {turn}. You are Agent B. Audit only {audit_focus} using "
@@ -1332,8 +1350,8 @@ def assemble_legislative_prompt(
         ).hexdigest(),
     }
     total_chars = len(system) + len(user)
-    if structured_snapshot is not None and total_chars > MAX_STRUCTURED_PROMPT_CHARS:
-        raise RuntimeError("structured legislative prompt exceeds the deterministic size budget")
+    if total_chars > MAX_STRUCTURED_PROMPT_CHARS:
+        raise RuntimeError("legislative prompt exceeds the deterministic size budget")
     return {
         "system": system,
         "user": user,
