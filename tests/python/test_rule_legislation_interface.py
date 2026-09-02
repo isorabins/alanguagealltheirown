@@ -544,5 +544,109 @@ class AgentABWorkflowInterfaceTests(unittest.TestCase):
         self.assertEqual(result.snapshot.adopted_language.hash, language_payload(self.rulebook)["hash"])
 
 
+class AgentCBWorkflowInterfaceTests(unittest.TestCase):
+    def setUp(self):
+        self.rulebook = json.loads(
+            (ROOT / "tests/fixtures/mixed-rulebook.json").read_text()
+        )
+        self.tempdir = tempfile.TemporaryDirectory()
+        self.addCleanup(self.tempdir.cleanup)
+        root = Path(self.tempdir.name)
+        self.module = RuleLegislation.local(
+            self.rulebook,
+            budget_ledger_path=root / "budget.json",
+            evidence_ledger_path=root / "evidence.json",
+            clock=lambda: datetime.fromisoformat("2026-09-02T04:00:00+00:00"),
+        )
+        for rule_id in ("rule-001", "rule-002"):
+            self.module.submit_evidence(LegacyEvidenceReceipt(
+                evidence_id=f"evidence-{rule_id}", subject_ids=(rule_id,),
+                source_kind="historical_rule_score", source_identity=f"history-{rule_id}",
+            ))
+
+    def _output(self, role, response_id, payload):
+        content = json.dumps(payload, separators=(",", ":"), sort_keys=True)
+        return ModelOutput(
+            role=role, response_id=response_id, returned_model=f"fixture/{role.lower()}",
+            finish_reason="stop", content=content,
+            content_sha256=hashlib.sha256(content.encode()).hexdigest(),
+        )
+
+    def _candidate(self, response_id="response-c-1", **changes):
+        payload = {
+            "proposal_id": "candidate-c-1",
+            "kind": "MERGE",
+            "source_ids": ["rule-001", "rule-002"],
+            "evidence_links": {
+                "rule-001": ["evidence-rule-001"],
+                "rule-002": ["evidence-rule-002"],
+            },
+            "source_coverage": {
+                "rule-001": "merged-001",
+                "rule-002": "merged-001",
+            },
+            "operative_rules": [{
+                "id": "merged-001", "text_en": "Use !ok for confirmed success."
+            }],
+            "rationale": "Evidence suggests the meanings should be tested together.",
+            "deliberation": "Agent C proposes one evidence-linked merge.",
+            "asserted_authority": "edit_only",
+        }
+        payload.update(changes)
+        return self._output("C", response_id, payload)
+
+    def _audit(self, candidate_hash, **changes):
+        payload = {
+            "audit_id": "audit-c-b-1", "proposal_id": "candidate-c-1",
+            "candidate_hash": candidate_hash, "decision": "APPROVE",
+            "findings": ["Every source has an evidence link and coverage."],
+            "deliberation": "Agent B audits the exact C artifact.",
+            "asserted_authority": "audit_only",
+        }
+        payload.update(changes)
+        return self._output("B", "response-c-b-1", payload)
+
+    def test_c_edit_requires_evidence_for_every_source_and_exact_b_audit(self):
+        candidate = self.module.submit_change(self._candidate())
+        self.assertEqual(candidate.outcome, WorkOutcome.DEFERRED)
+        self.assertEqual(candidate.detail["origin"], "C")
+        self.assertEqual(candidate.reason, "awaiting_mandatory_b_audit")
+        audited = self.module.submit_change(self._audit(candidate.detail["candidate_hash"]))
+        self.assertEqual(audited.outcome, WorkOutcome.ELIGIBLE)
+        self.assertEqual(
+            audited.reason, "candidate_audited_and_eligible_for_evaluation"
+        )
+        self.assertEqual(
+            audited.snapshot.adopted_language.hash, language_payload(self.rulebook)["hash"]
+        )
+
+    def test_uncited_or_uncovered_c_edits_and_direct_authority_are_rejected(self):
+        uncited = self.module.submit_change(self._candidate(
+            evidence_links={"rule-001": ["evidence-rule-001"]}
+        ))
+        self.assertEqual(uncited.outcome, WorkOutcome.REJECTED)
+        uncovered = self.module.submit_change(self._candidate(
+            source_coverage={"rule-001": "merged-001"}
+        ))
+        self.assertEqual(uncovered.outcome, WorkOutcome.REJECTED)
+        direct = self.module.submit_change(self._candidate(asserted_authority="adopted"))
+        self.assertEqual(direct.outcome, WorkOutcome.REJECTED)
+
+    def test_prior_audit_cannot_authorize_a_finalized_or_drifted_artifact(self):
+        first = self.module.submit_change(self._candidate())
+        self.module.submit_change(self._audit(first.detail["candidate_hash"]))
+        drifted = self.module.submit_change(self._candidate(
+            response_id="response-c-final", proposal_id="candidate-c-final", operative_rules=[{
+                "id": "merged-001", "text_en": "Use !confirmed for confirmed success."
+            }]
+        ))
+        self.assertEqual(drifted.outcome, WorkOutcome.DEFERRED)
+        stale_audit = self.module.submit_change(self._audit(
+            first.detail["candidate_hash"], proposal_id="candidate-c-final",
+            audit_id="audit-stale-final",
+        ))
+        self.assertEqual(stale_audit.outcome, WorkOutcome.REJECTED)
+
+
 if __name__ == "__main__":
     unittest.main()

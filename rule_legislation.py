@@ -643,7 +643,7 @@ class _EvidenceLedger:
             elif output.role == "B":
                 result = self._record_b_audit(ledger, output, payload)
             else:
-                result = (WorkOutcome.REJECTED, "agent_c_requires_evidence_workflow", {})
+                result = self._record_c_candidate(ledger, output, payload)
             atomic_write_json(self._path, ledger)
             return result
         finally:
@@ -751,6 +751,95 @@ class _EvidenceLedger:
         candidate["status"] = "audit_deferred"
         detail["status"] = candidate["status"]
         return WorkOutcome.DEFERRED, "candidate_deferred_by_b_audit", detail
+
+    @staticmethod
+    def _record_c_candidate(ledger, output: ModelOutput, payload: dict[str, Any]):
+        expected = {
+            "proposal_id", "kind", "source_ids", "evidence_links", "source_coverage",
+            "operative_rules", "rationale", "deliberation", "asserted_authority",
+        }
+        if set(payload) != expected:
+            return WorkOutcome.REJECTED, "c_candidate_schema_invalid", {}
+        if (payload["kind"] not in {"REMOVE", "MERGE", "REWRITE"}
+                or not isinstance(payload["proposal_id"], str)
+                or not payload["proposal_id"].strip()
+                or not isinstance(payload["source_ids"], list)
+                or not payload["source_ids"]
+                or len(set(payload["source_ids"])) != len(payload["source_ids"])
+                or any(not isinstance(item, str) or not item.strip()
+                       for item in payload["source_ids"])
+                or not isinstance(payload["rationale"], str)
+                or not payload["rationale"].strip()
+                or not isinstance(payload["deliberation"], str)
+                or not payload["deliberation"].strip()):
+            return WorkOutcome.REJECTED, "c_candidate_fields_invalid", {}
+        if payload["asserted_authority"] != "edit_only":
+            return WorkOutcome.REJECTED, "model_cannot_assert_adoption_authority", {}
+        sources = payload["source_ids"]
+        links = payload["evidence_links"]
+        coverage = payload["source_coverage"]
+        if (not isinstance(links, dict) or set(links) != set(sources)
+                or not isinstance(coverage, dict) or set(coverage) != set(sources)):
+            return WorkOutcome.REJECTED, "c_source_evidence_or_coverage_incomplete", {}
+        for source_id in sources:
+            source_links = links[source_id]
+            if (not isinstance(source_links, list) or not source_links
+                    or any(not isinstance(item, str) or not item.strip()
+                           for item in source_links)):
+                return WorkOutcome.REJECTED, "c_evidence_links_invalid", {}
+            for evidence_id in source_links:
+                evidence = ledger["evidence"].get(evidence_id)
+                if evidence is None or source_id not in evidence["subject_ids"]:
+                    return WorkOutcome.REJECTED, "c_evidence_link_not_bound_to_source", {}
+            destination = coverage[source_id]
+            if not isinstance(destination, str) or not destination.strip():
+                return WorkOutcome.REJECTED, "c_source_coverage_invalid", {}
+        operative = payload["operative_rules"]
+        if not isinstance(operative, list):
+            return WorkOutcome.REJECTED, "c_operative_rules_invalid", {}
+        rule_ids = []
+        for rule in operative:
+            if (not isinstance(rule, dict) or set(rule) != {"id", "text_en"}
+                    or not isinstance(rule["id"], str) or not rule["id"].strip()
+                    or not isinstance(rule["text_en"], str) or not rule["text_en"].strip()):
+                return WorkOutcome.REJECTED, "c_operative_rules_invalid", {}
+            rule_ids.append(rule["id"])
+        if len(set(rule_ids)) != len(rule_ids):
+            return WorkOutcome.REJECTED, "c_operative_rule_identity_duplicate", {}
+        allowed_destinations = set(rule_ids) | {"removed_with_evidence"}
+        if any(destination not in allowed_destinations for destination in coverage.values()):
+            return WorkOutcome.REJECTED, "c_source_coverage_orphaned", {}
+        if payload["kind"] == "REMOVE" and operative:
+            return WorkOutcome.REJECTED, "remove_candidate_must_not_add_rules", {}
+        if payload["kind"] != "REMOVE" and not operative:
+            return WorkOutcome.REJECTED, "merge_or_rewrite_requires_output_rule", {}
+        artifact = {
+            "origin": "C",
+            "kind": payload["kind"],
+            "source_ids": copy.deepcopy(sources),
+            "evidence_links": copy.deepcopy(links),
+            "source_coverage": copy.deepcopy(coverage),
+            "operative_rules": copy.deepcopy(operative),
+        }
+        candidate_hash = snapshot_hash(artifact)
+        row = {
+            **copy.deepcopy(payload),
+            "origin": "C",
+            "candidate_hash": candidate_hash,
+            "provider_response_id": output.response_id,
+            "provider_model": output.returned_model,
+            "provider_content_sha256": output.content_sha256,
+            "provider_content": output.content,
+            "status": "awaiting_b_audit",
+        }
+        candidates = ledger["workflows"]["candidates"]
+        existing = candidates.get(payload["proposal_id"])
+        if existing is not None:
+            if existing != row:
+                return WorkOutcome.REJECTED, "proposal_identity_conflict", {}
+            return WorkOutcome.DEFERRED, "awaiting_mandatory_b_audit", copy.deepcopy(row)
+        candidates[payload["proposal_id"]] = row
+        return WorkOutcome.DEFERRED, "awaiting_mandatory_b_audit", copy.deepcopy(row)
 
 class RuleLegislation:
     """Small external seam for all rule-legislation decisions."""
