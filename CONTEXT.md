@@ -44,6 +44,21 @@ The token reduction from an original message to its encoded body, excluding the
 rulebook and other request context.
 _Avoid_: Total cost savings, API-bill savings
 
+**Rule evidence**:
+An identity-bound observation about one rule or explicit interaction group under
+matched workbook, task, input, judgment, token, cost, and artifact identities.
+_Avoid_: Rule score, whole-language result
+
+**Interaction group**:
+An ordered set of rule identities whose effects cannot honestly be separated by
+the available evidence.
+_Avoid_: Composite rule, bundled score
+
+**Total successful-system tokens**:
+All Alato agent-communication tokens required to produce a successful evaluated
+result, including legislative A/B communication.
+_Avoid_: Message-body savings, rulebook length
+
 **Projected conversation-cost savings**:
 A labeled hypothetical comparing a fixed multi-exchange plain-English scenario
 with rulebook-assisted communication, including the stated rulebook-cache cost.

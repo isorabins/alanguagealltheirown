@@ -59,6 +59,52 @@ class CostReceipt:
     exact_cost_usd: Decimal
 
 
+class Classification(str, Enum):
+    HELPFUL = "helpful"
+    HARMFUL = "harmful"
+    REDUNDANT = "redundant"
+    INTERACTING = "interacting"
+    UNKNOWN = "unknown"
+
+
+@dataclass(frozen=True)
+class EvidenceReceipt:
+    evidence_id: str
+    subject_ids: tuple[str, ...]
+    incumbent_workbook_id: str
+    candidate_workbook_id: str
+    task_id: str
+    exact_inputs_hash: str
+    incumbent_success: bool
+    candidate_success: bool
+    incumbent_total_system_tokens: int
+    candidate_total_system_tokens: int
+    incumbent_includes_subject: bool
+    candidate_includes_subject: bool
+    judgment_valid: bool
+    comparable: bool
+    noisy: bool
+    bundled: bool
+    cost_usd: Decimal
+    final_artifact_hash: str
+
+
+@dataclass(frozen=True)
+class LegacyEvidenceReceipt:
+    evidence_id: str
+    subject_ids: tuple[str, ...]
+    source_kind: str
+    source_identity: str
+
+
+@dataclass(frozen=True)
+class Consolidation:
+    interaction_group_id: str
+    ordered_source_ids: tuple[str, ...]
+    candidate_rule_id: str
+    candidate_artifact_hash: str
+
+
 @dataclass(frozen=True)
 class AdoptedRule:
     id: str
@@ -297,16 +343,200 @@ class _BudgetLedger:
             handle.close()
 
 
+class _EvidenceLedger:
+    """Internal atomic evidence adapter; classifications are derived, never asserted."""
+
+    def __init__(self, path: Path):
+        self._path = Path(path)
+        self._lock_path = self._path.with_suffix(self._path.suffix + ".lock")
+
+    def _empty(self) -> dict[str, Any]:
+        return {"schema_version": 1, "evidence": {}, "consolidations": {}}
+
+    def _locked(self):
+        self._path.parent.mkdir(parents=True, exist_ok=True)
+        handle = self._lock_path.open("a+")
+        fcntl.flock(handle.fileno(), fcntl.LOCK_EX)
+        return handle
+
+    def _load(self) -> dict[str, Any]:
+        ledger = load_json(self._path, self._empty())
+        if ledger.get("schema_version") != 1:
+            raise ValueError("evidence_ledger_schema_invalid")
+        if not isinstance(ledger.get("evidence"), dict):
+            raise ValueError("evidence_rows_invalid")
+        if not isinstance(ledger.get("consolidations"), dict):
+            raise ValueError("consolidation_rows_invalid")
+        return ledger
+
+    @staticmethod
+    def _subject_key(subject_ids: list[str] | tuple[str, ...]) -> str:
+        if len(subject_ids) == 1:
+            return subject_ids[0]
+        return "interaction:" + "+".join(subject_ids)
+
+    def record(self, receipt: EvidenceReceipt | LegacyEvidenceReceipt):
+        if not receipt.evidence_id.strip() or not receipt.subject_ids:
+            return WorkOutcome.REJECTED, "evidence_identity_missing"
+        if any(not item.strip() for item in receipt.subject_ids):
+            return WorkOutcome.REJECTED, "evidence_subject_invalid"
+        if isinstance(receipt, EvidenceReceipt):
+            required = (
+                receipt.incumbent_workbook_id, receipt.candidate_workbook_id,
+                receipt.task_id, receipt.exact_inputs_hash, receipt.final_artifact_hash,
+            )
+            if any(not value.strip() for value in required):
+                return WorkOutcome.REJECTED, "evidence_binding_missing"
+            if (isinstance(receipt.incumbent_total_system_tokens, bool)
+                    or isinstance(receipt.candidate_total_system_tokens, bool)
+                    or receipt.incumbent_total_system_tokens < 0
+                    or receipt.candidate_total_system_tokens < 0):
+                return WorkOutcome.REJECTED, "total_system_tokens_invalid"
+            row = {
+                "kind": "matched",
+                "evidence_id": receipt.evidence_id,
+                "subject_ids": list(receipt.subject_ids),
+                "incumbent_workbook_id": receipt.incumbent_workbook_id,
+                "candidate_workbook_id": receipt.candidate_workbook_id,
+                "task_id": receipt.task_id,
+                "exact_inputs_hash": receipt.exact_inputs_hash,
+                "incumbent_success": receipt.incumbent_success,
+                "candidate_success": receipt.candidate_success,
+                "incumbent_total_system_tokens": receipt.incumbent_total_system_tokens,
+                "candidate_total_system_tokens": receipt.candidate_total_system_tokens,
+                "incumbent_includes_subject": receipt.incumbent_includes_subject,
+                "candidate_includes_subject": receipt.candidate_includes_subject,
+                "judgment_valid": receipt.judgment_valid,
+                "comparable": receipt.comparable,
+                "noisy": receipt.noisy,
+                "bundled": receipt.bundled,
+                "cost_usd": _money_text(receipt.cost_usd),
+                "final_artifact_hash": receipt.final_artifact_hash,
+            }
+        else:
+            if not receipt.source_kind.strip() or not receipt.source_identity.strip():
+                return WorkOutcome.REJECTED, "legacy_evidence_source_missing"
+            row = {
+                "kind": "historical_noncausal",
+                "evidence_id": receipt.evidence_id,
+                "subject_ids": list(receipt.subject_ids),
+                "source_kind": receipt.source_kind,
+                "source_identity": receipt.source_identity,
+            }
+        handle = self._locked()
+        try:
+            ledger = self._load()
+            existing = ledger["evidence"].get(receipt.evidence_id)
+            if existing is not None:
+                if existing == row:
+                    return WorkOutcome.ELIGIBLE, "evidence_already_recorded"
+                return WorkOutcome.REJECTED, "evidence_identity_conflict"
+            ledger["evidence"][receipt.evidence_id] = row
+            atomic_write_json(self._path, ledger)
+            return WorkOutcome.ELIGIBLE, "evidence_recorded"
+        finally:
+            fcntl.flock(handle.fileno(), fcntl.LOCK_UN)
+            handle.close()
+
+    def consolidate(self, consolidation: Consolidation):
+        if (not consolidation.interaction_group_id.startswith("interaction:")
+                or len(consolidation.ordered_source_ids) < 2
+                or len(set(consolidation.ordered_source_ids)) != len(consolidation.ordered_source_ids)
+                or any(not source.strip() for source in consolidation.ordered_source_ids)
+                or not consolidation.candidate_rule_id.strip()
+                or not consolidation.candidate_artifact_hash.strip()):
+            return WorkOutcome.REJECTED, "consolidation_identity_invalid"
+        row = {
+            "interaction_group_id": consolidation.interaction_group_id,
+            "ordered_source_ids": list(consolidation.ordered_source_ids),
+            "candidate_rule_id": consolidation.candidate_rule_id,
+            "candidate_artifact_hash": consolidation.candidate_artifact_hash,
+        }
+        expected_group = self._subject_key(consolidation.ordered_source_ids)
+        if consolidation.interaction_group_id != expected_group:
+            return WorkOutcome.REJECTED, "interaction_group_identity_mismatch"
+        handle = self._locked()
+        try:
+            ledger = self._load()
+            existing = ledger["consolidations"].get(consolidation.interaction_group_id)
+            if existing is not None:
+                if existing == row:
+                    return WorkOutcome.ELIGIBLE, "consolidation_already_recorded"
+                return WorkOutcome.REJECTED, "consolidation_identity_conflict"
+            ledger["consolidations"][consolidation.interaction_group_id] = row
+            atomic_write_json(self._path, ledger)
+            return WorkOutcome.ELIGIBLE, "consolidation_recorded"
+        finally:
+            fcntl.flock(handle.fileno(), fcntl.LOCK_UN)
+            handle.close()
+
+    @staticmethod
+    def _causal_classification(row: dict[str, Any]) -> Classification | None:
+        if (row["kind"] != "matched" or not row["judgment_valid"]
+                or not row["comparable"] or row["noisy"]):
+            return None
+        if row["bundled"] or len(row["subject_ids"]) != 1:
+            return Classification.INTERACTING
+        incumbent_success = row["incumbent_success"]
+        candidate_success = row["candidate_success"]
+        if not incumbent_success and not candidate_success:
+            return None
+        if incumbent_success != candidate_success:
+            preferred_includes = (
+                row["incumbent_includes_subject"] if incumbent_success
+                else row["candidate_includes_subject"]
+            )
+            return Classification.HELPFUL if preferred_includes else Classification.HARMFUL
+        incumbent_tokens = row["incumbent_total_system_tokens"]
+        candidate_tokens = row["candidate_total_system_tokens"]
+        if incumbent_tokens == candidate_tokens:
+            return Classification.REDUNDANT
+        preferred_includes = (
+            row["candidate_includes_subject"] if candidate_tokens < incumbent_tokens
+            else row["incumbent_includes_subject"]
+        )
+        return Classification.HELPFUL if preferred_includes else Classification.HARMFUL
+
+    def classifications(self) -> dict[str, str]:
+        handle = self._locked()
+        try:
+            ledger = self._load()
+            subjects: dict[str, list[Classification]] = {}
+            observed: set[str] = set()
+            for row in ledger["evidence"].values():
+                key = self._subject_key(row["subject_ids"])
+                observed.add(key)
+                classification = self._causal_classification(row)
+                if classification is not None:
+                    subjects.setdefault(key, []).append(classification)
+            result = {}
+            for key in sorted(observed):
+                classes = subjects.get(key, [])
+                if not classes:
+                    result[key] = Classification.UNKNOWN.value
+                elif len(set(classes)) == 1:
+                    result[key] = classes[0].value
+                else:
+                    result[key] = Classification.INTERACTING.value
+            for key in ledger["consolidations"]:
+                result[key] = Classification.INTERACTING.value
+            return result
+        finally:
+            fcntl.flock(handle.fileno(), fcntl.LOCK_UN)
+            handle.close()
+
 class RuleLegislation:
     """Small external seam for all rule-legislation decisions."""
 
     def __init__(self, rulebook: dict[str, Any], *, mode: str,
-                 budget_ledger: _BudgetLedger | None = None):
+                 budget_ledger: _BudgetLedger | None = None,
+                 evidence_ledger: _EvidenceLedger | None = None):
         if mode not in {"shadow", "local"}:
             raise ValueError("production_activation_requires_human_approval")
         self._rulebook = copy.deepcopy(rulebook)
         self._mode = mode
         self._budget_ledger = budget_ledger
+        self._evidence_ledger = evidence_ledger
 
     @classmethod
     def shadow(cls, rulebook: dict[str, Any]) -> "RuleLegislation":
@@ -314,11 +544,16 @@ class RuleLegislation:
 
     @classmethod
     def local(cls, rulebook: dict[str, Any], *, budget_ledger_path: Path,
+              evidence_ledger_path: Path | None = None,
               clock=lambda: datetime.now(timezone.utc)) -> "RuleLegislation":
         return cls(
             rulebook,
             mode="local",
             budget_ledger=_BudgetLedger(Path(budget_ledger_path), clock),
+            evidence_ledger=(
+                _EvidenceLedger(Path(evidence_ledger_path))
+                if evidence_ledger_path is not None else None
+            ),
         )
 
     def snapshot(self) -> LegislationSnapshot:
@@ -335,6 +570,9 @@ class RuleLegislation:
             available_usd=_money_text(MONTHLY_CEILING_USD),
         )
         legislature_identity = snapshot_hash(self._rulebook)
+        classifications = (
+            self._evidence_ledger.classifications() if self._evidence_ledger else {}
+        )
         public_read_model = {
             "schema_version": 1,
             "mode": self._mode,
@@ -346,7 +584,7 @@ class RuleLegislation:
                 "rules": [rule.as_dict() for rule in adopted.rules],
             },
             "complete_legislature_identity": legislature_identity,
-            "classifications": {},
+            "classifications": copy.deepcopy(classifications),
             "budget": {
                 "mode": budget.mode,
                 "monthly_ceiling_usd": budget.monthly_ceiling_usd,
@@ -359,12 +597,15 @@ class RuleLegislation:
             adopted_language=adopted,
             complete_legislature_identity=legislature_identity,
             open_work=copy.deepcopy(current_open_motion(self._rulebook)),
-            classifications={},
+            classifications=classifications,
             budget=budget,
             public_read_model=public_read_model,
         )
 
     def submit_change(self, change: Any) -> WorkResult:
+        if isinstance(change, Consolidation) and self._evidence_ledger:
+            outcome, reason = self._evidence_ledger.consolidate(change)
+            return WorkResult(outcome, reason, self.snapshot())
         return WorkResult(
             WorkOutcome.DEFERRED,
             "shadow_mode_change_submission_not_yet_available",
@@ -375,6 +616,10 @@ class RuleLegislation:
         if isinstance(evidence, CostReceipt) and self._budget_ledger:
             outcome, reason, detail = self._budget_ledger.reconcile(evidence)
             return WorkResult(outcome, reason, self.snapshot(), detail)
+        if isinstance(evidence, (EvidenceReceipt, LegacyEvidenceReceipt)) \
+                and self._evidence_ledger:
+            outcome, reason = self._evidence_ledger.record(evidence)
+            return WorkResult(outcome, reason, self.snapshot())
         if self._budget_ledger:
             return WorkResult(
                 WorkOutcome.REJECTED,

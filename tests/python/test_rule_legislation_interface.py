@@ -10,7 +10,11 @@ from unittest import mock
 
 import loop
 from rule_legislation import (
+    Classification,
+    Consolidation,
     CostReceipt,
+    EvidenceReceipt,
+    LegacyEvidenceReceipt,
     PaidRole,
     PaidWorkRequest,
     RuleLegislation,
@@ -197,6 +201,120 @@ class MonthlyBudgetInterfaceTests(unittest.TestCase):
                 clock=lambda: datetime.now(timezone.utc),
                 monthly_ceiling_usd=Decimal("31.00"),
             )
+
+
+class AtomicEvidenceInterfaceTests(unittest.TestCase):
+    def setUp(self):
+        self.rulebook = json.loads(
+            (ROOT / "tests/fixtures/mixed-rulebook.json").read_text()
+        )
+        self.tempdir = tempfile.TemporaryDirectory()
+        self.addCleanup(self.tempdir.cleanup)
+        root = Path(self.tempdir.name)
+        self.module = RuleLegislation.local(
+            self.rulebook,
+            budget_ledger_path=root / "budget.json",
+            evidence_ledger_path=root / "evidence.json",
+            clock=lambda: datetime.fromisoformat("2026-09-02T04:00:00+00:00"),
+        )
+
+    def _receipt(self, evidence_id="e-1", **changes):
+        values = dict(
+            evidence_id=evidence_id,
+            subject_ids=("rule-001",),
+            incumbent_workbook_id="workbook-with-rule",
+            candidate_workbook_id="workbook-without-rule",
+            task_id="matched-task-1",
+            exact_inputs_hash="inputs-1",
+            incumbent_success=True,
+            candidate_success=True,
+            incumbent_total_system_tokens=120,
+            candidate_total_system_tokens=100,
+            incumbent_includes_subject=True,
+            candidate_includes_subject=False,
+            judgment_valid=True,
+            comparable=True,
+            noisy=False,
+            bundled=False,
+            cost_usd=Decimal("0.20"),
+            final_artifact_hash="artifact-1",
+        )
+        values.update(changes)
+        return EvidenceReceipt(**values)
+
+    def test_atomic_evidence_classifies_only_the_bound_rule(self):
+        result = self.module.submit_evidence(self._receipt())
+        self.assertEqual(result.outcome, WorkOutcome.ELIGIBLE)
+        self.assertEqual(
+            result.snapshot.classifications,
+            {"rule-001": Classification.HARMFUL.value},
+        )
+        self.assertNotIn("rule-002", result.snapshot.classifications)
+
+    def test_bundled_invalid_or_incomparable_evidence_cannot_claim_causality(self):
+        bundled = self.module.submit_evidence(self._receipt(
+            "e-bundle", subject_ids=("rule-001", "rule-002"), bundled=True
+        ))
+        self.assertEqual(
+            bundled.snapshot.classifications["interaction:rule-001+rule-002"],
+            Classification.INTERACTING.value,
+        )
+        invalid = self.module.submit_evidence(self._receipt(
+            "e-invalid", judgment_valid=False
+        ))
+        self.assertEqual(
+            invalid.snapshot.classifications["rule-001"],
+            Classification.UNKNOWN.value,
+        )
+        incomparable = self.module.submit_evidence(self._receipt(
+            "e-incomparable", comparable=False
+        ))
+        self.assertEqual(
+            incomparable.snapshot.classifications["rule-001"],
+            Classification.UNKNOWN.value,
+        )
+
+    def test_duplicate_evidence_is_idempotent_and_conflict_fails_closed(self):
+        receipt = self._receipt()
+        self.assertEqual(self.module.submit_evidence(receipt).outcome, WorkOutcome.ELIGIBLE)
+        self.assertEqual(self.module.submit_evidence(receipt).reason, "evidence_already_recorded")
+        conflict = self.module.submit_evidence(self._receipt(
+            candidate_total_system_tokens=99
+        ))
+        self.assertEqual(conflict.outcome, WorkOutcome.REJECTED)
+        self.assertEqual(
+            conflict.snapshot.classifications["rule-001"],
+            Classification.HARMFUL.value,
+        )
+
+    def test_revision_keeps_rule_identity_and_consolidation_keeps_sources(self):
+        revised = self._receipt("revision-evidence", final_artifact_hash="revision-hash")
+        self.module.submit_evidence(revised)
+        consolidated = self.module.submit_change(Consolidation(
+            interaction_group_id="interaction:rule-001+rule-002",
+            ordered_source_ids=("rule-001", "rule-002"),
+            candidate_rule_id="rule-005",
+            candidate_artifact_hash="merged-hash",
+        ))
+        self.assertEqual(consolidated.outcome, WorkOutcome.ELIGIBLE)
+        self.assertEqual(
+            consolidated.snapshot.classifications["interaction:rule-001+rule-002"],
+            Classification.INTERACTING.value,
+        )
+        self.assertIn("rule-001", consolidated.snapshot.classifications)
+
+    def test_historical_scores_import_as_noncausal_unknown(self):
+        imported = self.module.submit_evidence(LegacyEvidenceReceipt(
+            evidence_id="legacy-score-rule-001",
+            subject_ids=("rule-001",),
+            source_kind="historical_rule_score",
+            source_identity="turn-100-score",
+        ))
+        self.assertEqual(imported.outcome, WorkOutcome.ELIGIBLE)
+        self.assertEqual(
+            imported.snapshot.classifications["rule-001"],
+            Classification.UNKNOWN.value,
+        )
 
 
 if __name__ == "__main__":
