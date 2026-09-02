@@ -1896,14 +1896,15 @@ def _invalid_judge_diagnostic(grade, reason):
     return diagnostic
 
 
-def _test_turn_impl(conv, rb, meta, turn, *, progress_path=None, progress_box=None):
+def _test_turn_impl(conv, rb, meta, turn, *, progress_path=None, progress_box=None,
+                    legislation=None):
     suite = load_benchmark_suite()
     benchmark, benchmark_cycle = select_benchmark(meta, suite)
     pname = f"{benchmark['id']} · {benchmark['name']}"
     payload = benchmark["original"]
     key = copy.deepcopy(benchmark["answer_key"])
     previous = previous_benchmark_result(meta, benchmark)
-    legislation = RuleLegislation.shadow(rb).snapshot()
+    _module, legislation = _legislation_snapshot_for(rb, legislation)
     captured = {
         "version": legislation.adopted_language.version,
         "hash": legislation.adopted_language.hash,
@@ -1944,7 +1945,9 @@ def _test_turn_impl(conv, rb, meta, turn, *, progress_path=None, progress_box=No
     enc_sys = ("You are the encoder. Encode the message below into the project language "
                "using ONLY this rulebook. Where the rulebook is silent, fall back to plain "
                "English for that part. Output ONLY the encoded message, nothing else.\n\n" + rbook)
-    encoded, _ = call(MODEL_A, enc_sys, payload, max_tokens=4000, temperature=0.3, meta=meta)
+    encoded, encoder_usage = call(
+        MODEL_A, enc_sys, payload, max_tokens=4000, temperature=0.3, meta=meta
+    )
     encoded = sanitize_completed_text(encoded, stage="encoder")
     publish_progress("encoder_completed", encoded=encoded)
     publish_progress("decoder_started")
@@ -1952,7 +1955,10 @@ def _test_turn_impl(conv, rb, meta, turn, *, progress_path=None, progress_box=No
                "complete rulebook of a constructed language. Decode the message you receive: "
                "reconstruct the original content as faithfully as you can. Do not invent anything "
                "the message does not encode. Output ONLY the reconstruction.\n\n" + rbook)
-    decoded, _ = call(MODEL_DECODER, dec_sys, encoded.strip(), max_tokens=4000, temperature=0.1, meta=meta)
+    decoded, decoder_usage = call(
+        MODEL_DECODER, dec_sys, encoded.strip(), max_tokens=4000,
+        temperature=0.1, meta=meta
+    )
     decoded = sanitize_completed_text(decoded, stage="decoder")
     publish_progress("decoder_completed", decoded=decoded)
     orig_t = token_count(payload, meta)
@@ -1968,7 +1974,10 @@ def _test_turn_impl(conv, rb, meta, turn, *, progress_path=None, progress_box=No
             f"ORIGINAL:\n{payload}\n\nATOMIC ANSWER KEY:\n{key_txt}"
             f"\n\nNUMBERED DECODED:\n{numbered_decoded}"
         )
-        graded, _ = call(MODEL_GRADER, grade_sys, grade_user, max_tokens=4000, temperature=0, meta=meta)
+        graded, judge_usage = call(
+            MODEL_GRADER, grade_sys, grade_user, max_tokens=4000,
+            temperature=0, meta=meta
+        )
         gm = re.search(r"\{.*\}", graded, re.S)
         try:
             g = json.loads(gm.group(0)) if gm else {}
@@ -1976,6 +1985,7 @@ def _test_turn_impl(conv, rb, meta, turn, *, progress_path=None, progress_box=No
             g = {}
     else:
         g = {}
+        judge_usage = {}
     audit = {}
     if key:
         materialized_grade, evidence_reason = _materialize_grader_evidence(
@@ -2013,12 +2023,40 @@ def _test_turn_impl(conv, rb, meta, turn, *, progress_path=None, progress_box=No
                  "total": 0, "meaning_pass": None, "compression_success": None,
                  "semantic_coverage_pct": None, "critical_failures": [], "inventions": []}
     meta["tests_run"] = meta.get("tests_run", 0) + 1
+    def usage_total(usage):
+        if not isinstance(usage, dict):
+            return None
+        values = (usage.get("prompt_tokens"), usage.get("completion_tokens"))
+        if any(isinstance(value, bool) or not isinstance(value, int) or value < 0
+               for value in values):
+            return None
+        return sum(values)
+
+    component_values = {
+        "agent_a_encoder": usage_total(encoder_usage),
+        "agent_b_decoder": usage_total(decoder_usage),
+        "judge": usage_total(judge_usage),
+    }
+    complete_system_tokens = all(value is not None for value in component_values.values())
+    system_token_components = (
+        {key: int(value) for key, value in component_values.items()}
+        if complete_system_tokens else {}
+    )
+    total_successful_system_tokens = (
+        sum(system_token_components.values())
+        if complete_system_tokens and audit.get("meaning_pass") is True else None
+    )
     event = {"turn": turn, "agent": "harness", "type": "test", "payload": pname,
              "original": payload, "orig_tokens": orig_t, "enc_tokens": enc_t,
              "token_delta_pct": delta, "message_body_savings_pct": savings_pct,
              "encoded": encoded.strip(), "decoded": decoded.strip(), "tokens": enc_t,
              "decoder_model": MODEL_DECODER, "language_version": captured["version"],
              "language_hash": captured["hash"], "era": "benchmark-v2",
+             "legislation_identity": {
+                 "version": captured["version"], "hash": captured["hash"]
+             },
+             "system_token_components": system_token_components,
+             "total_successful_system_tokens": total_successful_system_tokens,
              "scoring_version": "v2",
              "benchmark_id": benchmark["id"], "benchmark_name": benchmark["name"],
              "benchmark_version": suite["version"], "benchmark_cycle": benchmark_cycle,
@@ -2067,6 +2105,7 @@ def _test_turn_impl(conv, rb, meta, turn, *, progress_path=None, progress_box=No
                   "critical_failures": copy.deepcopy(audit["critical_failures"]),
                   "inventions": copy.deepcopy(audit["inventions"]),
                   "message_body_savings_pct": savings_pct,
+                  "total_successful_system_tokens": total_successful_system_tokens,
                   "token_delta_pct": delta, "valid": scored["valid"],
                   "judge_status": audit["judge_status"],
                   "era": "benchmark-v2", "benchmark_id": benchmark["id"],
@@ -2094,7 +2133,7 @@ def _test_turn_impl(conv, rb, meta, turn, *, progress_path=None, progress_box=No
     return None
 
 
-def test_turn(conv, rb, meta, turn, *, progress_path=None):
+def test_turn(conv, rb, meta, turn, *, progress_path=None, legislation=None):
     """Run one canonical exam and optionally expose only its safe receipts."""
     progress_box = []
     try:
@@ -2102,6 +2141,7 @@ def test_turn(conv, rb, meta, turn, *, progress_path=None):
             conv, rb, meta, turn,
             progress_path=progress_path,
             progress_box=progress_box,
+            legislation=legislation,
         )
     except BaseException as error:
         if progress_box:
@@ -2251,7 +2291,7 @@ def process_one_research(collaboration, meta, turn, *, legislation=None):
                        "answer_turn": turn})
 
 
-def maybe_run_conversation(rb, meta, turn, conversations):
+def maybe_run_conversation(rb, meta, turn, conversations, *, legislation=None):
     if not meta.get("tests_run") or meta["tests_run"] % 32 != 0:
         return
     if conversations and conversations[-1].get("ordinary_exam_count") == meta["tests_run"]:
@@ -2274,8 +2314,12 @@ def maybe_run_conversation(rb, meta, turn, conversations):
             result = {"valid": False, "summary": "unparseable"}
         result["_receipt"] = {"model": MODEL_GRADER, "usage": usage}
         return result
-    artifact = run_conversation(rb, scenario, speaker, judge, turn,
-                                models={"A": MODEL_A, "B": MODEL_B, "judge": MODEL_GRADER})
+    _module, snapshot = _legislation_snapshot_for(rb, legislation)
+    artifact = run_conversation(
+        rb, scenario, speaker, judge, turn,
+        models={"A": MODEL_A, "B": MODEL_B, "judge": MODEL_GRADER},
+        legislation_snapshot=snapshot,
+    )
     artifact["ordinary_exam_count"] = meta["tests_run"]
     conversations.append(artifact)
 
@@ -2314,8 +2358,11 @@ def run(turns):
             completed_public_exam = test_turn(
                 conv, rb, meta, turn,
                 progress_path=STATE / "public-exam-progress.local.json",
+                legislation=turn_legislation,
             )
-            maybe_run_conversation(rb, meta, turn, conversations)
+            maybe_run_conversation(
+                rb, meta, turn, conversations, legislation=turn_legislation
+            )
         else:
             completed_public_exam = None
             agent_turn(

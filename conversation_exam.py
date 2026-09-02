@@ -38,9 +38,20 @@ def validate_judgment(requirements: list[str], judgment: Any) -> dict[str, Any]:
 def run_conversation(rulebook: dict[str, Any], scenario: dict[str, Any],
                      speaker_call: Callable[[str, str, str], str],
                      judge_call: Callable[[dict[str, Any]], dict[str, Any]],
-                     turn: int, models: dict[str, str] | None = None) -> dict[str, Any]:
-    captured = language_payload(rulebook)
-    language = render_language(rulebook)
+                     turn: int, models: dict[str, str] | None = None,
+                     legislation_snapshot=None) -> dict[str, Any]:
+    if legislation_snapshot is None:
+        captured = language_payload(rulebook)
+        language = render_language(rulebook)
+    else:
+        canonical = language_payload(rulebook)
+        captured = {
+            "version": legislation_snapshot.adopted_language.version,
+            "hash": legislation_snapshot.adopted_language.hash,
+        }
+        if captured != {"version": canonical["version"], "hash": canonical["hash"]}:
+            raise RuntimeError("legislation_snapshot_identity_mismatch")
+        language = legislation_snapshot.adopted_language.render()
     transcript: list[dict[str, Any]] = []
     for index in range(6):
         speaker = "A" if index % 2 == 0 else "B"
@@ -74,5 +85,37 @@ def run_conversation(rulebook: dict[str, Any], scenario: dict[str, Any],
         "scenario": deepcopy(scenario), "messages": transcript, "judgment": judgment,
         "models": deepcopy(models or {}), "judge_receipt": deepcopy(judge_receipt),
     }
+    def usage_tokens(usage):
+        if not isinstance(usage, dict):
+            return None
+        values = (usage.get("prompt_tokens"), usage.get("completion_tokens"))
+        if any(isinstance(value, bool) or not isinstance(value, int) or value < 0
+               for value in values):
+            return None
+        return sum(values)
+
+    speaker_totals = {"A": 0, "B": 0}
+    complete = True
+    for message in transcript:
+        total = usage_tokens(message.get("usage"))
+        if total is None:
+            complete = False
+        else:
+            speaker_totals[message["speaker"]] += total
+    judge_total = usage_tokens(judge_receipt.get("usage"))
+    if judge_total is None:
+        complete = False
+    components = {
+        "agent_a": speaker_totals["A"],
+        "agent_b": speaker_totals["B"],
+        "judge": judge_total if judge_total is not None else 0,
+    }
+    artifact["system_token_components"] = components if complete else {}
+    artifact["total_successful_system_tokens"] = (
+        sum(components.values())
+        if complete and judgment.get("valid") is True
+        and all(row.get("pass") is True for row in judgment.get("requirements", []))
+        else None
+    )
     artifact["artifact_hash"] = snapshot_hash(artifact)
     return artifact
