@@ -49,6 +49,7 @@ from public_exam_progress import (PublicExamProgressWriter, classify_public_erro
                                   public_error_diagnostic,
                                   publish_completed_snapshot,
                                   sanitize_completed_text)
+from rule_legislation import RuleLegislation
 from rulebook import (_literal_set_survives, apply_typed_motion, language_payload,
                       render_language, render_legislature, score_judgment_v2)
 from shadow_cleanup import DEFAULT_MAX_SPEND_USD, run_shadow_cleanup
@@ -383,6 +384,21 @@ def render_rulebook(rb):
     return render_language(rb)
 
 
+def _legislation_snapshot_for(rb, legislation=None):
+    """Resolve one caller snapshot and fail before work if shadow parity drifts."""
+    module = legislation or RuleLegislation.shadow(rb)
+    snapshot = module.snapshot()
+    canonical = language_payload(rb)
+    if (
+        snapshot.adopted_language.version != canonical["version"]
+        or snapshot.adopted_language.hash != canonical["hash"]
+        or [rule.as_dict() for rule in snapshot.adopted_language.rules]
+        != canonical["rules"]
+    ):
+        raise RuntimeError("legislation_snapshot_identity_mismatch")
+    return module, snapshot
+
+
 DECODE_VIEW_MAX = 6000  # emergency brake only — sized so a 400–600-word decode always renders whole
 
 
@@ -705,15 +721,28 @@ def write_viewer_state(conv, rb, meta, collaboration=None, conversations=None):
     revisions = revision_parts[1] if len(revision_parts) == 2 else "0"
     turn = public_conversation[-1].get("turn", 0) if public_conversation else 0
     runtime = _public_runtime_state(turn, meta, rb)
+    public_model = RuleLegislation.shadow(
+        rb,
+        public_context={
+            "runtime_status": runtime,
+            "workflow_evidence": [
+                copy.deepcopy(event)
+                for event in public_conversation[-100:]
+                if event.get("type") in {"message", "legislature", "cleanup"}
+            ],
+        },
+    ).snapshot().public_read_model
+    runtime = public_model["runtime_status"]
     runtime_path = ROOT / "state" / "public-runtime.json"
     runtime_path.parent.mkdir(exist_ok=True)
     atomic_write_json(runtime_path, runtime)
-    language = language_payload(rb)
+    atomic_write_json(ROOT / "state" / "public-legislation.json", public_model)
+    language = public_model["legislation_identity"]
     public_language = {
         "version": language["version"],
         "hash": language["hash"],
-        "rules": language["rules"],
-        "text": render_language(rb),
+        "rules": public_model["adopted_language"]["rules"],
+        "text": public_model["adopted_language"]["text"],
     }
     atomic_write_json(ROOT / "state" / "public-language.json", public_language)
     notes = load_json(ROOT / "notes.json", [])
@@ -763,6 +792,7 @@ def write_viewer_state(conv, rb, meta, collaboration=None, conversations=None):
         "turn": turn,
         "updated": updated,
         "runtime": runtime,
+        "legislation_identity": public_model["legislation_identity"],
         "metrics": metrics,
         "preview": {
             "conversation": public_conversation[-30:],
@@ -773,6 +803,7 @@ def write_viewer_state(conv, rb, meta, collaboration=None, conversations=None):
             "collaboration": {},
             "conversations": (conversations or [])[-1:],
             "language": public_language,
+            "public_legislation": public_model,
             "notes": notes[-1:] if isinstance(notes, list) else [],
             "meta": {"updated": updated, "runtime": runtime},
             "metrics": metrics,
@@ -788,6 +819,7 @@ def write_viewer_state(conv, rb, meta, collaboration=None, conversations=None):
             {"conversation": public_conversation, "rulebook": rb,
              "collaboration": public_state(collaboration or empty_state()),
              "conversations": conversations or [], "language": public_language,
+             "public_legislation": public_model,
              "notes": notes if isinstance(notes, list) else [],
              "meta": {"spend_usd": meta.get("spend_usd", 0), "model": MODEL_A,
                       "spend_usd_historical_estimate":
@@ -956,8 +988,9 @@ def reset_automatic_cleanup_quarantine(state, *, reviewed_edition, operator):
     state.pop("quarantine")
 
 
-def maybe_run_automatic_cleanup(conv, rb, meta, turn):
+def maybe_run_automatic_cleanup(conv, rb, meta, turn, *, legislation=None):
     """Apply the proven shadow workflow after 10% adopted-language growth."""
+    _module, legislation_snapshot = _legislation_snapshot_for(rb, legislation)
     current_tokens = rb.get("kernel_tokens")
     if (
         isinstance(current_tokens, bool)
@@ -965,7 +998,13 @@ def maybe_run_automatic_cleanup(conv, rb, meta, turn):
         or current_tokens <= 0
     ):
         raise RuntimeError("automatic cleanup requires a positive kernel token count")
-    language = language_payload(rb)
+    language = {
+        "version": legislation_snapshot.adopted_language.version,
+        "hash": legislation_snapshot.adopted_language.hash,
+        "rules": [
+            rule.as_dict() for rule in legislation_snapshot.adopted_language.rules
+        ],
+    }
     state = meta.get("automatic_cleanup")
     if state is None:
         meta["automatic_cleanup"] = {
@@ -1158,8 +1197,14 @@ def assemble_legislative_prompt(
     agent,
     collaboration_input,
     structured_snapshot=None,
+    legislation=None,
 ):
     """Assemble the one deterministic model-facing legislative projection."""
+    _module, legislation_snapshot = _legislation_snapshot_for(rb, legislation)
+    legislation_identity = {
+        "version": legislation_snapshot.adopted_language.version,
+        "hash": legislation_snapshot.adopted_language.hash,
+    }
     prompt_version, role_prompt_path = ACTIVE_AGENT_PROMPTS[agent]
     role_prompt = role_prompt_path.read_text()
     constitution = (ROOT / "prompts" / "constitution.md").read_text()
@@ -1330,11 +1375,16 @@ def assemble_legislative_prompt(
         )
     else:
         if semantic_fault is not None:
-            prompt_language, _prompt_legislature = (
-                _rulebook_views_without_private_fault_material(rb, fault_ledger)
-            )
+            prompt_language = legislation_snapshot.adopted_language.render()
+            for rule in legislation_snapshot.adopted_language.rules:
+                if _contains_private_fault_material(
+                    rule.text_en, _private_fault_material(fault_ledger)
+                ):
+                    prompt_language = prompt_language.replace(
+                        rule.text_en, PRIVATE_FAULT_PROMPT_REDACTION
+                    )
         else:
-            prompt_language = render_language(rb)
+            prompt_language = legislation_snapshot.adopted_language.render()
         system = (
             f"{output_contract}{constitution}\n\n{role_prompt}\n\n"
             f"=== ADOPTED LANGUAGE ===\n{prompt_language}\n\n"
@@ -1385,6 +1435,7 @@ def assemble_legislative_prompt(
         "prompt_request": prompt_request,
         "required_fault_token": required_fault_token,
         "total_chars": total_chars,
+        "legislation_identity": legislation_identity,
     }
 
 
@@ -1460,7 +1511,12 @@ def _rulebook_views_without_private_fault_material(rb, fault_ledger):
     return prompt_language, prompt_legislature
 
 
-def agent_turn(conv, rb, meta, collaboration, turn):
+def agent_turn(conv, rb, meta, collaboration, turn, *, legislation=None):
+    module, legislation_snapshot = _legislation_snapshot_for(rb, legislation)
+    legislation_identity = {
+        "version": legislation_snapshot.adopted_language.version,
+        "hash": legislation_snapshot.adopted_language.hash,
+    }
     agent = next_legislative_actor(meta)
     model = MODEL_A if agent == "A" else MODEL_B
     collaboration_before_delivery = copy.deepcopy(collaboration)
@@ -1492,6 +1548,7 @@ def agent_turn(conv, rb, meta, collaboration, turn):
             if isinstance(cleanup_state, dict)
             else None
         ),
+        legislation=module,
     )
     system = assembled["system"]
     base_user = assembled["user"]
@@ -1567,6 +1624,8 @@ def agent_turn(conv, rb, meta, collaboration, turn):
                 },
                 "prompt_receipt": assembled["prompt_receipt"],
                 "post_state_receipt": receipt.model_dump(mode="json"),
+                "legislation_identity": legislation_identity,
+                "module_authority": "shadow_observer",
             }
         )
         print(
@@ -1585,6 +1644,7 @@ def agent_turn(conv, rb, meta, collaboration, turn):
         "structured_action": structured_action.model_dump(mode="json"),
         "prompt_receipt": assembled["prompt_receipt"],
         "tokens": usage.get("completion_tokens", 0),
+        "legislation_identity": legislation_identity,
     }
     if deliberation_fallback is not None:
         message_event["deliberation_fallback"] = deliberation_fallback
@@ -1627,6 +1687,8 @@ def agent_turn(conv, rb, meta, collaboration, turn):
             "protocol": PROTOCOL_VERSION,
             "motion_receipt": motion_receipt.dict(),
             "post_state_receipt": receipt.model_dump(mode="json"),
+            "legislation_identity": legislation_identity,
+            "module_authority": "shadow_observer",
         }
     )
     if delivery and delivery.get("kind") == "SUGGESTION":
@@ -1850,15 +1912,21 @@ def _invalid_judge_diagnostic(grade, reason):
     return diagnostic
 
 
-def _test_turn_impl(conv, rb, meta, turn, *, progress_path=None, progress_box=None):
+def _test_turn_impl(conv, rb, meta, turn, *, progress_path=None, progress_box=None,
+                    legislation=None):
     suite = load_benchmark_suite()
     benchmark, benchmark_cycle = select_benchmark(meta, suite)
     pname = f"{benchmark['id']} · {benchmark['name']}"
     payload = benchmark["original"]
     key = copy.deepcopy(benchmark["answer_key"])
     previous = previous_benchmark_result(meta, benchmark)
-    captured = language_payload(rb)
-    rbook = render_language(rb)
+    _module, legislation = _legislation_snapshot_for(rb, legislation)
+    captured = {
+        "version": legislation.adopted_language.version,
+        "hash": legislation.adopted_language.hash,
+        "rules": [rule.as_dict() for rule in legislation.adopted_language.rules],
+    }
+    rbook = legislation.adopted_language.render()
     progress = None
     if progress_path is not None:
         progress = PublicExamProgressWriter(
@@ -1893,7 +1961,9 @@ def _test_turn_impl(conv, rb, meta, turn, *, progress_path=None, progress_box=No
     enc_sys = ("You are the encoder. Encode the message below into the project language "
                "using ONLY this rulebook. Where the rulebook is silent, fall back to plain "
                "English for that part. Output ONLY the encoded message, nothing else.\n\n" + rbook)
-    encoded, _ = call(MODEL_A, enc_sys, payload, max_tokens=4000, temperature=0.3, meta=meta)
+    encoded, encoder_usage = call(
+        MODEL_A, enc_sys, payload, max_tokens=4000, temperature=0.3, meta=meta
+    )
     encoded = sanitize_completed_text(encoded, stage="encoder")
     publish_progress("encoder_completed", encoded=encoded)
     publish_progress("decoder_started")
@@ -1901,7 +1971,10 @@ def _test_turn_impl(conv, rb, meta, turn, *, progress_path=None, progress_box=No
                "complete rulebook of a constructed language. Decode the message you receive: "
                "reconstruct the original content as faithfully as you can. Do not invent anything "
                "the message does not encode. Output ONLY the reconstruction.\n\n" + rbook)
-    decoded, _ = call(MODEL_DECODER, dec_sys, encoded.strip(), max_tokens=4000, temperature=0.1, meta=meta)
+    decoded, decoder_usage = call(
+        MODEL_DECODER, dec_sys, encoded.strip(), max_tokens=4000,
+        temperature=0.1, meta=meta
+    )
     decoded = sanitize_completed_text(decoded, stage="decoder")
     publish_progress("decoder_completed", decoded=decoded)
     orig_t = token_count(payload, meta)
@@ -1917,7 +1990,10 @@ def _test_turn_impl(conv, rb, meta, turn, *, progress_path=None, progress_box=No
             f"ORIGINAL:\n{payload}\n\nATOMIC ANSWER KEY:\n{key_txt}"
             f"\n\nNUMBERED DECODED:\n{numbered_decoded}"
         )
-        graded, _ = call(MODEL_GRADER, grade_sys, grade_user, max_tokens=4000, temperature=0, meta=meta)
+        graded, judge_usage = call(
+            MODEL_GRADER, grade_sys, grade_user, max_tokens=4000,
+            temperature=0, meta=meta
+        )
         gm = re.search(r"\{.*\}", graded, re.S)
         try:
             g = json.loads(gm.group(0)) if gm else {}
@@ -1925,6 +2001,7 @@ def _test_turn_impl(conv, rb, meta, turn, *, progress_path=None, progress_box=No
             g = {}
     else:
         g = {}
+        judge_usage = {}
     audit = {}
     if key:
         materialized_grade, evidence_reason = _materialize_grader_evidence(
@@ -1962,12 +2039,40 @@ def _test_turn_impl(conv, rb, meta, turn, *, progress_path=None, progress_box=No
                  "total": 0, "meaning_pass": None, "compression_success": None,
                  "semantic_coverage_pct": None, "critical_failures": [], "inventions": []}
     meta["tests_run"] = meta.get("tests_run", 0) + 1
+    def usage_total(usage):
+        if not isinstance(usage, dict):
+            return None
+        values = (usage.get("prompt_tokens"), usage.get("completion_tokens"))
+        if any(isinstance(value, bool) or not isinstance(value, int) or value < 0
+               for value in values):
+            return None
+        return sum(values)
+
+    component_values = {
+        "agent_a": usage_total(encoder_usage),
+        "agent_b": usage_total(decoder_usage),
+        "judge": usage_total(judge_usage),
+    }
+    complete_system_tokens = all(value is not None for value in component_values.values())
+    system_token_components = (
+        {key: int(value) for key, value in component_values.items()}
+        if complete_system_tokens else {}
+    )
+    total_successful_system_tokens = (
+        sum(system_token_components.values())
+        if complete_system_tokens and audit.get("meaning_pass") is True else None
+    )
     event = {"turn": turn, "agent": "harness", "type": "test", "payload": pname,
              "original": payload, "orig_tokens": orig_t, "enc_tokens": enc_t,
              "token_delta_pct": delta, "message_body_savings_pct": savings_pct,
              "encoded": encoded.strip(), "decoded": decoded.strip(), "tokens": enc_t,
              "decoder_model": MODEL_DECODER, "language_version": captured["version"],
              "language_hash": captured["hash"], "era": "benchmark-v2",
+             "legislation_identity": {
+                 "version": captured["version"], "hash": captured["hash"]
+             },
+             "system_token_components": system_token_components,
+             "total_successful_system_tokens": total_successful_system_tokens,
              "scoring_version": "v2",
              "benchmark_id": benchmark["id"], "benchmark_name": benchmark["name"],
              "benchmark_version": suite["version"], "benchmark_cycle": benchmark_cycle,
@@ -2016,6 +2121,7 @@ def _test_turn_impl(conv, rb, meta, turn, *, progress_path=None, progress_box=No
                   "critical_failures": copy.deepcopy(audit["critical_failures"]),
                   "inventions": copy.deepcopy(audit["inventions"]),
                   "message_body_savings_pct": savings_pct,
+                  "total_successful_system_tokens": total_successful_system_tokens,
                   "token_delta_pct": delta, "valid": scored["valid"],
                   "judge_status": audit["judge_status"],
                   "era": "benchmark-v2", "benchmark_id": benchmark["id"],
@@ -2043,7 +2149,7 @@ def _test_turn_impl(conv, rb, meta, turn, *, progress_path=None, progress_box=No
     return None
 
 
-def test_turn(conv, rb, meta, turn, *, progress_path=None):
+def test_turn(conv, rb, meta, turn, *, progress_path=None, legislation=None):
     """Run one canonical exam and optionally expose only its safe receipts."""
     progress_box = []
     try:
@@ -2051,6 +2157,7 @@ def test_turn(conv, rb, meta, turn, *, progress_path=None):
             conv, rb, meta, turn,
             progress_path=progress_path,
             progress_box=progress_box,
+            legislation=legislation,
         )
     except BaseException as error:
         if progress_box:
@@ -2079,7 +2186,7 @@ def consume_notice(conv, turn):
     f.unlink()
 
 
-def process_one_research(collaboration, meta, turn):
+def process_one_research(collaboration, meta, turn, *, legislation=None):
     """Resolve at most the oldest queued request; evidence cannot alter rule state."""
     record = next((r for r in collaboration.get("research", []) if r.get("status") == "queued"), None)
     if not record:
@@ -2094,6 +2201,12 @@ def process_one_research(collaboration, meta, turn):
     )
     record["route"] = route
     if route == "project":
+        if legislation is None:
+            canonical_rulebook = load("rulebook.json", {
+                "version": "0.0", "rules": [], "changes": 0, "next_id": 1
+            })
+            legislation = RuleLegislation.shadow(canonical_rulebook)
+        legislation_snapshot = legislation.snapshot()
         record["status"] = "looking_up"
         result = project_lookup(ROOT, question)
         record.update({
@@ -2109,6 +2222,10 @@ def process_one_research(collaboration, meta, turn):
             "cost_usd": 0,
             "no_evidence": not result["adequate"],
             "answer_turn": turn,
+            "legislation_identity": {
+                "version": legislation_snapshot.adopted_language.version,
+                "hash": legislation_snapshot.adopted_language.hash,
+            },
         })
         if result["adequate"]:
             record["status"] = "answered"
@@ -2190,7 +2307,7 @@ def process_one_research(collaboration, meta, turn):
                        "answer_turn": turn})
 
 
-def maybe_run_conversation(rb, meta, turn, conversations):
+def maybe_run_conversation(rb, meta, turn, conversations, *, legislation=None):
     if not meta.get("tests_run") or meta["tests_run"] % 32 != 0:
         return
     if conversations and conversations[-1].get("ordinary_exam_count") == meta["tests_run"]:
@@ -2213,8 +2330,12 @@ def maybe_run_conversation(rb, meta, turn, conversations):
             result = {"valid": False, "summary": "unparseable"}
         result["_receipt"] = {"model": MODEL_GRADER, "usage": usage}
         return result
-    artifact = run_conversation(rb, scenario, speaker, judge, turn,
-                                models={"A": MODEL_A, "B": MODEL_B, "judge": MODEL_GRADER})
+    _module, snapshot = _legislation_snapshot_for(rb, legislation)
+    artifact = run_conversation(
+        rb, scenario, speaker, judge, turn,
+        models={"A": MODEL_A, "B": MODEL_B, "judge": MODEL_GRADER},
+        legislation_snapshot=snapshot,
+    )
     artifact["ordinary_exam_count"] = meta["tests_run"]
     conversations.append(artifact)
 
@@ -2241,17 +2362,29 @@ def run(turns):
         collaboration = import_inbox_spool(
             collaboration, STATE / "collaboration-inbox.json", turn=turn)
         save("collaboration.json", collaboration)
-        process_one_research(collaboration, meta, turn)
-        maybe_run_automatic_cleanup(conv, rb, meta, turn)
+        turn_legislation = RuleLegislation.shadow(rb)
+        process_one_research(
+            collaboration, meta, turn, legislation=turn_legislation
+        )
+        maybe_run_automatic_cleanup(
+            conv, rb, meta, turn, legislation=turn_legislation
+        )
+        turn_legislation = RuleLegislation.shadow(rb)
         if turn % TEST_EVERY == 0:
             completed_public_exam = test_turn(
                 conv, rb, meta, turn,
                 progress_path=STATE / "public-exam-progress.local.json",
+                legislation=turn_legislation,
             )
-            maybe_run_conversation(rb, meta, turn, conversations)
+            maybe_run_conversation(
+                rb, meta, turn, conversations, legislation=turn_legislation
+            )
         else:
             completed_public_exam = None
-            agent_turn(conv, rb, meta, collaboration, turn)
+            agent_turn(
+                conv, rb, meta, collaboration, turn,
+                legislation=turn_legislation,
+            )
         save("conversation.json", conv)
         save("rulebook.json", rb)
         save("meta.json", meta)

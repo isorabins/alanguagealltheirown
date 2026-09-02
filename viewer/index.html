@@ -370,7 +370,7 @@
   <h1>A Language All Their Own</h1>
   <div class="intro">
     <p class="statement">Agents talk to each other all day now. Travel plans, code, industrial design, billions of conversations, all of it in plain English. That's crazy. So what if they wrote their own shorthand? Not one we hand them. One they negotiate themselves, in public, one rule at a time.</p>
-    <p class="statement">That's this. Two agents argue over a rule and only one of them gets the vote. Then a stranger, a fresh model that's never seen any of it, gets the rulebook and an encoded message and has to say what it meant. If the meaning doesn't survive, the rule dies. Most of them die.</p>
+    <p class="statement">That's this. Agent A proposes a rule, Agent B must audit it, and the rule-legislation module decides from the evidence. Then a stranger, a fresh model that's never seen any of it, gets the adopted language and an encoded message and has to say what it meant. If the meaning doesn't survive, the candidate cannot become law.</p>
     <p class="statement">Everything that's worked and everything that hasn't is public. Thanks for being here.</p>
   </div>
 </header>
@@ -389,7 +389,7 @@
 <div class="legend">Scoring V2 calls compression successful only when 100% of the semantic meaning in the conversation survives encoding and decoding.</div>
 
 <h2>The Negotiation</h2>
-<p class="how">DeepSeek Agent A invents or revises one focused idea. Kimi Agent B audits it and alone may adopt or reject it.</p>
+<p class="how">DeepSeek Agent A visibly proposes one focused idea. Kimi Agent B must audit every A or C candidate. Neither model can adopt it; the rule-legislation module decides from matched evidence.</p>
 <div class="panes">
   <div class="pane"><div class="pane-head">Agent A · DeepSeek inventor</div><div class="pane-body" id="paneA"></div></div>
   <div class="pane"><div class="pane-head">Agent B · Kimi auditor</div><div class="pane-body" id="paneB"></div></div>
@@ -504,9 +504,9 @@ abuse, and maximum-cost limits.</p>
 </div>
 
 <h2>How This Works</h2>
-<p class="how">Distinct roles with one enforced boundary: only the agents can legislate, and only adopted rules are language law.</p>
+<p class="how">Distinct roles with one enforced boundary: models propose and audit; only the rule-legislation module can adopt an exactly tested artifact.</p>
 <div id="cast">
-  <div class="note"><span class="nd">the legislature</span>DeepSeek A invents, revises, or proposes repeal of one rule at a time. Kimi B audits that focused add or repeal motion and alone may adopt or reject it. A repealed rule leaves the language but keeps its full public history. Invalid motions are visible no-ops.</div>
+  <div class="note"><span class="nd">the legislature</span>DeepSeek A is the visible proposer. Kimi B is the mandatory auditor for every A or evidence-linked Agent C candidate. Their outputs remain public evidence, but neither model adopts directly. The rule-legislation module alone applies the exact tested artifact when success never worsens and total successful-system tokens fall.</div>
   <div class="note"><span class="nd">the benchmark panel</span>Every third turn, the harness selects the next of five frozen messages: event prose, an equipment procedure, farming data, retail prose, and a software task. A message is compared only with its own previous valid result. Repetition gives the experiment a stable ruler; the separate transfer battery remains the check against overfitting.</div>
   <div class="note"><span class="nd">the encoder</span>Another AI translates that message into the invented language, using nothing but the current rulebook.</div>
   <div class="note"><span class="nd">the stranger</span>A completely fresh AI — no memory of the conversation, no context at all — receives only the rulebook and the encoded message, and must turn it back into plain English. Since turn 246 the stranger is also a different model family from the negotiators, so it can't lean on shared habits: it decodes what the encoding actually says. If the language only works for the two agents who invented it, it fails here. This is the whole test.</div>
@@ -536,6 +536,7 @@ abuse, and maximum-cost limits.</p>
 
 <script src="bootstrap.js"></script>
 <script src="startup.js"></script>
+<script src="public-legislation.js"></script>
 <script>
 function scoringLabel(t) {
   if (t && t.scoring_version === "v2") return "Scoring V2";
@@ -1271,9 +1272,42 @@ function loadState() {
     "?sha=main&path=state%2Fconversation.json&per_page=1";
   var fallback = window.STATE || (window.PUBLIC_BOOTSTRAP && window.PUBLIC_BOOTSTRAP.preview) || null;
   var isLocal = window.location && /^(localhost|127\.0\.0\.1)$/.test(window.location.hostname);
-  if (fallback) render(fallback);
+  function renderCandidate(candidate, publicModel, expectedIdentity) {
+    if (publicModel && window.ALATO_PUBLIC_LEGISLATION) {
+      var assembled=window.ALATO_PUBLIC_LEGISLATION.assemble({
+        publicModel:publicModel,
+        expectedIdentity:expectedIdentity||null,
+        conversation:candidate&&candidate.conversation,
+        collaboration:candidate&&candidate.collaboration,
+        conversations:candidate&&candidate.conversations,
+        x:candidate&&candidate.x,
+        notes:candidate&&candidate.notes
+      });
+      if(assembled.status==="current"){
+        if(candidate&&candidate.metrics)assembled.state.metrics=candidate.metrics;
+        render(assembled.state);return true;
+      }
+      var status=document.getElementById("runtime-status"),heading=document.getElementById("runtime-status-heading"),detail=document.getElementById("runtime-status-detail");
+      if(heading)heading.textContent="Current language is unavailable.";
+      if(detail)detail.textContent="Public snapshots disagree on the adopted-language identity. Historical records remain available, but they are not being presented as current.";
+      if(status)status.classList.add("visible");
+      return false;
+    }
+    if(candidate){
+      var legacyStatus=document.getElementById("runtime-status"),legacyHeading=document.getElementById("runtime-status-heading"),legacyDetail=document.getElementById("runtime-status-detail");
+      if(legacyHeading)legacyHeading.textContent="Current language is unavailable.";
+      if(legacyDetail)legacyDetail.textContent="This snapshot has no module-generated legislation model. Historical records remain available, but they are not being presented as current.";
+      if(legacyStatus)legacyStatus.classList.add("visible");
+    }
+    return false;
+  }
+  if (fallback) renderCandidate(fallback,fallback.public_legislation,
+    window.PUBLIC_BOOTSTRAP&&window.PUBLIC_BOOTSTRAP.legislation_identity);
   if (isLocal) {
-    if (!fallback) loadBundledState().then(render).catch(function () {});
+    if (!fallback) loadBundledState().then(function(state){
+      renderCandidate(state,state.public_legislation,
+        window.PUBLIC_BOOTSTRAP&&window.PUBLIC_BOOTSTRAP.legislation_identity);
+    }).catch(function () {});
     return;
   }
   var get = function (f) { return fetch(RAW + f, {cache: "no-store"}).then(function (r) { if (!r.ok) throw 0; return r.json(); }); };
@@ -1288,7 +1322,7 @@ function loadState() {
     var when=latest&&latest.commit&&latest.commit.committer&&latest.commit.committer.date;
     if(currentRuntime&&when&&window.ALATO_STARTUP)window.ALATO_STARTUP.setSnapshot(when,currentRuntime.turn,currentRuntime);
   });
-  Promise.all([get("conversation.json"), get("rulebook.json"), lastCommit,
+  Promise.all([get("conversation.json"), get("public-legislation.json"), lastCommit,
     getOptional("public-collaboration.json", {research: [], asks: [], suggestions: []}), getOptional("conversations.json", []),
     getOptional("tweet-state.json", {}), liveRuntime,
     getOptional("public-language.json", null),
@@ -1312,9 +1346,16 @@ function loadState() {
         runtimeStatus.classList.remove("visible");
       }
     }
-    render({conversation: both[0], rulebook: both[1], collaboration: both[3], conversations: both[4], x: both[5], language: both[7], notes: both[8], meta: {updated: runtime.stamp, runtime: publicRuntime}});
+    renderCandidate(
+      {conversation:both[0],collaboration:both[3],conversations:both[4],x:both[5],notes:both[8],metrics:null},
+      both[1],
+      publicRuntime&&publicRuntime.legislation_identity
+    );
   }).catch(function () {
-    loadBundledState().then(render).catch(function () {});
+    loadBundledState().then(function(state){
+      renderCandidate(state,state.public_legislation,
+        window.PUBLIC_BOOTSTRAP&&window.PUBLIC_BOOTSTRAP.legislation_identity);
+    }).catch(function () {});
   });
 }
 loadState();

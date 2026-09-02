@@ -3,6 +3,17 @@ const html=fs.readFileSync(path.join(__dirname,'../../viewer/index.html'),'utf8'
 const copyDeck=fs.readFileSync(path.join(__dirname,'../../viewer/prototype-observatory-copy.md'),'utf8');
 const scoringFixtures=JSON.parse(fs.readFileSync(path.join(__dirname,'../fixtures/scoring-v2-events.json'),'utf8'));
 const observatoryTruth=JSON.parse(fs.readFileSync(path.join(__dirname,'../fixtures/public-observatory-truth.json'),'utf8'));
+const PublicLegislation=require('../../viewer/public-legislation.js');
+
+function publicModelFor(rulebook,runtime={status:'active',turn:200}){
+  const hash='a'.repeat(64),identity={version:'adopted-'+hash.slice(0,12),hash};
+  const adopted=(rulebook.rules||[]).filter(rule=>rule.status==='adopted').map(rule=>({id:rule.id,text_en:rule.text_en}));
+  return {schema_version:1,mode:'shadow',legislation_identity:identity,
+    adopted_language:{rules:adopted,text:'LANGUAGE '+identity.version+'\n'+adopted.map(rule=>rule.id+': '+rule.text_en).join('\n')},
+    complete_legislature:rulebook.rules||[],complete_legislature_identity:'fixture-legislature',
+    roles:{authority:'rule_legislation_module'},classifications:{},budget:{mode:'shadow',monthly_ceiling_usd:'30.00'},
+    runtime_status:{...runtime,legislation_identity:identity}};
+}
 
 function viewerDocument() {
   const elements=new Map();
@@ -72,14 +83,14 @@ test('locked opening copy and timer order are preserved',()=>{
   assert.match(html,/\.statement \{ margin-top: 0\.42rem;/);
   assert.match(html,/That's crazy\./);
   assert.match(html,/One they negotiate themselves, in public, one rule at a time\./);
-  assert.match(html,/If the meaning doesn't survive, the rule dies\. Most of them die\./);
+  assert.match(html,/If the meaning doesn't survive, the candidate cannot become law\./);
   assert.match(html,/Everything that's worked and everything that hasn't is public\./);
   assert.doesNotMatch(html,/public experiment and art project|The agents invent the language|timers-cap/);
   assert.ok(html.indexOf('id="t-turn"') < html.indexOf('id="t-exam"'));
   assert.match(html,/id="t-turn">--:--<\/span><span class="tlab">next turn<\/span>/);
   assert.doesNotMatch(html,/id="t-conversation"|class="tlab">next Conversation<\/span>/);
   assert.match(html,/Scoring V2 calls compression successful only when 100% of the semantic meaning in the conversation survives encoding and decoding\./);
-  assert.match(html,/DeepSeek Agent A invents or revises one focused idea\. Kimi Agent B audits it and alone may adopt or reject it\./);
+  assert.match(html,/DeepSeek Agent A visibly proposes one focused idea\. Kimi Agent B must audit every A or C candidate\./);
   assert.match(copyDeck,/One they negotiate themselves, in public, one rule at a time\./);
   assert.match(html,/id="exam-jump" href="#live-test-section">see last test ↓<\/a>/);
   assert.match(html,/id="agent-c-summary" href="#agent-c-cleanup-section"/);
@@ -420,7 +431,7 @@ test('completed V2 exams persist coverage and body savings independently',()=>{
     'trusted result markup must render as labels, not leak as visible HTML text');
 });
 
-test('last deployed savings remain visible when the live refresh fails',async()=>{
+test('last deployed module snapshot remains visible when the live refresh fails',async()=>{
   const script=html.match(/<script>\s*([\s\S]*?)<\/script>/)[1];
   const loadCall=script.indexOf('\nloadState();');
   assert.ok(loadCall>0,'loadState must remain independently executable');
@@ -432,10 +443,12 @@ test('last deployed savings remain visible when the live refresh fails',async()=
     compression_success:true,orig_tokens:469,enc_tokens:263,
     answer_key:[],atom_results:[],critical_failures:[],inventions:[]
   };
-  const window={STATE:{
-    conversation:[fallbackExam],rulebook:{version:'0.1',rules:[]},
+  const fallbackRulebook={version:'0.1',rules:[]};
+  const window={ALATO_PUBLIC_LEGISLATION:PublicLegislation,STATE:{
+    conversation:[fallbackExam],rulebook:fallbackRulebook,
     collaboration:{},conversations:[],x:{},meta:{updated:'deployed fixture'}
   }};
+  window.STATE.public_legislation=publicModelFor(fallbackRulebook);
   const failedFetch=()=>Promise.reject(new Error('offline refresh failed'));
   const api=Function('document','window','fetch',
     script.slice(0,loadCall)+'\nreturn {loadState};')(viewer.document,window,failedFetch);
@@ -457,7 +470,7 @@ test('failed live refresh dynamically loads and renders the bundled archive',asy
   const appended=[];
   viewer.document.createElement=(tag)=>({tag,src:'',onload:null,onerror:null});
   viewer.document.head={appendChild(node){appended.push(node);}};
-  const window={};
+  const window={ALATO_PUBLIC_LEGISLATION:PublicLegislation};
   const failedFetch=()=>Promise.reject(new Error('offline refresh failed'));
   const api=Function('document','window','fetch',
     script.slice(0,loadCall)+'\nreturn {loadState};')(viewer.document,window,failedFetch);
@@ -469,6 +482,7 @@ test('failed live refresh dynamically loads and renders the bundled archive',asy
   assert.equal(viewer.elements.get('metrics'),undefined,
     'the historical archive must not be assumed present before its script loads');
 
+  const archiveRulebook={version:'0.1',rules:[]};
   window.STATE={
     conversation:[{
       type:'test',turn:200,scoring_version:'v2',judge_valid:true,
@@ -477,9 +491,10 @@ test('failed live refresh dynamically loads and renders the bundled archive',asy
       compression_success:true,orig_tokens:469,enc_tokens:263,
       answer_key:[],atom_results:[],critical_failures:[],inventions:[]
     }],
-    rulebook:{version:'0.1',rules:[]},collaboration:{},conversations:[],x:{},
+    rulebook:archiveRulebook,collaboration:{},conversations:[],x:{},
     meta:{updated:'deployed fixture'}
   };
+  window.STATE.public_legislation=publicModelFor(archiveRulebook);
   appended[0].onload();
   await new Promise(resolve=>setImmediate(resolve));
   assert.match(viewer.elements.get('metrics').innerHTML,/best strict savings · V2[\s\S]*<b>\+44%/);
@@ -520,20 +535,22 @@ test('deployed preview renders messages and adopted rules before live history fi
   const script=html.match(/<script>\s*([\s\S]*?)<\/script>/)[1];
   const loadCall=script.indexOf('\nloadState();');
   const viewer=viewerDocument();
-  const window={
+  const previewRulebook={version:'0.1159',rules:[{id:'rule-515',status:'adopted',text_en:'Preserve exact identifiers.',history:[{verb:'adopt',turn:2932,agent:'B'}]}]};
+  const window={ALATO_PUBLIC_LEGISLATION:PublicLegislation,
     location:{hostname:'alanguagealltheirown.com'},
     PUBLIC_BOOTSTRAP:{preview:{
       conversation:[
         {type:'message',turn:2933,agent:'A',content:'Latest deployed Agent A message.'},
         {type:'message',turn:2934,agent:'B',content:'Latest deployed Agent B message.'}
       ],
-      rulebook:{version:'0.1159',rules:[{id:'rule-515',status:'adopted',text_en:'Preserve exact identifiers.',history:[{verb:'adopt',turn:2932,agent:'B'}]}]},
+      rulebook:previewRulebook,
       collaboration:{research:[],asks:[],suggestions:[]},conversations:[],
       language:{text:'LANGUAGE adopted-preview\n\nrule-515 — Preserve exact identifiers.',rules:[{id:'rule-515',text_en:'Preserve exact identifiers.'}]},
       notes:[],meta:{runtime:{status:'active',turn:2934}},
       metrics:[['turns','2934'],['rules adopted','35']]
     }}
   };
+  window.PUBLIC_BOOTSTRAP.preview.public_legislation=publicModelFor(previewRulebook,{status:'active',turn:2934});
   const pendingFetch=()=>new Promise(()=>{});
   const api=Function('document','window','fetch',script.slice(0,loadCall)+'\nreturn {loadState};')(viewer.document,window,pendingFetch);
   api.loadState();
