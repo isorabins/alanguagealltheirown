@@ -106,6 +106,36 @@ class Consolidation:
 
 
 @dataclass(frozen=True)
+class ExperimentQuestion:
+    subject_ids: tuple[str, ...]
+    important: bool
+
+
+@dataclass(frozen=True)
+class ExperimentCandidate:
+    experiment_id: str
+    evidence_id: str
+    subject_ids: tuple[str, ...]
+    incumbent_workbook_id: str
+    candidate_workbook_id: str
+    incumbent_inputs_hash: str
+    candidate_inputs_hash: str
+    controlled_variants: tuple[str, ...]
+    expected_decision_impact: str
+    proof_capable: bool
+    held_out: bool
+    maximum_cost_usd: Decimal
+    provider_key: str
+    model: str
+
+
+@dataclass(frozen=True)
+class ExperimentPlanRequest:
+    question: ExperimentQuestion
+    candidates: tuple[ExperimentCandidate, ...]
+
+
+@dataclass(frozen=True)
 class AdoptedRule:
     id: str
     text_en: str
@@ -525,6 +555,14 @@ class _EvidenceLedger:
             fcntl.flock(handle.fileno(), fcntl.LOCK_UN)
             handle.close()
 
+    def has_evidence(self, evidence_id: str) -> bool:
+        handle = self._locked()
+        try:
+            return evidence_id in self._load()["evidence"]
+        finally:
+            fcntl.flock(handle.fileno(), fcntl.LOCK_UN)
+            handle.close()
+
 class RuleLegislation:
     """Small external seam for all rule-legislation decisions."""
 
@@ -633,6 +671,8 @@ class RuleLegislation:
         )
 
     def advance(self, request: Any = None) -> WorkResult:
+        if isinstance(request, ExperimentPlanRequest):
+            return self._plan_experiment(request)
         if isinstance(request, PaidWorkRequest) and self._budget_ledger:
             outcome, reason, detail = self._budget_ledger.reserve(request)
             return WorkResult(outcome, reason, self.snapshot(), detail)
@@ -640,4 +680,94 @@ class RuleLegislation:
             WorkOutcome.DEFERRED,
             "shadow_mode_has_no_permitted_work",
             self.snapshot(),
+        )
+
+    def _plan_experiment(self, request: ExperimentPlanRequest) -> WorkResult:
+        snapshot = self.snapshot()
+        question = request.question
+        if not self._budget_ledger or not self._evidence_ledger:
+            return WorkResult(WorkOutcome.DEFERRED, "planner_adapters_unavailable", snapshot)
+        if not question.important:
+            return WorkResult(WorkOutcome.DEFERRED, "question_not_important", snapshot)
+        if not question.subject_ids or any(not item.strip() for item in question.subject_ids):
+            return WorkResult(WorkOutcome.REJECTED, "question_identity_invalid", snapshot)
+        subject_key = _EvidenceLedger._subject_key(question.subject_ids)
+        classification = snapshot.classifications.get(
+            subject_key, Classification.UNKNOWN.value
+        )
+        if classification not in {
+            Classification.UNKNOWN.value, Classification.INTERACTING.value
+        }:
+            return WorkResult(WorkOutcome.DEFERRED, "question_already_settled", snapshot)
+
+        capable: list[ExperimentCandidate] = []
+        refused_reasons: set[str] = set()
+        for candidate in request.candidates:
+            if candidate.subject_ids != question.subject_ids:
+                refused_reasons.add("subject_identity_mismatch")
+                continue
+            identities = (
+                candidate.experiment_id, candidate.evidence_id,
+                candidate.incumbent_workbook_id, candidate.candidate_workbook_id,
+                candidate.incumbent_inputs_hash, candidate.candidate_inputs_hash,
+                candidate.provider_key, candidate.model,
+            )
+            if any(not value.strip() for value in identities):
+                refused_reasons.add("experiment_identity_missing")
+                continue
+            if candidate.incumbent_inputs_hash != candidate.candidate_inputs_hash:
+                refused_reasons.add("experiment_inputs_not_matched")
+                continue
+            if len(candidate.controlled_variants) != 2 or any(
+                    not variant.strip() for variant in candidate.controlled_variants):
+                refused_reasons.add("controlled_variants_invalid")
+                continue
+            if not candidate.expected_decision_impact.strip():
+                refused_reasons.add("experiment_unactionable")
+                continue
+            if not candidate.proof_capable:
+                refused_reasons.add("proof_unavailable")
+                continue
+            if self._evidence_ledger.has_evidence(candidate.evidence_id):
+                refused_reasons.add("evidence_already_exists")
+                continue
+            try:
+                if _money(candidate.maximum_cost_usd) <= 0:
+                    refused_reasons.add("experiment_cost_invalid")
+                    continue
+            except (ValueError, ArithmeticError):
+                refused_reasons.add("experiment_cost_invalid")
+                continue
+            capable.append(candidate)
+        if not capable:
+            reason = sorted(refused_reasons)[0] if refused_reasons else "no_experiment_available"
+            return WorkResult(WorkOutcome.DEFERRED, reason, snapshot)
+
+        selected = min(capable, key=lambda row: (_money(row.maximum_cost_usd), row.experiment_id))
+        reserved = self._budget_ledger.reserve(PaidWorkRequest(
+            identity=selected.experiment_id,
+            role=PaidRole.EXPERIMENT,
+            provider_key=selected.provider_key,
+            model=selected.model,
+            maximum_cost_usd=selected.maximum_cost_usd,
+        ))
+        outcome, reason, reservation = reserved
+        if outcome is not WorkOutcome.ELIGIBLE:
+            return WorkResult(outcome, reason, self.snapshot())
+        detail = {
+            "experiment_id": selected.experiment_id,
+            "evidence_id": selected.evidence_id,
+            "subject_ids": list(selected.subject_ids),
+            "incumbent_workbook_id": selected.incumbent_workbook_id,
+            "candidate_workbook_id": selected.candidate_workbook_id,
+            "controlled_variants": list(selected.controlled_variants),
+            "expected_decision_impact": selected.expected_decision_impact,
+            "held_out": selected.held_out,
+            **reservation,
+        }
+        return WorkResult(
+            WorkOutcome.ELIGIBLE,
+            "experiment_planned_and_budget_reserved",
+            self.snapshot(),
+            detail,
         )

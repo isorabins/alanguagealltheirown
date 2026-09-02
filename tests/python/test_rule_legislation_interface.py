@@ -14,6 +14,9 @@ from rule_legislation import (
     Consolidation,
     CostReceipt,
     EvidenceReceipt,
+    ExperimentCandidate,
+    ExperimentPlanRequest,
+    ExperimentQuestion,
     LegacyEvidenceReceipt,
     PaidRole,
     PaidWorkRequest,
@@ -315,6 +318,121 @@ class AtomicEvidenceInterfaceTests(unittest.TestCase):
             imported.snapshot.classifications["rule-001"],
             Classification.UNKNOWN.value,
         )
+
+
+class ExperimentPlannerInterfaceTests(unittest.TestCase):
+    def setUp(self):
+        self.rulebook = json.loads(
+            (ROOT / "tests/fixtures/mixed-rulebook.json").read_text()
+        )
+        self.tempdir = tempfile.TemporaryDirectory()
+        self.addCleanup(self.tempdir.cleanup)
+        root = Path(self.tempdir.name)
+        self.module = RuleLegislation.local(
+            self.rulebook,
+            budget_ledger_path=root / "budget.json",
+            evidence_ledger_path=root / "evidence.json",
+            clock=lambda: datetime.fromisoformat("2026-09-02T04:00:00+00:00"),
+        )
+
+    def _candidate(self, identity, cost, **changes):
+        values = dict(
+            experiment_id=identity,
+            evidence_id=f"evidence-{identity}",
+            subject_ids=("rule-002",),
+            incumbent_workbook_id="incumbent-1",
+            candidate_workbook_id="candidate-1",
+            incumbent_inputs_hash="same-inputs",
+            candidate_inputs_hash="same-inputs",
+            controlled_variants=("without-rule-002", "with-rule-002"),
+            expected_decision_impact="adopt_or_reject_rule-002",
+            proof_capable=True,
+            held_out=False,
+            maximum_cost_usd=Decimal(cost),
+            provider_key="private",
+            model="fixture/model",
+        )
+        values.update(changes)
+        return ExperimentCandidate(**values)
+
+    def _request(self, *candidates, important=True, subject_ids=("rule-002",)):
+        return ExperimentPlanRequest(
+            question=ExperimentQuestion(subject_ids=subject_ids, important=important),
+            candidates=tuple(candidates),
+        )
+
+    def test_selects_cheapest_capable_matched_experiment_and_reserves_it(self):
+        result = self.module.advance(self._request(
+            self._candidate("expensive", "2.00"),
+            self._candidate("cheap", "0.50"),
+        ))
+        self.assertEqual(result.outcome, WorkOutcome.ELIGIBLE)
+        self.assertEqual(result.detail["experiment_id"], "cheap")
+        self.assertEqual(result.snapshot.budget.reserved_usd, "0.50")
+        self.assertNotIn("same-inputs", json.dumps(result.detail))
+
+    def test_refuses_unequal_unactionable_or_unavailable_proof_without_spend(self):
+        cases = (
+            self._candidate("unequal", "0.10", candidate_inputs_hash="different"),
+            self._candidate("unactionable", "0.10", expected_decision_impact=""),
+            self._candidate("unavailable", "0.10", proof_capable=False),
+        )
+        for candidate in cases:
+            with self.subTest(candidate=candidate.experiment_id):
+                result = self.module.advance(self._request(candidate))
+                self.assertEqual(result.outcome, WorkOutcome.DEFERRED)
+        self.assertEqual(self.module.snapshot().budget.reserved_usd, "0.00")
+
+    def test_refuses_unimportant_settled_repeated_and_over_budget_questions(self):
+        unimportant = self.module.advance(self._request(
+            self._candidate("unimportant", "0.10"), important=False
+        ))
+        self.assertEqual(unimportant.outcome, WorkOutcome.DEFERRED)
+
+        self.module.submit_evidence(EvidenceReceipt(
+            evidence_id="evidence-settled", subject_ids=("rule-001",),
+            incumbent_workbook_id="with", candidate_workbook_id="without",
+            task_id="task", exact_inputs_hash="inputs",
+            incumbent_success=True, candidate_success=True,
+            incumbent_total_system_tokens=100, candidate_total_system_tokens=90,
+            incumbent_includes_subject=True, candidate_includes_subject=False,
+            judgment_valid=True, comparable=True, noisy=False, bundled=False,
+            cost_usd=Decimal("0.01"), final_artifact_hash="artifact",
+        ))
+        settled = self.module.advance(self._request(
+            self._candidate("settled", "0.10", subject_ids=("rule-001",)),
+            subject_ids=("rule-001",),
+        ))
+        self.assertEqual(settled.outcome, WorkOutcome.DEFERRED)
+
+        recorded = self.module.submit_evidence(EvidenceReceipt(
+            evidence_id="evidence-repeat", subject_ids=("rule-003",),
+            incumbent_workbook_id="a", candidate_workbook_id="b", task_id="task",
+            exact_inputs_hash="repeat", incumbent_success=False,
+            candidate_success=False, incumbent_total_system_tokens=10,
+            candidate_total_system_tokens=10, incumbent_includes_subject=True,
+            candidate_includes_subject=False, judgment_valid=False,
+            comparable=True, noisy=False, bundled=False, cost_usd=Decimal("0.01"),
+            final_artifact_hash="artifact-repeat",
+        ))
+        self.assertEqual(recorded.outcome, WorkOutcome.ELIGIBLE)
+        repeated = self.module.advance(self._request(
+            self._candidate("repeat", "0.10", evidence_id="evidence-repeat",
+                            subject_ids=("rule-003",)),
+            subject_ids=("rule-003",),
+        ))
+        self.assertEqual(repeated.outcome, WorkOutcome.DEFERRED)
+
+        over = self.module.advance(self._request(self._candidate("over", "30.01")))
+        self.assertEqual(over.outcome, WorkOutcome.BLOCKED_BY_BUDGET)
+
+    def test_interaction_question_requires_the_exact_group(self):
+        result = self.module.advance(self._request(
+            self._candidate("group", "0.20", subject_ids=("rule-001", "rule-002")),
+            subject_ids=("rule-001", "rule-002"),
+        ))
+        self.assertEqual(result.outcome, WorkOutcome.ELIGIBLE)
+        self.assertEqual(result.detail["subject_ids"], ["rule-001", "rule-002"])
 
 
 if __name__ == "__main__":
