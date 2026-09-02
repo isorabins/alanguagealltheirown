@@ -49,6 +49,7 @@ from public_exam_progress import (PublicExamProgressWriter, classify_public_erro
                                   public_error_diagnostic,
                                   publish_completed_snapshot,
                                   sanitize_completed_text)
+from rule_legislation import RuleLegislation
 from rulebook import (_literal_set_survives, apply_typed_motion, language_payload,
                       render_language, render_legislature, score_judgment_v2)
 from shadow_cleanup import DEFAULT_MAX_SPEND_USD, run_shadow_cleanup
@@ -1857,8 +1858,13 @@ def _test_turn_impl(conv, rb, meta, turn, *, progress_path=None, progress_box=No
     payload = benchmark["original"]
     key = copy.deepcopy(benchmark["answer_key"])
     previous = previous_benchmark_result(meta, benchmark)
-    captured = language_payload(rb)
-    rbook = render_language(rb)
+    legislation = RuleLegislation.shadow(rb).snapshot()
+    captured = {
+        "version": legislation.adopted_language.version,
+        "hash": legislation.adopted_language.hash,
+        "rules": [rule.as_dict() for rule in legislation.adopted_language.rules],
+    }
+    rbook = legislation.adopted_language.render()
     progress = None
     if progress_path is not None:
         progress = PublicExamProgressWriter(
