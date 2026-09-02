@@ -59,6 +59,7 @@ class CostReceipt:
     reservation_id: str
     response_id: str
     exact_cost_usd: Decimal
+    returned_model: str
 
 
 class Classification(str, Enum):
@@ -359,7 +360,8 @@ class _BudgetLedger:
             handle.close()
 
     def reconcile(self, receipt: CostReceipt) -> tuple[WorkOutcome, str, dict[str, Any]]:
-        if not receipt.reservation_id.strip() or not receipt.response_id.strip():
+        if (not receipt.reservation_id.strip() or not receipt.response_id.strip()
+                or not receipt.returned_model.strip()):
             return WorkOutcome.REJECTED, "cost_receipt_identity_missing", {}
         exact = _money(receipt.exact_cost_usd)
         handle = self._locked()
@@ -373,6 +375,7 @@ class _BudgetLedger:
                     expected = {
                         "reservation_id": receipt.reservation_id,
                         "exact_cost_usd": _money_text(exact),
+                        "returned_model": receipt.returned_model,
                     }
                     if existing_response == expected:
                         return WorkOutcome.ELIGIBLE, "cost_receipt_already_reconciled", {
@@ -387,12 +390,15 @@ class _BudgetLedger:
                 return WorkOutcome.REJECTED, "reservation_not_found", {}
             if reservation["status"] == "reconciled":
                 return WorkOutcome.REJECTED, "reservation_receipt_conflict", {}
+            if receipt.returned_model != reservation["model"]:
+                return WorkOutcome.REJECTED, "returned_model_mismatch", {}
             if exact > _money(reservation["maximum_cost_usd"]):
                 return WorkOutcome.REJECTED, "exact_cost_exceeds_reservation", {}
             month = ledger["months"][found_month_id]
             month["responses"][receipt.response_id] = {
                 "reservation_id": receipt.reservation_id,
                 "exact_cost_usd": _money_text(exact),
+                "returned_model": receipt.returned_model,
             }
             reservation["status"] = "reconciled"
             reservation["response_id"] = receipt.response_id
@@ -406,23 +412,30 @@ class _BudgetLedger:
             handle.close()
 
     def verifies_evidence_cost(self, response_ids: tuple[str, ...],
+                               returned_models: tuple[str, ...],
                                exact_total: Decimal) -> bool:
-        if not response_ids or len(set(response_ids)) != len(response_ids):
+        if (not response_ids or len(set(response_ids)) != len(response_ids)
+                or len(response_ids) != len(returned_models)):
             return False
         handle = self._locked()
         try:
             ledger = self._load()
-            found: dict[str, Decimal] = {}
+            found: dict[str, tuple[Decimal, str]] = {}
             for month in ledger["months"].values():
                 for response_id in response_ids:
                     row = month["responses"].get(response_id)
                     if row is not None:
                         if response_id in found:
                             return False
-                        found[response_id] = _money(row["exact_cost_usd"])
+                        found[response_id] = (
+                            _money(row["exact_cost_usd"]), row["returned_model"]
+                        )
             return set(found) == set(response_ids) and sum(
-                found.values(), Decimal("0")
-            ) == _money(exact_total)
+                (value[0] for value in found.values()), Decimal("0")
+            ) == _money(exact_total) and all(
+                found[response_id][1] == model
+                for response_id, model in zip(response_ids, returned_models)
+            )
         finally:
             fcntl.flock(handle.fileno(), fcntl.LOCK_UN)
             handle.close()
@@ -721,6 +734,7 @@ class _EvidenceLedger:
                         copy.deepcopy(existing["receipt"]),
                         copy.deepcopy(existing["resulting_rulebook"]))
             ledger["adoptions"][request.request_id] = {
+                "sequence": len(ledger["adoptions"]) + 1,
                 "request": request_row,
                 "receipt": copy.deepcopy(receipt),
                 "resulting_rulebook": copy.deepcopy(resulting_rulebook),
@@ -989,7 +1003,10 @@ class _EvidenceLedger:
             adoptions = self._load()["adoptions"]
             if not adoptions:
                 return None
-            return copy.deepcopy(next(reversed(adoptions.values()))["resulting_rulebook"])
+            latest = max(
+                adoptions.values(), key=lambda row: int(row.get("sequence", 0))
+            )
+            return copy.deepcopy(latest["resulting_rulebook"])
         finally:
             fcntl.flock(handle.fileno(), fcntl.LOCK_UN)
             handle.close()
@@ -1134,8 +1151,22 @@ class RuleLegislation:
         }
         all_ids = {rule.get("id") for rule in self._rulebook.get("rules", [])}
         if output.role == "A":
+            expected = {
+                "proposal_id", "kind", "target_rule_id", "operative_text",
+                "rationale", "deliberation", "asserted_authority",
+            }
+            if set(payload) != expected:
+                return None, "a_proposal_schema_invalid"
             kind = payload.get("kind")
             target = payload.get("target_rule_id")
+            if (kind not in {"PROPOSE", "REVISE", "REPEAL"}
+                    or not isinstance(payload.get("proposal_id"), str)
+                    or not payload["proposal_id"].strip()
+                    or not isinstance(payload.get("operative_text"), str)
+                    or not payload["operative_text"].strip()):
+                return None, "a_proposal_fields_invalid"
+            if kind == "PROPOSE" and target is not None:
+                return None, "new_proposal_cannot_target_existing_rule"
             if kind in {"REVISE", "REPEAL"} and target not in adopted_ids:
                 return None, "adoption_target_not_currently_adopted"
             return {
@@ -1144,16 +1175,34 @@ class RuleLegislation:
                 "proposal_id": payload.get("proposal_id"),
                 "candidate_hash": "pending-exact-artifact-hash",
             }, "candidate_artifact_ready"
+        expected = {
+            "proposal_id", "kind", "source_ids", "evidence_links",
+            "source_coverage", "operative_rules", "rationale", "deliberation",
+            "asserted_authority",
+        }
+        if set(payload) != expected:
+            return None, "c_candidate_schema_invalid"
         sources = payload.get("source_ids")
         operative = payload.get("operative_rules")
-        if not isinstance(sources, list) or not set(sources).issubset(adopted_ids):
+        if (payload.get("kind") not in {"REMOVE", "MERGE", "REWRITE"}
+                or not isinstance(payload.get("proposal_id"), str)
+                or not payload["proposal_id"].strip()
+                or not isinstance(sources, list) or not sources
+                or any(not isinstance(item, str) or not item.strip()
+                       for item in sources)
+                or len(set(sources)) != len(sources)):
+            return None, "c_candidate_fields_invalid"
+        if not set(sources).issubset(adopted_ids):
             return None, "c_source_not_currently_adopted"
-        if not isinstance(operative, list):
+        if (not isinstance(operative, list)
+                or any(not isinstance(rule, dict)
+                       or set(rule) != {"id", "text_en"}
+                       or not isinstance(rule["id"], str) or not rule["id"].strip()
+                       or not isinstance(rule["text_en"], str)
+                       or not rule["text_en"].strip() for rule in operative)):
             return None, "c_operative_rules_invalid"
-        operative_ids = {
-            rule.get("id") for rule in operative if isinstance(rule, dict)
-        }
-        if None in operative_ids or operative_ids & all_ids:
+        operative_ids = {rule["id"] for rule in operative}
+        if len(operative_ids) != len(operative) or operative_ids & all_ids:
             return None, "c_operative_rule_identity_conflict"
         return {
             **copy.deepcopy(payload), "origin": "C",
@@ -1180,7 +1229,8 @@ class RuleLegislation:
                         self.snapshot(),
                     )
                 if not self._budget_ledger or not self._budget_ledger.verifies_evidence_cost(
-                        evidence.cost_response_ids, evidence.cost_usd):
+                        evidence.cost_response_ids, evidence.provider_models,
+                        evidence.cost_usd):
                     return WorkResult(
                         WorkOutcome.REJECTED,
                         "evidence_cost_receipt_not_reconciled",

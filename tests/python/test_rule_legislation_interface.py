@@ -42,6 +42,7 @@ def _fixture_receipt_bindings(module, identity, cost):
     reconciled = module.submit_evidence(CostReceipt(
         reservation_id=reserved.detail["reservation_id"],
         response_id=response_id, exact_cost_usd=Decimal(cost),
+        returned_model="fixture/evaluator",
     ))
     if reconciled.outcome is not WorkOutcome.ELIGIBLE:
         raise AssertionError(reconciled.reason)
@@ -164,6 +165,7 @@ class MonthlyBudgetInterfaceTests(unittest.TestCase):
             reservation_id=reserved.detail["reservation_id"],
             response_id="sept-response",
             exact_cost_usd=Decimal("30.00"),
+            returned_model="fixture/model",
         ))
 
         october = self._module("2026-09-30T16:00:00+00:00")
@@ -216,6 +218,7 @@ class MonthlyBudgetInterfaceTests(unittest.TestCase):
             reservation_id=reserved.detail["reservation_id"],
             response_id="response-1",
             exact_cost_usd=Decimal("3.25"),
+            returned_model="fixture/model",
         )
         first = module.submit_evidence(receipt)
         duplicate = module.submit_evidence(receipt)
@@ -223,16 +226,26 @@ class MonthlyBudgetInterfaceTests(unittest.TestCase):
             reservation_id=reserved.detail["reservation_id"],
             response_id="response-1",
             exact_cost_usd=Decimal("3.26"),
+            returned_model="fixture/model",
         ))
         missing = module.submit_evidence(CostReceipt(
             reservation_id="missing", response_id="response-2",
             exact_cost_usd=Decimal("1.00"),
+            returned_model="fixture/model",
         ))
         self.assertEqual(first.outcome, WorkOutcome.ELIGIBLE)
         self.assertEqual(duplicate.outcome, WorkOutcome.ELIGIBLE)
         self.assertEqual(conflict.outcome, WorkOutcome.REJECTED)
         self.assertEqual(missing.outcome, WorkOutcome.REJECTED)
         self.assertEqual(module.snapshot().budget.spent_usd, "3.25")
+
+        model_reservation = module.advance(self._request("model-call", "1.00"))
+        model_mismatch = module.submit_evidence(CostReceipt(
+            reservation_id=model_reservation.detail["reservation_id"],
+            response_id="model-response", exact_cost_usd=Decimal("0.50"),
+            returned_model="fixture/other-model",
+        ))
+        self.assertEqual(model_mismatch.reason, "returned_model_mismatch")
 
     def test_exact_receipt_preserves_provider_fractional_precision(self):
         module = self._module()
@@ -241,6 +254,7 @@ class MonthlyBudgetInterfaceTests(unittest.TestCase):
             reservation_id=reserved.detail["reservation_id"],
             response_id="fractional-response",
             exact_cost_usd=Decimal("0.012345678901"),
+            returned_model="fixture/model",
         ))
 
         self.assertEqual(result.outcome, WorkOutcome.ELIGIBLE)
@@ -365,6 +379,10 @@ class AtomicEvidenceInterfaceTests(unittest.TestCase):
             "provider_response_ids": (),
             "provider_models": (),
         })
+        wrong_model = EvidenceReceipt(**{
+            **receipt.__dict__,
+            "provider_models": ("fixture/other-model",),
+        })
         self.assertEqual(
             self.module.submit_evidence(forged).reason,
             "evidence_cost_receipt_not_reconciled",
@@ -372,6 +390,10 @@ class AtomicEvidenceInterfaceTests(unittest.TestCase):
         self.assertEqual(
             self.module.submit_evidence(missing_model).reason,
             "model_and_cost_receipt_identity_required",
+        )
+        self.assertEqual(
+            self.module.submit_evidence(wrong_model).reason,
+            "evidence_cost_receipt_not_reconciled",
         )
 
     def test_revision_keeps_rule_identity_and_consolidation_keeps_sources(self):
@@ -621,6 +643,11 @@ class AgentABWorkflowInterfaceTests(unittest.TestCase):
         )
         self.assertEqual(self.module.submit_change(fabricated).outcome, WorkOutcome.REJECTED)
 
+    def test_malformed_a_object_is_reason_coded_not_raised(self):
+        result = self.module.submit_change(self._output("A", "response-a-empty", {}))
+        self.assertEqual(result.outcome, WorkOutcome.REJECTED)
+        self.assertEqual(result.reason, "a_proposal_schema_invalid")
+
     def test_shadow_mode_never_persists_or_makes_a_candidate_eligible(self):
         shadow = RuleLegislation.shadow(self.rulebook)
         result = shadow.submit_change(self._proposal())
@@ -731,6 +758,17 @@ class AgentCBWorkflowInterfaceTests(unittest.TestCase):
         ))
         self.assertEqual(missing.reason, "c_source_not_currently_adopted")
         self.assertEqual(colliding.reason, "c_operative_rule_identity_conflict")
+
+        malformed = self.module.submit_change(self._output(
+            "C", "response-c-malformed", {
+                "proposal_id": "candidate-c-malformed", "kind": "MERGE",
+                "source_ids": [{"not": "hashable"}], "evidence_links": {},
+                "source_coverage": {}, "operative_rules": [],
+                "rationale": "Malformed fixture.", "deliberation": "Fixture.",
+                "asserted_authority": "edit_only",
+            },
+        ))
+        self.assertEqual(malformed.reason, "c_candidate_fields_invalid")
 
     def test_prior_audit_cannot_authorize_a_finalized_or_drifted_artifact(self):
         first = self.module.submit_change(self._candidate())
@@ -846,6 +884,28 @@ class ExactArtifactAdoptionInterfaceTests(unittest.TestCase):
             clock=lambda: datetime.fromisoformat("2026-09-02T04:00:00+00:00"),
         )
         self.assertEqual(restarted.snapshot().adopted_language.hash, self.candidate_hash)
+
+        ledger = json.loads(self.evidence_path.read_text())
+        first = ledger["adoptions"].pop("adoption-1")
+        first["sequence"] = 1
+        second = copy.deepcopy(first)
+        second["sequence"] = 2
+        second["request"]["request_id"] = "a-newer"
+        second["resulting_rulebook"]["rules"].append({
+            "id": "rule-999", "text_en": "Second durable adoption.",
+            "status": "adopted", "scores": None, "history": [],
+        })
+        ledger["adoptions"] = {"z-older": first, "a-newer": second}
+        self.evidence_path.write_text(json.dumps(ledger, sort_keys=True))
+        restarted_twice = RuleLegislation.local(
+            self.rulebook, budget_ledger_path=self.budget_path,
+            evidence_ledger_path=self.evidence_path,
+            clock=lambda: datetime.fromisoformat("2026-09-02T04:00:00+00:00"),
+        )
+        self.assertIn(
+            "Second durable adoption.",
+            restarted_twice.snapshot().adopted_language.render(),
+        )
 
     def test_rejects_success_loss_non_saving_invalid_judge_and_artifact_drift(self):
         cases = (
