@@ -8,6 +8,8 @@ from __future__ import annotations
 
 import copy
 import fcntl
+import hashlib
+import json
 from dataclasses import dataclass
 from dataclasses import field
 from datetime import datetime, timezone
@@ -133,6 +135,16 @@ class ExperimentCandidate:
 class ExperimentPlanRequest:
     question: ExperimentQuestion
     candidates: tuple[ExperimentCandidate, ...]
+
+
+@dataclass(frozen=True)
+class ModelOutput:
+    role: str
+    response_id: str
+    returned_model: str
+    finish_reason: str
+    content: str
+    content_sha256: str
 
 
 @dataclass(frozen=True)
@@ -381,7 +393,12 @@ class _EvidenceLedger:
         self._lock_path = self._path.with_suffix(self._path.suffix + ".lock")
 
     def _empty(self) -> dict[str, Any]:
-        return {"schema_version": 1, "evidence": {}, "consolidations": {}}
+        return {
+            "schema_version": 1,
+            "evidence": {},
+            "consolidations": {},
+            "workflows": {"candidates": {}, "audits": {}, "attempts": {}},
+        }
 
     def _locked(self):
         self._path.parent.mkdir(parents=True, exist_ok=True)
@@ -397,6 +414,14 @@ class _EvidenceLedger:
             raise ValueError("evidence_rows_invalid")
         if not isinstance(ledger.get("consolidations"), dict):
             raise ValueError("consolidation_rows_invalid")
+        ledger.setdefault(
+            "workflows", {"candidates": {}, "audits": {}, "attempts": {}}
+        )
+        if not all(
+            isinstance(ledger["workflows"].get(key), dict)
+            for key in ("candidates", "audits", "attempts")
+        ):
+            raise ValueError("workflow_rows_invalid")
         return ledger
 
     @staticmethod
@@ -563,6 +588,170 @@ class _EvidenceLedger:
             fcntl.flock(handle.fileno(), fcntl.LOCK_UN)
             handle.close()
 
+    def open_work(self) -> dict[str, Any] | None:
+        handle = self._locked()
+        try:
+            candidates = self._load()["workflows"]["candidates"]
+            pending = [row for row in candidates.values() if row["status"] == "awaiting_b_audit"]
+            if not pending:
+                return None
+            row = sorted(pending, key=lambda item: item["proposal_id"])[-1]
+            return {
+                "kind": "model_candidate",
+                "origin": row["origin"],
+                "proposal_id": row["proposal_id"],
+                "candidate_hash": row["candidate_hash"],
+                "status": row["status"],
+            }
+        finally:
+            fcntl.flock(handle.fileno(), fcntl.LOCK_UN)
+            handle.close()
+
+    def record_model_output(self, output: ModelOutput):
+        if (output.role not in {"A", "B", "C"} or not output.response_id.strip()
+                or not output.returned_model.strip() or not output.finish_reason.strip()):
+            return WorkOutcome.REJECTED, "provider_output_identity_invalid", {}
+        actual_hash = hashlib.sha256(output.content.encode()).hexdigest()
+        if actual_hash != output.content_sha256:
+            return WorkOutcome.REJECTED, "provider_output_hash_mismatch", {}
+        try:
+            payload = json.loads(output.content)
+        except json.JSONDecodeError:
+            payload = None
+        attempt = {
+            "role": output.role,
+            "response_id": output.response_id,
+            "returned_model": output.returned_model,
+            "finish_reason": output.finish_reason,
+            "content": output.content,
+            "content_sha256": output.content_sha256,
+            "valid_json": isinstance(payload, dict),
+        }
+        handle = self._locked()
+        try:
+            ledger = self._load()
+            attempts = ledger["workflows"]["attempts"]
+            existing_attempt = attempts.get(output.response_id)
+            if existing_attempt is not None and existing_attempt != attempt:
+                return WorkOutcome.REJECTED, "provider_response_identity_conflict", {}
+            attempts[output.response_id] = attempt
+            if not isinstance(payload, dict):
+                atomic_write_json(self._path, ledger)
+                return WorkOutcome.REJECTED, "model_output_not_json_object", {}
+            if output.role == "A":
+                result = self._record_a_proposal(ledger, output, payload)
+            elif output.role == "B":
+                result = self._record_b_audit(ledger, output, payload)
+            else:
+                result = (WorkOutcome.REJECTED, "agent_c_requires_evidence_workflow", {})
+            atomic_write_json(self._path, ledger)
+            return result
+        finally:
+            fcntl.flock(handle.fileno(), fcntl.LOCK_UN)
+            handle.close()
+
+    @staticmethod
+    def _record_a_proposal(ledger, output: ModelOutput, payload: dict[str, Any]):
+        expected = {
+            "proposal_id", "kind", "target_rule_id", "operative_text", "rationale",
+            "deliberation", "asserted_authority",
+        }
+        if set(payload) != expected:
+            return WorkOutcome.REJECTED, "a_proposal_schema_invalid", {}
+        if (payload["kind"] not in {"PROPOSE", "REPEAL", "REVISE"}
+                or not isinstance(payload["proposal_id"], str)
+                or not payload["proposal_id"].strip()
+                or not isinstance(payload["operative_text"], str)
+                or not payload["operative_text"].strip()
+                or not isinstance(payload["rationale"], str)
+                or not payload["rationale"].strip()
+                or not isinstance(payload["deliberation"], str)
+                or not payload["deliberation"].strip()):
+            return WorkOutcome.REJECTED, "a_proposal_fields_invalid", {}
+        if payload["asserted_authority"] != "proposal_only":
+            return WorkOutcome.REJECTED, "model_cannot_assert_adoption_authority", {}
+        if payload["kind"] == "PROPOSE" and payload["target_rule_id"] is not None:
+            return WorkOutcome.REJECTED, "new_proposal_cannot_target_existing_rule", {}
+        if payload["kind"] != "PROPOSE" and (
+                not isinstance(payload["target_rule_id"], str)
+                or not payload["target_rule_id"].strip()):
+            return WorkOutcome.REJECTED, "revision_or_repeal_target_required", {}
+        artifact = {
+            "origin": "A",
+            "kind": payload["kind"],
+            "target_rule_id": payload["target_rule_id"],
+            "operative_text": payload["operative_text"],
+        }
+        candidate_hash = snapshot_hash(artifact)
+        row = {
+            **payload,
+            "origin": "A",
+            "candidate_hash": candidate_hash,
+            "provider_response_id": output.response_id,
+            "provider_model": output.returned_model,
+            "provider_content_sha256": output.content_sha256,
+            "provider_content": output.content,
+            "status": "awaiting_b_audit",
+        }
+        candidates = ledger["workflows"]["candidates"]
+        existing = candidates.get(payload["proposal_id"])
+        if existing is not None:
+            if existing != row:
+                return WorkOutcome.REJECTED, "proposal_identity_conflict", {}
+            return WorkOutcome.DEFERRED, "awaiting_mandatory_b_audit", copy.deepcopy(row)
+        candidates[payload["proposal_id"]] = row
+        return WorkOutcome.DEFERRED, "awaiting_mandatory_b_audit", copy.deepcopy(row)
+
+    @staticmethod
+    def _record_b_audit(ledger, output: ModelOutput, payload: dict[str, Any]):
+        expected = {
+            "audit_id", "proposal_id", "candidate_hash", "decision", "findings",
+            "deliberation", "asserted_authority",
+        }
+        if set(payload) != expected:
+            return WorkOutcome.REJECTED, "b_audit_schema_invalid", {}
+        string_fields = ("audit_id", "proposal_id", "candidate_hash", "deliberation")
+        if (any(not isinstance(payload[field], str) or not payload[field].strip()
+                for field in string_fields)
+                or payload["decision"] not in {"APPROVE", "REJECT", "DEFER"}
+                or not isinstance(payload["findings"], list)
+                or any(not isinstance(item, str) or not item.strip()
+                       for item in payload["findings"])):
+            return WorkOutcome.REJECTED, "b_audit_fields_invalid", {}
+        if payload["asserted_authority"] != "audit_only":
+            return WorkOutcome.REJECTED, "model_cannot_assert_adoption_authority", {}
+        candidate = ledger["workflows"]["candidates"].get(payload["proposal_id"])
+        if candidate is None:
+            return WorkOutcome.REJECTED, "audit_candidate_not_found", {}
+        if candidate["candidate_hash"] != payload["candidate_hash"]:
+            return WorkOutcome.REJECTED, "audit_candidate_identity_mismatch", {}
+        row = {
+            **payload,
+            "provider_response_id": output.response_id,
+            "provider_model": output.returned_model,
+            "provider_content_sha256": output.content_sha256,
+            "provider_content": output.content,
+        }
+        audits = ledger["workflows"]["audits"]
+        existing = audits.get(payload["audit_id"])
+        if existing is not None and existing != row:
+            return WorkOutcome.REJECTED, "audit_identity_conflict", {}
+        audits[payload["audit_id"]] = row
+        detail = copy.deepcopy(candidate)
+        detail["audit"] = copy.deepcopy(row)
+        if payload["decision"] == "APPROVE":
+            candidate["status"] = "audited_eligible_for_evaluation"
+            detail["status"] = candidate["status"]
+            return (WorkOutcome.ELIGIBLE,
+                    "candidate_audited_and_eligible_for_evaluation", detail)
+        if payload["decision"] == "REJECT":
+            candidate["status"] = "audit_rejected"
+            detail["status"] = candidate["status"]
+            return WorkOutcome.REJECTED, "candidate_rejected_by_b_audit", detail
+        candidate["status"] = "audit_deferred"
+        detail["status"] = candidate["status"]
+        return WorkOutcome.DEFERRED, "candidate_deferred_by_b_audit", detail
+
 class RuleLegislation:
     """Small external seam for all rule-legislation decisions."""
 
@@ -631,16 +820,20 @@ class RuleLegislation:
                 "available_usd": budget.available_usd,
             },
         }
+        workflow_open = self._evidence_ledger.open_work() if self._evidence_ledger else None
         return LegislationSnapshot(
             adopted_language=adopted,
             complete_legislature_identity=legislature_identity,
-            open_work=copy.deepcopy(current_open_motion(self._rulebook)),
+            open_work=(workflow_open or copy.deepcopy(current_open_motion(self._rulebook))),
             classifications=classifications,
             budget=budget,
             public_read_model=public_read_model,
         )
 
     def submit_change(self, change: Any) -> WorkResult:
+        if isinstance(change, ModelOutput) and self._evidence_ledger:
+            outcome, reason, detail = self._evidence_ledger.record_model_output(change)
+            return WorkResult(outcome, reason, self.snapshot(), detail)
         if isinstance(change, Consolidation) and self._evidence_ledger:
             outcome, reason = self._evidence_ledger.consolidate(change)
             return WorkResult(outcome, reason, self.snapshot())

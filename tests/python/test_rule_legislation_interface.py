@@ -1,4 +1,5 @@
 import copy
+import hashlib
 import json
 import tempfile
 import threading
@@ -18,6 +19,7 @@ from rule_legislation import (
     ExperimentPlanRequest,
     ExperimentQuestion,
     LegacyEvidenceReceipt,
+    ModelOutput,
     PaidRole,
     PaidWorkRequest,
     RuleLegislation,
@@ -433,6 +435,113 @@ class ExperimentPlannerInterfaceTests(unittest.TestCase):
         ))
         self.assertEqual(result.outcome, WorkOutcome.ELIGIBLE)
         self.assertEqual(result.detail["subject_ids"], ["rule-001", "rule-002"])
+
+
+class AgentABWorkflowInterfaceTests(unittest.TestCase):
+    def setUp(self):
+        self.rulebook = json.loads(
+            (ROOT / "tests/fixtures/mixed-rulebook.json").read_text()
+        )
+        self.tempdir = tempfile.TemporaryDirectory()
+        self.addCleanup(self.tempdir.cleanup)
+        root = Path(self.tempdir.name)
+        self.module = RuleLegislation.local(
+            self.rulebook,
+            budget_ledger_path=root / "budget.json",
+            evidence_ledger_path=root / "evidence.json",
+            clock=lambda: datetime.fromisoformat("2026-09-02T04:00:00+00:00"),
+        )
+
+    def _output(self, role, response_id, payload):
+        content = json.dumps(payload, separators=(",", ":"), sort_keys=True)
+        return ModelOutput(
+            role=role,
+            response_id=response_id,
+            returned_model=f"fixture/{role.lower()}",
+            finish_reason="stop",
+            content=content,
+            content_sha256=hashlib.sha256(content.encode()).hexdigest(),
+        )
+
+    def _proposal(self, **changes):
+        payload = {
+            "proposal_id": "proposal-a-1",
+            "kind": "PROPOSE",
+            "target_rule_id": None,
+            "operative_text": "Use !ok for a confirmed successful result.",
+            "rationale": "This may reduce repeated confirmation language.",
+            "deliberation": "Agent A proposes a focused measurable shorthand.",
+            "asserted_authority": "proposal_only",
+        }
+        payload.update(changes)
+        return self._output("A", "response-a-1", payload)
+
+    def _audit(self, candidate_hash, **changes):
+        payload = {
+            "audit_id": "audit-b-1",
+            "proposal_id": "proposal-a-1",
+            "candidate_hash": candidate_hash,
+            "decision": "APPROVE",
+            "findings": ["The proposal is focused and testable."],
+            "deliberation": "Agent B audits the exact candidate and approves testing.",
+            "asserted_authority": "audit_only",
+        }
+        payload.update(changes)
+        return self._output("B", "response-b-1", payload)
+
+    def test_a_proposal_is_visible_but_requires_identity_bound_b_audit(self):
+        proposed = self.module.submit_change(self._proposal())
+        self.assertEqual(proposed.outcome, WorkOutcome.DEFERRED)
+        self.assertEqual(proposed.reason, "awaiting_mandatory_b_audit")
+        self.assertEqual(proposed.detail["origin"], "A")
+        self.assertEqual(
+            proposed.detail["operative_text"],
+            "Use !ok for a confirmed successful result.",
+        )
+        before_hash = proposed.snapshot.adopted_language.hash
+
+        audited = self.module.submit_change(
+            self._audit(proposed.detail["candidate_hash"])
+        )
+        self.assertEqual(audited.outcome, WorkOutcome.ELIGIBLE)
+        self.assertEqual(audited.reason, "candidate_audited_and_eligible_for_evaluation")
+        self.assertEqual(audited.snapshot.adopted_language.hash, before_hash)
+        self.assertEqual(audited.detail["audit"]["decision"], "APPROVE")
+
+    def test_missing_stale_malformed_or_rejecting_audit_fails_closed(self):
+        proposed = self.module.submit_change(self._proposal())
+        before = proposed.snapshot.adopted_language.hash
+        stale = self.module.submit_change(self._audit("wrong-hash"))
+        self.assertEqual(stale.outcome, WorkOutcome.REJECTED)
+        malformed = self.module.submit_change(ModelOutput(
+            role="B", response_id="malformed-b", returned_model="fixture/b",
+            finish_reason="stop", content="not json",
+            content_sha256=hashlib.sha256(b"not json").hexdigest(),
+        ))
+        self.assertEqual(malformed.outcome, WorkOutcome.REJECTED)
+        rejected = self.module.submit_change(self._audit(
+            proposed.detail["candidate_hash"], decision="REJECT",
+            audit_id="audit-b-2",
+        ))
+        self.assertEqual(rejected.outcome, WorkOutcome.REJECTED)
+        self.assertEqual(rejected.snapshot.adopted_language.hash, before)
+
+    def test_model_claim_of_direct_authority_and_fabricated_content_hash_are_rejected(self):
+        direct = self.module.submit_change(self._proposal(asserted_authority="adopted"))
+        self.assertEqual(direct.outcome, WorkOutcome.REJECTED)
+        fabricated = self._proposal()
+        fabricated = ModelOutput(
+            role=fabricated.role, response_id="fabricated", returned_model=fabricated.returned_model,
+            finish_reason=fabricated.finish_reason, content=fabricated.content,
+            content_sha256="0" * 64,
+        )
+        self.assertEqual(self.module.submit_change(fabricated).outcome, WorkOutcome.REJECTED)
+
+    def test_shadow_mode_never_persists_or_makes_a_candidate_eligible(self):
+        shadow = RuleLegislation.shadow(self.rulebook)
+        result = shadow.submit_change(self._proposal())
+        self.assertEqual(result.outcome, WorkOutcome.DEFERRED)
+        self.assertEqual(result.snapshot.adopted_language.hash, language_payload(self.rulebook)["hash"])
 
 
 if __name__ == "__main__":
