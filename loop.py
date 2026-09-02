@@ -384,6 +384,21 @@ def render_rulebook(rb):
     return render_language(rb)
 
 
+def _legislation_snapshot_for(rb, legislation=None):
+    """Resolve one caller snapshot and fail before work if shadow parity drifts."""
+    module = legislation or RuleLegislation.shadow(rb)
+    snapshot = module.snapshot()
+    canonical = language_payload(rb)
+    if (
+        snapshot.adopted_language.version != canonical["version"]
+        or snapshot.adopted_language.hash != canonical["hash"]
+        or [rule.as_dict() for rule in snapshot.adopted_language.rules]
+        != canonical["rules"]
+    ):
+        raise RuntimeError("legislation_snapshot_identity_mismatch")
+    return module, snapshot
+
+
 DECODE_VIEW_MAX = 6000  # emergency brake only — sized so a 400–600-word decode always renders whole
 
 
@@ -957,8 +972,9 @@ def reset_automatic_cleanup_quarantine(state, *, reviewed_edition, operator):
     state.pop("quarantine")
 
 
-def maybe_run_automatic_cleanup(conv, rb, meta, turn):
+def maybe_run_automatic_cleanup(conv, rb, meta, turn, *, legislation=None):
     """Apply the proven shadow workflow after 10% adopted-language growth."""
+    _module, legislation_snapshot = _legislation_snapshot_for(rb, legislation)
     current_tokens = rb.get("kernel_tokens")
     if (
         isinstance(current_tokens, bool)
@@ -966,7 +982,13 @@ def maybe_run_automatic_cleanup(conv, rb, meta, turn):
         or current_tokens <= 0
     ):
         raise RuntimeError("automatic cleanup requires a positive kernel token count")
-    language = language_payload(rb)
+    language = {
+        "version": legislation_snapshot.adopted_language.version,
+        "hash": legislation_snapshot.adopted_language.hash,
+        "rules": [
+            rule.as_dict() for rule in legislation_snapshot.adopted_language.rules
+        ],
+    }
     state = meta.get("automatic_cleanup")
     if state is None:
         meta["automatic_cleanup"] = {
@@ -1159,8 +1181,14 @@ def assemble_legislative_prompt(
     agent,
     collaboration_input,
     structured_snapshot=None,
+    legislation=None,
 ):
     """Assemble the one deterministic model-facing legislative projection."""
+    _module, legislation_snapshot = _legislation_snapshot_for(rb, legislation)
+    legislation_identity = {
+        "version": legislation_snapshot.adopted_language.version,
+        "hash": legislation_snapshot.adopted_language.hash,
+    }
     prompt_version, role_prompt_path = ACTIVE_AGENT_PROMPTS[agent]
     role_prompt = role_prompt_path.read_text()
     constitution = (ROOT / "prompts" / "constitution.md").read_text()
@@ -1331,11 +1359,16 @@ def assemble_legislative_prompt(
         )
     else:
         if semantic_fault is not None:
-            prompt_language, _prompt_legislature = (
-                _rulebook_views_without_private_fault_material(rb, fault_ledger)
-            )
+            prompt_language = legislation_snapshot.adopted_language.render()
+            for rule in legislation_snapshot.adopted_language.rules:
+                if _contains_private_fault_material(
+                    rule.text_en, _private_fault_material(fault_ledger)
+                ):
+                    prompt_language = prompt_language.replace(
+                        rule.text_en, PRIVATE_FAULT_PROMPT_REDACTION
+                    )
         else:
-            prompt_language = render_language(rb)
+            prompt_language = legislation_snapshot.adopted_language.render()
         system = (
             f"{output_contract}{constitution}\n\n{role_prompt}\n\n"
             f"=== ADOPTED LANGUAGE ===\n{prompt_language}\n\n"
@@ -1386,6 +1419,7 @@ def assemble_legislative_prompt(
         "prompt_request": prompt_request,
         "required_fault_token": required_fault_token,
         "total_chars": total_chars,
+        "legislation_identity": legislation_identity,
     }
 
 
@@ -1461,7 +1495,12 @@ def _rulebook_views_without_private_fault_material(rb, fault_ledger):
     return prompt_language, prompt_legislature
 
 
-def agent_turn(conv, rb, meta, collaboration, turn):
+def agent_turn(conv, rb, meta, collaboration, turn, *, legislation=None):
+    module, legislation_snapshot = _legislation_snapshot_for(rb, legislation)
+    legislation_identity = {
+        "version": legislation_snapshot.adopted_language.version,
+        "hash": legislation_snapshot.adopted_language.hash,
+    }
     agent = next_legislative_actor(meta)
     model = MODEL_A if agent == "A" else MODEL_B
     collaboration_before_delivery = copy.deepcopy(collaboration)
@@ -1493,6 +1532,7 @@ def agent_turn(conv, rb, meta, collaboration, turn):
             if isinstance(cleanup_state, dict)
             else None
         ),
+        legislation=module,
     )
     system = assembled["system"]
     base_user = assembled["user"]
@@ -1568,6 +1608,8 @@ def agent_turn(conv, rb, meta, collaboration, turn):
                 },
                 "prompt_receipt": assembled["prompt_receipt"],
                 "post_state_receipt": receipt.model_dump(mode="json"),
+                "legislation_identity": legislation_identity,
+                "module_authority": "shadow_observer",
             }
         )
         print(
@@ -1586,6 +1628,7 @@ def agent_turn(conv, rb, meta, collaboration, turn):
         "structured_action": structured_action.model_dump(mode="json"),
         "prompt_receipt": assembled["prompt_receipt"],
         "tokens": usage.get("completion_tokens", 0),
+        "legislation_identity": legislation_identity,
     }
     if deliberation_fallback is not None:
         message_event["deliberation_fallback"] = deliberation_fallback
@@ -1628,6 +1671,8 @@ def agent_turn(conv, rb, meta, collaboration, turn):
             "protocol": PROTOCOL_VERSION,
             "motion_receipt": motion_receipt.dict(),
             "post_state_receipt": receipt.model_dump(mode="json"),
+            "legislation_identity": legislation_identity,
+            "module_authority": "shadow_observer",
         }
     )
     if delivery and delivery.get("kind") == "SUGGESTION":
@@ -2085,7 +2130,7 @@ def consume_notice(conv, turn):
     f.unlink()
 
 
-def process_one_research(collaboration, meta, turn):
+def process_one_research(collaboration, meta, turn, *, legislation=None):
     """Resolve at most the oldest queued request; evidence cannot alter rule state."""
     record = next((r for r in collaboration.get("research", []) if r.get("status") == "queued"), None)
     if not record:
@@ -2100,6 +2145,12 @@ def process_one_research(collaboration, meta, turn):
     )
     record["route"] = route
     if route == "project":
+        if legislation is None:
+            canonical_rulebook = load("rulebook.json", {
+                "version": "0.0", "rules": [], "changes": 0, "next_id": 1
+            })
+            legislation = RuleLegislation.shadow(canonical_rulebook)
+        legislation_snapshot = legislation.snapshot()
         record["status"] = "looking_up"
         result = project_lookup(ROOT, question)
         record.update({
@@ -2115,6 +2166,10 @@ def process_one_research(collaboration, meta, turn):
             "cost_usd": 0,
             "no_evidence": not result["adequate"],
             "answer_turn": turn,
+            "legislation_identity": {
+                "version": legislation_snapshot.adopted_language.version,
+                "hash": legislation_snapshot.adopted_language.hash,
+            },
         })
         if result["adequate"]:
             record["status"] = "answered"
@@ -2247,8 +2302,14 @@ def run(turns):
         collaboration = import_inbox_spool(
             collaboration, STATE / "collaboration-inbox.json", turn=turn)
         save("collaboration.json", collaboration)
-        process_one_research(collaboration, meta, turn)
-        maybe_run_automatic_cleanup(conv, rb, meta, turn)
+        turn_legislation = RuleLegislation.shadow(rb)
+        process_one_research(
+            collaboration, meta, turn, legislation=turn_legislation
+        )
+        maybe_run_automatic_cleanup(
+            conv, rb, meta, turn, legislation=turn_legislation
+        )
+        turn_legislation = RuleLegislation.shadow(rb)
         if turn % TEST_EVERY == 0:
             completed_public_exam = test_turn(
                 conv, rb, meta, turn,
@@ -2257,7 +2318,10 @@ def run(turns):
             maybe_run_conversation(rb, meta, turn, conversations)
         else:
             completed_public_exam = None
-            agent_turn(conv, rb, meta, collaboration, turn)
+            agent_turn(
+                conv, rb, meta, collaboration, turn,
+                legislation=turn_legislation,
+            )
         save("conversation.json", conv)
         save("rulebook.json", rb)
         save("meta.json", meta)
