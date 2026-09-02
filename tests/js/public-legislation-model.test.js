@@ -46,6 +46,12 @@ test('client never derives classifications from rule records',()=>{
   assert.doesNotMatch(source,/scores|fidelity|classif\w*\s*=/i);
 });
 
+test('viewer refuses legacy state without a module-generated public model',()=>{
+  const html=fs.readFileSync(path.join(__dirname,'../../viewer/index.html'),'utf8');
+  assert.doesNotMatch(html,/if\(candidate\)\{render\(candidate\);return true;\}/);
+  assert.match(html,/snapshot has no module-generated legislation model/i);
+});
+
 test('public copy names A proposer, B auditor, C evidence editor, and module authority',()=>{
   const html=require('node:fs').readFileSync(require('node:path').join(__dirname,'../../viewer/index.html'),'utf8');
   assert.match(html,/Agent A visibly proposes/);

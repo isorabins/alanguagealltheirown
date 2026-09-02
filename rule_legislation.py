@@ -92,6 +92,9 @@ class EvidenceReceipt:
     scope: str = "development"
     incumbent_token_components: tuple[tuple[str, int], ...] = ()
     candidate_token_components: tuple[tuple[str, int], ...] = ()
+    provider_response_ids: tuple[str, ...] = ()
+    provider_models: tuple[str, ...] = ()
+    cost_response_ids: tuple[str, ...] = ()
 
 
 @dataclass(frozen=True)
@@ -216,11 +219,15 @@ def _money(value: Decimal | str | int) -> Decimal:
     amount = Decimal(str(value))
     if not amount.is_finite() or amount < 0:
         raise ValueError("cost_must_be_finite_and_non_negative")
-    return amount.quantize(Decimal("0.01"))
+    return amount
 
 
 def _money_text(value: Decimal | str | int) -> str:
-    return f"{_money(value):.2f}"
+    whole, separator, fraction = format(_money(value), "f").partition(".")
+    significant_fraction = fraction.rstrip("0")
+    if len(significant_fraction) < 2:
+        significant_fraction = significant_fraction.ljust(2, "0")
+    return f"{whole}.{significant_fraction}" if separator else f"{whole}.00"
 
 
 class _BudgetLedger:
@@ -398,6 +405,28 @@ class _BudgetLedger:
             fcntl.flock(handle.fileno(), fcntl.LOCK_UN)
             handle.close()
 
+    def verifies_evidence_cost(self, response_ids: tuple[str, ...],
+                               exact_total: Decimal) -> bool:
+        if not response_ids or len(set(response_ids)) != len(response_ids):
+            return False
+        handle = self._locked()
+        try:
+            ledger = self._load()
+            found: dict[str, Decimal] = {}
+            for month in ledger["months"].values():
+                for response_id in response_ids:
+                    row = month["responses"].get(response_id)
+                    if row is not None:
+                        if response_id in found:
+                            return False
+                        found[response_id] = _money(row["exact_cost_usd"])
+            return set(found) == set(response_ids) and sum(
+                found.values(), Decimal("0")
+            ) == _money(exact_total)
+        finally:
+            fcntl.flock(handle.fileno(), fcntl.LOCK_UN)
+            handle.close()
+
 
 class _EvidenceLedger:
     """Internal atomic evidence adapter; classifications are derived, never asserted."""
@@ -502,6 +531,9 @@ class _EvidenceLedger:
                 "scope": receipt.scope,
                 "incumbent_token_components": [list(item) for item in receipt.incumbent_token_components],
                 "candidate_token_components": [list(item) for item in receipt.candidate_token_components],
+                "provider_response_ids": list(receipt.provider_response_ids),
+                "provider_models": list(receipt.provider_models),
+                "cost_response_ids": list(receipt.cost_response_ids),
             }
         else:
             if not receipt.source_kind.strip() or not receipt.source_identity.strip():
@@ -720,7 +752,8 @@ class _EvidenceLedger:
             fcntl.flock(handle.fileno(), fcntl.LOCK_UN)
             handle.close()
 
-    def record_model_output(self, output: ModelOutput):
+    def record_model_output(self, output: ModelOutput,
+                            candidate_artifact_hash: str | None = None):
         if (output.role not in {"A", "B", "C"} or not output.response_id.strip()
                 or not output.returned_model.strip() or not output.finish_reason.strip()):
             return WorkOutcome.REJECTED, "provider_output_identity_invalid", {}
@@ -752,11 +785,15 @@ class _EvidenceLedger:
                 atomic_write_json(self._path, ledger)
                 return WorkOutcome.REJECTED, "model_output_not_json_object", {}
             if output.role == "A":
-                result = self._record_a_proposal(ledger, output, payload)
+                result = self._record_a_proposal(
+                    ledger, output, payload, candidate_artifact_hash
+                )
             elif output.role == "B":
                 result = self._record_b_audit(ledger, output, payload)
             else:
-                result = self._record_c_candidate(ledger, output, payload)
+                result = self._record_c_candidate(
+                    ledger, output, payload, candidate_artifact_hash
+                )
             atomic_write_json(self._path, ledger)
             return result
         finally:
@@ -764,7 +801,8 @@ class _EvidenceLedger:
             handle.close()
 
     @staticmethod
-    def _record_a_proposal(ledger, output: ModelOutput, payload: dict[str, Any]):
+    def _record_a_proposal(ledger, output: ModelOutput, payload: dict[str, Any],
+                           candidate_artifact_hash: str | None):
         expected = {
             "proposal_id", "kind", "target_rule_id", "operative_text", "rationale",
             "deliberation", "asserted_authority",
@@ -789,13 +827,9 @@ class _EvidenceLedger:
                 not isinstance(payload["target_rule_id"], str)
                 or not payload["target_rule_id"].strip()):
             return WorkOutcome.REJECTED, "revision_or_repeal_target_required", {}
-        artifact = {
-            "origin": "A",
-            "kind": payload["kind"],
-            "target_rule_id": payload["target_rule_id"],
-            "operative_text": payload["operative_text"],
-        }
-        candidate_hash = snapshot_hash(artifact)
+        if not candidate_artifact_hash:
+            return WorkOutcome.REJECTED, "candidate_artifact_invalid", {}
+        candidate_hash = candidate_artifact_hash
         row = {
             **payload,
             "origin": "A",
@@ -866,7 +900,8 @@ class _EvidenceLedger:
         return WorkOutcome.DEFERRED, "candidate_deferred_by_b_audit", detail
 
     @staticmethod
-    def _record_c_candidate(ledger, output: ModelOutput, payload: dict[str, Any]):
+    def _record_c_candidate(ledger, output: ModelOutput, payload: dict[str, Any],
+                            candidate_artifact_hash: str | None):
         expected = {
             "proposal_id", "kind", "source_ids", "evidence_links", "source_coverage",
             "operative_rules", "rationale", "deliberation", "asserted_authority",
@@ -926,15 +961,9 @@ class _EvidenceLedger:
             return WorkOutcome.REJECTED, "remove_candidate_must_not_add_rules", {}
         if payload["kind"] != "REMOVE" and not operative:
             return WorkOutcome.REJECTED, "merge_or_rewrite_requires_output_rule", {}
-        artifact = {
-            "origin": "C",
-            "kind": payload["kind"],
-            "source_ids": copy.deepcopy(sources),
-            "evidence_links": copy.deepcopy(links),
-            "source_coverage": copy.deepcopy(coverage),
-            "operative_rules": copy.deepcopy(operative),
-        }
-        candidate_hash = snapshot_hash(artifact)
+        if not candidate_artifact_hash:
+            return WorkOutcome.REJECTED, "candidate_artifact_invalid", {}
+        candidate_hash = candidate_artifact_hash
         row = {
             **copy.deepcopy(payload),
             "origin": "C",
@@ -953,6 +982,17 @@ class _EvidenceLedger:
             return WorkOutcome.DEFERRED, "awaiting_mandatory_b_audit", copy.deepcopy(row)
         candidates[payload["proposal_id"]] = row
         return WorkOutcome.DEFERRED, "awaiting_mandatory_b_audit", copy.deepcopy(row)
+
+    def latest_resulting_rulebook(self) -> dict[str, Any] | None:
+        handle = self._locked()
+        try:
+            adoptions = self._load()["adoptions"]
+            if not adoptions:
+                return None
+            return copy.deepcopy(next(reversed(adoptions.values()))["resulting_rulebook"])
+        finally:
+            fcntl.flock(handle.fileno(), fcntl.LOCK_UN)
+            handle.close()
 
 class RuleLegislation:
     """Small external seam for all rule-legislation decisions."""
@@ -978,14 +1018,18 @@ class RuleLegislation:
     def local(cls, rulebook: dict[str, Any], *, budget_ledger_path: Path,
               evidence_ledger_path: Path | None = None,
               clock=lambda: datetime.now(timezone.utc)) -> "RuleLegislation":
+        evidence_ledger = (
+            _EvidenceLedger(Path(evidence_ledger_path))
+            if evidence_ledger_path is not None else None
+        )
+        persisted_rulebook = (
+            evidence_ledger.latest_resulting_rulebook() if evidence_ledger else None
+        )
         return cls(
-            rulebook,
+            persisted_rulebook or rulebook,
             mode="local",
             budget_ledger=_BudgetLedger(Path(budget_ledger_path), clock),
-            evidence_ledger=(
-                _EvidenceLedger(Path(evidence_ledger_path))
-                if evidence_ledger_path is not None else None
-            ),
+            evidence_ledger=evidence_ledger,
         )
 
     def snapshot(self) -> LegislationSnapshot:
@@ -1056,7 +1100,17 @@ class RuleLegislation:
         if isinstance(change, AdoptionRequest) and self._evidence_ledger:
             return self._adopt(change)
         if isinstance(change, ModelOutput) and self._evidence_ledger:
-            outcome, reason, detail = self._evidence_ledger.record_model_output(change)
+            candidate_hash = None
+            if change.role in {"A", "C"}:
+                candidate, reason = self._candidate_from_output(change)
+                if candidate is None:
+                    return WorkResult(WorkOutcome.REJECTED, reason, self.snapshot())
+                candidate_hash = language_payload(
+                    self._apply_candidate(candidate)
+                )["hash"]
+            outcome, reason, detail = self._evidence_ledger.record_model_output(
+                change, candidate_hash
+            )
             return WorkResult(outcome, reason, self.snapshot(), detail)
         if isinstance(change, Consolidation) and self._evidence_ledger:
             outcome, reason = self._evidence_ledger.consolidate(change)
@@ -1067,12 +1121,71 @@ class RuleLegislation:
             self.snapshot(),
         )
 
+    def _candidate_from_output(self, output: ModelOutput) -> tuple[dict[str, Any] | None, str]:
+        try:
+            payload = json.loads(output.content)
+        except json.JSONDecodeError:
+            return None, "model_output_not_json_object"
+        if not isinstance(payload, dict):
+            return None, "model_output_not_json_object"
+        adopted_ids = {
+            rule.get("id") for rule in self._rulebook.get("rules", [])
+            if rule.get("status") == "adopted"
+        }
+        all_ids = {rule.get("id") for rule in self._rulebook.get("rules", [])}
+        if output.role == "A":
+            kind = payload.get("kind")
+            target = payload.get("target_rule_id")
+            if kind in {"REVISE", "REPEAL"} and target not in adopted_ids:
+                return None, "adoption_target_not_currently_adopted"
+            return {
+                "origin": "A", "kind": kind, "target_rule_id": target,
+                "operative_text": payload.get("operative_text"),
+                "proposal_id": payload.get("proposal_id"),
+                "candidate_hash": "pending-exact-artifact-hash",
+            }, "candidate_artifact_ready"
+        sources = payload.get("source_ids")
+        operative = payload.get("operative_rules")
+        if not isinstance(sources, list) or not set(sources).issubset(adopted_ids):
+            return None, "c_source_not_currently_adopted"
+        if not isinstance(operative, list):
+            return None, "c_operative_rules_invalid"
+        operative_ids = {
+            rule.get("id") for rule in operative if isinstance(rule, dict)
+        }
+        if None in operative_ids or operative_ids & all_ids:
+            return None, "c_operative_rule_identity_conflict"
+        return {
+            **copy.deepcopy(payload), "origin": "C",
+            "candidate_hash": "pending-exact-artifact-hash",
+        }, "candidate_artifact_ready"
+
     def submit_evidence(self, evidence: Any) -> WorkResult:
         if isinstance(evidence, CostReceipt) and self._budget_ledger:
             outcome, reason, detail = self._budget_ledger.reconcile(evidence)
             return WorkResult(outcome, reason, self.snapshot(), detail)
         if isinstance(evidence, (EvidenceReceipt, LegacyEvidenceReceipt)) \
                 and self._evidence_ledger:
+            if isinstance(evidence, EvidenceReceipt):
+                if (not evidence.provider_response_ids
+                        or len(evidence.provider_models) != len(evidence.provider_response_ids)
+                        or evidence.provider_response_ids != evidence.cost_response_ids
+                        or any(not item.strip() for item in (
+                            *evidence.provider_response_ids, *evidence.provider_models,
+                            *evidence.cost_response_ids,
+                        ))):
+                    return WorkResult(
+                        WorkOutcome.REJECTED,
+                        "model_and_cost_receipt_identity_required",
+                        self.snapshot(),
+                    )
+                if not self._budget_ledger or not self._budget_ledger.verifies_evidence_cost(
+                        evidence.cost_response_ids, evidence.cost_usd):
+                    return WorkResult(
+                        WorkOutcome.REJECTED,
+                        "evidence_cost_receipt_not_reconciled",
+                        self.snapshot(),
+                    )
             outcome, reason = self._evidence_ledger.record(evidence)
             return WorkResult(outcome, reason, self.snapshot())
         if self._budget_ledger:

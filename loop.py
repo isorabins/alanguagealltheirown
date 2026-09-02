@@ -803,6 +803,7 @@ def write_viewer_state(conv, rb, meta, collaboration=None, conversations=None):
             "collaboration": {},
             "conversations": (conversations or [])[-1:],
             "language": public_language,
+            "public_legislation": public_model,
             "notes": notes[-1:] if isinstance(notes, list) else [],
             "meta": {"updated": updated, "runtime": runtime},
             "metrics": metrics,
@@ -2048,8 +2049,8 @@ def _test_turn_impl(conv, rb, meta, turn, *, progress_path=None, progress_box=No
         return sum(values)
 
     component_values = {
-        "agent_a_encoder": usage_total(encoder_usage),
-        "agent_b_decoder": usage_total(decoder_usage),
+        "agent_a": usage_total(encoder_usage),
+        "agent_b": usage_total(decoder_usage),
         "judge": usage_total(judge_usage),
     }
     complete_system_tokens = all(value is not None for value in component_values.values())

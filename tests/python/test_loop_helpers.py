@@ -690,9 +690,13 @@ class StructuredLoopTests(unittest.TestCase):
         self.assertIn(["best strict savings · V2", "+43%"], bootstrap["metrics"])
         self.assertIn("preview", bootstrap)
         self.assertEqual(bootstrap["preview"]["metrics"], bootstrap["metrics"])
+        self.assertEqual(
+            bootstrap["preview"]["public_legislation"]["legislation_identity"],
+            bootstrap["legislation_identity"],
+        )
         self.assertLessEqual(len(bootstrap["preview"]["conversation"]), 30)
         self.assertLess(len(payload), 500_000)
-        self.assertEqual(bootstrap["runtime"], {
+        expected_runtime = {
             "status": "paused",
             "turn": 2400,
             "message": "Experiment paused at turn 2400. No new turn or exam is running. The public record remains available.",
@@ -710,7 +714,12 @@ class StructuredLoopTests(unittest.TestCase):
                 "last_attempt_turn": None,
                 "last_status": None,
             },
-        })
+            "legislation_identity": {
+                "version": loop.language_payload(rulebook)["version"],
+                "hash": loop.language_payload(rulebook)["hash"],
+            },
+        }
+        self.assertEqual(bootstrap["runtime"], expected_runtime)
         self.assertEqual(persisted_runtime, bootstrap["runtime"])
         self.assertIn('"language": {"version": "adopted-', state_payload)
         self.assertIn('LANGUAGE adopted-', state_payload)

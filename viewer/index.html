@@ -1293,7 +1293,12 @@ function loadState() {
       if(status)status.classList.add("visible");
       return false;
     }
-    if(candidate){render(candidate);return true;}
+    if(candidate){
+      var legacyStatus=document.getElementById("runtime-status"),legacyHeading=document.getElementById("runtime-status-heading"),legacyDetail=document.getElementById("runtime-status-detail");
+      if(legacyHeading)legacyHeading.textContent="Current language is unavailable.";
+      if(legacyDetail)legacyDetail.textContent="This snapshot has no module-generated legislation model. Historical records remain available, but they are not being presented as current.";
+      if(legacyStatus)legacyStatus.classList.add("visible");
+    }
     return false;
   }
   if (fallback) renderCandidate(fallback,fallback.public_legislation,

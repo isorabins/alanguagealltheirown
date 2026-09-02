@@ -32,6 +32,26 @@ from rulebook import language_payload
 ROOT = Path(__file__).parents[2]
 
 
+def _fixture_receipt_bindings(module, identity, cost):
+    response_id = f"provider-{identity}"
+    reserved = module.advance(PaidWorkRequest(
+        identity=f"paid-{identity}", role=PaidRole.EXPERIMENT,
+        provider_key="fixture-key", model="fixture/evaluator",
+        maximum_cost_usd=Decimal(cost),
+    ))
+    reconciled = module.submit_evidence(CostReceipt(
+        reservation_id=reserved.detail["reservation_id"],
+        response_id=response_id, exact_cost_usd=Decimal(cost),
+    ))
+    if reconciled.outcome is not WorkOutcome.ELIGIBLE:
+        raise AssertionError(reconciled.reason)
+    return {
+        "provider_response_ids": (response_id,),
+        "provider_models": ("fixture/evaluator",),
+        "cost_response_ids": (response_id,),
+    }
+
+
 class ShadowLegislationInterfaceTests(unittest.TestCase):
     def setUp(self):
         self.rulebook = json.loads(
@@ -214,6 +234,24 @@ class MonthlyBudgetInterfaceTests(unittest.TestCase):
         self.assertEqual(missing.outcome, WorkOutcome.REJECTED)
         self.assertEqual(module.snapshot().budget.spent_usd, "3.25")
 
+    def test_exact_receipt_preserves_provider_fractional_precision(self):
+        module = self._module()
+        reserved = module.advance(self._request("fractional-call", "0.10"))
+        result = module.submit_evidence(CostReceipt(
+            reservation_id=reserved.detail["reservation_id"],
+            response_id="fractional-response",
+            exact_cost_usd=Decimal("0.012345678901"),
+        ))
+
+        self.assertEqual(result.outcome, WorkOutcome.ELIGIBLE)
+        self.assertEqual(result.snapshot.budget.spent_usd, "0.012345678901")
+        ledger = json.loads(self.ledger_path.read_text())
+        self.assertEqual(
+            ledger["months"]["2026-10"]["responses"]["fractional-response"]
+            ["exact_cost_usd"],
+            "0.012345678901",
+        )
+
     def test_shadow_mode_and_ordinary_input_cannot_reserve_or_change_cap(self):
         shadow = RuleLegislation.shadow(self.rulebook)
         self.assertEqual(
@@ -265,6 +303,7 @@ class AtomicEvidenceInterfaceTests(unittest.TestCase):
             bundled=False,
             cost_usd=Decimal("0.20"),
             final_artifact_hash="artifact-1",
+            **_fixture_receipt_bindings(self.module, evidence_id, "0.20"),
         )
         values.update(changes)
         return EvidenceReceipt(**values)
@@ -312,6 +351,27 @@ class AtomicEvidenceInterfaceTests(unittest.TestCase):
         self.assertEqual(
             conflict.snapshot.classifications["rule-001"],
             Classification.HARMFUL.value,
+        )
+
+    def test_matched_evidence_requires_reconciled_model_and_cost_receipts(self):
+        receipt = self._receipt("e-forged")
+        forged = EvidenceReceipt(**{
+            **receipt.__dict__,
+            "provider_response_ids": ("missing-provider-response",),
+            "cost_response_ids": ("missing-provider-response",),
+        })
+        missing_model = EvidenceReceipt(**{
+            **receipt.__dict__,
+            "provider_response_ids": (),
+            "provider_models": (),
+        })
+        self.assertEqual(
+            self.module.submit_evidence(forged).reason,
+            "evidence_cost_receipt_not_reconciled",
+        )
+        self.assertEqual(
+            self.module.submit_evidence(missing_model).reason,
+            "model_and_cost_receipt_identity_required",
         )
 
     def test_revision_keeps_rule_identity_and_consolidation_keeps_sources(self):
@@ -422,6 +482,7 @@ class ExperimentPlannerInterfaceTests(unittest.TestCase):
             incumbent_includes_subject=True, candidate_includes_subject=False,
             judgment_valid=True, comparable=True, noisy=False, bundled=False,
             cost_usd=Decimal("0.01"), final_artifact_hash="artifact",
+            **_fixture_receipt_bindings(self.module, "evidence-settled", "0.01"),
         ))
         settled = self.module.advance(self._request(
             self._candidate("settled", "0.10", subject_ids=("rule-001",)),
@@ -438,6 +499,7 @@ class ExperimentPlannerInterfaceTests(unittest.TestCase):
             candidate_includes_subject=False, judgment_valid=False,
             comparable=True, noisy=False, bundled=False, cost_usd=Decimal("0.01"),
             final_artifact_hash="artifact-repeat",
+            **_fixture_receipt_bindings(self.module, "evidence-repeat", "0.01"),
         ))
         self.assertEqual(recorded.outcome, WorkOutcome.ELIGIBLE)
         repeated = self.module.advance(self._request(
@@ -571,6 +633,8 @@ class AgentCBWorkflowInterfaceTests(unittest.TestCase):
         self.rulebook = json.loads(
             (ROOT / "tests/fixtures/mixed-rulebook.json").read_text()
         )
+        next(rule for rule in self.rulebook["rules"]
+             if rule["id"] == "rule-002")["status"] = "adopted"
         self.tempdir = tempfile.TemporaryDirectory()
         self.addCleanup(self.tempdir.cleanup)
         root = Path(self.tempdir.name)
@@ -654,6 +718,20 @@ class AgentCBWorkflowInterfaceTests(unittest.TestCase):
         direct = self.module.submit_change(self._candidate(asserted_authority="adopted"))
         self.assertEqual(direct.outcome, WorkOutcome.REJECTED)
 
+    def test_c_edit_rejects_nonadopted_sources_and_colliding_output_ids(self):
+        missing = self.module.submit_change(self._candidate(
+            response_id="response-c-missing",
+            proposal_id="candidate-c-missing",
+            source_ids=["rule-001", "rule-999"],
+        ))
+        colliding = self.module.submit_change(self._candidate(
+            response_id="response-c-collision",
+            proposal_id="candidate-c-collision",
+            operative_rules=[{"id": "rule-001", "text_en": "Collision."}],
+        ))
+        self.assertEqual(missing.reason, "c_source_not_currently_adopted")
+        self.assertEqual(colliding.reason, "c_operative_rule_identity_conflict")
+
     def test_prior_audit_cannot_authorize_a_finalized_or_drifted_artifact(self):
         first = self.module.submit_change(self._candidate())
         self.module.submit_change(self._audit(first.detail["candidate_hash"]))
@@ -684,6 +762,8 @@ class ExactArtifactAdoptionInterfaceTests(unittest.TestCase):
             evidence_ledger_path=root / "evidence.json",
             clock=lambda: datetime.fromisoformat("2026-09-02T04:00:00+00:00"),
         )
+        self.budget_path = root / "budget.json"
+        self.evidence_path = root / "evidence.json"
         proposal_payload = {
             "proposal_id": "proposal-adopt", "kind": "PROPOSE",
             "target_rule_id": None, "operative_text": "Use !ok for confirmed success.",
@@ -731,6 +811,7 @@ class ExactArtifactAdoptionInterfaceTests(unittest.TestCase):
             incumbent_token_components=(("agent_a", 10), ("agent_b", 10), ("work", 100)),
             candidate_token_components=(("agent_a", 8), ("agent_b", 7),
                                         ("work", candidate_tokens - 15)),
+            **_fixture_receipt_bindings(self.module, evidence_id, "0.10"),
         )
 
     def _request(self, *evidence_ids, **changes):
@@ -755,8 +836,16 @@ class ExactArtifactAdoptionInterfaceTests(unittest.TestCase):
         self.assertEqual(result.outcome, WorkOutcome.ELIGIBLE)
         self.assertEqual(result.reason, "exact_candidate_adopted")
         self.assertEqual(result.detail["adopted_artifact_hash"], self.candidate_hash)
-        self.assertNotEqual(result.snapshot.adopted_language.hash, self.incumbent["hash"])
+        self.assertEqual(result.snapshot.adopted_language.hash, self.candidate_hash)
         self.assertIn("Use !ok for confirmed success.", result.snapshot.adopted_language.render())
+
+        restarted = RuleLegislation.local(
+            self.rulebook,
+            budget_ledger_path=self.budget_path,
+            evidence_ledger_path=self.evidence_path,
+            clock=lambda: datetime.fromisoformat("2026-09-02T04:00:00+00:00"),
+        )
+        self.assertEqual(restarted.snapshot().adopted_language.hash, self.candidate_hash)
 
     def test_rejects_success_loss_non_saving_invalid_judge_and_artifact_drift(self):
         cases = (

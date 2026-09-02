@@ -46,7 +46,7 @@ class EvaluationCallerContractTests(unittest.TestCase):
         event = conv[-1]
         self.assertEqual(event["total_successful_system_tokens"], 105)
         self.assertEqual(event["system_token_components"], {
-            "agent_a_encoder": 40, "agent_b_decoder": 40, "judge": 25,
+            "agent_a": 40, "agent_b": 40, "judge": 25,
         })
         self.assertEqual(event["message_body_savings_pct"], 50)
         self.assertNotEqual(event["total_successful_system_tokens"], 50)
