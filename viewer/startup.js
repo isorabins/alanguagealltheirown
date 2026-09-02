@@ -9,6 +9,7 @@
   var freshnessVerified = false;
   var refetchArmed = false;
   var refetchDelay = 45000;
+  var bootstrapIdentity = bootstrap.legislation_identity || null;
 
   if (!Number.isFinite(lastTurnAt)) lastTurnAt = null;
 
@@ -129,7 +130,17 @@
       lastTurnAt = null;
     }
     lastTurnNum = Number(turn || 0);
-    if (arguments.length > 2 && arguments[2]) runtime = arguments[2];
+    if (arguments.length > 2 && arguments[2]) {
+      var candidateRuntime=arguments[2],candidateIdentity=candidateRuntime.legislation_identity;
+      if(bootstrapIdentity&&candidateIdentity&&
+          (bootstrapIdentity.version!==candidateIdentity.version||bootstrapIdentity.hash!==candidateIdentity.hash)){
+        runtime={status:"unavailable",turn:lastTurnNum,message:"Public snapshots disagree on the current adopted-language identity."};
+        freshnessVerified=true;refetchArmed=false;
+        return applyRuntimeProjection({mode:"unavailable",visible:true,heading:"Current language is unavailable.",detail:runtime.message,stamp:"identity mismatch",kicker:"current language unavailable",turnClock:"unavailable",examClock:"unavailable",examLink:"see last test ↓"});
+      }
+      runtime = candidateRuntime;
+      if(candidateIdentity)bootstrapIdentity=candidateIdentity;
+    }
     freshnessVerified = true;
     refetchArmed = false;
     return updateCounters();

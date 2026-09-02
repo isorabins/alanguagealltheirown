@@ -72,14 +72,14 @@ test('locked opening copy and timer order are preserved',()=>{
   assert.match(html,/\.statement \{ margin-top: 0\.42rem;/);
   assert.match(html,/That's crazy\./);
   assert.match(html,/One they negotiate themselves, in public, one rule at a time\./);
-  assert.match(html,/If the meaning doesn't survive, the rule dies\. Most of them die\./);
+  assert.match(html,/If the meaning doesn't survive, the candidate cannot become law\./);
   assert.match(html,/Everything that's worked and everything that hasn't is public\./);
   assert.doesNotMatch(html,/public experiment and art project|The agents invent the language|timers-cap/);
   assert.ok(html.indexOf('id="t-turn"') < html.indexOf('id="t-exam"'));
   assert.match(html,/id="t-turn">--:--<\/span><span class="tlab">next turn<\/span>/);
   assert.doesNotMatch(html,/id="t-conversation"|class="tlab">next Conversation<\/span>/);
   assert.match(html,/Scoring V2 calls compression successful only when 100% of the semantic meaning in the conversation survives encoding and decoding\./);
-  assert.match(html,/DeepSeek Agent A invents or revises one focused idea\. Kimi Agent B audits it and alone may adopt or reject it\./);
+  assert.match(html,/DeepSeek Agent A visibly proposes one focused idea\. Kimi Agent B must audit every A or C candidate\./);
   assert.match(copyDeck,/One they negotiate themselves, in public, one rule at a time\./);
   assert.match(html,/id="exam-jump" href="#live-test-section">see last test ↓<\/a>/);
   assert.match(html,/id="agent-c-summary" href="#agent-c-cleanup-section"/);

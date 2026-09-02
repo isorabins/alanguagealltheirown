@@ -90,6 +90,27 @@ class ShadowLegislationInterfaceTests(unittest.TestCase):
         self.assertNotIn("Proposed beta meaning.", calls[0][1])
         self.assertNotIn("Rejected gamma meaning.", calls[0][1])
 
+    def test_public_read_model_is_complete_and_version_bound(self):
+        runtime = {"status": "paused", "turn": 10}
+        snapshot = RuleLegislation.shadow(
+            self.rulebook, public_context={"runtime_status": runtime}
+        ).snapshot()
+        model = snapshot.public_read_model
+        self.assertEqual(model["legislation_identity"], {
+            "version": snapshot.adopted_language.version,
+            "hash": snapshot.adopted_language.hash,
+        })
+        self.assertEqual(len(model["complete_legislature"]), 4)
+        self.assertEqual(model["roles"], {
+            "agent_a": "proposer",
+            "agent_b": "mandatory_auditor",
+            "agent_c": "evidence_guided_editor",
+            "authority": "rule_legislation_module",
+        })
+        self.assertEqual(model["runtime_status"]["legislation_identity"],
+                         model["legislation_identity"])
+        self.assertEqual(model["budget"]["monthly_ceiling_usd"], "30.00")
+
 
 class MonthlyBudgetInterfaceTests(unittest.TestCase):
     def setUp(self):

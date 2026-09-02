@@ -721,15 +721,28 @@ def write_viewer_state(conv, rb, meta, collaboration=None, conversations=None):
     revisions = revision_parts[1] if len(revision_parts) == 2 else "0"
     turn = public_conversation[-1].get("turn", 0) if public_conversation else 0
     runtime = _public_runtime_state(turn, meta, rb)
+    public_model = RuleLegislation.shadow(
+        rb,
+        public_context={
+            "runtime_status": runtime,
+            "workflow_evidence": [
+                copy.deepcopy(event)
+                for event in public_conversation[-100:]
+                if event.get("type") in {"message", "legislature", "cleanup"}
+            ],
+        },
+    ).snapshot().public_read_model
+    runtime = public_model["runtime_status"]
     runtime_path = ROOT / "state" / "public-runtime.json"
     runtime_path.parent.mkdir(exist_ok=True)
     atomic_write_json(runtime_path, runtime)
-    language = language_payload(rb)
+    atomic_write_json(ROOT / "state" / "public-legislation.json", public_model)
+    language = public_model["legislation_identity"]
     public_language = {
         "version": language["version"],
         "hash": language["hash"],
-        "rules": language["rules"],
-        "text": render_language(rb),
+        "rules": public_model["adopted_language"]["rules"],
+        "text": public_model["adopted_language"]["text"],
     }
     atomic_write_json(ROOT / "state" / "public-language.json", public_language)
     notes = load_json(ROOT / "notes.json", [])
@@ -779,6 +792,7 @@ def write_viewer_state(conv, rb, meta, collaboration=None, conversations=None):
         "turn": turn,
         "updated": updated,
         "runtime": runtime,
+        "legislation_identity": public_model["legislation_identity"],
         "metrics": metrics,
         "preview": {
             "conversation": public_conversation[-30:],
@@ -804,6 +818,7 @@ def write_viewer_state(conv, rb, meta, collaboration=None, conversations=None):
             {"conversation": public_conversation, "rulebook": rb,
              "collaboration": public_state(collaboration or empty_state()),
              "conversations": conversations or [], "language": public_language,
+             "public_legislation": public_model,
              "notes": notes if isinstance(notes, list) else [],
              "meta": {"spend_usd": meta.get("spend_usd", 0), "model": MODEL_A,
                       "spend_usd_historical_estimate":

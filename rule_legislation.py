@@ -959,17 +959,20 @@ class RuleLegislation:
 
     def __init__(self, rulebook: dict[str, Any], *, mode: str,
                  budget_ledger: _BudgetLedger | None = None,
-                 evidence_ledger: _EvidenceLedger | None = None):
+                 evidence_ledger: _EvidenceLedger | None = None,
+                 public_context: dict[str, Any] | None = None):
         if mode not in {"shadow", "local"}:
             raise ValueError("production_activation_requires_human_approval")
         self._rulebook = copy.deepcopy(rulebook)
         self._mode = mode
         self._budget_ledger = budget_ledger
         self._evidence_ledger = evidence_ledger
+        self._public_context = copy.deepcopy(public_context or {})
 
     @classmethod
-    def shadow(cls, rulebook: dict[str, Any]) -> "RuleLegislation":
-        return cls(rulebook, mode="shadow")
+    def shadow(cls, rulebook: dict[str, Any], *,
+               public_context: dict[str, Any] | None = None) -> "RuleLegislation":
+        return cls(rulebook, mode="shadow", public_context=public_context)
 
     @classmethod
     def local(cls, rulebook: dict[str, Any], *, budget_ledger_path: Path,
@@ -1011,8 +1014,16 @@ class RuleLegislation:
             },
             "adopted_language": {
                 "rules": [rule.as_dict() for rule in adopted.rules],
+                "text": adopted.render(),
             },
             "complete_legislature_identity": legislature_identity,
+            "complete_legislature": copy.deepcopy(self._rulebook.get("rules", [])),
+            "roles": {
+                "agent_a": "proposer",
+                "agent_b": "mandatory_auditor",
+                "agent_c": "evidence_guided_editor",
+                "authority": "rule_legislation_module",
+            },
             "classifications": copy.deepcopy(classifications),
             "budget": {
                 "mode": budget.mode,
@@ -1021,7 +1032,16 @@ class RuleLegislation:
                 "reserved_usd": budget.reserved_usd,
                 "available_usd": budget.available_usd,
             },
+            "workflow_evidence": copy.deepcopy(
+                self._public_context.get("workflow_evidence", [])
+            ),
         }
+        runtime_status = copy.deepcopy(self._public_context.get("runtime_status"))
+        if isinstance(runtime_status, dict):
+            runtime_status["legislation_identity"] = copy.deepcopy(
+                public_read_model["legislation_identity"]
+            )
+            public_read_model["runtime_status"] = runtime_status
         workflow_open = self._evidence_ledger.open_work() if self._evidence_ledger else None
         return LegislationSnapshot(
             adopted_language=adopted,
