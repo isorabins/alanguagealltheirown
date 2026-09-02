@@ -14,6 +14,7 @@ from rule_legislation import (
     Classification,
     Consolidation,
     CostReceipt,
+    AdoptionRequest,
     EvidenceReceipt,
     ExperimentCandidate,
     ExperimentPlanRequest,
@@ -646,6 +647,152 @@ class AgentCBWorkflowInterfaceTests(unittest.TestCase):
             audit_id="audit-stale-final",
         ))
         self.assertEqual(stale_audit.outcome, WorkOutcome.REJECTED)
+
+
+class ExactArtifactAdoptionInterfaceTests(unittest.TestCase):
+    def setUp(self):
+        self.rulebook = json.loads(
+            (ROOT / "tests/fixtures/mixed-rulebook.json").read_text()
+        )
+        self.tempdir = tempfile.TemporaryDirectory()
+        self.addCleanup(self.tempdir.cleanup)
+        root = Path(self.tempdir.name)
+        self.module = RuleLegislation.local(
+            self.rulebook,
+            budget_ledger_path=root / "budget.json",
+            evidence_ledger_path=root / "evidence.json",
+            clock=lambda: datetime.fromisoformat("2026-09-02T04:00:00+00:00"),
+        )
+        proposal_payload = {
+            "proposal_id": "proposal-adopt", "kind": "PROPOSE",
+            "target_rule_id": None, "operative_text": "Use !ok for confirmed success.",
+            "rationale": "Reduce repeated confirmation language.",
+            "deliberation": "Agent A proposes one focused rule.",
+            "asserted_authority": "proposal_only",
+        }
+        self.proposal = self._output("A", "response-adopt-a", proposal_payload)
+        proposed = self.module.submit_change(self.proposal)
+        self.candidate_hash = proposed.detail["candidate_hash"]
+        audit_payload = {
+            "audit_id": "audit-adopt-b", "proposal_id": "proposal-adopt",
+            "candidate_hash": self.candidate_hash, "decision": "APPROVE",
+            "findings": ["Focused and testable."],
+            "deliberation": "Agent B audits the exact proposal.",
+            "asserted_authority": "audit_only",
+        }
+        self.module.submit_change(self._output("B", "response-adopt-b", audit_payload))
+        self.incumbent = language_payload(self.rulebook)
+
+    def _output(self, role, response_id, payload):
+        content = json.dumps(payload, separators=(",", ":"), sort_keys=True)
+        return ModelOutput(
+            role=role, response_id=response_id, returned_model=f"fixture/{role.lower()}",
+            finish_reason="stop", content=content,
+            content_sha256=hashlib.sha256(content.encode()).hexdigest(),
+        )
+
+    def _evidence(self, evidence_id, scope, *, candidate_success=True,
+                  candidate_tokens=100, judgment_valid=True,
+                  final_artifact_hash=None, comparable=True):
+        return EvidenceReceipt(
+            evidence_id=evidence_id, subject_ids=("rule-005",),
+            incumbent_workbook_id=self.incumbent["hash"],
+            candidate_workbook_id=self.candidate_hash,
+            task_id=f"task-{evidence_id}", exact_inputs_hash=f"inputs-{evidence_id}",
+            incumbent_success=True, candidate_success=candidate_success,
+            incumbent_total_system_tokens=120,
+            candidate_total_system_tokens=candidate_tokens,
+            incumbent_includes_subject=False, candidate_includes_subject=True,
+            judgment_valid=judgment_valid, comparable=comparable, noisy=False,
+            bundled=False, cost_usd=Decimal("0.10"),
+            final_artifact_hash=final_artifact_hash or self.candidate_hash,
+            scope=scope,
+            incumbent_token_components=(("agent_a", 10), ("agent_b", 10), ("work", 100)),
+            candidate_token_components=(("agent_a", 8), ("agent_b", 7),
+                                        ("work", candidate_tokens - 15)),
+        )
+
+    def _request(self, *evidence_ids, **changes):
+        values = dict(
+            request_id="adoption-1", proposal_id="proposal-adopt",
+            candidate_hash=self.candidate_hash, audit_id="audit-adopt-b",
+            incumbent_language_version=self.incumbent["version"],
+            incumbent_language_hash=self.incumbent["hash"],
+            evidence_ids=tuple(evidence_ids),
+        )
+        values.update(changes)
+        return AdoptionRequest(**values)
+
+    def test_adopts_only_exact_audited_artifact_with_matched_and_heldout_improvement(self):
+        for receipt in (
+            self._evidence("dev-evidence", "development"),
+            self._evidence("held-evidence", "held_out", candidate_tokens=90),
+        ):
+            self.assertEqual(self.module.submit_evidence(receipt).outcome,
+                             WorkOutcome.ELIGIBLE)
+        result = self.module.submit_change(self._request("dev-evidence", "held-evidence"))
+        self.assertEqual(result.outcome, WorkOutcome.ELIGIBLE)
+        self.assertEqual(result.reason, "exact_candidate_adopted")
+        self.assertEqual(result.detail["adopted_artifact_hash"], self.candidate_hash)
+        self.assertNotEqual(result.snapshot.adopted_language.hash, self.incumbent["hash"])
+        self.assertIn("Use !ok for confirmed success.", result.snapshot.adopted_language.render())
+
+    def test_rejects_success_loss_non_saving_invalid_judge_and_artifact_drift(self):
+        cases = (
+            ("lost", dict(candidate_success=False), WorkOutcome.REJECTED),
+            ("flat", dict(candidate_tokens=120), WorkOutcome.REJECTED),
+            ("invalid", dict(judgment_valid=False), WorkOutcome.DEFERRED),
+            ("drift", dict(final_artifact_hash="other-artifact"), WorkOutcome.REJECTED),
+            ("unequal", dict(comparable=False), WorkOutcome.DEFERRED),
+        )
+        for label, changes, expected in cases:
+            with self.subTest(label=label):
+                evidence_id = f"{label}-evidence"
+                self.module.submit_evidence(self._evidence(
+                    evidence_id, "development", **changes
+                ))
+                held_id = f"{label}-held"
+                self.module.submit_evidence(self._evidence(
+                    held_id, "held_out", **changes
+                ))
+                before = self.module.snapshot().adopted_language.hash
+                result = self.module.submit_change(self._request(
+                    evidence_id, held_id, request_id=f"adoption-{label}"
+                ))
+                self.assertEqual(result.outcome, expected)
+                self.assertEqual(result.snapshot.adopted_language.hash, before)
+
+    def test_missing_heldout_or_missing_ab_token_components_defers(self):
+        development = self._evidence("only-dev", "development")
+        self.module.submit_evidence(development)
+        missing_held = self.module.submit_change(self._request("only-dev"))
+        self.assertEqual(missing_held.outcome, WorkOutcome.DEFERRED)
+        bad_components = self._evidence("bad-components", "held_out")
+        bad_components = EvidenceReceipt(**{
+            **bad_components.__dict__,
+            "candidate_token_components": (("work", 100),),
+        })
+        self.module.submit_evidence(bad_components)
+        missing_ab = self.module.submit_change(self._request(
+            "only-dev", "bad-components", request_id="adoption-components"
+        ))
+        self.assertEqual(missing_ab.outcome, WorkOutcome.DEFERRED)
+
+    def test_duplicate_adoption_is_idempotent_and_conflict_fails_closed(self):
+        for receipt in (
+            self._evidence("dev-idempotent", "development"),
+            self._evidence("held-idempotent", "held_out"),
+        ):
+            self.module.submit_evidence(receipt)
+        request = self._request("dev-idempotent", "held-idempotent")
+        first = self.module.submit_change(request)
+        duplicate = self.module.submit_change(request)
+        conflict = self.module.submit_change(self._request(
+            "dev-idempotent", "held-idempotent", candidate_hash="wrong"
+        ))
+        self.assertEqual(first.outcome, WorkOutcome.ELIGIBLE)
+        self.assertEqual(duplicate.reason, "adoption_already_recorded")
+        self.assertEqual(conflict.outcome, WorkOutcome.REJECTED)
 
 
 if __name__ == "__main__":

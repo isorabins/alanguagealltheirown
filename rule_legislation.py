@@ -89,6 +89,9 @@ class EvidenceReceipt:
     bundled: bool
     cost_usd: Decimal
     final_artifact_hash: str
+    scope: str = "development"
+    incumbent_token_components: tuple[tuple[str, int], ...] = ()
+    candidate_token_components: tuple[tuple[str, int], ...] = ()
 
 
 @dataclass(frozen=True)
@@ -145,6 +148,17 @@ class ModelOutput:
     finish_reason: str
     content: str
     content_sha256: str
+
+
+@dataclass(frozen=True)
+class AdoptionRequest:
+    request_id: str
+    proposal_id: str
+    candidate_hash: str
+    audit_id: str
+    incumbent_language_version: str
+    incumbent_language_hash: str
+    evidence_ids: tuple[str, ...]
 
 
 @dataclass(frozen=True)
@@ -398,6 +412,7 @@ class _EvidenceLedger:
             "evidence": {},
             "consolidations": {},
             "workflows": {"candidates": {}, "audits": {}, "attempts": {}},
+            "adoptions": {},
         }
 
     def _locked(self):
@@ -414,6 +429,9 @@ class _EvidenceLedger:
             raise ValueError("evidence_rows_invalid")
         if not isinstance(ledger.get("consolidations"), dict):
             raise ValueError("consolidation_rows_invalid")
+        ledger.setdefault("adoptions", {})
+        if not isinstance(ledger["adoptions"], dict):
+            raise ValueError("adoption_rows_invalid")
         ledger.setdefault(
             "workflows", {"candidates": {}, "audits": {}, "attempts": {}}
         )
@@ -447,6 +465,20 @@ class _EvidenceLedger:
                     or receipt.incumbent_total_system_tokens < 0
                     or receipt.candidate_total_system_tokens < 0):
                 return WorkOutcome.REJECTED, "total_system_tokens_invalid"
+            if receipt.scope not in {"development", "held_out"}:
+                return WorkOutcome.REJECTED, "evidence_scope_invalid"
+            for components in (
+                receipt.incumbent_token_components,
+                receipt.candidate_token_components,
+            ):
+                if (not isinstance(components, tuple)
+                        or any(not isinstance(item, tuple) or len(item) != 2
+                               or not isinstance(item[0], str)
+                               or not item[0].strip()
+                               or isinstance(item[1], bool)
+                               or not isinstance(item[1], int)
+                               or item[1] < 0 for item in components)):
+                    return WorkOutcome.REJECTED, "system_token_components_invalid"
             row = {
                 "kind": "matched",
                 "evidence_id": receipt.evidence_id,
@@ -467,6 +499,9 @@ class _EvidenceLedger:
                 "bundled": receipt.bundled,
                 "cost_usd": _money_text(receipt.cost_usd),
                 "final_artifact_hash": receipt.final_artifact_hash,
+                "scope": receipt.scope,
+                "incumbent_token_components": [list(item) for item in receipt.incumbent_token_components],
+                "candidate_token_components": [list(item) for item in receipt.candidate_token_components],
             }
         else:
             if not receipt.source_kind.strip() or not receipt.source_identity.strip():
@@ -584,6 +619,84 @@ class _EvidenceLedger:
         handle = self._locked()
         try:
             return evidence_id in self._load()["evidence"]
+        finally:
+            fcntl.flock(handle.fileno(), fcntl.LOCK_UN)
+            handle.close()
+
+    def evidence_rows(self, evidence_ids: tuple[str, ...]) -> list[dict[str, Any]] | None:
+        handle = self._locked()
+        try:
+            evidence = self._load()["evidence"]
+            if any(identity not in evidence for identity in evidence_ids):
+                return None
+            return [copy.deepcopy(evidence[identity]) for identity in evidence_ids]
+        finally:
+            fcntl.flock(handle.fileno(), fcntl.LOCK_UN)
+            handle.close()
+
+    @staticmethod
+    def _adoption_request_row(request: AdoptionRequest) -> dict[str, Any]:
+        return {
+            "request_id": request.request_id,
+            "proposal_id": request.proposal_id,
+            "candidate_hash": request.candidate_hash,
+            "audit_id": request.audit_id,
+            "incumbent_language_version": request.incumbent_language_version,
+            "incumbent_language_hash": request.incumbent_language_hash,
+            "evidence_ids": list(request.evidence_ids),
+        }
+
+    def existing_adoption(self, request: AdoptionRequest):
+        handle = self._locked()
+        try:
+            existing = self._load()["adoptions"].get(request.request_id)
+            if existing is None:
+                return None
+            if existing["request"] != self._adoption_request_row(request):
+                return WorkOutcome.REJECTED, "adoption_identity_conflict", {}, None
+            return (
+                WorkOutcome.ELIGIBLE,
+                "adoption_already_recorded",
+                copy.deepcopy(existing["receipt"]),
+                copy.deepcopy(existing["resulting_rulebook"]),
+            )
+        finally:
+            fcntl.flock(handle.fileno(), fcntl.LOCK_UN)
+            handle.close()
+
+    def candidate_and_audit(self, proposal_id: str, audit_id: str):
+        handle = self._locked()
+        try:
+            workflows = self._load()["workflows"]
+            candidate = workflows["candidates"].get(proposal_id)
+            audit = workflows["audits"].get(audit_id)
+            return copy.deepcopy(candidate), copy.deepcopy(audit)
+        finally:
+            fcntl.flock(handle.fileno(), fcntl.LOCK_UN)
+            handle.close()
+
+    def record_adoption(self, request: AdoptionRequest, resulting_rulebook: dict[str, Any],
+                        receipt: dict[str, Any]):
+        handle = self._locked()
+        try:
+            ledger = self._load()
+            existing = ledger["adoptions"].get(request.request_id)
+            request_row = self._adoption_request_row(request)
+            if existing is not None:
+                if existing["request"] != request_row:
+                    return WorkOutcome.REJECTED, "adoption_identity_conflict", {}, None
+                return (WorkOutcome.ELIGIBLE, "adoption_already_recorded",
+                        copy.deepcopy(existing["receipt"]),
+                        copy.deepcopy(existing["resulting_rulebook"]))
+            ledger["adoptions"][request.request_id] = {
+                "request": request_row,
+                "receipt": copy.deepcopy(receipt),
+                "resulting_rulebook": copy.deepcopy(resulting_rulebook),
+            }
+            ledger["workflows"]["candidates"][request.proposal_id]["status"] = "adopted_local"
+            atomic_write_json(self._path, ledger)
+            return (WorkOutcome.ELIGIBLE, "exact_candidate_adopted",
+                    copy.deepcopy(receipt), copy.deepcopy(resulting_rulebook))
         finally:
             fcntl.flock(handle.fileno(), fcntl.LOCK_UN)
             handle.close()
@@ -920,6 +1033,8 @@ class RuleLegislation:
         )
 
     def submit_change(self, change: Any) -> WorkResult:
+        if isinstance(change, AdoptionRequest) and self._evidence_ledger:
+            return self._adopt(change)
         if isinstance(change, ModelOutput) and self._evidence_ledger:
             outcome, reason, detail = self._evidence_ledger.record_model_output(change)
             return WorkResult(outcome, reason, self.snapshot(), detail)
@@ -1053,3 +1168,142 @@ class RuleLegislation:
             self.snapshot(),
             detail,
         )
+
+    def _adopt(self, request: AdoptionRequest) -> WorkResult:
+        snapshot = self.snapshot()
+        fields = (
+            request.request_id, request.proposal_id, request.candidate_hash,
+            request.audit_id, request.incumbent_language_version,
+            request.incumbent_language_hash,
+        )
+        if any(not field.strip() for field in fields) or not request.evidence_ids:
+            return WorkResult(WorkOutcome.REJECTED, "adoption_identity_invalid", snapshot)
+        existing = self._evidence_ledger.existing_adoption(request)
+        if existing is not None:
+            outcome, reason, detail, resulting = existing
+            if resulting is not None:
+                self._rulebook = resulting
+            return WorkResult(outcome, reason, self.snapshot(), detail)
+        if (snapshot.adopted_language.version != request.incumbent_language_version
+                or snapshot.adopted_language.hash != request.incumbent_language_hash):
+            return WorkResult(WorkOutcome.REJECTED, "stale_incumbent_identity", snapshot)
+        candidate, audit = self._evidence_ledger.candidate_and_audit(
+            request.proposal_id, request.audit_id
+        )
+        if candidate is None or audit is None:
+            return WorkResult(WorkOutcome.DEFERRED, "candidate_or_b_audit_missing", snapshot)
+        if (candidate["candidate_hash"] != request.candidate_hash
+                or audit["proposal_id"] != request.proposal_id
+                or audit["candidate_hash"] != request.candidate_hash):
+            return WorkResult(WorkOutcome.REJECTED, "candidate_or_audit_identity_mismatch", snapshot)
+        if audit["decision"] != "APPROVE":
+            return WorkResult(WorkOutcome.REJECTED, "mandatory_b_audit_not_approved", snapshot)
+        rows = self._evidence_ledger.evidence_rows(request.evidence_ids)
+        if rows is None:
+            return WorkResult(WorkOutcome.DEFERRED, "adoption_evidence_missing", snapshot)
+        scopes = {row.get("scope") for row in rows}
+        if not {"development", "held_out"}.issubset(scopes):
+            return WorkResult(WorkOutcome.DEFERRED, "development_and_heldout_evidence_required", snapshot)
+        incumbent_total = 0
+        candidate_total = 0
+        for row in rows:
+            if row["kind"] != "matched" or not row["judgment_valid"]:
+                return WorkResult(WorkOutcome.DEFERRED, "valid_judgment_required", snapshot)
+            if not row["comparable"] or row["noisy"] or row["bundled"]:
+                return WorkResult(WorkOutcome.DEFERRED, "comparable_atomic_evidence_required", snapshot)
+            if (row["incumbent_workbook_id"] != request.incumbent_language_hash
+                    or row["candidate_workbook_id"] != request.candidate_hash
+                    or row["final_artifact_hash"] != request.candidate_hash):
+                return WorkResult(WorkOutcome.REJECTED, "evaluated_artifact_identity_drift", snapshot)
+            if row["incumbent_success"] and not row["candidate_success"]:
+                return WorkResult(WorkOutcome.REJECTED, "candidate_loses_success", snapshot)
+            for prefix, total_field in (
+                ("incumbent", "incumbent_total_system_tokens"),
+                ("candidate", "candidate_total_system_tokens"),
+            ):
+                components = dict(row[f"{prefix}_token_components"])
+                if not {"agent_a", "agent_b"}.issubset(components):
+                    return WorkResult(WorkOutcome.DEFERRED, "ab_communication_tokens_required", snapshot)
+                if sum(components.values()) != row[total_field]:
+                    return WorkResult(WorkOutcome.REJECTED, "system_token_total_conflict", snapshot)
+            if row["incumbent_success"]:
+                incumbent_total += row["incumbent_total_system_tokens"]
+            if row["candidate_success"]:
+                candidate_total += row["candidate_total_system_tokens"]
+        if candidate_total >= incumbent_total:
+            return WorkResult(WorkOutcome.REJECTED, "total_successful_system_tokens_not_lower", snapshot)
+        resulting = self._apply_candidate(candidate)
+        receipt = {
+            "request_id": request.request_id,
+            "proposal_id": request.proposal_id,
+            "audit_id": request.audit_id,
+            "evaluated_artifact_hash": request.candidate_hash,
+            "adopted_artifact_hash": request.candidate_hash,
+            "incumbent_total_successful_system_tokens": incumbent_total,
+            "candidate_total_successful_system_tokens": candidate_total,
+            "evidence_ids": list(request.evidence_ids),
+            "resulting_adopted_language": language_payload(resulting),
+            "mode": "local_not_live",
+        }
+        outcome, reason, detail, persisted = self._evidence_ledger.record_adoption(
+            request, resulting, receipt
+        )
+        if persisted is not None:
+            self._rulebook = persisted
+        return WorkResult(outcome, reason, self.snapshot(), detail)
+
+    def _apply_candidate(self, candidate: dict[str, Any]) -> dict[str, Any]:
+        result = copy.deepcopy(self._rulebook)
+        rules = result.setdefault("rules", [])
+        if candidate["origin"] == "A":
+            if candidate["kind"] == "PROPOSE":
+                next_id = int(result.get("next_id", len(rules) + 1))
+                rules.append({
+                    "id": f"rule-{next_id:03d}",
+                    "text_en": candidate["operative_text"],
+                    "status": "adopted",
+                    "scores": None,
+                    "history": [{
+                        "kind": "module_adoption",
+                        "proposal_id": candidate["proposal_id"],
+                        "candidate_hash": candidate["candidate_hash"],
+                    }],
+                })
+                result["next_id"] = next_id + 1
+            else:
+                target = next((rule for rule in rules
+                               if rule.get("id") == candidate["target_rule_id"]), None)
+                if target is None or target.get("status") != "adopted":
+                    raise ValueError("adoption_target_not_currently_adopted")
+                target.setdefault("history", []).append({
+                    "kind": "module_adoption",
+                    "proposal_id": candidate["proposal_id"],
+                    "candidate_hash": candidate["candidate_hash"],
+                    "prior_text_en": target.get("text_en"),
+                })
+                if candidate["kind"] == "REVISE":
+                    target["text_en"] = candidate["operative_text"]
+                else:
+                    target["status"] = "repealed"
+        else:
+            sources = set(candidate["source_ids"])
+            for rule in rules:
+                if rule.get("id") in sources and rule.get("status") == "adopted":
+                    rule["status"] = "historical"
+                    rule.setdefault("history", []).append({
+                        "kind": "module_consolidation",
+                        "proposal_id": candidate["proposal_id"],
+                        "candidate_hash": candidate["candidate_hash"],
+                    })
+            for operative in candidate["operative_rules"]:
+                rules.append({
+                    **copy.deepcopy(operative), "status": "adopted", "scores": None,
+                    "history": [{
+                        "kind": "module_adoption",
+                        "proposal_id": candidate["proposal_id"],
+                        "candidate_hash": candidate["candidate_hash"],
+                        "source_ids": copy.deepcopy(candidate["source_ids"]),
+                    }],
+                })
+        result["changes"] = int(result.get("changes", 0)) + 1
+        return result
