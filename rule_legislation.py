@@ -1167,6 +1167,9 @@ class RuleLegislation:
                 return None, "a_proposal_fields_invalid"
             if kind == "PROPOSE" and target is not None:
                 return None, "new_proposal_cannot_target_existing_rule"
+            if kind in {"REVISE", "REPEAL"} and (
+                    not isinstance(target, str) or not target.strip()):
+                return None, "revision_or_repeal_target_required"
             if kind in {"REVISE", "REPEAL"} and target not in adopted_ids:
                 return None, "adoption_target_not_currently_adopted"
             return {

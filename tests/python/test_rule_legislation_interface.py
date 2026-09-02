@@ -648,6 +648,14 @@ class AgentABWorkflowInterfaceTests(unittest.TestCase):
         self.assertEqual(result.outcome, WorkOutcome.REJECTED)
         self.assertEqual(result.reason, "a_proposal_schema_invalid")
 
+        unhashable_target = self.module.submit_change(self._proposal(
+            kind="REVISE", target_rule_id={"malformed": "target"},
+        ))
+        self.assertEqual(unhashable_target.outcome, WorkOutcome.REJECTED)
+        self.assertEqual(
+            unhashable_target.reason, "revision_or_repeal_target_required",
+        )
+
     def test_shadow_mode_never_persists_or_makes_a_candidate_eligible(self):
         shadow = RuleLegislation.shadow(self.rulebook)
         result = shadow.submit_change(self._proposal())
