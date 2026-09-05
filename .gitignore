@@ -19,3 +19,6 @@ state/collaboration-outbox.json
 state/**/cost-receipts.local.json
 state/public-exam-progress.local.json
 baselines/*.local.json
+state/turn-commit.local.json
+state/turn-writer.local.lock
+state/public-exam-completed.local.json

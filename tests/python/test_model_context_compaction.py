@@ -844,7 +844,7 @@ class SemanticFaultFeedbackPromptTests(unittest.TestCase):
         book_hash = snapshot_hash(book)
 
         with mock.patch(
-            "loop.derive_semantic_fault_ledger", return_value=ledger
+            "legislature.derive_semantic_fault_ledger", return_value=ledger
         ):
             assembled = self._assemble([event], book, "A")
 

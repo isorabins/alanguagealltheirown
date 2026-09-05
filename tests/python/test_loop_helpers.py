@@ -433,7 +433,8 @@ class StructuredLoopTests(unittest.TestCase):
         self.assertNotIn("no receipt", rendered)
 
     def test_new_legislative_path_contains_no_prose_or_regex_extraction(self):
-        source = inspect.getsource(loop.agent_turn)
+        import legislature
+        source = inspect.getsource(legislature.take_turn) + inspect.getsource(legislature._complete_motion)
         for forbidden in (
             "re.",
             "motion_line",
@@ -494,7 +495,7 @@ class StructuredLoopTests(unittest.TestCase):
         self.assertNotIn('"type": "protocol_cutover"', payload)
         self.assertIn('"content": "Public deliberation."', payload)
 
-    def test_viewer_bootstrap_is_bounded_and_contains_immediate_preview_state(self):
+    def test_viewer_bootstrap_is_bounded_and_contains_immediate_metrics(self):
         conversation = [
             {
                 "turn": 20,
@@ -531,10 +532,10 @@ class StructuredLoopTests(unittest.TestCase):
             with mock.patch.object(loop, "ROOT", root), mock.patch.object(
                 loop, "now_iso", return_value="2026-08-10T08:30:00Z"
             ):
-                loop.write_viewer_state(conversation, rulebook, {"spend_usd": 0})
+                loop.write_viewer_state(conversation, rulebook, {"spend_usd": 0, "last_completed_turn_at": "2026-08-10T08:30:00Z"})
             payload = (root / "viewer" / "bootstrap.js").read_text()
 
-        self.assertLess(len(payload.encode()), 500_000)
+        self.assertLessEqual(len(payload.encode()), 2048)
         self.assertTrue(payload.startswith("window.PUBLIC_BOOTSTRAP = "))
         bootstrap = json.loads(payload.removeprefix("window.PUBLIC_BOOTSTRAP = ").removesuffix(";\n"))
         self.assertEqual(bootstrap["turn"], 22)
@@ -685,13 +686,14 @@ class StructuredLoopTests(unittest.TestCase):
             payload = (root / "viewer" / "bootstrap.js").read_text()
             persisted_runtime = json.loads((root / "state" / "public-runtime.json").read_text())
             state_payload = (root / "viewer" / "state.js").read_text()
+            preview = json.loads((root / "viewer" / "preview.json").read_text())
             public_language_exists = (root / "state" / "public-language.json").exists()
         bootstrap = json.loads(payload.removeprefix("window.PUBLIC_BOOTSTRAP = ").removesuffix(";\n"))
         self.assertIn(["best strict savings · V2", "+43%"], bootstrap["metrics"])
-        self.assertIn("preview", bootstrap)
-        self.assertEqual(bootstrap["preview"]["metrics"], bootstrap["metrics"])
-        self.assertLessEqual(len(bootstrap["preview"]["conversation"]), 30)
-        self.assertLess(len(payload), 500_000)
+        self.assertNotIn("preview", bootstrap)
+        self.assertEqual(preview["metrics"], bootstrap["metrics"])
+        self.assertLessEqual(len(preview["conversation"]), 30)
+        self.assertLessEqual(len(payload.encode()), 2048)
         self.assertEqual(bootstrap["runtime"], {
             "status": "paused",
             "turn": 2400,

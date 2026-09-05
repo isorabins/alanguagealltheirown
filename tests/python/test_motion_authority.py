@@ -145,32 +145,16 @@ def independently_changed_rule_ids(before, after):
 
 
 def apply_with_post_state(rulebook, motion, *, turn, agent, deliberation):
+    from legislature import _complete_motion
     before = copy.deepcopy(rulebook)
-    motion_receipt = apply_typed_motion(
-        motion, rulebook, turn, agent, deliberation
-    )
-    if motion_receipt.changed:
-        rulebook["changes"] += 1
-        rulebook["version"] = f"0.{rulebook['changes']}"
-    result = "accepted" if motion_receipt.accepted else "rejected"
-    action = {
-        "deliberation": deliberation,
-        "motion": motion,
-        "measurements": [],
-        "requests": [],
-    }
-    post_state = build_post_state_receipt(
-        turn=turn,
-        role=agent,
-        action=action,
-        result=result,
-        reason=motion_receipt.reason,
-        before_rulebook=before,
-        after_rulebook=rulebook,
-        next_actor="A" if agent == "B" else "B",
-        attempts=1,
+    action = {"deliberation": deliberation, "motion": motion,
+              "measurements": [], "requests": []}
+    motion_receipt, post_state = _complete_motion(
+        rulebook, action, turn=turn, agent=agent, attempts=1,
+        count_tokens=lambda text: rulebook.get("kernel_tokens", 0),
     )
     return before, motion_receipt, post_state
+
 
 
 class MotionTests(unittest.TestCase):

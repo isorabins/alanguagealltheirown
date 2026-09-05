@@ -21,3 +21,11 @@ Planning issues live in this repository's GitHub Issues. See
 
 This is a single-context repository. Read `CONTEXT.md` and relevant decisions
 under `docs/adr/` before changing domain behavior. See `docs/agents/domain.md`.
+
+## Behavior changes and architecture
+
+For a behavior request, refactor, bug fix, or onboarding review, start with
+[the module interfaces and protected behaviors](docs/MODULES.md). Translate Iso's
+plain-language intent into the owning interface and tests. Do not delete, skip or
+weaken a protected expectation to accommodate implementation; tie any changed
+expectation to an explicitly requested behavior change.

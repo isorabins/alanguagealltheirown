@@ -4,6 +4,7 @@ on:
   push:
     paths:
       - "*.py"
+      - "run_turn.sh"
       - "benchmarks/**"
       - "ops/**"
       - "prompts/**"
@@ -12,9 +13,11 @@ on:
       - ".github/workflows/offline-acceptance.yml"
       - "!viewer/bootstrap.js"
       - "!viewer/state.js"
+      - "!viewer/preview.json"
   pull_request:
     paths:
       - "*.py"
+      - "run_turn.sh"
       - "benchmarks/**"
       - "ops/**"
       - "prompts/**"
@@ -23,6 +26,7 @@ on:
       - ".github/workflows/offline-acceptance.yml"
       - "!viewer/bootstrap.js"
       - "!viewer/state.js"
+      - "!viewer/preview.json"
 
 permissions:
   contents: read

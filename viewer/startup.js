@@ -26,7 +26,7 @@
       "turns":"Numbered steps in the public experiment, including legislation and tests. A turn is a place in the record, not necessarily a new rule.",
       "rules adopted":"The rules currently in force and given to an encoder or decoder. Rejected, repealed, and historical rules are not part of the current language.",
       "best strict savings · V2":"The largest reduction in message-body tokens among valid exams where 100% of the required meaning survived and the encoded message was actually smaller. Rulebook overhead is not included.",
-      "latest coverage · V2":"The share of explicit facts that survived the latest encode-and-decode exam. Strict passing requires 100%; this result also grew from 469 to 471 tokens.",
+      "latest coverage · V2":"The share of explicit facts that survived the latest encode-and-decode exam. Strict passing requires 100%; the encoded body must also be smaller for compression success.",
       "latest Conversation":"A six-message coordination test using the captured current language. In this scenario the judge checked four specific required facts, and all four survived."
     };
     element.innerHTML = metrics.map(function (metric) {
@@ -70,6 +70,7 @@
     var examElement=document.getElementById("t-exam"),turnElement=document.getElementById("t-turn"),examLink=document.getElementById("exam-jump");
     if(turnElement){turnElement.textContent=projection.turnClock;turnElement.classList[projection.turnRunning?"add":"remove"]("running");}
     if(examElement){examElement.textContent=projection.examClock;examElement.classList[projection.examRunning?"add":"remove"]("running");}
+    [turnElement,examElement].forEach(function(element){if(element)element.classList[projection.mode!=="active"?"add":"remove"]("status");});
     if(examLink)examLink.textContent=projection.examLink;
     var status=document.getElementById("runtime-status"),heading=document.getElementById("runtime-status-heading"),detail=document.getElementById("runtime-status-detail");
     if(heading)heading.textContent=projection.heading;
