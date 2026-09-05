@@ -1,0 +1,167 @@
+{
+  "groups": [
+    {
+      "id": "P01",
+      "text_en": "P01 — Message and authority\n\nRole boundary: wrapping, shortening, defining and choosing compression mechanisms are ENCODER operations only. Expanding, unwrapping and reconstructing are DECODER operations only. The decoder must never encode its own output again: an emitted identifier remains opaque conceptually without having backticks added back around it. Definitions are consumed as control data, not expanded into standalone output lines.\n\nSend one message as one unit, without added chunk headers or separators. A line beginning with `^` is an actionable directive; every other line is narrative, not an instruction. For primarily instructional messages, put each actionable item on a directive line; use narrative lines for explanatory context. Preserve directive markers, actionable intent, and narrative/instruction separation through compression and reconstruction. Definitions describe compression, not additional actions.\n\nDecoder output is reconstructed content, not a copy of the transmission. Consume compression definition lines without emitting them as content. Expand recognized uses, remove the added protective wrappers, then reconstruct allowed minimal form. Preserve each directive’s `^`, but do not preserve the encoding syntax around its contents. For example, received `^Send to <Alice>` reconstructs as `^Send to Alice`, not `^Send to <Alice>`.\n\nKeep contextual facts needed to understand or carry out an instruction: event names, venues, constraints, deadlines, attendee counts, capacity limits, and stakes. Put explanatory facts before the directives they justify. Do not discard facts merely because the remaining instructions could still be followed literally. Reconstruct the same facts, relationships, and instruction order. Outside protected spans, the minimal-form transformations in P09 may change surface wording; inside protected spans, exactness wins."
+    },
+    {
+      "id": "P02",
+      "text_en": "P02 — Shared preservation contract\n\nBefore omissions or compression, identify every identifier, measured quantity/allocation, temporal expression, label/entity attachment, linked fact, and descriptive attachment under P03–P08. Also protect any other substring the sender determines requires exact atomic preservation. Protection is mandatory even when it saves no tokens. Protected content is a contiguous source substring copied character for character: punctuation, digits, case, whitespace, units, and linking words all matter. Never paraphrase content before enclosing it.\n\nUse backticks for standalone opaque identifiers and angle brackets for protected phrases. Verify that stripping the added outer delimiter yields the exact source substring; correct any mismatch before sending. The receiver removes the added wrapper and emits only its interior content verbatim; “verbatim” applies to that interior, not to the surrounding transmission syntax. After expansion or reconstruction, that content stays opaque: its characters cannot become grammar, operators, aliases, placeholders, or candidates for omission in a later step. Opacity is semantic, not a promise about tokenizer segmentation.\n\nWhen requirements overlap, retain the complete outer relationship as one exact phrase, with contained identifiers protected by the same no-change guarantee; do not insert extra wrappers inside its literal source text. This outer-phrase treatment is provisional. Distinguish literal delimiters already in the source from wrappers added for transmission. No escaping scheme is defined here. If nesting, literal delimiters, or competing boundaries make a representation ambiguous, retain the affected source wording instead of introducing ambiguous syntax. This fallback is an encoder decision before transmission, not permission for a decoder to echo recognizable encoding wrappers. This conservative fallback does not establish compliance with every old mandatory-wrapping instruction.\n\nThe sender has the source and must compare against it. A receiver without that source can enforce literal expansion but cannot independently prove equality to unseen text. Source equality must be checked by whoever has both texts; do not invent missing source content."
+    },
+    {
+      "id": "P03",
+      "text_en": "P03 — Identifiers\n\nTechnical strings—including command flags, API endpoints, file paths, email addresses and zone names—retain their exact characters even when they are not unique identifiers. Preserve location, system, region and environment names with exact case and punctuation. Technical colons remain part of their literal token, never directive-slot separators. Apply exact atomic protection to these strings.\n\nAn opaque identifier is a unique reference whose characters matter: a serial number, order ID, hash, UUID, or code. Enclose the entire identifier in backticks and preserve all internal punctuation, digits, case, and whitespace. Do not replace spaces with underscores, split it, normalize it, or interpret any internal character. This immunity applies to all mechanisms and survives decoding.\n\nA whole-identifier alias may replace occurrences of the complete token under P10; its definition must contain the literal identifier in backticks. Never abbreviate or transform anything inside those backticks. Identifier aliasing is optional and subject to the repetition and savings tests, rather than dependent on whether a tokenizer happens to count the identifier as one token. Identifiers contained in an exact outer phrase follow P02's provisional overlap rule."
+    },
+    {
+      "id": "P04",
+      "text_en": "P04 — Numbers and measured relationships\n\nPreserve numeric value, precision, units, thresholds, comparison direction, and allocation relationships. Decimal punctuation must retain its meaning; ranges retain their delimiter; monetary amounts retain currency symbols, commas, and decimals exactly. Leading zeros, explicit times, and numeric qualifiers stay exact when protected. The old permission to write `.8` for `0.8` does not override mandatory exact protection of that numeric substring.\n\nScan for each measured quantity or allocation. Start at its numeric literal or comparison phrase/symbol, such as `at least`, `greater than`, `older than`, `newer than`, `>` or `<`. Start earlier at an allocation verb—such as allocate, assign, reserve, dedicate, grant, or provide—when it immediately introduces that numeric/comparison expression. Include every following word through the last unit, target, attached qualifier, or relational preposition belonging to that measurement/allocation. Stop before a conjunction beginning a new independent clause outside the measured relationship.\n\nEnclose the complete contiguous span in angle brackets; do not split the action–quantity–target relationship or leave a component outside. Apply P02's exact comparison and permanent opacity. Preserve the unit spelling used in the source, including colloquial abbreviations. Example: `allocate 10 GB to node-7` is one protected allocation, not an independently compressible verb, number, and target."
+    },
+    {
+      "id": "P05",
+      "text_en": "P05 — Time and order\n\nScan every line before any compression for absolute times/dates, relative deadlines, durations, ranges, ordering relationships, and sequence markers directly attached to temporal elements. Start with the first word introducing the temporal element, including its linking word. Include all linked temporal elements and attached qualifiers, including time zone, local time, or an attached location qualifier. Keep conjunctions that connect constraints within one range or ordering phrase. Stop before a conjunction starting a new independent clause outside that relationship.\n\nEnclose the entire span in angle brackets and apply P02. Preserve leading zeros, punctuation, case, and exact sequence words; do not normalize dates, convert units, or reorder constraints. These examples distinguish boundaries:\n\n- `maintenance <from 9 AM to 11 AM local time>`\n- `proceed <after 3 PM and before 5 PM>`\n- `wait <until 3 PM> and then proceed`\n- `submit report <by 04:30 PM EST> because manager leaves early`\n- `meet <at 2 PM in conference room>`\n\nThese are temporal-boundary examples; another protected outer relationship can also apply under P02/P07. No compression may lose the meaning of before/after, the order of operations, or the relationship between a deadline and its action."
+    },
+    {
+      "id": "P06",
+      "text_en": "P06 — Labels and entities\n\nWhen a descriptive noun phrase labels or attaches to an entity, name, or identifier, preserve the attachment as one phrase: begin at the first label word and end at the last word of the corresponding entity. Stop before a conjunction starting an independent clause outside that attachment. Enclose the complete label/entity phrase in angle brackets and apply P02. A standalone identifier retains P03's backticks; an identifier contained in the larger exact phrase retains every character under P02. Do not separate the descriptor from the entity or reinterpret punctuation inside the reconstructed phrase."
+    },
+    {
+      "id": "P07",
+      "text_en": "P07 — Linked facts and rationale\n\nScan for relationships connecting two distinct semantic categories, including identifiers, measured facts, temporal constraints, label/entity pairs, action–condition, cause–effect, and qualification–instruction relationships. Plain causal or conditional content qualifies even without numbers or technical names. Triggers include conjunctions `because`, `so`, `if`, `unless`, `since`, `while`, `and`, `or`, and relational prepositions `for`, `with`, `by`, `to`, `at`, `from`, `before`, `after`, `until`. A trigger alone is insufficient: it must actually link the relevant facts.\n\nProtect one contiguous phrase from the first participating category through the last linked category, including every intervening linking word, qualifier, and any further facts within the same relationship. Stop at a conjunction beginning a new independent clause outside that relationship. Enclose the whole phrase in angle brackets and apply P02. If the relationship is already wholly inside one protected phrase, do not duplicate its wrapper. Where older examples start at a conjunction but the later complete relationship begins earlier, retain the entire relationship.\n\nDo not substitute symbols for linking words in these spans, drop rationale, detach conditions from actions, or split related measurement/time components into independently interpreted pieces. Preserve logical qualifiers and comparatives, including why an instruction matters, even when they do not change literal execution."
+    },
+    {
+      "id": "P08",
+      "text_en": "P08 — Descriptive attachments\n\nA descriptive attachment may require protection even when it does not connect two distinct semantic categories. When a linking conjunction or relational preposition introduces such a clause, preserve from that introductory word through the clause's end: the next clause-ending punctuation (comma, period, colon, semicolon) or a conjunction starting a new independent clause outside the attachment. Apply this when a measured, temporal, label/entity, or linked-fact span has not already covered it.\n\nUse the common angle-bracket wrapper and P02's exactness/opacity. Example: `check logs <with detailed timestamp analysis>`. This replaces the older parentheses for this same attachment category; it does not remove the category or weaken its mandatory scan."
+    },
+    {
+      "id": "P09",
+      "text_en": "P09 — Minimal form and directive syntax\n\nOnly outside protected spans, use minimal form when the meaning stays clear. Punctuation `. , : ; ! ? -` and capitalization may be omitted except where they carry required numeric, unit, identifier, or other preserved information. Omit these function words when safely recoverable: articles `a/an/the`; prepositions `of/in/for/on/at/to`; copulas `is/are/was/were/be/been`; auxiliaries `has/have/had` before past participles; relative pronouns `that/which/who/whom` introducing subordinate clauses. If an omission creates competing meanings, retain the word.\n\nDo not omit binding words such as `and`, `with`, `because`, `or`, `but`, `so`, or conditional/logical links such as `if`, `then`, `unless`. Preserve named entities, locations, system/region/environment names, ordinals, quantities, and stakes. The receiver restores plausible grammatical structure without adding facts, new relationships, or contradictions. `check logs error codes` can restore `check logs for error codes`; it must not become `check logs and error codes`. `system ready` can restore `the system is ready`. An encoder must retain `if` and `because` rather than expect a receiver to guess them.\n\nFor directives, recommended slots are action, object, condition, deadline, rationale. A shared action and shared qualifier may be written once with a colon and comma-separated items; differing qualifiers require separate lines. When an action requires a preposition, preserve it or use an authorized colon. A colon may replace `by/at/to/for` before a time, deadline, or recipient when it binds unambiguously to the intended preceding slot. `+` joins arguments with AND; `|` joins them with OR. `>` means greater than, or older than when followed by a duration; `<` means less than, or newer than when followed by a duration. Never reinterpret a protected span's colon, bracket, or symbol as directive syntax. Prefer explicit words if a comparison could be mistaken for a wrapper."
+    },
+    {
+      "id": "P10",
+      "text_en": "P10 — Repeated strings and references\n\nFor an identical string occurring at least three times within one message, an optional own-line definition `@short=long_form` permits later `@short` substitution. Decode the original exactly. For an identifier, store its encoded backticked form; for a protected bundle, store the full bundle. An action alias may be used in any directive line. The older common-noun underscore convention is ambiguous about literal underscores and spacing; in this candidate, use exact literal multiword definitions instead. Do not alter identifier characters.\n\nFor an identical substring already angle-bracketed in the source under a protection rule and occurring at least three times, an optional own-line `$ref=exact_bundled_phrase` permits later `$ref` substitution. The definition and each source occurrence must match including the brackets and all interior characters. Substitution restores the whole bundle, including its brackets; later protected-span reconstruction handles wrappers. A repeated string not already bracketed in the source uses an eligible alias instead.\n\nFor either mechanism, require strict savings: definition tokens plus uses times reference/alias tokens must be less than uses times original tokens. Count all transmitted definition and delimiter costs. Choose the eligible mechanism with greatest savings without violating protection. A two-occurrence example does not waive the three-occurrence threshold."
+    },
+    {
+      "id": "P11",
+      "text_en": "P11 — Templates\n\nFor a structural pattern repeated at least three times, `%template=pattern` defines an invariant skeleton with `$1` through `$N` placeholders (dollar sign plus decimal digits). Variables requiring protection retain their complete atomic wrappers. Expansion occurs after aliases and references and before minimal-form reconstruction.\n\nThe source specifies both template-scoped `$N=content` definitions and positional `%template content1 ... contentN` invocations, but contradicts itself about consumption, reuse, and their relationship. This candidate therefore leaves template encoding unavailable pending that syntax decision. Keep the affected source wording, or use another eligible unambiguous mechanism. Do not treat a one-placeholder invocation with three arguments as three instances. Do not fabricate variable values or silently discard extra arguments. This is an explicit capability restriction, not an equivalence claim.\n\nThe retained intended contract is exact literal substitution in placeholder order, one argument per placeholder, character-for-character reconstruction of each instance after substitutions, and savings accounting that includes the template definition, all variable definitions, invocation tokens, variable contents, and delimiters. A future resolution must satisfy that contract before templates are enabled."
+    },
+    {
+      "id": "P12",
+      "text_en": "P12 — Single-gap patterns, lists, and prefix reuse\n\nFor at least three lines with identical literal prefix and suffix and one varying atomic middle element, define `#pattern=prefix$suffix`. Exactly one `$` marks the gap. Literal spaces belong explicitly to the prefix/suffix. Invoke with `#pattern atomic_token`, no extra arguments. Remove only that token's outer wrapper and concatenate the exact prefix, literal middle, and exact suffix. Verify the resulting line against the source. If both quantity and target vary independently, one-gap syntax cannot represent them; use an eligible multi-variable mechanism. Do not append unexplained trailing arguments.\n\nFor at least three lines with an identical literal prefix and one final atomic item, define `%list=prefix$`, with `$` the last character and no suffix. Each `$ atomic_item` line expands to that exact prefix plus the item's literal content after removing its outer wrapper. The prefix includes the source directive marker `^` when present. Do not append any additional reference lines or repeat source content outside the corresponding expansions. Preserve spacing and compare the complete reconstructed line to its source. IDs use backticks; phrases use angle brackets. Both mechanisms preserve the atomic content's immunity after removing wrappers.\n\nThe source also allows definition-free `$ atomic_token` to reuse a prefix from a previous line after just two matching instances. It does not identify the intended previous prefix unambiguously and collides with list invocation. In this candidate, `$ item` is available only with an explicit preceding `%list` definition; definition-free prefix reuse is unavailable pending a syntax decision. Use the complete line when there is no such definition. Do not guess a prefix."
+    },
+    {
+      "id": "P13",
+      "text_en": "P13 — Named macros\n\nFor at least three distinct whole lines sharing one global skeleton with variable atomic substrings, define `#name=pattern` with numbered `$1` through `$N` placeholders. Names contain only letters, digits, and underscores, with no spaces; `pattern` is reserved for P12. Include all non-variable wording, punctuation, and spacing exactly. Each variable must be a complete atomic token.\n\nAn invocation is a line whose first token exactly matches a previously defined `#name`, followed by a space and the atomic arguments in placeholder order. Internal spaces in an atomic argument do not split it. Require one argument per placeholder; never infer missing values or ignore extras. Substitute the entire tokens, including delimiters, into the skeleton, replacing the invocation line. Expand aliases, then references, then macros, before minimal form or later language processing. Preserve opacity through subsequent wrapper removal.\n\nCompare expansion to the correspondingly protected source representation, and final reconstructed literal content to the original source. Those are separate comparisons when wrappers were added. Use macros for global multi-variable whole-line patterns, lists for prefix-only lines, and single-gap patterns for prefix/suffix lines; the latter two are the specific cases. Templates would cover eligible inline repeated patterns once P11 is resolved. This priority clarifies overlapping source selection instructions. A two-line example does not satisfy the three-line trigger."
+    },
+    {
+      "id": "P14",
+      "text_en": "P14 — Safe composition\n\nProtection takes precedence over compression. Establish exact protected spans before selecting abbreviations or structural mechanisms. Definitions precede uses; expand only recognized syntax outside protected literals. Never recursively interpret a reconstructed identifier or phrase as an instruction, operator, placeholder, or another compression command. Preserve whether each resulting message line is directive or narrative.\n\nUse a mechanism only where its trigger, argument boundaries, exact reconstruction, and scope are unambiguous. Do not reuse conflicting definition names or depend on undefined variables, circular expansion, or an unspecified interaction between mechanisms. Where these conditions cannot be met, preserve the source wording for the affected part. This is a conservative interoperability restriction; a complete grammar for every collision is still unresolved.\n\nBefore sending, compare protected substrings, reconstructed structural instances, numeric precision, unit/target attachment, temporal order, logical links, and directive markers against the source. If any check fails, correct the representation. Minimal-form reconstruction may improve grammar outside protected spans but must never supply a new fact or change intent. Compression success is shorter transmission with the same preserved content, not a license to discard difficult content.\n\n\nReceiver example: the transmission below has one alias definition and three directives:\n\n```text\n@x=`REC-01`\n^Read @x\n^Verify @x\n^Keep @x\n```\n\nIts reconstructed output is exactly these three lines, with no definition line or backticks:\n\n```text\n^Read REC-01\n^Verify REC-01\n^Keep REC-01\n```\n\nThis illustrates decoding, not a waiver of the encoder's savings requirement. Likewise, `%list=^Read $` followed by `$ ` plus each of three backticked IDs reconstructs three `^Read ID` lines. The directive marker belongs to the literal prefix and must survive. Never turn the decoded ID into a new backticked token or emit the list definition as content."
+    }
+  ],
+  "assignments": {
+    "rule-439": "P01",
+    "rule-440": "P09",
+    "rule-441": "P04",
+    "rule-442": "P03",
+    "rule-443": "P01",
+    "rule-444": "P10",
+    "rule-445": "P09",
+    "rule-446": "P01",
+    "rule-449": "P03",
+    "rule-452": "P03",
+    "rule-453": "P04",
+    "rule-454": "P04",
+    "rule-455": "P05",
+    "rule-457": "P05",
+    "rule-459": "P05",
+    "rule-461": "P05",
+    "rule-465": "P05",
+    "rule-466": "P05",
+    "rule-467": "P10",
+    "rule-470": "P06",
+    "rule-477": "P07",
+    "rule-478": "P03",
+    "rule-486": "P03",
+    "rule-487": "P04",
+    "rule-489": "P07",
+    "rule-493": "P06",
+    "rule-496": "P07",
+    "rule-497": "P02",
+    "rule-502": "P05",
+    "rule-505": "P07",
+    "rule-506": "P07",
+    "rule-510": "P05",
+    "rule-511": "P08",
+    "rule-513": "P07",
+    "rule-515": "P03",
+    "rule-521": "__exclude__",
+    "rule-523": "P06",
+    "rule-524": "P10",
+    "rule-529": "P03",
+    "rule-531": "P07",
+    "rule-537": "P02",
+    "rule-541": "P05",
+    "rule-545": "P14",
+    "rule-546": "P05",
+    "rule-547": "P09",
+    "rule-549": "P11",
+    "rule-556": "P04",
+    "rule-560": "P04",
+    "rule-562": "P06",
+    "rule-563": "P07",
+    "rule-567": "P05",
+    "rule-569": "P04",
+    "rule-573": "P04",
+    "rule-574": "P12",
+    "rule-575": "P05",
+    "rule-578": "P07",
+    "rule-586": "P04",
+    "rule-588": "P04",
+    "rule-590": "__exclude__",
+    "rule-592": "P04",
+    "rule-593": "P04",
+    "rule-594": "P07",
+    "rule-598": "P03",
+    "rule-604": "P03",
+    "rule-607": "P03",
+    "rule-613": "P03",
+    "rule-615": "P03",
+    "rule-621": "P03",
+    "rule-624": "P05",
+    "rule-633": "P05",
+    "rule-640": "__exclude__",
+    "rule-641": "P12",
+    "rule-646": "__exclude__",
+    "rule-651": "P05",
+    "rule-652": "P05",
+    "rule-653": "P05",
+    "rule-655": "P12",
+    "rule-661": "P04",
+    "rule-662": "P07",
+    "rule-665": "P03",
+    "rule-667": "__exclude__",
+    "rule-668": "P13",
+    "rule-669": "P05"
+  },
+  "exclusions": [
+    {
+      "source_id": "rule-521",
+      "reason": "operational"
+    },
+    {
+      "source_id": "rule-590",
+      "reason": "operational"
+    },
+    {
+      "source_id": "rule-640",
+      "reason": "operational"
+    },
+    {
+      "source_id": "rule-646",
+      "reason": "operational"
+    },
+    {
+      "source_id": "rule-667",
+      "reason": "operational"
+    }
+  ]
+}

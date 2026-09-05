@@ -1,0 +1,32 @@
+{
+  "scope": "Hand-authored factual and relationship examples; not the development/held-out benchmark and not complete atomic law coverage",
+  "cases": [
+    {"id":"context","text":"Fable workshop is at Harbor Hall with capacity 024 attendees and a penalty of $1,250.00.","literals":["Fable","Harbor Hall","024 attendees","$1,250.00"]},
+    {"id":"technical","text":"^Use --dry-run with /Var/Logs/app.log and https://api.Example.org/v1:check; contact Ops.Team+qa@example.org in us-East-1.","literals":["--dry-run","/Var/Logs/app.log","https://api.Example.org/v1:check","Ops.Team+qa@example.org","us-East-1"],"directive":true},
+    {"id":"id","text":"^Preserve order ID AbC:007_A-9 exactly.","literals":["AbC:007_A-9"],"directive":true},
+    {"id":"allocation","text":"^Allocate 10.50 GB to node-7 for backup.","literals":["10.50 GB","node-7","backup"],"directive":true},
+    {"id":"comparison","text":"^Alert if temperature <5°C because sensor is faulty.","literals":["if","temperature","<5°C","because","sensor","faulty"],"directive":true},
+    {"id":"leading-zero","text":"^Keep the ratio at 0.80 and the range at 03-07.","literals":["0.80","03-07"],"directive":true},
+    {"id":"temporal-range","text":"^Schedule maintenance from 9 AM to 11 AM local time.","literals":["from 9 AM to 11 AM local time"],"directive":true},
+    {"id":"temporal-constraints","text":"^Proceed after 3 PM and before 5 PM.","literals":["after 3 PM and before 5 PM"],"directive":true},
+    {"id":"independent-action","text":"^Wait until 3 PM and then proceed.","literals":["until 3 PM","and then proceed"],"directive":true},
+    {"id":"deadline-rationale","text":"^Submit report by 04:30 PM EST because manager leaves early.","literals":["by 04:30 PM EST","because","manager","leaves early"],"directive":true},
+    {"id":"time-location","text":"^Meet at 2 PM in conference room.","literals":["at 2 PM in conference room"],"directive":true},
+    {"id":"sequence","text":"^First save logs, then at 3 PM restart Server-A.","literals":["First","then at 3 PM","Server-A"],"directive":true},
+    {"id":"label-entity","text":"^Inspect primary database Server-B before release.","literals":["primary database","Server-B","before release"],"directive":true},
+    {"id":"descriptive","text":"^Check logs with detailed timestamp analysis.","literals":["with detailed timestamp analysis"],"directive":true},
+    {"id":"logic","text":"^Notify Alice if backup succeeds unless maintenance is active.","literals":["Alice","if","backup","succeeds","unless","maintenance","active"],"directive":true},
+    {"id":"recipient","text":"^Send to Alice before notifying Bob.","literals":["to Alice","before","Bob"],"directive":true},
+    {"id":"alias-a","text":"^Inspect STORAGE-ALPHA-EXACT-000123456789 for damage.","literals":["STORAGE-ALPHA-EXACT-000123456789","damage"],"directive":true},
+    {"id":"alias-b","text":"^Record STORAGE-ALPHA-EXACT-000123456789 in the report.","literals":["STORAGE-ALPHA-EXACT-000123456789","report"],"directive":true},
+    {"id":"alias-c","text":"^Retain STORAGE-ALPHA-EXACT-000123456789 until Friday.","literals":["STORAGE-ALPHA-EXACT-000123456789","until Friday"],"directive":true},
+    {"id":"list-a","text":"^Check node-7.","literals":["node-7"],"directive":true},
+    {"id":"list-b","text":"^Check node-8.","literals":["node-8"],"directive":true},
+    {"id":"list-c","text":"^Check node-9.","literals":["node-9"],"directive":true}
+  ],
+  "diagnostic": {
+    "scope":"Authored encoded fixture, foreign decoder only; does not prove encoder selection or compliance with savings triggers",
+    "encoded":"@id=`AbC:007_A-9`\n^Inspect @id\n^Record @id\n^Retain @id\n$window=<within 2 hours>\n^Finish $window\n^Respond $window\n^Return $window\n#pattern=^Measure $ exactly\n#pattern <10.50 GB>\n#pattern <20.00 GB>\n#pattern <05.25 GB>\n%list=^Check $\n$ `node-7`\n$ `node-8`\n$ `node-9`\n#status=^Record $1 as $2\n#status <server rack A-12> <operational>\n#status <load balancer LB-01> <degraded>\n#status <cache cluster C-03> <ready>",
+    "expected_lines":["^Inspect AbC:007_A-9","^Record AbC:007_A-9","^Retain AbC:007_A-9","^Finish within 2 hours","^Respond within 2 hours","^Return within 2 hours","^Measure 10.50 GB exactly","^Measure 20.00 GB exactly","^Measure 05.25 GB exactly","^Check node-7","^Check node-8","^Check node-9","^Record server rack A-12 as operational","^Record load balancer LB-01 as degraded","^Record cache cluster C-03 as ready"]
+  }
+}

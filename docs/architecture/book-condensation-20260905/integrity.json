@@ -1,0 +1,16 @@
+{
+  "status": "PASS",
+  "scope": "identity, mapping and compiler integrity only; not semantic equivalence",
+  "source_snapshot_hash": "53ffb801cbeec7f64ad3c6d16c8863aa2e97e692686f5f48e407ca843c15abc2",
+  "source_file_sha256": "53ffb801cbeec7f64ad3c6d16c8863aa2e97e692686f5f48e407ca843c15abc2",
+  "source_adopted_records": 83,
+  "mapped_records": 78,
+  "operational_exclusions": 5,
+  "candidate_sections": 14,
+  "candidate_language_hash": "267a6215a24757faca43feda842b825c6cdf79ea8b11a05710ce6857897b58ed",
+  "source_render_chars": 104891,
+  "candidate_render_chars": 21508,
+  "source_render_words": 15052,
+  "candidate_render_words": 2979,
+  "source_unchanged": true
+}
