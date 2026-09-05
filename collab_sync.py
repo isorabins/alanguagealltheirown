@@ -9,6 +9,7 @@ from pathlib import Path
 
 from collaboration import RedisRest, append_inbox_spool
 from state_store import load_json
+from turn_store import TurnStore, TurnRecoveryError
 
 ROOT = Path(__file__).resolve().parent
 INBOX = ROOT / "state" / "collaboration-inbox.json"
@@ -38,17 +39,20 @@ def pull(redis: RedisRest, inbox_path: Path = INBOX, owner: str | None = None,
          limit: int = 4) -> int:
     owner = owner or f"courier-{int(time.time())}"
     try:
-        recovered = redis.load_private()
-        if recovered:
-            append_inbox_spool(inbox_path, [], recovered)
-        for queue in ("suggestion", "moderation"):
-            for index in range(limit):
-                lease_owner = f"{owner}-{queue}-{index}"
-                record = redis.claim(queue, lease_owner)
-                if not record:
-                    break
-                append_inbox_spool(inbox_path, [record])
-                redis.ack(queue, lease_owner, record.get("id") or "malformed")
+        with TurnStore(inbox_path.parent).writer() as store:
+            if store.pending_archive.exists():
+                raise TurnRecoveryError("archive recovery required before courier work")
+            recovered = redis.load_private()
+            if recovered:
+                append_inbox_spool(inbox_path, [], recovered)
+            for queue in ("suggestion", "moderation"):
+                for index in range(limit):
+                    lease_owner = f"{owner}-{queue}-{index}"
+                    record = redis.claim(queue, lease_owner)
+                    if not record:
+                        break
+                    append_inbox_spool(inbox_path, [record])
+                    redis.ack(queue, lease_owner, record.get("id") or "malformed")
         return 0
     except Exception as exc:
         print(f"collaboration courier pull unavailable: {exc.__class__.__name__}", flush=True)
@@ -57,10 +61,13 @@ def pull(redis: RedisRest, inbox_path: Path = INBOX, owner: str | None = None,
 
 def push(redis: RedisRest, outbox_path: Path = OUTBOX) -> int:
     try:
-        outbox = load_json(outbox_path, {})
-        state = outbox.get("private_state")
-        if isinstance(state, dict):
-            redis.publish_private(state)
+        with TurnStore(outbox_path.parent).writer() as store:
+            if store.pending_archive.exists():
+                raise TurnRecoveryError("archive recovery required before courier work")
+            outbox = load_json(outbox_path, {})
+            state = outbox.get("private_state")
+            if isinstance(state, dict):
+                redis.publish_private(state)
         return 0
     except Exception as exc:
         print(f"collaboration courier push unavailable: {exc.__class__.__name__}", flush=True)

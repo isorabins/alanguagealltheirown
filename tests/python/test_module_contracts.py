@@ -74,6 +74,29 @@ class ModuleContractTests(unittest.TestCase):
         self.assertTrue(all(f.status == 'RESOLVED' for f in derive_semantic_fault_ledger(self.state.conversation)))
         self.assertEqual(self.state.meta['benchmark_results_v2']['B1']['turn'], 1509)
 
+    def test_persisted_fabricated_evidence_cannot_create_faults(self):
+        self.exam(1506, verdict='CORRUPTED')
+        event = self.state.conversation[-1]
+        self.assertTrue(derive_semantic_fault_ledger([event]))
+        for result in event['atom_results']:
+            result['evidence'] = 'FABRICATED_NOT_IN_DECODED'
+        for failure in event['critical_failures']:
+            failure['decoded_evidence'] = 'FABRICATED_NOT_IN_DECODED'
+        self.assertEqual(derive_semantic_fault_ledger([event]), [])
+
+    def test_persisted_literal_conflict_cannot_resolve_existing_faults(self):
+        self.exam(1506, verdict='MISSING')
+        self.exam(1509)
+        event = self.state.conversation[-1]
+        atom = next(a for a in event['answer_key'] if a['critical'] and a['literal_sets'])
+        result = next(r for r in event['atom_results'] if r['id'] == atom['id'])
+        # A real span, but not the literal-bearing span the judge claimed survived.
+        event['decoded'] += '\nA sentence without the required literal.'
+        result['evidence'] = 'A sentence without the required literal.'
+        ledger = derive_semantic_fault_ledger(self.state.conversation)
+        self.assertTrue(ledger)
+        self.assertTrue(all(f.status == 'UNRESOLVED' for f in ledger))
+
     def test_completed_exam_and_language_recover_together_at_every_write(self):
         with tempfile.TemporaryDirectory() as tmp:
             completed = self.exam(1506, progress_path=Path(tmp)/'attempt.local.json')

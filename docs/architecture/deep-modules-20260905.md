@@ -165,3 +165,41 @@ retain cost receipts and completed canonical turns, then restore reviewed code a
 rebuild its compatible public projection. Never discard a journal or replace live
 state with the older review baseline. Verify those conditions on the actual host
 before approving a rollback; this document is not authorization to execute it.
+
+
+## Skeptical review repairs — 2026-09-05
+
+Iso approved repairing SPEC-1, SPEC-2 and SPEC-3 from the visible Sol review of
+`c5ede02257555edaa2b13eceb160050bd30dd27a` (task
+`01a07035-8747-7212-ab7b-652b6f5b066b`). These repairs preserve B1–B6; no release
+or live provider calls are authorized. The earlier pass receipt did not prove
+these boundary cases and must not be treated as complete protection.
+
+| Finding | Approved behavior and protection |
+|---|---|
+| SPEC-1 / B2, B4 | Archive resets canonical and transport state under one writer lock, recovering interruptions before another turn. Retired record IDs and a local generation prevent replay from stale spools/remote backup; new input and same-generation recovery continue. Native archive → courier fake Redis → import/delivery regression, every move and reset-write interruption, courier overlap, corrupt archive journal. |
+| SPEC-2 / B5 | A canonical preview is explicitly incomplete. Failed canonical full read tries a whole deployed full snapshot; existing complete state survives refresh failure. Native reader fallback/unavailable cases and real page callback verify the incomplete/full labels. |
+| SPEC-3 / B3 | Persisted atom evidence passes the same exact-span and literal checks as newly generated evidence before fault admission/retest resolution. Native raw-response exams, then corrupted persisted spans/literals, must not create or resolve faults. |
+
+Red-first evidence: the added regressions failed against the reviewed candidate
+(three Python failures, two reader failures). Two old test fixture builders had
+claimed valid evidence absent from their decoded fixture text. Their input text
+now includes that evidence; their behavioral assertions were retained.
+
+Archive compatibility: no generation is required for pre-reset legacy state.
+After an archive, preserve `collaboration-generation.local.json` alongside the
+new canonical collaboration state and private backup. The courier remains
+best-effort and never performs canonical recovery: it skips work while an archive
+journal or writer is active. The runner finishes recovery. Archive files stay
+private through recursive collaboration ignore rules. Rollback must first drain
+both turn and archive journals; old code does not understand generation fencing.
+
+Repair acceptance: 245 Python tests and 87 Node tests passed; the historical
+coverage checker still reports 115 requirements / 210 tasks. Localhost browser
+verification used the existing sanitized turn-3738 fixture: forced full-history
+HTTP 503 displayed “Transcript preview — full history not yet loaded”; restoring
+the full archive displayed “Full transcript — every turn, every exam”, with turn
+1 accessible. Screenshots are `/private/tmp/alato-deep-module-acceptance/05-repair-preview.png`
+and `06-repair-full.png`. Canonical-preview-to-deployed-full fallback is separately
+proved with the native fetch-adapter test; browser evidence covers the real page's
+unavailable/complete labels. No production or paid-provider verification occurred.

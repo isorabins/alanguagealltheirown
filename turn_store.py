@@ -11,6 +11,7 @@ from contextlib import contextmanager
 from dataclasses import dataclass
 import fcntl
 import os
+import secrets
 from pathlib import Path
 from typing import Any, Iterator
 
@@ -51,6 +52,14 @@ _FILES = {
 }
 
 
+_ARCHIVE_FILES = set(_FILES) | {
+    "public-exam-progress.json", "public-exam-progress.local.json",
+    "public-exam-completed.local.json", "cost-receipts.local.json",
+    "collaboration-inbox.json", "collaboration-outbox.json",
+    "collaboration-generation.local.json",
+}
+
+
 class TurnStore:
     """Load and commit complete turns during one exclusive writer session.
 
@@ -63,6 +72,7 @@ class TurnStore:
     def __init__(self, directory: Path):
         self.directory = Path(directory)
         self.pending = self.directory / "turn-commit.local.json"
+        self.pending_archive = self.directory / "turn-archive.local.json"
         self._locked = False
         self.recovered = False
 
@@ -106,7 +116,91 @@ class TurnStore:
         finally:
             os.close(fd)
 
+    def _recover_archive(self) -> None:
+        if not self.pending_archive.exists():
+            return
+        try:
+            record = load_json(self.pending_archive, None)
+            payload = record["payload"]
+            name, files, seed = payload["name"], payload["files"], payload["seed"]
+            valid = (record["hash"] == snapshot_hash(payload)
+                     and isinstance(name, str) and name not in {"", ".", ".."}
+                     and Path(name).name == name and isinstance(files, list)
+                     and set(files).issubset(_ARCHIVE_FILES)
+                     and isinstance(seed, dict) and isinstance(seed.get("generation"), str))
+            if not valid:
+                raise ValueError("invalid archive record")
+        except (ValueError, OSError, KeyError, TypeError) as error:
+            raise TurnRecoveryError("invalid pending archive; recovery stopped") from error
+        destination = self.directory / "tuning-runs" / name
+        if not destination.is_dir():
+            raise TurnRecoveryError("pending archive destination is missing")
+        for filename in files:
+            source, target = self.directory / filename, destination / filename
+            # A previous attempt may already have moved this file and reseeded
+            # canonical collaboration. Never overwrite the archived original.
+            if not target.exists():
+                if not source.exists():
+                    raise TurnRecoveryError("pending archive source is missing")
+                source.rename(target)
+        fd = os.open(destination, os.O_RDONLY)
+        try:
+            os.fsync(fd)
+        finally:
+            os.close(fd)
+        atomic_write_json(self.directory / "collaboration-generation.local.json", seed)
+        atomic_write_json(self.directory / "collaboration.json", seed)
+        atomic_write_json(self.directory / "collaboration-inbox.json", {
+            "schema_version": 1, "records": [], "recovery_state": seed,
+        })
+        atomic_write_json(self.directory / "collaboration-outbox.json", {
+            "schema_version": 1, "private_state": seed,
+        })
+        self._sync_directory()
+        self.pending_archive.unlink()
+        self._sync_directory()
+
+    def archive(self, name: str) -> Path:
+        """Retire one run and its transport together; next load finishes interruption.
+
+        The generation seed rejects old remote backups, while retired record IDs
+        prevent late duplicate queue deliveries. New input remains deliverable.
+        """
+        self._require_writer()
+        if not name or Path(name).name != name or name in {".", ".."}:
+            raise ValueError("archive name must be one directory name")
+        self._recover()
+        from collaboration import empty_state, _processed
+        seed = empty_state()
+        seed["generation"] = secrets.token_hex(16)
+        retired = set()
+        for filename in ("collaboration.json", "collaboration-inbox.json",
+                         "collaboration-outbox.json", "collaboration-generation.local.json"):
+            value = load_json(self.directory / filename, {})
+            for state in (value, value.get("recovery_state"), value.get("private_state")):
+                if not isinstance(state, dict):
+                    continue
+                retired.update(_processed(state))
+                for bucket in ("records", "research", "asks", "suggestions"):
+                    retired.update(row["id"] for row in state.get(bucket, [])
+                                   if isinstance(row, dict) and isinstance(row.get("id"), str))
+        seed["processed_inbox_ids"] = sorted(retired)
+        destination = self.directory / "tuning-runs" / name
+        destination.mkdir(parents=True, exist_ok=False)
+        # Persist the destination before the redo record can refer to it.
+        fd = os.open(destination.parent, os.O_RDONLY)
+        try:
+            os.fsync(fd)
+        finally:
+            os.close(fd)
+        payload = {"name": name, "seed": seed,
+                   "files": sorted(f for f in _ARCHIVE_FILES if (self.directory / f).exists())}
+        atomic_write_json(self.pending_archive, {"payload": payload, "hash": snapshot_hash(payload)})
+        self._recover_archive()
+        return destination
+
     def _recover(self) -> None:
+        self._recover_archive()
         if not self.pending.exists():
             return
         try:
@@ -145,6 +239,8 @@ class TurnStore:
     def commit(self, state: TurnState) -> None:
         """Prepare a complete turn and its terminal public exam, then recoverably save."""
         self._require_writer()
+        if self.pending_archive.exists():
+            raise TurnRecoveryError("recover the pending archive before committing")
         if self.pending.exists():
             raise TurnRecoveryError("recover the pending turn before committing")
         files = {name: getattr(state, field) for name, field in _FILES.items()}

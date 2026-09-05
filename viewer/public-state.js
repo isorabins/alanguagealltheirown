@@ -32,19 +32,21 @@
    * is read only from the displayed revision, never independently from main.
    */
   function createReader(options) {
-    let sequence = 0, current = null, revision = null, completeRevision = null;
+    let sequence = 0, current = null, revision = null, completeRevision = null, complete = false;
     let acceptedSequence = 0, progressSequence = 0;
     const fetch = options.fetch;
     const progress = options.onProgress || function () {};
     const runtime = options.onRuntime || function () {};
     const local = !!options.local;
-    function publish(state, token, source, commit) {
+    function publish(state, token, source, commit, isComplete = false) {
       if (token !== sequence || token < acceptedSequence || !validSnapshot(state)) return false;
       acceptedSequence = token;
       if (commit && Array.isArray(commit.notes)) state = Object.assign({}, state, {notes: commit.notes});
       current = state;
       revision = commit || null;
-      options.onSnapshot(state, {source, revision: commit && commit.sha});
+      complete = isComplete;
+      completeRevision = isComplete && commit ? commit.sha : null;
+      options.onSnapshot(state, {source, revision: commit && commit.sha, complete});
       const stateRuntime = state.meta && state.meta.runtime;
       const displayedTurn = state.conversation.length ? state.conversation[state.conversation.length - 1].turn : 0;
       runtime(source === 'canonical' && stateRuntime ? commit.date : null,
@@ -60,11 +62,11 @@
       // Preview is a first paint, never a substitute for the complete archive.
       try {
         const preview = await get('preview.json');
-        if (!revision) publish(preview, token, 'deployed', null);
+        if (!current) publish(preview, token, 'deployed', null);
       } catch (_) {}
       try {
         const full = parseArchive(await get('state.js', true));
-        if (!revision) publish(full, token, 'deployed', null);
+        if (!complete || local) publish(full, token, 'deployed', null, true);
       } catch (_) {}
     }
     async function refreshProgress() {
@@ -104,16 +106,18 @@
         try { commit.notes = await get(REPO + head.sha + '/notes.json'); } catch (_) {}
         const prefix = REPO + commit.sha + '/';
         // Compatibility with existing historical commits that have no preview.
-        if (!completeRevision) {
+        if (!complete) {
           try { publish(await get(prefix + 'viewer/preview.json'), token, 'canonical', commit); } catch (_) {}
         }
         const full = parseArchive(await get(prefix + 'viewer/state.js', true));
-        if (publish(full, token, 'canonical', commit)) {
+        if (!validSnapshot(full)) throw new Error('invalid public snapshot');
+        if (publish(full, token, 'canonical', commit, true)) {
           completeRevision = commit.sha;
           await refreshProgress();
         }
       } catch (_) {
-        if (!revision) await fallback(token);
+        if (!complete) await fallback(token);
+        if (token === sequence) await refreshProgress();
         if (!current && token === sequence) runtime(null);
       }
     }

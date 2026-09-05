@@ -759,3 +759,26 @@ test('latest evidence explanation describes the current result instead of a hard
  assert.match(text,/Message-body savings: 8%/);
  assert.doesNotMatch(text,/CAT-882|grew by two|469 to 471/);
 });
+
+test('real page labels a pending preview honestly and restores full transcript label after fallback',async()=>{
+ const start=html.indexOf('var publicReader = null;'),end=html.indexOf('\nloadState();',start);
+ const viewer=viewerDocument(),seen=[];
+ let resolveFull;
+ const fullPending=new Promise(resolve=>resolveFull=resolve);
+ const data={conversation:[{turn:30,type:'message'}],rulebook:{rules:[]},meta:{runtime:{turn:30}}};
+ const ok=value=>({ok:true,status:200,json:async()=>value,text:async()=>value});
+ const fetch=async url=>{
+  if(url.includes('api.github.com'))return ok([{sha:'a'.repeat(40),commit:{committer:{date:'2026-09-05T00:00:00Z'}}}]);
+  if(url.includes('raw.githubusercontent.com')&&url.endsWith('preview.json'))return ok(data);
+  if(url.includes('raw.githubusercontent.com')&&url.endsWith('state.js'))return fullPending;
+  if(url==='state.js')return ok('window.STATE = '+JSON.stringify(data)+';');
+  return {ok:false,status:503};
+ };
+ const window={ALATO_PUBLIC_STATE:publicState,location:{hostname:'example.test'},ALATO_STARTUP:{setSnapshot(){}}};
+ const load=Function('window','document','fetch','render','currentRenderedState','renderPublicExamProgress','latestValidScoringV2',html.slice(start,end)+'\nreturn loadState;')(window,viewer.document,fetch,s=>seen.push(s),{},()=>{},()=>null);
+ const work=load();await new Promise(resolve=>setImmediate(resolve));
+ assert.equal(viewer.elements.get('transcript-summary').textContent,'Transcript preview — full history not yet loaded');
+ resolveFull({ok:false,status:503});await work;
+ assert.equal(viewer.elements.get('transcript-summary').textContent,'Full transcript — every turn, every exam');
+ assert.equal(seen.length,2);
+});

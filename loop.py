@@ -1199,13 +1199,7 @@ def archive(name):
     with TurnStore(STATE).writer() as store:
         # Recover first so no abandoned journal can resurrect archived work.
         store.load(TurnState([], {}, {}, {}, []))
-        dest = STATE / "tuning-runs" / name
-        dest.mkdir(parents=True, exist_ok=False)
-        for f in ("conversation.json", "rulebook.json", "meta.json",
-                  "collaboration.json", "conversations.json",
-                  "public-exam-progress.json", "public-exam-completed.local.json", COST_LEDGER_FILENAME):
-            if (STATE / f).exists():
-                shutil.move(str(STATE / f), str(dest / f))
+        dest = store.archive(name)
         for pf in (ROOT / "prompts").glob("*.md"):
             shutil.copy(str(pf), str(dest / pf.name))
     print(f"archived state + prompt snapshot -> state/tuning-runs/{name}/")

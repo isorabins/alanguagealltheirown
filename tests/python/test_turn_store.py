@@ -75,6 +75,17 @@ class CompleteTurnTests(unittest.TestCase):
                     self.assertEqual((Path(tmp)/"conversation.json").read_bytes(), before)
                     self.assertEqual(store.pending.read_text(), bad)
 
+    def test_corrupt_archive_stops_before_canonical_state_changes(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            with TurnStore(Path(tmp)).writer() as store:
+                store.commit(state(1))
+                before = (Path(tmp)/"conversation.json").read_bytes()
+                for bad in ['null', '{', '{"payload":{},"hash":"wrong"}']:
+                    store.pending_archive.write_text(bad)
+                    with self.assertRaises(TurnRecoveryError): store.load(state(0))
+                    self.assertEqual((Path(tmp)/"conversation.json").read_bytes(), before)
+                    self.assertEqual(store.pending_archive.read_text(), bad)
+
     def test_concurrent_writer_and_unlocked_use_are_rejected(self):
         with tempfile.TemporaryDirectory() as tmp:
             store = TurnStore(Path(tmp))

@@ -443,7 +443,7 @@ class SemanticFaultLedgerTests(unittest.TestCase):
             ),
             "original": "PRIVATE ORIGINAL",
             "encoded": "PRIVATE ENCODED",
-            "decoded": "PRIVATE DECODED",
+            "decoded": "PRIVATE DECODED\n" + evidence,
         }
 
     def _book(self):

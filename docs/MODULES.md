@@ -44,7 +44,11 @@ The completed exam trace is saved durably with the turn before optional public
 publication. Human notices are acknowledged only when their turn is committed.
 The runner repairs derived files before attempting further work, even at the spend
 cap. The scheduled shell preserves recovered state before its Git pull. Archive
-uses the same writer lock and recovers pending work first.
+uses the same writer lock and recovers pending work first. `archive(name)` retires
+canonical and collaboration transport state recoverably. Couriers cannot overlap
+that reset; old remote backups and duplicate retired records cannot repopulate the
+new run. New collaboration input remains eligible under the existing moderation
+rules. The local generation marker must be retained when restoring a reset run.
 
 **Interface:** [TurnState / TurnStore](../turn_store.py).
 **Protected examples:** [every interrupted write, corrupt journal and overlap](../tests/python/test_turn_store.py),
@@ -87,7 +91,7 @@ in the working state. Invalid judge output is recorded as invalid, never admitte
 as language failure. Provider failure aborts the turn. Trace failure is fail-open.
 
 `validated_persisted_exam(...)` defensively rechecks historical evidence before
-fault replay. The fault lifecycle remains owned by legislative protocol; this
+fault replay, including exact decoded spans and required literal constraints. The fault lifecycle remains owned by legislative protocol; this
 module does not decide when a fault is selected, linked, reopened or resolved.
 
 **Interface:** [run_exam / ExamResources](../exam_evidence.py).
@@ -109,7 +113,11 @@ returns `refresh()` and `refreshProgress()`. A refresh pins content to repositor
 head and gets turn freshness from history at that revision. A bounded preview retains the real headline exams and latest A/B messages
 before full history arrives. Missing previews support old commits; unavailable GitHub
 falls back to deployed preview **and then full history**. Malformed or late older
-responses cannot overwrite a newer coherent view. Unchanged revisions avoid
+responses cannot overwrite a newer coherent view. Each snapshot callback reports
+`complete`: false previews are labeled as incomplete in the page. If a canonical
+preview succeeds but the full archive fails, the reader tries the deployed full
+snapshot as a whole (with unknown live freshness), rather than mixing revisions.
+An already complete last-good view survives a failed refresh. Unchanged revisions avoid
 repeated full-archive downloads. The page checks for a new revision every minute.
 Progress belongs to the displayed revision; missing, malformed and unavailable
 states are explicit. Reading never calls a model.

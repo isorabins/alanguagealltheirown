@@ -526,7 +526,7 @@ abuse, and maximum-cost limits.</p>
 </details>
 
 <details>
-  <summary>Full transcript — every turn, every exam</summary>
+  <summary id="transcript-summary">Transcript preview — full history not yet loaded</summary>
   <div class="hist" id="hist"></div>
 </details>
 
@@ -1256,7 +1256,12 @@ function loadState() {
     fetch: fetch,
     initial: window.STATE || (window.PUBLIC_BOOTSTRAP && window.PUBLIC_BOOTSTRAP.preview) || null,
     local: window.location && /^(localhost|127\.0\.0\.1)$/.test(window.location.hostname),
-    onSnapshot: function(state) { render(state); },
+    onSnapshot: function(state, snapshot) {
+      render(state);
+      document.getElementById('transcript-summary').textContent = snapshot.complete
+        ? 'Full transcript — every turn, every exam'
+        : 'Transcript preview — full history not yet loaded';
+    },
     onRuntime: function(when,turn,runtime) { window.ALATO_STARTUP.setSnapshot(when,turn===undefined?((window.PUBLIC_BOOTSTRAP||{}).turn||0):turn,runtime); },
     onProgress: function(snapshot,status) {
       var state=currentRenderedState||{},tests=(state.conversation||[]).filter(function(event){return event.type==="test";});

@@ -497,17 +497,15 @@ def validated_persisted_exam(
     if [item["id"] for item in normalized_results] != key_ids:
         return None
 
-    expected_failures = []
-    for atom, result in zip(normalized_key, normalized_results, strict=True):
-        if atom["critical"] and result["verdict"] in {"MISSING", "CORRUPTED"}:
-            expected_failures.append(
-                {
-                    "atom_id": atom["id"],
-                    "decoded_evidence": result["evidence"],
-                    "expected_meaning": atom["meaning"],
-                    "verdict": result["verdict"],
-                }
-            )
+    # Reuse generation-time evidence and literal validation. Historical events
+    # do not retain judge mode; replay only needs the normalized atom evidence.
+    scored = score_judgment_v2(normalized_key, {
+        "mode": "RELAY", "items": normalized_results,
+        "inventions": event.get("inventions", []),
+    }, event["decoded"], 0)
+    if not scored["valid"]:
+        return None
+    expected_failures = scored["critical_failures"]
     normalized_failures = []
     for failure in critical_failures:
         if not (

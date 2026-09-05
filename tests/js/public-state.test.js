@@ -159,3 +159,33 @@ test('legacy archives without runtime metadata remain readable without inventing
  assert.equal(seen.at(-1).conversation.at(-1).turn,7);
  assert.deepEqual(runtime.at(-1),[null,7,{}]);
 });
+
+test('canonical preview plus failed archive loads an available complete deployed snapshot',async()=>{
+ const seen=[],urls=[];
+ const reader=createReader({onSnapshot:(s,m)=>seen.push([s,m]),fetch:async url=>{
+  urls.push(url);
+  if(url.includes('api.github.com'))return head(A);
+  if(url.includes(A)&&url.endsWith('preview.json'))return response(state(30));
+  if(url==='state.js'){const full=state(29);full.conversation.unshift({turn:1});return response(archive(full));}
+  return response(null,503);
+ }});
+ await reader.refresh();
+ assert.ok(urls.includes('state.js'));
+ assert.equal(seen.at(-1)[0].conversation[0].turn,1);
+ assert.equal(seen.at(-1)[1].complete,true);
+ assert.equal(seen.at(-1)[1].source,'deployed');
+ assert.equal(seen.at(-1)[1].revision,null);
+ assert.equal(seen[0][1].complete,false);
+});
+
+test('unavailable full archives leave the canonical preview explicitly incomplete',async()=>{
+ const seen=[];
+ const reader=createReader({onSnapshot:(s,m)=>seen.push([s,m]),fetch:async url=>{
+  if(url.includes('api.github.com'))return head(A);
+  if(url.includes(A)&&url.endsWith('preview.json'))return response(state(30));
+  return response(null,503);
+ }});
+ await reader.refresh();
+ assert.equal(seen.at(-1)[0].meta.runtime.turn,30);
+ assert.equal(seen.at(-1)[1].complete,false);
+});
