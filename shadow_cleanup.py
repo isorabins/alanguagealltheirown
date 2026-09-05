@@ -45,6 +45,10 @@ AUDIT_FIELDS = set(AUDIT_FIELD_ORDER)
 FINALIZER_PROMPT = FINALIZER_PROMPT_PATH.read_text()
 
 
+class ProviderCompletionError(RuntimeError):
+    """The provider did not finish; no authored candidate can be judged."""
+
+
 def _now() -> str:
     return datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
 
@@ -172,6 +176,10 @@ def _require_clean_completion(usage: dict[str, Any], label: str) -> None:
     finish_reason = receipt.get("finish_reason")
     if finish_reason == "stop":
         return
+    if finish_reason == "error":
+        raise ProviderCompletionError(
+            f"{label} completion did not finish cleanly: finish_reason=error"
+        )
     if finish_reason == "length":
         raise ValueError(
             f"{label} completion truncated: finish_reason=length"
@@ -511,6 +519,8 @@ def run_shadow_cleanup(
                 _require_clean_completion(b_usage, "Agent B")
                 audit = _parse_object(b_text, "Agent B")
                 validate_b_audit(source, candidate, audit)
+            except ProviderCompletionError:
+                raise
             except Exception as exc:
                 advisory_error = {
                     "status": "invalid",
@@ -557,6 +567,8 @@ def run_shadow_cleanup(
     except Exception as exc:
         report["error_type"] = exc.__class__.__name__
         report["reason"] = str(exc)
+        if isinstance(exc, ProviderCompletionError):
+            report["failure_class"] = "provider_failure"
     finally:
         report["source_unchanged"] = _source_is_unchanged(source_path, source_bytes)
         report["spend_usd"] = round(float(meta.get("spend_usd", 0.0)), 12)

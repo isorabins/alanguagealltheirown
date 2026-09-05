@@ -302,7 +302,7 @@ def record_provider_cost(meta, usage, *, response_id=None):
 
 
 def call(model, system, user, max_tokens=600, temperature=0.7, meta=None,
-         request_options=None):
+         request_options=None, transport=None):
     """One chat call. Returns (text, usage). Retries transient failures."""
     global _no_reasoning_field
     messages = ([{"role": "system", "content": system}] if system else []) + [
@@ -329,7 +329,7 @@ def call(model, system, user, max_tokens=600, temperature=0.7, meta=None,
         if d:
             time.sleep(d)
         try:
-            r = requests.post(API_URL, headers=headers, json=body, timeout=180)
+            r = (transport or requests.post)(API_URL, headers=headers, json=body, timeout=180)
         except requests.RequestException as e:
             print(f"  ! network {e.__class__.__name__}, retry {i}", flush=True)
             continue
@@ -360,10 +360,11 @@ def call(model, system, user, max_tokens=600, temperature=0.7, meta=None,
     raise RuntimeError("api: retries exhausted")
 
 
-def token_count(text, meta):
+def token_count(text, meta, *, call_model=None):
     """Exact token size of standalone text: probe call, prompt_tokens minus overhead.
     Probe-based so reasoning/completion accounting can never contaminate it."""
     global _probe_overhead
+    call = call_model or globals()["call"]
     if text in _probe_cache:
         return _probe_cache[text]
     if _probe_overhead is None:
@@ -604,7 +605,7 @@ def ensure_structured_protocol_cutover(conv, rb, meta, *, activation_turn):
 
 
 AUTOMATIC_CLEANUP_STATE_SCHEMA_VERSION = 2
-AUTOMATIC_CLEANUP_EDITION = "automatic-cleanup-v5-structured-context"
+AUTOMATIC_CLEANUP_EDITION = "automatic-cleanup-v6-provider-failure-classification"
 MAX_POST_CHECKPOINT_CHANGES = 64
 MAX_STRUCTURED_PROMPT_CHARS = 120_000
 
@@ -786,7 +787,7 @@ def maybe_run_automatic_cleanup(conv, rb, meta, turn):
                 "agent": "harness",
                 "type": "cleanup",
                 "status": "failed",
-                "failure_class": quarantine_class or "other",
+                "failure_class": quarantine_class or report.get("failure_class") or "other",
                 "source_hash": report.get("source_hash"),
                 "candidate_hash": report.get("candidate_hash"),
                 "source_tokens": report.get("source_tokens"),

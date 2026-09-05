@@ -498,6 +498,24 @@ class ShadowCleanupTests(unittest.TestCase):
             })
             self.assertFalse((output / "rounds/02").exists())
 
+    def test_provider_failure_during_b_review_is_not_an_invalid_authored_audit(self):
+        with tempfile.TemporaryDirectory() as directory:
+            self.source_path = self._source_copy(directory)
+            def call(model, *args, **kwargs):
+                if model == "c":
+                    return json.dumps(c_response()), {"cost": .01}
+                return "", {"cost": 0, "response_receipt": {"finish_reason": "error"}}
+            report = run_shadow_cleanup(
+                self.source_path, Path(directory) / "shadow", model_c="c", model_b="b",
+                call_model=call, token_counter=self._token_counter, meta={"spend_usd": 0},
+            )
+            self.assertEqual(report["status"], "FAIL")
+            self.assertEqual(report["failure_class"], "provider_failure")
+            self.assertEqual(report["stage"], "b_audit")
+            self.assertTrue(report["source_unchanged"])
+            self.assertFalse(report["applied"])
+            self.assertEqual(len(report["provider_calls"]), 2)
+
     def test_truncated_c_completion_fails_with_routing_receipt(self):
         with tempfile.TemporaryDirectory() as directory:
             self.source_path = self._source_copy(directory)
