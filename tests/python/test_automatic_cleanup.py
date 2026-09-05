@@ -42,11 +42,11 @@ class AutomaticCleanupTests(unittest.TestCase):
             }}
             with patch.object(loop, "STATE", state_dir), patch.object(
                 loop, "call", return_value=("", receipt)
-            ) as provider, patch.object(loop, "token_count") as counter:
+            ) as provider, patch.object(loop, "token_count", return_value=110) as counter:
                 self.assertFalse(loop.maybe_run_automatic_cleanup(conv, rb, meta, 10))
             self.assertEqual(rb, original)
             provider.assert_called_once()
-            counter.assert_not_called()
+            counter.assert_called_once()
             self.assertEqual(meta["automatic_cleanup"]["last_status"], "failed")
             self.assertNotIn("quarantine", meta["automatic_cleanup"])
             self.assertEqual(conv[-1]["failure_class"], "provider_failure")
@@ -97,7 +97,7 @@ class AutomaticCleanupTests(unittest.TestCase):
             atomic_write_json(state_dir / "rulebook.json", rb)
 
             with patch.object(loop, "STATE", state_dir), patch.object(
-                loop, "run_shadow_cleanup"
+                loop, "run_admission_cleanup"
             ) as cleanup:
                 cleanup.return_value = {
                     "status": "FAIL",
@@ -161,7 +161,7 @@ class AutomaticCleanupTests(unittest.TestCase):
             atomic_write_json(state_dir / "rulebook.json", rb)
 
             with patch.object(loop, "STATE", state_dir), patch.object(
-                loop, "run_shadow_cleanup"
+                loop, "run_admission_cleanup"
             ) as cleanup:
                 cleanup.return_value = {
                     "status": "FAIL",
@@ -260,7 +260,7 @@ class AutomaticCleanupTests(unittest.TestCase):
             atomic_write_json(state_dir / "rulebook.json", rb)
 
             with patch.object(loop, "STATE", state_dir), patch.object(
-                loop, "run_shadow_cleanup"
+                loop, "run_admission_cleanup"
             ) as cleanup:
                 self.assertFalse(loop.maybe_run_automatic_cleanup(conv, rb, meta, 10))
                 cleanup.assert_not_called()
@@ -361,7 +361,7 @@ class AutomaticCleanupTests(unittest.TestCase):
             }
             atomic_write_json(state_dir / "rulebook.json", rb)
             with patch.object(loop, "STATE", state_dir), patch.object(
-                loop, "run_shadow_cleanup"
+                loop, "run_admission_cleanup"
             ) as cleanup:
                 self.assertFalse(loop.maybe_run_automatic_cleanup([], rb, meta, 10))
                 cleanup.assert_not_called()

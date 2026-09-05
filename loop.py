@@ -681,8 +681,17 @@ def reset_automatic_cleanup_quarantine(state, *, reviewed_edition, operator):
     state.pop("quarantine")
 
 
-def maybe_run_automatic_cleanup(conv, rb, meta, turn):
-    """Apply the proven shadow workflow after 10% adopted-language growth."""
+def run_admission_cleanup(source_path, output, **kwargs):
+    """Normal cleanup always proves the final book against the registered suite."""
+    from verified_cleanup import run_verified_cleanup
+    return run_verified_cleanup(source_path, output,
+        exams=exam_evidence.ExamResources(
+            ROOT, load_benchmark_suite(), MODEL_A, MODEL_DECODER, MODEL_GRADER),
+        **kwargs)
+
+
+def maybe_run_automatic_cleanup(conv, rb, meta, turn, *, cleanup_runner=None):
+    """Apply only a semantically reviewed, exam-proven compact book after growth."""
     current_tokens = rb.get("kernel_tokens")
     if (
         isinstance(current_tokens, bool)
@@ -749,7 +758,7 @@ def maybe_run_automatic_cleanup(conv, rb, meta, turn):
 
     with tempfile.TemporaryDirectory(prefix="alato-cleanup-") as directory:
         output = Path(directory) / "result"
-        report = run_shadow_cleanup(
+        report = (cleanup_runner or run_admission_cleanup)(
             source_path,
             output,
             model_c=MODEL_C,
@@ -795,6 +804,9 @@ def maybe_run_automatic_cleanup(conv, rb, meta, turn):
                 "reduction_pct": report.get("reduction_pct"),
                 "reason": state["last_reason"],
                 "models": report.get("models"),
+                "admission_stage": report.get("stage"),
+                "exam_results": copy.deepcopy(report.get("exam_results")),
+                "final_semantic_verdict": report.get("final_semantic_verdict"),
                 "provider_calls": copy.deepcopy(report.get("provider_calls")),
                 "rounds": copy.deepcopy(report.get("rounds")),
                 "b_advisory_error": copy.deepcopy(
@@ -824,7 +836,7 @@ def maybe_run_automatic_cleanup(conv, rb, meta, turn):
             role="harness",
             action=None,
             result="cutover",
-            reason="automatic_cleanup_c_final_authority",
+            reason="automatic_cleanup_validated_admission",
             before_rulebook=before_rulebook,
             after_rulebook=applied,
             next_actor=next_legislative_actor(meta),
@@ -855,6 +867,9 @@ def maybe_run_automatic_cleanup(conv, rb, meta, turn):
             "source_tokens": report.get("source_tokens"),
             "candidate_tokens": report.get("candidate_tokens"),
             "applied_tokens": applied_tokens,
+            "exam_results": copy.deepcopy(report.get("exam_results")),
+            "final_semantic_verdict": report.get("final_semantic_verdict"),
+            "reviewed_candidate_hash": report.get("reviewed_candidate_hash"),
             "reduction_pct": report.get("reduction_pct"),
             "models": report.get("models"),
             "prompt_versions": {
