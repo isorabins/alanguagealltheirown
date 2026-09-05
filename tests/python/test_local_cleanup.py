@@ -50,12 +50,44 @@ class LocalCleanupBudgetTests(unittest.TestCase):
     def test_missing_or_invalid_cost_never_frees_reservation(self):
         for cost in [None, -1, float("nan"), True]:
             with self.subTest(cost=cost):
+                self.receipt.unlink(missing_ok=True)
                 post = Mock(return_value=Mock(status_code=200, json=lambda: {"usage": {"cost": cost}}))
                 transport = ReservedTransport("10", self.models, self.receipt, post=post)
                 with self.assertRaises(LocalBudgetError):
                     transport("unused", json={"model": "test/model", "max_tokens": 10})
                 self.assertTrue(transport.stopped)
                 self.assertEqual(str(transport.used), "1.20")
+
+    def test_text_rehearsal_fits_one_dollar_without_reserving_empty_context(self):
+        models = {"moonshotai/kimi-k3": {"context_length": 1048576,
+                  "pricing": {"prompt": ".000003", "completion": ".000015"}}}
+        post = Mock(return_value=Mock(status_code=200, json=lambda: {"usage": {"cost": .01}}))
+        transport = ReservedTransport("1", models, self.receipt, post=post)
+        transport("unused", json={"model": "moonshotai/kimi-k3", "max_tokens": 22000,
+                                   "messages": [{"role": "user", "content": "A small text fixture."}]})
+        self.assertLess(float(transport.attempts[0]["reserved_usd"]), 1)
+        self.assertEqual(post.call_args.kwargs["json"]["provider"]["max_price"],
+                         {"prompt": 3, "completion": 15})
+
+    def test_restart_keeps_spend_and_uncertain_reservations(self):
+        post = Mock(return_value=Mock(status_code=200, json=lambda: {"usage": {"cost": .3}}))
+        transport = ReservedTransport("1.5", self.models, self.receipt, post=post)
+        transport("unused", json={"model": "test/model", "max_tokens": 10})
+        resumed = ReservedTransport("1.5", self.models, self.receipt, post=post)
+        self.assertEqual(resumed.used, transport.used)
+        resumed("unused", json={"model": "test/model", "max_tokens": 10})
+        with self.assertRaises(LocalBudgetError):
+            resumed("unused", json={"model": "test/model", "max_tokens": 10})
+        with self.assertRaises(LocalBudgetError):
+            ReservedTransport("2", self.models, self.receipt, post=post)
+
+    def test_explicit_fixture_output_ceiling_is_sent_and_reserved(self):
+        post = Mock(return_value=Mock(status_code=200, json=lambda: {"usage": {"cost": .01}}))
+        transport = ReservedTransport("1.1", self.models, self.receipt, post=post, max_output_tokens=5)
+        transport("unused", json={"model": "test/model", "max_tokens": 10})
+        self.assertEqual(post.call_args.kwargs["json"]["max_tokens"], 5)
+        self.assertEqual(transport.attempts[0]["reserved_usd"], "1.10")
+        self.assertEqual(transport.attempts[0]["output_token_limit"], 5)
 
 
 if __name__ == "__main__":

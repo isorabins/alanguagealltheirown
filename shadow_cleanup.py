@@ -255,7 +255,13 @@ def run_shadow_cleanup(
     min_reduction_pct: float = MIN_REDUCTION_PCT,
     max_spend_usd: float = DEFAULT_MAX_SPEND_USD,
 ) -> dict[str, Any]:
-    """Create evidence only. This function has no active-state or apply argument."""
+    """Create evidence only; never apply to the supplied source.
+
+    At most two C calls and one B advisory. An invalid cross-reference may use
+    the remaining C call for correction; all deterministic gates still apply.
+    Other validation failures stop. If B objects after correction exhausted C's
+    allowance, fail instead of silently applying an unfinalized candidate.
+    """
     source_path = Path(source_path)
     output_dir = Path(output_dir)
     if output_dir.exists():
@@ -343,6 +349,7 @@ def run_shadow_cleanup(
         adopted = _adopted_rows(source)
         previous_candidate = None
         previous_advisory = None
+        structural_correction = None
         source_tokens = None
         for round_number in range(1, MAX_C_CALLS + 1):
             report["round_count"] = round_number
@@ -352,9 +359,31 @@ def run_shadow_cleanup(
                 "source_hash": source_hash,
                 "adopted_language": adopted,
                 "complete_legislature": copy.deepcopy(source.get("rules", [])),
+                "output_requirements": {
+                    "minimum_language_token_reduction_pct": min_reduction_pct,
+                    "measurement": "DeepSeek tokenizer on rendered adopted language, including contract field labels; not raw response JSON",
+                    "guidance": "Aim comfortably below the maximum size while preserving every operative behavior; a candidate below the required reduction is rejected.",
+                    "reference_integrity": "Every assigned group ID must be defined. Every defined group must have an assignment. Overrides must contain unique IDs of OTHER defined groups, never the group's own ID. If amendments are merged into one group, do not make that group override itself.",
+                    "consolidated_overrides": "After merging an old rule and its amendment into a single final contract, use overrides: []. Do not cite removed contracts or source rule IDs in overrides. Only retain an override if BOTH different contracts remain defined in the final groups array and their precedence is still needed. Amendment history belongs in legislative memory.",
+                },
             }
+            if type(source.get("kernel_tokens")) is int and source["kernel_tokens"] > 0:
+                c_request["output_requirements"]["source_language_tokens"] = source["kernel_tokens"]
+                c_request["output_requirements"]["maximum_candidate_tokens"] = int(
+                    source["kernel_tokens"] * (100 - min_reduction_pct) / 100
+                )
             c_system = prompt_c
             c_system_version = prompt_c_version
+            if structural_correction is not None:
+                c_request["structural_correction"] = structural_correction
+                c_system += (
+                    "\n\nThe previous draft failed deterministic validation. Return a complete "
+                    "corrected object, preserving all source behavior. Every non-excluded "
+                    "assignment must name a defined group; every defined group must be assigned. "
+                    "Overrides must name other defined groups, never self, and contain no duplicates. "
+                    "Do not drop source behavior merely to satisfy the validator."
+                )
+                c_system_version += "+reference-correction-v1"
             if previous_candidate is not None:
                 c_request.update({
                     "final_decision": True,
@@ -408,7 +437,21 @@ def run_shadow_cleanup(
             atomic_write_json(output_dir / "c-response.json", c_response)
 
             report["stage"] = "c_validation"
-            candidate, seeds = compile_c_response(source, c_response)
+            try:
+                candidate, seeds = compile_c_response(source, c_response)
+            except ValueError as exc:
+                if (round_number >= MAX_C_CALLS or
+                        str(exc) not in {
+                            "referenced groups must exactly match defined groups",
+                            "contract overrides must be unique and cannot reference self",
+                            "contract contains an unknown override reference",
+                        }):
+                    raise
+                structural_correction = {"error": str(exc), "previous_draft": c_response}
+                report["rounds"].append({"round": round_number, "c_validation": "invalid",
+                                         "reason": str(exc)})
+                atomic_write_json(round_dir / "round-report.json", report["rounds"][-1])
+                continue
             candidate_hash = snapshot_hash(candidate)
             report["candidate_hash"] = candidate_hash
             atomic_write_json(round_dir / "candidate.json", candidate)
@@ -564,6 +607,8 @@ def run_shadow_cleanup(
                 "meaning_changes": copy.deepcopy(audit["meaning_changes"]),
                 "operational_text": copy.deepcopy(audit["operational_text"]),
             }
+            if round_number == MAX_C_CALLS:
+                report.update(stage="c_call_limit", reason="C call limit exhausted before advisory finalization")
     except Exception as exc:
         report["error_type"] = exc.__class__.__name__
         report["reason"] = str(exc)

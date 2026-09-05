@@ -155,6 +155,15 @@ scheduled turn. Their live integrations are not covered by this refactor's offli
 acceptance. Changes to those paths need task-specific evidence; do not assume the
 main regression suite proves them.
 
+Cleanup may spend its remaining C call correcting an undefined group or invalid
+override reference. It still permits at most two C calls and one B advisory;
+missing source coverage and all acceptance gates remain protected. If correction
+uses the last C call and B raises objections, cleanup fails instead of applying
+without C's final decision. Provider `finish_reason=error` is a service failure,
+not proof of invalid authored output. The [local C smoke](../tests/acceptance/run_local_c_smoke.py)
+uses a shared dollar allowance and an explicitly reduced fixture; it is opt-in
+and separate from offline CI and full historical-source acceptance.
+
 ## How a future behavior request becomes a change
 
 1. Restate the requested observable difference with one before/after example.

@@ -1,7 +1,8 @@
 """Non-applying local C rehearsal with a reservation before every HTTP attempt.
 
 No production state, quarantine, model choice or prompt is changed by this tool.
-The provider's advertised context limit and token prices bound each reservation.
+Text-only requests use a conservative byte bound plus framing allowance, capped
+at the advertised context limit. Other requests reserve the full context.
 An uncertain charge keeps its reservation and stops the run; it is never retried.
 """
 from __future__ import annotations
@@ -24,21 +25,32 @@ class LocalBudgetError(RuntimeError):
 class ReservedTransport:
     """Give a budget/catalog/receipt path; get a fail-closed HTTP callable.
 
-Reserve the full advertised context plus requested output at uncached prices
-before dispatch, including retries. Release unused reservation only on an exact
+Reserve bounded input plus requested output at uncached prices before dispatch,
+including retries; enforce those token prices with provider.max_price.
+Release unused reservation only on an exact
 nonnegative cost receipt. The receipt file contains no headers or prompt content.
 """
 
-    def __init__(self, limit, models, receipt_path, *, post=requests.post):
+    def __init__(self, limit, models, receipt_path, *, post=requests.post, max_output_tokens=None):
         self.limit = self._amount(limit)
         if self.limit <= 0:
             raise LocalBudgetError("local spend limit must be positive")
         self.models = models
         self.path = Path(receipt_path)
         self.post = post
+        if max_output_tokens is not None and (type(max_output_tokens) is not int or max_output_tokens <= 0):
+            raise LocalBudgetError("output ceiling must be a positive integer")
+        self.max_output_tokens = max_output_tokens
         self.used = Decimal(0)
         self.attempts = []
         self.stopped = False
+        if self.path.exists():
+            saved = json.loads(self.path.read_text())
+            if self._amount(saved["limit_usd"]) != self.limit:
+                raise LocalBudgetError("cannot change an existing run's allowance")
+            self.used = self._amount(saved["charged_or_reserved_usd"])
+            self.attempts = saved["attempts"]
+            self.stopped = saved["stopped"]
 
     @staticmethod
     def _amount(value):
@@ -70,15 +82,31 @@ nonnegative cost receipt. The receipt file contains no headers or prompt content
         if (type(context) is not int or context <= 0 or
                 type(output) is not int or output <= 0):
             raise LocalBudgetError("provider token limits must be positive integers")
+        if self.max_output_tokens is not None:
+            output = body["max_tokens"] = min(output, self.max_output_tokens)
         prices = model.get("pricing", {})
-        # Include every advertised context token, conservatively even when the
-        # advertised context already includes the reserved completion tokens.
+        # Local text-only rehearsals need not reserve a million empty tokens.
+        # For the experiment's byte-tokenized models, use twice the entire JSON
+        # payload's UTF-8 size plus 8192 tokens for chat/schema framing. Fall back
+        # to the full model context for all other request shapes and models.
+        messages = body.get("messages", [])
+        if (body["model"] in {"moonshotai/kimi-k3", "moonshotai/kimi-k2.6", "deepseek/deepseek-v3.2"}
+                and messages and all(isinstance(m.get("content"), str) for m in messages)
+                and not any(k in body for k in ("tools", "plugins", "audio", "images"))):
+            context = min(context, 2 * len(json.dumps(body, ensure_ascii=False).encode()) + 8192)
+        body.setdefault("provider", {})["max_price"] = {
+            "prompt": float(self._amount(prices.get("prompt")) * 1_000_000),
+            "completion": float(self._amount(prices.get("completion")) * 1_000_000),
+        }
+        # Include output separately, conservatively even when the advertised
+        # context already includes the completion tokens.
         reserve = (context * self._amount(prices.get("prompt")) +
                    output * self._amount(prices.get("completion")) +
                    self._amount(prices.get("request", 0)))
         if self.used + reserve > self.limit:
             raise LocalBudgetError("next request exceeds remaining local spend reservation")
-        attempt = {"model": body["model"], "reserved_usd": str(reserve),
+        attempt = {"model": body["model"], "reserved_usd": str(reserve), "input_token_bound": context,
+                   "output_token_limit": output,
                    "status": "uncertain"}
         self.attempts.append(attempt)
         self.used += reserve
