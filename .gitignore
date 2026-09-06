@@ -6,6 +6,7 @@ __pycache__/
 node_modules/
 tests/acceptance/production/.evidence/
 tests/acceptance/production/.remote-evidence/
+tests/acceptance/local-c/.evidence/
 HANDOFF.md
 PROMOTION.md
 IMPROVEMENTS-*.md
@@ -13,9 +14,14 @@ HANDOFF-*.md
 PRD-*.md
 READING-LIST.md
 AUDIT-FINDINGS-*.md
-state/collaboration.json
-state/collaboration-inbox.json
-state/collaboration-outbox.json
+state/**/collaboration.json
+state/**/collaboration-inbox.json
+state/**/collaboration-outbox.json
 state/**/cost-receipts.local.json
-state/public-exam-progress.local.json
+state/**/public-exam-progress.local.json
 baselines/*.local.json
+state/turn-commit.local.json
+state/turn-writer.local.lock
+state/public-exam-completed.local.json
+state/turn-archive.local.json
+state/**/collaboration-generation.local.json

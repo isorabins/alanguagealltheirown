@@ -52,6 +52,136 @@ def c_response():
 
 
 class ShadowCleanupTests(unittest.TestCase):
+    def test_undefined_group_gets_one_correction_then_still_requires_b_review(self):
+        with tempfile.TemporaryDirectory() as directory:
+            self.source_path = self._source_copy(directory)
+            calls = []
+            def call(model, _system, user, **kwargs):
+                calls.append(model)
+                if len(calls) == 1:
+                    draft = c_response()
+                    draft["assignments"]["rule-001"] = "undefined-group"
+                    return json.dumps(draft), {"cost": .01}
+                if len(calls) == 2:
+                    correction = json.loads(user)["structural_correction"]
+                    self.assertEqual(correction["error"], "referenced groups must exactly match defined groups")
+                    return json.dumps(c_response()), {"cost": .01}
+                request = json.loads(user)
+                return json.dumps({"verdict": "pass", "reviewed_source_hash": request["source_hash"],
+                    "reviewed_candidate_hash": request["candidate_hash"],
+                    "covered_source_ids": ["rule-001", "rule-002"],
+                    "omissions": [], "meaning_changes": [], "operational_text": [], "notes": []}), {"cost": .01}
+            report = run_shadow_cleanup(self.source_path, Path(directory) / "shadow",
+                model_c="c", model_b="b", call_model=call, token_counter=self._token_counter,
+                meta={"spend_usd": 0})
+            self.assertEqual(report["status"], "PASS")
+            self.assertEqual(calls, ["c", "c", "b"])
+            self.assertTrue(report["source_unchanged"])
+
+    def test_exclusion_mismatch_gets_one_correction_without_waiving_coverage(self):
+        with tempfile.TemporaryDirectory() as directory:
+            self.source_path = self._source_copy(directory)
+            calls = []
+            def call(model, _system, user, **kwargs):
+                calls.append(model)
+                if len(calls) == 1:
+                    draft = c_response()
+                    draft["exclusions"] = [{"source_id":"rule-001","reason":"operational"}]
+                    return json.dumps(draft), {"cost": .01}
+                if len(calls) == 2:
+                    correction = json.loads(user)["structural_correction"]
+                    self.assertEqual(correction["error"], "exclusions must exactly match __exclude__ assignments")
+                    return json.dumps(c_response()), {"cost": .01}
+                request = json.loads(user)
+                return json.dumps({"verdict": "pass", "reviewed_source_hash": request["source_hash"],
+                    "reviewed_candidate_hash": request["candidate_hash"],
+                    "covered_source_ids": ["rule-001", "rule-002"],
+                    "omissions": [], "meaning_changes": [], "operational_text": [], "notes": []}), {"cost": .01}
+            report = run_shadow_cleanup(self.source_path, Path(directory) / "shadow",
+                model_c="c", model_b="b", call_model=call, token_counter=self._token_counter,
+                meta={"spend_usd": 0})
+            self.assertEqual(report["status"], "PASS")
+            self.assertEqual(calls, ["c", "c", "b"])
+            self.assertTrue(report["source_unchanged"])
+
+    def test_structural_corrections_cannot_exceed_two_c_calls(self):
+        with tempfile.TemporaryDirectory() as directory:
+            self.source_path = self._source_copy(directory)
+            calls = []
+            def call(model, *args, **kwargs):
+                calls.append(model)
+                draft = c_response()
+                draft["assignments"]["rule-001"] = "undefined-group"
+                return json.dumps(draft), {"cost": .01}
+            report = run_shadow_cleanup(self.source_path, Path(directory) / "shadow",
+                model_c="c", model_b="b", call_model=call, token_counter=self._token_counter,
+                meta={"spend_usd": 0})
+            self.assertEqual(report["status"], "FAIL")
+            self.assertEqual(calls, ["c", "c"])
+            self.assertFalse(report["applied"])
+
+    def test_self_override_is_rejected_and_offered_for_bounded_correction(self):
+        with tempfile.TemporaryDirectory() as directory:
+            self.source_path = self._source_copy(directory)
+            calls = []
+            def call(model, _system, user, **kwargs):
+                calls.append(model)
+                if len(calls) == 2:
+                    self.assertIn("cannot reference self", json.loads(user)["structural_correction"]["error"])
+                draft = c_response()
+                draft["groups"][0]["overrides"] = ["deadlines"]
+                return json.dumps(draft), {"cost": .01}
+            report = run_shadow_cleanup(self.source_path, Path(directory) / "shadow",
+                model_c="c", model_b="b", call_model=call, token_counter=self._token_counter,
+                meta={"spend_usd": 0})
+            self.assertEqual(report["status"], "FAIL")
+            self.assertEqual(calls, ["c", "c"])
+            self.assertFalse(report["applied"])
+
+    def test_unknown_override_never_reaches_b_and_exhausts_correction_safely(self):
+        with tempfile.TemporaryDirectory() as directory:
+            self.source_path = self._source_copy(directory)
+            calls = []
+            def call(model, _system, user, **kwargs):
+                calls.append(model)
+                if len(calls) == 2:
+                    self.assertEqual(json.loads(user)["structural_correction"]["error"],
+                                     "contract contains an unknown override reference")
+                draft = c_response()
+                draft["groups"][0]["overrides"] = ["absent-contract"]
+                return json.dumps(draft), {"cost": .01}
+            report = run_shadow_cleanup(self.source_path, Path(directory) / "shadow",
+                model_c="c", model_b="b", call_model=call, token_counter=self._token_counter,
+                meta={"spend_usd": 0})
+            self.assertEqual(report["status"], "FAIL")
+            self.assertEqual(calls, ["c", "c"])
+            self.assertFalse(report["applied"])
+
+    def test_b_objections_after_correction_cannot_apply_without_c_finalization(self):
+        with tempfile.TemporaryDirectory() as directory:
+            self.source_path = self._source_copy(directory)
+            calls = []
+            def call(model, _system, user, **kwargs):
+                calls.append(model)
+                draft = c_response()
+                if len(calls) == 1:
+                    draft["assignments"]["rule-001"] = "undefined-group"
+                if model == "c":
+                    return json.dumps(draft), {"cost": .01}
+                request = json.loads(user)
+                return json.dumps({"verdict": "REJECT", "reviewed_source_hash": request["source_hash"],
+                    "reviewed_candidate_hash": request["candidate_hash"],
+                    "covered_source_ids": ["rule-001", "rule-002"], "omissions": [],
+                    "meaning_changes": [{"location": "rule-c001", "issue": "Due-time scope changed."}],
+                    "operational_text": [], "notes": []}), {"cost": .01}
+            report = run_shadow_cleanup(self.source_path, Path(directory) / "shadow",
+                model_c="c", model_b="b", call_model=call, token_counter=self._token_counter,
+                meta={"spend_usd": 0})
+            self.assertEqual(report["status"], "FAIL")
+            self.assertEqual(report["stage"], "c_call_limit")
+            self.assertEqual(calls, ["c", "c", "b"])
+            self.assertFalse(report["applied"])
+
     def _source_copy(self, directory):
         source = Path(directory) / "source.json"
         source.write_bytes((FIX / "source.json").read_bytes())
@@ -497,6 +627,24 @@ class ShadowCleanupTests(unittest.TestCase):
                 "reason": "provider timeout",
             })
             self.assertFalse((output / "rounds/02").exists())
+
+    def test_provider_failure_during_b_review_is_not_an_invalid_authored_audit(self):
+        with tempfile.TemporaryDirectory() as directory:
+            self.source_path = self._source_copy(directory)
+            def call(model, *args, **kwargs):
+                if model == "c":
+                    return json.dumps(c_response()), {"cost": .01}
+                return "", {"cost": 0, "response_receipt": {"finish_reason": "error"}}
+            report = run_shadow_cleanup(
+                self.source_path, Path(directory) / "shadow", model_c="c", model_b="b",
+                call_model=call, token_counter=self._token_counter, meta={"spend_usd": 0},
+            )
+            self.assertEqual(report["status"], "FAIL")
+            self.assertEqual(report["failure_class"], "provider_failure")
+            self.assertEqual(report["stage"], "b_audit")
+            self.assertTrue(report["source_unchanged"])
+            self.assertFalse(report["applied"])
+            self.assertEqual(len(report["provider_calls"]), 2)
 
     def test_truncated_c_completion_fails_with_routing_receipt(self):
         with tempfile.TemporaryDirectory() as directory:

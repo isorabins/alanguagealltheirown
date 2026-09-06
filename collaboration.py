@@ -431,11 +431,24 @@ def import_inbox_spool(state: dict[str, Any], path: Path,
                        turn: int | None = None) -> dict[str, Any]:
     """Loop-only reconciliation from durable local transport into canonical memory."""
     spool = load_json(path, empty_inbox_spool())
+    generation = load_json(path.parent / "collaboration-generation.local.json", None)
+    if generation is not None:
+        if not isinstance(generation, dict) or not isinstance(generation.get("generation"), str):
+            raise ValueError("invalid collaboration generation")
+        if state.get("generation") != generation["generation"]:
+            state = deepcopy(generation)
     has_local = any(state.get(bucket) for bucket in ("research", "asks", "suggestions", "deliveries")) or bool(_processed(state))
     recovered = spool.get("recovery_state")
-    if not has_local and isinstance(recovered, dict) and recovered.get("schema_version") == SCHEMA_VERSION:
+    if (not any(state.get(bucket) for bucket in ("research", "asks", "suggestions", "deliveries"))
+            and isinstance(recovered, dict) and recovered.get("schema_version") == SCHEMA_VERSION
+            and ((generation is None and not has_local)
+                 or (generation is not None and recovered.get("generation") == generation["generation"]))):
         state = deepcopy(recovered)
     processed_list = _processed(state)
+    if generation is not None:
+        for retired in generation.get("processed_inbox_ids", []):
+            if retired not in processed_list:
+                processed_list.append(retired)
     processed = set(processed_list)
     for record in spool.get("records", []):
         if not isinstance(record, dict):

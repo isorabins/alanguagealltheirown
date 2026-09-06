@@ -1,0 +1,84 @@
+source	primary	clauses	disposition	obligations_and_resolution
+439	P01	P01,P09,P14	conflict	Single unit; no headers; ^ authority; narrative distinct; primarily actionable lines. Literal whole-line preservation conflicts with minimal form: R01.
+440	P09	P02,P09	consolidated	Exact omission categories and clarity condition; punctuation/case optional; binding words remain; decoder reconstruction cannot change meaning.
+441	P04	P04,P09	conflict	Decimal value and punctuation; ranges delimiter; monetary symbols/commas/decimals. Leading-zero permission subordinated to later exact bundles: R02.
+442	P03	P03	 superseded	Identifier atomicity; technical flags/endpoints/paths/emails/zones and technical colons remain exact; old tokenizer-dependent identifier encoding superseded by615: R03.
+443	P01	P01,P03,P04,P05,P07,P09	consolidated	Preserve all semantic facts, entities, venues, stakes, counts, numeric qualifiers, time/sequence, system/region/environment identifiers, comparative/logical rationale, colloquial units.
+444	P10	P03,P10	conflict	Own-line @definition; repeat>=3; exact substitution; strict net-token savings; encoded identifier/full bundle; action aliases; common-noun underscore convention replaced provisionally: R03,R09.
+445	P09	P01,P09	conflict	Required action prepositions retained or colon; directive slots; shared action/qualifier colon list; differing qualifiers separate; colon for by/at/to/for; + AND, | OR; >/< magnitude or duration age. Delimiter/operator collisions: R05.
+446	P01	P01	consolidated	Context facts appear in plain text before justified directives; preserve names, venues, constraints, deadlines, counts, capacity, stakes.
+449	P03	P03	 superseded	Old identifier backtick/underscore and tokenizer conditions removed by 615; exact IDs retained: R03.
+452	P03	P03,P10	 superseded	No underscores inside identifiers; backtick exactness and repetition aliasing; later identifier law wins: R03.
+453	P04	P02,P04	consolidated	Measured tuple as complete protected atom; quantity/units/threshold/comparison/target remain.
+454	P04	P02,P04	consolidated	Encoder and decoder measured components verified; all quantities/relations retained; source-access qualification R06.
+455	P05	P02,P05	consolidated	Temporal grouping and exact order/qualifiers preserved; consolidated boundaries.
+457	P05	P02,P05	consolidated	Temporal substring verbatim; no normalization or rephrasing.
+459	P05	P02,P05	 superseded	Temporal start/end and attached qualifiers consolidated by 669.
+461	P05	P02,P05	consolidated	Temporal decoder exactness including formatting; no paraphrase.
+465	P05	P02,P05	consolidated	Encoder character comparison before sending; correct mismatch.
+466	P05	P05	consolidated	Temporal end before independent clause; include attached location/timezone qualifiers; boundary example retained.
+467	P10	P03,P10	 superseded	Identifier alias definition stores literal punctuation with atomic representation; tokenizer-dependent mandates superseded: R03.
+470	P06	P02,P06	 superseded	Label/entity attachment and exactness retained; curly wrapper superseded by common angle brackets.
+477	P07	P02,P07	consolidated	Critical linked facts including action-condition/cause-effect/qualification-instruction grouped as one relationship; semantic category/link preserved.
+478	P03	P03,P10	 superseded	Universal backticks; prior mandatory alias>=3 superseded by 615, optional whole-token alias clarified by 665: R03.
+486	P03	P02,P03	 superseded	Identifier internal characters never grammatical even after reconstruction.
+487	P04	P02,P04,P07	 superseded	Measured boundaries, numbers/precision/units/thresholds and attachment; 588 supersedes; competing linked span precedence R04.
+489	P07	P02,P07	 superseded	Critical-fact || delimiter superseded; contiguous grouping and exact content retained.
+493	P06	P02,P06	consolidated	Encoder label/entity exact comparison, correct before transmission.
+496	P07	P02,P07	 superseded	Linked phrase boundaries/whole content; || superseded by angle wrapper and later first-category boundary R04.
+497	P02	P02,P03,P06,P07,P08	consolidated	Unify phrase delimiters, retain category conditions and identifier backticks; standalone descriptive parentheses also unified by 537: R04.
+502	P05	P02,P05	 superseded	Multi-temporal linked constraints one atom; old || delimiter superseded.
+505	P07	P02,P07	consolidated	Mandatory scan of multi-category linked critical facts; character equality before sending.
+506	P07	P07,P09	consolidated	Do not replace/omit linking words by symbols/minimal syntax where relational meaning must survive.
+510	P05	P02,P05	 superseded	Temporal mandatory verbatim grouping and boundaries consolidated by 669.
+511	P08	P02,P08	conflict	Descriptive attachment even without two distinct categories; trigger/bounds preserved; parentheses replaced under common wrapper: R04.
+513	P07	P02,P07	conflict	Group measured/temporal facts linked beyond one bundle; don't duplicate if contained; overlapping mandatory boundaries R04.
+515	P03	P03,P10	 superseded	All identifiers backticked; historical mandatory aliases for>=3 occurrences reconsidered under 615/665: R03.
+521	__exclude__	P14	operational	Self-referential repeal statement without a language behavior; preserve only in historical source.
+523	P06	P02,P06	consolidated	Label first word through final entity word; independent-clause boundary; wrapper and isolation; already-protected identifier interaction R04.
+524	P10	P02,P10	conflict	Already-bracketed source repeats>=3; $ref definition literal including wrappers; verify each occurrence; substitution and strict savings; mechanism selection. Two-example trigger inconsistency R10.
+529	P03	P02,P03	 superseded	Identifier remains opaque after reconstruction; no structural interpretation.
+531	P07	P02,P07	conflict	Introduced linked phrase begins linking word; replaces earlier linked rules; later662 begins first category. Prefer full relationship R04.
+537	P02	P02,P03,P08	consolidated	Common exact phrase wrapper including any other sender-designated exact substring; replaces earlier phrase delimiter; category triggers stay; identifiers remain under specific later law.
+541	P05	P02,P05	 superseded	Temporal internal symbols never grammar after decode; universal545 absorbs it.
+545	P14	P02,P03,P04,P05,P06,P07,P08,P14	consolidated	All protected semantic atoms stay opaque after reconstruction; identifier/temporal special repetitions consolidated.
+546	P05	P02,P05	 superseded	One multi-constraint temporal atom with links intact; 669 consolidates.
+547	P09	P09	conflict	Minimal reconstruction preserves plausible grammar and facts; first two examples retained; third wrongly omits if/because, corrected R07.
+549	P11	P11,P14	conflict	>=3 patterns; numbered placeholders; scoped variable definitions, invocations, exactness, alias/ref ordering and full costs retained as intended contract; ambiguous syntax disabled pending R08.
+556	P04	P02,P04	 superseded	Measured beginning/end encoder check, correction; consolidated by588.
+560	P04	P02,P04	 superseded	Numeric and comparative phrase complete with qualifiers/prepositions; consolidated by588.
+562	P06	P02,P06	consolidated	Label/entity stays opaque after reconstruction.
+563	P07	P02,P07	consolidated	Linked phrase first category to last linked category, all intervening words; later662 retained.
+567	P05	P02,P05	consolidated	Mandatory temporal scan before minimal form/other compression.
+569	P04	P02,P04	 superseded	Mandatory measured scan before compression; superseded588, operational repeal590 separated.
+573	P04	P02,P04	 superseded	Measured mandatory contiguous boundaries and exact comparison; superseded588.
+574	P12	P02,P12	conflict	>=3 lines exact prefix/suffix; single atomic middle; literal spaces, unwrap and concatenate; exact comparison. Example adds undeclared second variable, disallowed R10.
+575	P05	P02,P05	consolidated	Temporal decoder literal emission/validation; source access distinction R06.
+578	P07	P02,P07	consolidated	Mandatory linked scan, first/last category bounds; exact contiguous verification before transmit.
+586	P04	P02,P04	 superseded	Include allocation action verb preceding measured quantity; later588 consolidates.
+588	P04	P02,P04	consolidated	All numeric/comparison/allocation triggers; action starts; unit/target/qualifier ends; stop independent clause; no splitting; comparison/correction mandatory.
+590	__exclude__	P04	operational	Repeal569 statement retained in source history; measured behavior lives in588/P04.
+592	P04	P02,P04	consolidated	Entire allocation quantity-unit-preposition-target as one protected relationship.
+593	P04	P02,P04	consolidated	Encoder verifies every measured component before sending: precision, unit, target and relations; correct mismatch.
+594	P07	P02,P07	conflict	Mandatory linked scan still maps to662/P07; repeal646 cites absent adopted635. Do not infer missing operative text: R12.
+598	P03	P02,P03	consolidated	Identifier characters immune to all compression mechanisms.
+604	P03	P02,P03	consolidated	Identifier exactness immune to replacement, omission and reinterpretation.
+607	P03	P02,P03	 superseded	Identifier postdecode immunity, superseded613/615.
+613	P03	P02,P03	 superseded	Consolidated identifier definition/backticks/literal verification/opacity; later615 explicit immunity.
+615	P03	P02,P03,P10	consolidated	Authoritative opaque ID definition; every character including whitespace; encoder check; decoder literal/isolation; compression immunity; whole-alias665 clarification R03.
+621	P03	P02,P03	consolidated	Postdecode identifier character isolation duplicate.
+624	P05	P02,P05	consolidated	Keep conjunctions internal to multi-constraint temporal relationship, stop independent clauses.
+633	P05	P02,P05	consolidated	Temporal postdecode semantic opacity retained via669 despite repeal640.
+640	__exclude__	P05	operational	Repeal633 procedural text; opacity retained by669/P05, no independent language clause.
+641	P12	P02,P03,P12	conflict	>=3 lines prefix plus final atom; %list prefix$ no suffix; $ item expands with literal spacing and unwrap; ID example wrapper corrected under615; collision with655 R11.
+646	__exclude__	P07	operational	Repeal594 procedural text citing non-adopted635; final linked scan independently survives662; R12.
+651	P05	P02,P05	 superseded	Multi-constraint temporal bounds; reference647 not adopted; substantive text consolidated669, R12.
+652	P05	P02,P05	 superseded	Attached sequence marker retained; references647/649 not adopted, consolidated669, R12.
+653	P05	P02,P05	 superseded	Temporal decoder exact/opaque consolidation669.
+655	P12	P12,P14	conflict	Two-instance definition-free prefix reuse retained as documented intended capability but disabled in candidate: ambiguous antecedent and $ item collision R11.
+661	P04	P02,P04	consolidated	Measured output opaque after reconstruction; preserve numeric precision, units, comparison direction and complete action/target relation.
+662	P07	P02,P07	consolidated	Mandatory two-category relationship scan; trigger list; contiguous first-category through last linked fact; stop independent clause; character compare/correct.
+665	P03	P03,P10	consolidated	Identifier alias definition literal backticked source; no internal compression; before-storage comparison.
+667	__exclude__	P14	operational	Withdrawn proposal note; no operative behavior.
+668	P13	P02,P10,P11,P12,P13,P14	conflict	>=3 distinct whole lines; named macros, valid/reserved names; numbered atomic arguments, literal skeleton/spacing; known-name matching; aliases/references first; wrapped substitution and exact checks; selection overlap/two-example issue R10,R13.
+669	P05	P02,P05	consolidated	Six temporal trigger types; precompression scan; introduction/sequence/qualifier boundaries; linking constraints internal, independent clause outside; four boundary examples; exactness/correction/opacity; explicit supersessions.

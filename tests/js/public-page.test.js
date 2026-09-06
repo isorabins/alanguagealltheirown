@@ -2,6 +2,8 @@ const test=require('node:test'); const assert=require('node:assert/strict'); con
 const html=fs.readFileSync(path.join(__dirname,'../../viewer/index.html'),'utf8');
 const copyDeck=fs.readFileSync(path.join(__dirname,'../../viewer/prototype-observatory-copy.md'),'utf8');
 const scoringFixtures=JSON.parse(fs.readFileSync(path.join(__dirname,'../fixtures/scoring-v2-events.json'),'utf8'));
+const publicState=require('../../viewer/public-state.js');
+const readerSource=fs.readFileSync(path.join(__dirname,'../../viewer/public-state.js'),'utf8');
 const observatoryTruth=JSON.parse(fs.readFileSync(path.join(__dirname,'../fixtures/public-observatory-truth.json'),'utf8'));
 
 function viewerDocument() {
@@ -202,10 +204,8 @@ test('Watch the Live Test is persisted-state only and matches the locked termina
   assert.match(html,/\.trace-verdict> b\{[^}]*clamp\(\.8rem,1\.25vw,1rem\)/);
   assert.match(html,/@media \(max-width: 760px\)[\s\S]*?\.trace-line\{grid-template-columns:/);
   const refresh=html.slice(html.indexOf('function refreshPublicExamProgress'),html.indexOf('window.ALATO_PUBLIC_PROGRESS'));
-  assert.match(refresh,/public-exam-progress\.json/);
-  assert.match(refresh,/public-exam-progress\.json\?at="\+Date\.now\(\)/);
-  assert.match(refresh,/commits\?sha=main&path=state%2Fpublic-exam-progress\.json&per_page=1/);
-  assert.match(refresh,/\(!runtime\|\|runtime\.status==="paused"\)&&publicProgressPathExists!==true/);
+  assert.match(refresh,/publicReader.refreshProgress\(\)/);
+  assert.match(html,/setInterval\(loadState,60000\)/);
   assert.doesNotMatch(refresh,/\/api\/|encode|decode|judge|OPENROUTER|provider/i);
   assert.doesNotMatch(html,/preview trace|prototype simulation|replay trace/);
 });
@@ -432,13 +432,13 @@ test('last deployed savings remain visible when the live refresh fails',async()=
     compression_success:true,orig_tokens:469,enc_tokens:263,
     answer_key:[],atom_results:[],critical_failures:[],inventions:[]
   };
-  const window={STATE:{
+  const window={ALATO_STARTUP:{setSnapshot(){}},STATE:{
     conversation:[fallbackExam],rulebook:{version:'0.1',rules:[]},
     collaboration:{},conversations:[],x:{},meta:{updated:'deployed fixture'}
   }};
   const failedFetch=()=>Promise.reject(new Error('offline refresh failed'));
   const api=Function('document','window','fetch',
-    script.slice(0,loadCall)+'\nreturn {loadState};')(viewer.document,window,failedFetch);
+    script.slice(0,loadCall)+'\nreturn {loadState};')(viewer.document,Object.assign(window,{ALATO_PUBLIC_STATE:publicState}),failedFetch);
 
   api.loadState();
   assert.match(viewer.elements.get('metrics').innerHTML,/best strict savings · V2[\s\S]*<b>\+44%/,
@@ -449,72 +449,8 @@ test('last deployed savings remain visible when the live refresh fails',async()=
   assert.match(viewer.elements.get('exams').innerHTML,/coverage 100%[\s\S]*body savings \+44%/);
 });
 
-test('failed live refresh dynamically loads and renders the bundled archive',async()=>{
-  const script=html.match(/<script>\s*([\s\S]*?)<\/script>/)[1];
-  const loadCall=script.indexOf('\nloadState();');
-  assert.ok(loadCall>0,'loadState must remain independently executable');
-  const viewer=viewerDocument();
-  const appended=[];
-  viewer.document.createElement=(tag)=>({tag,src:'',onload:null,onerror:null});
-  viewer.document.head={appendChild(node){appended.push(node);}};
-  const window={};
-  const failedFetch=()=>Promise.reject(new Error('offline refresh failed'));
-  const api=Function('document','window','fetch',
-    script.slice(0,loadCall)+'\nreturn {loadState};')(viewer.document,window,failedFetch);
-
-  api.loadState();
-  await new Promise(resolve=>setImmediate(resolve));
-  assert.equal(appended.length,1);
-  assert.equal(appended[0].src,'state.js');
-  assert.equal(viewer.elements.get('metrics'),undefined,
-    'the historical archive must not be assumed present before its script loads');
-
-  window.STATE={
-    conversation:[{
-      type:'test',turn:200,scoring_version:'v2',judge_valid:true,
-      benchmark_id:'B1',benchmark_name:'Event prose',meaning_pass:true,
-      semantic_coverage_pct:100,message_body_savings_pct:44,
-      compression_success:true,orig_tokens:469,enc_tokens:263,
-      answer_key:[],atom_results:[],critical_failures:[],inventions:[]
-    }],
-    rulebook:{version:'0.1',rules:[]},collaboration:{},conversations:[],x:{},
-    meta:{updated:'deployed fixture'}
-  };
-  appended[0].onload();
-  await new Promise(resolve=>setImmediate(resolve));
-  assert.match(viewer.elements.get('metrics').innerHTML,/best strict savings · V2[\s\S]*<b>\+44%/);
-  assert.match(viewer.elements.get('exams').innerHTML,/coverage 100%[\s\S]*body savings \+44%/);
-});
-
-test('tiny live runtime clears a stale bootstrap before full history finishes',async()=>{
-  const script=html.match(/<script>\s*([\s\S]*?)<\/script>/)[1];
-  const loadCall=script.indexOf('\nloadState();');
-  const startup=fs.readFileSync(path.join(__dirname,'../../viewer/startup.js'),'utf8');
-  const viewer=viewerDocument();
-  const realNow=Date.now;
-  Date.now=()=>Date.parse('2026-08-22T04:35:00Z');
-  const window={
-    location:{hostname:'alanguagealltheirown.com'},
-    PUBLIC_BOOTSTRAP:{turn:2569,updated:'2026-08-15T08:30:33Z',metrics:[],runtime:{status:'active',turn:2569,next_exam_turn:2571}},
-    setInterval(){return 1;},setTimeout(){return 1;}
-  };
-  const pending=new Promise(()=>{});
-  const fetch=url=>{
-    if(String(url).includes('public-runtime.json'))return Promise.resolve({ok:true,json:()=>Promise.resolve({status:'active',turn:2933,next_exam_turn:2934,agent_c:{state:'quarantined'}})});
-    if(String(url).includes('api.github.com/repos/'))return Promise.resolve({ok:true,json:()=>Promise.resolve([{commit:{committer:{date:'2026-08-22T04:30:53Z'}}}])});
-    return pending;
-  };
-  try {
-    Function('window','document',startup)(window,viewer.document);
-    assert.equal(viewer.elements.get('t-turn').textContent,'checking');
-    const api=Function('document','window','fetch',script.slice(0,loadCall)+'\nreturn {loadState};')(viewer.document,window,fetch);
-    api.loadState();
-    await new Promise(resolve=>setImmediate(resolve));
-    assert.notEqual(viewer.elements.get('t-turn').textContent,'checking');
-    assert.equal(viewer.elements.get('agent-c-summary-label').textContent,'cleanup quarantined');
-    assert.doesNotMatch(viewer.elements.get('runtime-status-heading').textContent,/not advancing/i);
-  } finally { Date.now=realNow; }
-});
+// Reader fallback, early preview and revision races are protected through the
+// production public-state interface in public-state.test.js.
 
 test('deployed preview renders messages and adopted rules before live history finishes',()=>{
   const script=html.match(/<script>\s*([\s\S]*?)<\/script>/)[1];
@@ -522,6 +458,7 @@ test('deployed preview renders messages and adopted rules before live history fi
   const viewer=viewerDocument();
   const window={
     location:{hostname:'alanguagealltheirown.com'},
+    ALATO_STARTUP:{setSnapshot(){}},
     PUBLIC_BOOTSTRAP:{preview:{
       conversation:[
         {type:'message',turn:2933,agent:'A',content:'Latest deployed Agent A message.'},
@@ -535,7 +472,7 @@ test('deployed preview renders messages and adopted rules before live history fi
     }}
   };
   const pendingFetch=()=>new Promise(()=>{});
-  const api=Function('document','window','fetch',script.slice(0,loadCall)+'\nreturn {loadState};')(viewer.document,window,pendingFetch);
+  const api=Function('document','window','fetch',script.slice(0,loadCall)+'\nreturn {loadState};')(viewer.document,Object.assign(window,{ALATO_PUBLIC_STATE:publicState}),pendingFetch);
   api.loadState();
   assert.match(viewer.elements.get('paneA').innerHTML,/Latest deployed Agent A message/);
   assert.match(viewer.elements.get('paneB').innerHTML,/Latest deployed Agent B message/);
@@ -571,30 +508,8 @@ test('headline counters render before the full historical archive loads',()=>{
   assert.ok(html.indexOf(startupTag)<html.indexOf('<script>'));
   assert.doesNotMatch(html,/<script src="state\.js"><\/script>/,
     'the multi-megabyte historical archive must not block initial rendering');
-  assert.match(html,/function loadBundledState\(\)/,
-    'the deployed archive remains available as a fallback after live fetch failure');
-  assert.match(html,/if \(!when && window\.PUBLIC_BOOTSTRAP\) when = window\.PUBLIC_BOOTSTRAP\.updated \|\| null/,
-    'a GitHub commit-lookup failure must retain the deployed counter timestamp');
-
-  const startup=fs.readFileSync(path.join(__dirname,'../../viewer/startup.js'),'utf8');
-  const viewer=viewerDocument();
-  const intervals=[];
-  const window={
-    PUBLIC_BOOTSTRAP:{
-      turn:2193,updated:new Date(Date.now()-5*60*1000).toISOString(),
-      metrics:[['turns','2193'],['rules adopted','24']],
-      runtime:{status:'active',turn:2193,next_exam_turn:2196,next_conversation_turn:2202}
-    },
-    setInterval(fn){intervals.push(fn); return 1;},
-    setTimeout(){ return 1; }
-  };
-  Function('window','document',startup)(window,viewer.document);
-
-  assert.match(viewer.elements.get('t-exam').textContent,/^(?:\d\d:\d\d|running now|stalled)$/);
-  assert.match(viewer.elements.get('t-turn').textContent,/^(?:\d\d:\d\d|running now|stalled)$/);
-  assert.match(viewer.elements.get('exam-jump').textContent,/^(?:watch next test|watch live test now|see last test) ↓$/);
-  assert.match(viewer.elements.get('metrics').innerHTML,/turns[\s\S]*<b>2193<\/b>/);
-  assert.equal(intervals.length,1,'one lightweight timer owns the countdown refresh');
+  assert.match(html,/<script src="public-state\.js"><\/script>/);
+  assert.match(readerSource,/parseArchive/,'the full archive remains a safe asynchronous fallback');
 });
 
 test('paused runtime never advances turn or exam clocks',()=>{
@@ -812,8 +727,8 @@ test('stale runtime notice is truthful and self-clearing',()=>{
   assert.match(html,/id="runtime-status"[^>]*aria-live="polite"/);
   assert.match(startup,/The scheduled loop is not advancing\./);
   assert.match(startup,/public record is preserved at turn/);
-  assert.match(html,/path=state%2Fconversation\.json&per_page=1/);
-  assert.match(html,/runtimeStatus\.classList\.remove\("visible"\)/);
+  assert.match(readerSource,/path=state%2Fconversation\.json/);
+
 
   const viewer=viewerDocument(),window={PUBLIC_BOOTSTRAP:{},setInterval(){return 1;},setTimeout(){return 1;}};
   Function('window','document',startup)(window,viewer.document);
@@ -830,4 +745,40 @@ test('stale runtime notice is truthful and self-clearing',()=>{
   assert.equal(unknown.visible,true);
   assert.match(unknown.heading,/unavailable/);
   assert.doesNotMatch(unknown.stamp,/\blive$/);
+});
+
+test('latest evidence explanation describes the current result instead of a hardcoded older exam',()=>{
+ const script=html.match(/<script>\s*([\s\S]*?)<\/script>/)[1];
+ const viewer=viewerDocument();
+ const render=Function('document',script.slice(0,script.indexOf('\nfunction runtimeView'))+'\nreturn render;')(viewer.document);
+ const event={type:'test',turn:99,scoring_version:'v2',judge_valid:true,meaning_pass:false,compression_success:false,
+  orig_tokens:445,enc_tokens:410,semantic_coverage_pct:97,message_body_savings_pct:8,atom_results:[],answer_key:[]};
+ render({conversation:[event],rulebook:{version:'0.1',rules:[]},collaboration:{},conversations:[],meta:{}});
+ const text=viewer.elements.get('evidence-chain').innerHTML;
+ assert.match(text,/445 → 410 tokens/);
+ assert.match(text,/Message-body savings: 8%/);
+ assert.doesNotMatch(text,/CAT-882|grew by two|469 to 471/);
+});
+
+test('real page labels a pending preview honestly and restores full transcript label after fallback',async()=>{
+ const start=html.indexOf('var publicReader = null;'),end=html.indexOf('\nloadState();',start);
+ const viewer=viewerDocument(),seen=[];
+ let resolveFull;
+ const fullPending=new Promise(resolve=>resolveFull=resolve);
+ const data={conversation:[{turn:30,type:'message'}],rulebook:{rules:[]},meta:{runtime:{turn:30}}};
+ const ok=value=>({ok:true,status:200,json:async()=>value,text:async()=>value});
+ const fetch=async url=>{
+  if(url.includes('api.github.com'))return ok([{sha:'a'.repeat(40),commit:{committer:{date:'2026-09-05T00:00:00Z'}}}]);
+  if(url.includes('raw.githubusercontent.com')&&url.endsWith('preview.json'))return ok(data);
+  if(url.includes('raw.githubusercontent.com')&&url.endsWith('state.js'))return fullPending;
+  if(url==='state.js')return ok('window.STATE = '+JSON.stringify(data)+';');
+  return {ok:false,status:503};
+ };
+ const window={ALATO_PUBLIC_STATE:publicState,location:{hostname:'example.test'},ALATO_STARTUP:{setSnapshot(){}}};
+ const load=Function('window','document','fetch','render','currentRenderedState','renderPublicExamProgress','latestValidScoringV2',html.slice(start,end)+'\nreturn loadState;')(window,viewer.document,fetch,s=>seen.push(s),{},()=>{},()=>null);
+ const work=load();await new Promise(resolve=>setImmediate(resolve));
+ assert.equal(viewer.elements.get('transcript-summary').textContent,'Transcript preview — full history not yet loaded');
+ resolveFull({ok:false,status:503});await work;
+ assert.equal(viewer.elements.get('transcript-summary').textContent,'Full transcript — every turn, every exam');
+ assert.equal(seen.length,2);
 });

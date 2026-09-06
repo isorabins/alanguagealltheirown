@@ -277,6 +277,7 @@ class PublicExamProgressTests(unittest.TestCase):
                 loop.save("meta.json", {"tests_run": 0, "spend_usd": 0.0})
                 loop.save("collaboration.json", loop.empty_state())
                 loop.save("conversations.json", [])
+                loop.save("public-collaboration.json", loop.public_state(loop.empty_state()))
 
             subprocess.run(["git", "add", "-A"], cwd=repo, check=True)
             subprocess.run(
@@ -319,7 +320,10 @@ public_before = (state / "public-exam-progress.json").read_bytes()
 
 def observe_viewer_write(*_args):
     if (state / "public-exam-progress.json").read_bytes() != public_before:
-        raise AssertionError("public exam was published before canonical viewer state")
+        public = load_json(state / "public-exam-progress.json", {{}})
+        canonical = load_json(state / "conversation.json", [])[-1]
+        if public["turn"] != canonical["turn"] or public["encoded"] != canonical["encoded"]:
+            raise AssertionError("public exam diverged from its durable canonical turn")
 
 with ExitStack() as stack:
     stack.enter_context(mock.patch("loop.STATE", state))
@@ -331,14 +335,15 @@ with ExitStack() as stack:
     stack.enter_context(mock.patch("loop.write_viewer_state", side_effect=observe_viewer_write))
     stack.enter_context(mock.patch("loop.call", side_effect=responses))
     stack.enter_context(mock.patch("loop.token_count", side_effect=[100, 60]))
-    loop.run(1)
+    loop.run(0 if "--recover" in sys.argv else 1)
 ''')
             shim_dir = temp_root / "bin"
             shim_dir.mkdir()
             python_shim = shim_dir / "python3"
             python_shim.write_text('''#!/bin/sh
 if [ "$1" = "loop.py" ]; then
-  exec "$ALATO_TEST_PYTHON" "$ALATO_TEST_DRIVER" "$PWD"
+  shift
+  exec "$ALATO_TEST_PYTHON" "$ALATO_TEST_DRIVER" "$PWD" "$@"
 fi
 exec "$ALATO_TEST_PYTHON" "$@"
 ''')

@@ -48,3 +48,14 @@ _Avoid_: Total cost savings, API-bill savings
 A labeled hypothetical comparing a fixed multi-exchange plain-English scenario
 with rulebook-assisted communication, including the stated rulebook-cache cost.
 _Avoid_: Actual savings, provider telemetry
+
+
+**Completed turn**:
+One experiment outcome whose history, language, next actor, exam position and
+human-input delivery state agree after restart.
+_Avoid_: A saved conversation row alone
+
+**Public snapshot**:
+One coherent public account of a completed experiment state, including its
+language, evidence and runtime status.
+_Avoid_: A mixture of independently current records

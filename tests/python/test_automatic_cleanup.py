@@ -22,6 +22,36 @@ def source_rulebook(kernel_tokens=100):
 
 
 class AutomaticCleanupTests(unittest.TestCase):
+    def test_provider_completion_error_preserves_language_without_structural_quarantine(self):
+        # Replay the turn-2619 symptom through the real shadow/automatic boundary.
+        # An upstream failure is not evidence that C authored an invalid proposal.
+        with tempfile.TemporaryDirectory() as directory:
+            state_dir = Path(directory)
+            rb = source_rulebook(110)
+            original = copy.deepcopy(rb)
+            meta = {"spend_usd": 0.0, "automatic_cleanup": {
+                "schema_version": 2, "baseline_tokens": 100,
+                "baseline_language_hash": "old", "baseline_turn": 1,
+                "last_attempt_language_hash": None, "last_status": "armed",
+            }}
+            conv = []
+            atomic_write_json(state_dir / "rulebook.json", rb)
+            receipt = {"cost": 0, "response_receipt": {
+                "id": "recorded-provider-failure", "model": loop.MODEL_C,
+                "finish_reason": "error",
+            }}
+            with patch.object(loop, "STATE", state_dir), patch.object(
+                loop, "call", return_value=("", receipt)
+            ) as provider, patch.object(loop, "token_count", return_value=110) as counter:
+                self.assertFalse(loop.maybe_run_automatic_cleanup(conv, rb, meta, 10))
+            self.assertEqual(rb, original)
+            provider.assert_called_once()
+            counter.assert_called_once()
+            self.assertEqual(meta["automatic_cleanup"]["last_status"], "failed")
+            self.assertNotIn("quarantine", meta["automatic_cleanup"])
+            self.assertEqual(conv[-1]["failure_class"], "provider_failure")
+            self.assertEqual(conv[-1]["provider_calls"][0]["usage"], receipt)
+
     def test_invalid_b_advisory_quarantines_with_permanent_evidence(self):
         with tempfile.TemporaryDirectory() as directory:
             state_dir = Path(directory)
@@ -67,7 +97,7 @@ class AutomaticCleanupTests(unittest.TestCase):
             atomic_write_json(state_dir / "rulebook.json", rb)
 
             with patch.object(loop, "STATE", state_dir), patch.object(
-                loop, "run_shadow_cleanup"
+                loop, "run_admission_cleanup"
             ) as cleanup:
                 cleanup.return_value = {
                     "status": "FAIL",
@@ -131,7 +161,7 @@ class AutomaticCleanupTests(unittest.TestCase):
             atomic_write_json(state_dir / "rulebook.json", rb)
 
             with patch.object(loop, "STATE", state_dir), patch.object(
-                loop, "run_shadow_cleanup"
+                loop, "run_admission_cleanup"
             ) as cleanup:
                 cleanup.return_value = {
                     "status": "FAIL",
@@ -230,7 +260,7 @@ class AutomaticCleanupTests(unittest.TestCase):
             atomic_write_json(state_dir / "rulebook.json", rb)
 
             with patch.object(loop, "STATE", state_dir), patch.object(
-                loop, "run_shadow_cleanup"
+                loop, "run_admission_cleanup"
             ) as cleanup:
                 self.assertFalse(loop.maybe_run_automatic_cleanup(conv, rb, meta, 10))
                 cleanup.assert_not_called()
@@ -331,7 +361,7 @@ class AutomaticCleanupTests(unittest.TestCase):
             }
             atomic_write_json(state_dir / "rulebook.json", rb)
             with patch.object(loop, "STATE", state_dir), patch.object(
-                loop, "run_shadow_cleanup"
+                loop, "run_admission_cleanup"
             ) as cleanup:
                 self.assertFalse(loop.maybe_run_automatic_cleanup([], rb, meta, 10))
                 cleanup.assert_not_called()

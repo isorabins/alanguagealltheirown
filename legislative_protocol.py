@@ -21,6 +21,7 @@ from pydantic import (
 
 from rulebook import language_payload
 from state_store import snapshot_hash
+from exam_evidence import validated_persisted_exam
 
 PROTOCOL_VERSION = "structured-legislature-v1"
 MAX_STRUCTURAL_RETRIES = 2
@@ -890,156 +891,6 @@ def _semantic_fault_token(source_identity: str) -> str:
     return f"fault-{digest[:24]}"
 
 
-def _validated_v2_exam(
-    event: dict[str, Any],
-    canonical_atoms: dict[tuple[str, str], dict[str, Any]],
-) -> dict[str, Any] | None:
-    """Return a fully correlated judge-valid V2 exam or fail closed."""
-    turn = event.get("turn")
-    required_strings = (
-        "benchmark_id",
-        "benchmark_version",
-        "scoring_version",
-        "language_version",
-        "language_hash",
-        "original",
-        "encoded",
-        "decoded",
-    )
-    if not (
-        event.get("type") == "test"
-        and event.get("era") == "benchmark-v2"
-        and type(turn) is int
-        and turn >= SEMANTIC_FAULT_CUTOVER_TURN
-        and event.get("benchmark_id") in {"B1", "B2", "B3", "B4", "B5"}
-        and event.get("benchmark_version") == "v2"
-        and event.get("scoring_version") == "v2"
-        and event.get("judge_valid") is True
-        and event.get("judge_status") == "VALID"
-        and all(isinstance(event.get(key), str) for key in required_strings)
-        and len(event.get("language_hash", "")) == 64
-    ):
-        return None
-
-    answer_key = event.get("answer_key")
-    atom_results = event.get("atom_results")
-    critical_failures = event.get("critical_failures")
-    if not all(
-        isinstance(value, list)
-        for value in (answer_key, atom_results, critical_failures)
-    ) or not answer_key:
-        return None
-
-    normalized_key: list[dict[str, Any]] = []
-    key_ids: list[str] = []
-    for atom in answer_key:
-        if not (
-            isinstance(atom, dict)
-            and isinstance(atom.get("id"), str)
-            and atom.get("id")
-            and isinstance(atom.get("meaning"), str)
-            and atom.get("meaning")
-            and type(atom.get("critical")) is bool
-        ):
-            return None
-        literal_sets = atom.get("literal_sets")
-        canonical_atom = canonical_atoms.get((event["benchmark_id"], atom["id"]))
-        if canonical_atoms:
-            if not (
-                isinstance(canonical_atom, dict)
-                and canonical_atom.get("meaning") == atom["meaning"]
-                and canonical_atom.get("critical") is atom["critical"]
-            ):
-                return None
-            canonical_literal_sets = canonical_atom.get("literal_sets")
-            if literal_sets is None:
-                literal_sets = canonical_literal_sets
-            elif literal_sets != canonical_literal_sets:
-                return None
-        if not (
-            isinstance(literal_sets, list)
-            and all(
-                isinstance(group, list)
-                and group
-                and all(isinstance(value, str) and value for value in group)
-                for group in literal_sets
-            )
-        ):
-            return None
-        key_ids.append(atom["id"])
-        normalized_key.append(
-            {
-                "id": atom["id"],
-                "meaning": atom["meaning"],
-                "critical": atom["critical"],
-                "literal_sets": copy.deepcopy(literal_sets),
-            }
-        )
-    if len(key_ids) != len(set(key_ids)):
-        return None
-
-    normalized_results: list[dict[str, str]] = []
-    for item in atom_results:
-        if not (
-            isinstance(item, dict)
-            and isinstance(item.get("id"), str)
-            and item.get("verdict") in {"SURVIVED", "MISSING", "CORRUPTED"}
-            and isinstance(item.get("evidence"), str)
-        ):
-            return None
-        evidence = item["evidence"]
-        if (item["verdict"] == "MISSING") != (evidence == ""):
-            return None
-        normalized_results.append(
-            {
-                "id": item["id"],
-                "verdict": item["verdict"],
-                "evidence": evidence,
-            }
-        )
-    if [item["id"] for item in normalized_results] != key_ids:
-        return None
-
-    expected_failures = []
-    for atom, result in zip(normalized_key, normalized_results, strict=True):
-        if atom["critical"] and result["verdict"] in {"MISSING", "CORRUPTED"}:
-            expected_failures.append(
-                {
-                    "atom_id": atom["id"],
-                    "decoded_evidence": result["evidence"],
-                    "expected_meaning": atom["meaning"],
-                    "verdict": result["verdict"],
-                }
-            )
-    normalized_failures = []
-    for failure in critical_failures:
-        if not (
-            isinstance(failure, dict)
-            and isinstance(failure.get("atom_id"), str)
-            and isinstance(failure.get("decoded_evidence"), str)
-            and isinstance(failure.get("expected_meaning"), str)
-            and failure.get("verdict") in {"MISSING", "CORRUPTED"}
-        ):
-            return None
-        normalized_failures.append(
-            {
-                "atom_id": failure["atom_id"],
-                "decoded_evidence": failure["decoded_evidence"],
-                "expected_meaning": failure["expected_meaning"],
-                "verdict": failure["verdict"],
-            }
-        )
-    if normalized_failures != expected_failures:
-        return None
-
-    return {
-        "turn": turn,
-        "event": event,
-        "answer_key": normalized_key,
-        "atom_results": normalized_results,
-        "critical_failures": normalized_failures,
-    }
-
 
 def _source_evidence(
     exam: dict[str, Any], atom: dict[str, Any], failure: dict[str, str]
@@ -1242,7 +1093,7 @@ def derive_semantic_fault_ledger(
     for event in events:
         if not isinstance(event, dict):
             continue
-        exam = _validated_v2_exam(event, canonical_atoms)
+        exam = validated_persisted_exam(event, canonical_atoms, cutover_turn=SEMANTIC_FAULT_CUTOVER_TURN)
         if exam is not None:
             _apply_exam_to_fault_ledger(ledger, exam)
         elif event.get("type") == "legislature":

@@ -1,13 +1,11 @@
 #!/usr/bin/env python3
-"""A Language All Their Own — the entire engine.
+"""Scheduled experiment orchestration and provider adapters.
 
-Two agents negotiate an AI-to-AI language; every rule survives (or dies by)
-an encode/decode test against a fresh decoder. This file is deliberately all
-the code there is: plumbing only, the LLMs do the language.
+Domain modules own turn recovery, legislative outcomes, exam evidence and public
+snapshots. Models still invent and audit the language.
 """
 import argparse
 import copy
-import hashlib
 import json
 import math
 import os
@@ -20,39 +18,45 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 import requests
-from pydantic import ValidationError
 
-from collaboration import (deliver_one, empty_state, escalate_lookup_to_ask,
-                           import_inbox_spool, public_state, stable_record, write_outbox)
+from collaboration import (
+    empty_state,
+    escalate_lookup_to_ask,
+    import_inbox_spool,
+    public_state,
+    write_outbox,
+)
 from cleanup_rulebook import build_applied_rulebook
 from conversation_exam import run_conversation
 from legislative_protocol import (
-    MAX_STRUCTURAL_RETRIES,
     PROTOCOL_VERSION,
-    action_request_options,
     build_cutover_receipt,
-    build_legislative_request,
     build_post_state_receipt,
     current_open_motion,
-    derive_active_legislative_feedback,
     derive_semantic_fault_ledger,
     prompt_receipt_projection,
-    prompt_request_projection,
-    select_semantic_fault_for_turn,
-    semantic_fault_feedback,
-    validate_action,
-    validate_action_with_deliberation_fallback,
-    validation_reason,
 )
 from project_lookup import is_project_question, project_lookup
-from public_exam_progress import (PublicExamProgressWriter, classify_public_error,
-                                  public_error_diagnostic,
-                                  publish_completed_snapshot,
-                                  sanitize_completed_text)
-from rulebook import (_literal_set_survives, apply_typed_motion, language_payload,
-                      render_language, render_legislature, score_judgment_v2)
+from rulebook import (
+    language_payload,
+    render_language,
+    score_judgment_v2,
+)
 from shadow_cleanup import DEFAULT_MAX_SPEND_USD, run_shadow_cleanup
 from state_store import atomic_write_json, load_json, snapshot_hash
+from turn_store import TurnState, TurnStore
+from public_exam_progress import publish_completed_snapshot
+import legislature
+import exam_evidence
+import public_snapshot
+from exam_evidence import (
+    previous_benchmark_result,
+    _materialize_grader_evidence,
+)
+from legislature import (
+    next_legislative_actor,
+    latest_post_state_receipt,
+)
 
 ROOT = Path(__file__).resolve().parent
 STATE = ROOT / "state"
@@ -89,6 +93,7 @@ _key = None
 _no_reasoning_field = False
 _probe_overhead = None
 _probe_cache = {}
+_runtime_session = None
 _cost_receipt_ledger_path = None
 _cost_receipt_ledger = None
 
@@ -298,9 +303,12 @@ def record_provider_cost(meta, usage, *, response_id=None):
 
 
 def call(model, system, user, max_tokens=600, temperature=0.7, meta=None,
-         request_options=None):
+         request_options=None, transport=None):
     """One chat call. Returns (text, usage). Retries transient failures."""
     global _no_reasoning_field
+    if _runtime_session is not None and model == "gpt-6-astra":
+        return _runtime_session.compact(model, system, user,
+            request_options=request_options, meta=meta)
     messages = ([{"role": "system", "content": system}] if system else []) + [
         {"role": "user", "content": user}
     ]
@@ -325,7 +333,8 @@ def call(model, system, user, max_tokens=600, temperature=0.7, meta=None,
         if d:
             time.sleep(d)
         try:
-            r = requests.post(API_URL, headers=headers, json=body, timeout=180)
+            r = (transport or (_runtime_session.post if _runtime_session else requests.post))(
+                API_URL, headers=headers, json=body, timeout=180)
         except requests.RequestException as e:
             print(f"  ! network {e.__class__.__name__}, retry {i}", flush=True)
             continue
@@ -356,10 +365,11 @@ def call(model, system, user, max_tokens=600, temperature=0.7, meta=None,
     raise RuntimeError("api: retries exhausted")
 
 
-def token_count(text, meta):
+def token_count(text, meta, *, call_model=None):
     """Exact token size of standalone text: probe call, prompt_tokens minus overhead.
     Probe-based so reasoning/completion accounting can never contaminate it."""
     global _probe_overhead
+    call = call_model or globals()["call"]
     if text in _probe_cache:
         return _probe_cache[text]
     if _probe_overhead is None:
@@ -540,278 +550,29 @@ def collaboration_directive(text, kind):
     return match.group(1).strip().strip("*`").strip() if match else None
 
 
-def _strict_scoring_success(event):
-    return (
-        event.get("scoring_version") == "v2"
-        and event.get("judge_valid") is True
-        and event.get("meaning_pass") is True
-        and event.get("compression_success") is True
-    )
+
+
+
+
+
+
+def _public_policy():
+    return public_snapshot.PublicPolicy(SPEND_CAP, TEST_EVERY, AUTOMATIC_CLEANUP_GROWTH_PERCENT, MODEL_A)
 
 
 def _public_agent_c_state(rb, meta):
-    """Project the bounded, non-operative Agent C cleanup status."""
-    current_tokens = rb.get("kernel_tokens")
-    if isinstance(current_tokens, bool) or not isinstance(current_tokens, int):
-        current_tokens = 0
-    cleanup = meta.get("automatic_cleanup")
-    cleanup = cleanup if isinstance(cleanup, dict) else {}
-    baseline_tokens = cleanup.get("baseline_tokens")
-    if isinstance(baseline_tokens, bool) or not isinstance(baseline_tokens, int):
-        baseline_tokens = current_tokens
-    if baseline_tokens > 0:
-        threshold_tokens = (
-            baseline_tokens * (100 + AUTOMATIC_CLEANUP_GROWTH_PERCENT) + 99
-        ) // 100
-        growth_pct = round(
-            (current_tokens - baseline_tokens) / baseline_tokens * 100, 1
-        )
-        progress_pct = round(max(0.0, min(100.0, growth_pct * 10)), 1)
-    else:
-        threshold_tokens = 0
-        growth_pct = 0.0
-        progress_pct = 0.0
-
-    last_status = cleanup.get("last_status")
-    if last_status not in {"armed", "failed", "quarantined", "applied"}:
-        last_status = None
-    open_motion = current_open_motion(rb)
-    blocker = None
-    if last_status == "quarantined":
-        public_state = "quarantined"
-        quarantine = cleanup.get("quarantine")
-        if isinstance(quarantine, dict) and quarantine.get("reason") in {
-            "structural_output", "invalid_advisory"
-        }:
-            blocker = quarantine["reason"]
-    elif baseline_tokens <= 0 or current_tokens < threshold_tokens:
-        public_state = "growing"
-    elif open_motion is not None:
-        public_state = "blocked_motion"
-        blocker = open_motion.target_rule_id
-    elif (
-        last_status == "failed"
-        and cleanup.get("last_attempt_language_hash") == language_payload(rb)["hash"]
-    ):
-        public_state = "blocked_attempt"
-        blocker = "prior_failure_same_language"
-    else:
-        public_state = "eligible"
-    last_attempt_turn = cleanup.get("last_attempt_turn")
-    if isinstance(last_attempt_turn, bool) or not isinstance(last_attempt_turn, int):
-        last_attempt_turn = None
-    return {
-        "state": public_state,
-        "current_tokens": current_tokens,
-        "baseline_tokens": baseline_tokens,
-        "threshold_tokens": threshold_tokens,
-        "growth_pct": growth_pct,
-        "trigger_pct": AUTOMATIC_CLEANUP_GROWTH_PERCENT,
-        "progress_pct": progress_pct,
-        "blocker": blocker,
-        "last_attempt_turn": last_attempt_turn,
-        "last_status": last_status,
-    }
+    return public_snapshot._public_agent_c_state(rb, meta, AUTOMATIC_CLEANUP_GROWTH_PERCENT)
 
 
 def _public_runtime_state(turn, meta, rb):
-    agent_c = _public_agent_c_state(rb, meta)
-    if float(meta.get("spend_usd", 0.0)) >= SPEND_CAP:
-        return {
-            "status": "paused",
-            "turn": turn,
-            "message": (
-                f"Experiment paused at turn {turn}. No new turn or exam is running. "
-                "The public record remains available."
-            ),
-            "next_exam_turn": None,
-            "next_conversation_turn": None,
-            "agent_c": agent_c,
-        }
-    next_exam_turn = turn + (TEST_EVERY - (turn % TEST_EVERY))
-    tests_run = meta.get("tests_run")
-    next_conversation_turn = None
-    if isinstance(tests_run, int) and not isinstance(tests_run, bool):
-        exams_remaining = 32 - (tests_run % 32)
-        next_conversation_turn = next_exam_turn + (exams_remaining - 1) * TEST_EVERY
-    return {
-        "status": "active",
-        "turn": turn,
-        "message": "The experiment is active.",
-        "next_exam_turn": next_exam_turn,
-        "next_conversation_turn": next_conversation_turn,
-        "agent_c": agent_c,
-    }
-
-
-def _public_cleanup_event(event):
-    """Whitelist the bounded cleanup receipt safe for the public viewer."""
-    public = {
-        key: copy.deepcopy(event[key])
-        for key in (
-            "turn", "agent", "type", "status", "failure_class",
-            "source_tokens", "candidate_tokens", "applied_tokens",
-            "reduction_pct", "run_spend_usd",
-        )
-        if key in event
-    }
-    public["rounds"] = []
-    for round_item in event.get("rounds", []):
-        if not isinstance(round_item, dict):
-            continue
-        public_round = {
-            key: copy.deepcopy(round_item[key])
-            for key in (
-                "round", "b_verdict", "candidate_tokens", "reduction_pct",
-                "candidate_changed_from_previous", "finding_counts",
-            )
-            if key in round_item
-        }
-        public["rounds"].append(public_round)
-    return public
+    return public_snapshot._public_runtime_state(turn, meta, rb, _public_policy())
 
 
 def write_viewer_state(conv, rb, meta, collaboration=None, conversations=None):
-    # Protocol cutover receipts are canonical harness bookkeeping, not public
-    # conversation events. Keep them in the persisted source log and out of the
-    # unchanged viewer renderer, which has no cutover event presentation.
-    public_conversation = []
-    for event in conv:
-        if event.get("type") == "protocol_cutover":
-            continue
-        public_conversation.append(
-            _public_cleanup_event(event)
-            if event.get("type") == "cleanup"
-            else event
-        )
-    updated = now_iso()
-    tests = [event for event in public_conversation if event.get("type") == "test"]
-    latest_valid_v2 = next(
-        (
-            event
-            for event in reversed(tests)
-            if event.get("scoring_version") == "v2"
-            and event.get("judge_valid") is True
-        ),
-        None,
+    public_snapshot.write_snapshot(
+        TurnState(conv, rb, meta, collaboration or empty_state(), conversations or []),
+        ROOT, updated=meta.get("last_completed_turn_at"), policy=_public_policy(),
     )
-    savings = [event.get("message_body_savings_pct") for event in tests
-               if _strict_scoring_success(event)
-               and isinstance(event.get("message_body_savings_pct"), (int, float))
-               and not isinstance(event.get("message_body_savings_pct"), bool)
-               and math.isfinite(event["message_body_savings_pct"])]
-    best_savings = max(savings) if savings else None
-    revision_parts = str(rb.get("version", "0.0")).split(".", 1)
-    revisions = revision_parts[1] if len(revision_parts) == 2 else "0"
-    turn = public_conversation[-1].get("turn", 0) if public_conversation else 0
-    runtime = _public_runtime_state(turn, meta, rb)
-    runtime_path = ROOT / "state" / "public-runtime.json"
-    runtime_path.parent.mkdir(exist_ok=True)
-    atomic_write_json(runtime_path, runtime)
-    language = language_payload(rb)
-    public_language = {
-        "version": language["version"],
-        "hash": language["hash"],
-        "rules": language["rules"],
-        "text": render_language(rb),
-    }
-    atomic_write_json(ROOT / "state" / "public-language.json", public_language)
-    notes = load_json(ROOT / "notes.json", [])
-    adopted_count = sum(rule.get("status") == "adopted" for rule in rb.get("rules", []))
-    pct = lambda value: ("+" if value > 0 else "") + f"{value}%"
-    latest_conversation = (conversations or [])[-1] if conversations else None
-    conversation_judgment = (
-        latest_conversation.get("judgment", {}) if latest_conversation else {}
-    )
-    conversation_rows = conversation_judgment.get("requirements", [])
-    conversation_passes = sum(
-        row.get("pass") is True for row in conversation_rows if isinstance(row, dict)
-    )
-    conversation_metric = (
-        f"{conversation_passes} / {len(conversation_rows)} pass"
-        if conversation_judgment.get("valid") is True and conversation_rows
-        else "unavailable"
-    )
-    metrics = [
-        ["rulebook revisions", str(revisions)],
-        ["turns", str(turn)],
-        ["rules adopted", str(adopted_count)],
-        [
-            "best strict savings · V2",
-            pct(best_savings) if best_savings is not None else "—",
-        ],
-        [
-            "latest coverage · V2",
-            (
-                f'{latest_valid_v2.get("semantic_coverage_pct")}% · '
-                f'{"pass" if latest_valid_v2.get("meaning_pass") else "fail"}'
-                if latest_valid_v2
-                else "awaiting V2"
-            ),
-        ],
-        ["latest Conversation", conversation_metric],
-    ]
-    preview_rules = [
-        rule for rule in rb.get("rules", [])
-        if rule.get("status") in {"adopted", "proposed"}
-        or rule.get("pending_repeal")
-    ]
-    terminal_rules = [
-        rule for rule in rb.get("rules", []) if rule not in preview_rules
-    ][-10:]
-    bootstrap = {
-        "turn": turn,
-        "updated": updated,
-        "runtime": runtime,
-        "metrics": metrics,
-        "preview": {
-            "conversation": public_conversation[-30:],
-            "rulebook": {
-                "version": rb.get("version", "0.0"),
-                "rules": preview_rules + terminal_rules,
-            },
-            "collaboration": {},
-            "conversations": (conversations or [])[-1:],
-            "language": public_language,
-            "notes": notes[-1:] if isinstance(notes, list) else [],
-            "meta": {"updated": updated, "runtime": runtime},
-            "metrics": metrics,
-        },
-    }
-    (ROOT / "viewer" / "bootstrap.js").write_text(
-        "window.PUBLIC_BOOTSTRAP = "
-        + json.dumps(bootstrap, separators=(",", ":"))
-        + ";\n"
-    )
-    (ROOT / "viewer" / "state.js").write_text(
-        "window.STATE = " + json.dumps(
-            {"conversation": public_conversation, "rulebook": rb,
-             "collaboration": public_state(collaboration or empty_state()),
-             "conversations": conversations or [], "language": public_language,
-             "notes": notes if isinstance(notes, list) else [],
-             "meta": {"spend_usd": meta.get("spend_usd", 0), "model": MODEL_A,
-                      "spend_usd_historical_estimate":
-                          meta.get("spend_usd_historical_estimate"),
-                      "spend_usd_provider_exact_since_cutover":
-                          meta.get("spend_usd_provider_exact_since_cutover"),
-                      "cost_accounting_basis": meta.get("cost_accounting_basis"),
-                      "updated": updated, "run": meta.get("run", "local"),
-                      "runtime": runtime}}) + ";\n")
-
-
-def next_legislative_actor(meta):
-    return "B" if meta.get("last_agent") == "A" else "A"
-
-
-def latest_post_state_receipt(conv):
-    for event in reversed(conv):
-        if isinstance(event.get("post_state_receipt"), dict):
-            return event["post_state_receipt"]
-        if event.get("type") == "protocol_cutover" and isinstance(
-            event.get("state_receipt"), dict
-        ):
-            return event["state_receipt"]
-    return None
 
 
 def ensure_structured_protocol_cutover(conv, rb, meta, *, activation_turn):
@@ -849,7 +610,7 @@ def ensure_structured_protocol_cutover(conv, rb, meta, *, activation_turn):
 
 
 AUTOMATIC_CLEANUP_STATE_SCHEMA_VERSION = 2
-AUTOMATIC_CLEANUP_EDITION = "automatic-cleanup-v5-structured-context"
+AUTOMATIC_CLEANUP_EDITION = "automatic-cleanup-v7-astra-verified-admission"
 MAX_POST_CHECKPOINT_CHANGES = 64
 MAX_STRUCTURED_PROMPT_CHARS = 120_000
 
@@ -873,37 +634,6 @@ def build_structured_cleanup_snapshot(candidate, *, checkpoint_turn, source_hash
     if len(json.dumps(snapshot, ensure_ascii=False, separators=(",", ":"))) > 25_000:
         raise ValueError("structured snapshot exceeds the deterministic size budget")
     return snapshot
-
-
-def post_checkpoint_rule_changes(rb, checkpoint_turn):
-    """Project only adopted, revised, and repealed changes after C's checkpoint."""
-    relevant_verbs = {"adopt", "revise", "repeal_adopted", "repeal_revised"}
-    changes = []
-    for rule in rb.get("rules", []):
-        relevant = [
-            history for history in rule.get("history", [])
-            if isinstance(history, dict)
-            and history.get("verb") in relevant_verbs
-            and isinstance(history.get("turn"), int)
-            and history["turn"] > checkpoint_turn
-        ]
-        if not relevant:
-            continue
-        latest = max(relevant, key=lambda row: row["turn"])
-        changes.append({
-            "turn": latest["turn"],
-            "verb": latest["verb"],
-            "rule_id": rule.get("id"),
-            "status": rule.get("status"),
-            "text_en": rule.get("text_en"),
-            "source_ids": copy.deepcopy(rule.get("source_ids", [])),
-        })
-    changes.sort(key=lambda row: (row["turn"], str(row["rule_id"])))
-    if len(changes) > MAX_POST_CHECKPOINT_CHANGES:
-        raise RuntimeError("post-checkpoint rule projection exceeds the deterministic item budget")
-    if len(json.dumps(changes, ensure_ascii=False, separators=(",", ":"))) > 50_000:
-        raise RuntimeError("post-checkpoint rule projection exceeds the deterministic size budget")
-    return changes
 
 
 def _structural_cleanup_failure(report):
@@ -956,8 +686,21 @@ def reset_automatic_cleanup_quarantine(state, *, reviewed_edition, operator):
     state.pop("quarantine")
 
 
-def maybe_run_automatic_cleanup(conv, rb, meta, turn):
-    """Apply the proven shadow workflow after 10% adopted-language growth."""
+def run_admission_cleanup(source_path, output, **kwargs):
+    """Normal cleanup always proves the final book against the registered suite."""
+    from verified_cleanup import run_verified_cleanup
+    try:
+        return run_verified_cleanup(source_path, output,
+            exams=exam_evidence.ExamResources(
+                ROOT, load_benchmark_suite(), MODEL_A, MODEL_DECODER, MODEL_GRADER),
+            **kwargs)
+    finally:
+        if _runtime_session is not None and Path(output).exists():
+            _runtime_session.retain_cleanup(output)
+
+
+def maybe_run_automatic_cleanup(conv, rb, meta, turn, *, cleanup_runner=None):
+    """Apply only a semantically reviewed, exam-proven compact book after growth."""
     current_tokens = rb.get("kernel_tokens")
     if (
         isinstance(current_tokens, bool)
@@ -1024,7 +767,7 @@ def maybe_run_automatic_cleanup(conv, rb, meta, turn):
 
     with tempfile.TemporaryDirectory(prefix="alato-cleanup-") as directory:
         output = Path(directory) / "result"
-        report = run_shadow_cleanup(
+        report = (cleanup_runner or run_admission_cleanup)(
             source_path,
             output,
             model_c=MODEL_C,
@@ -1062,7 +805,7 @@ def maybe_run_automatic_cleanup(conv, rb, meta, turn):
                 "agent": "harness",
                 "type": "cleanup",
                 "status": "failed",
-                "failure_class": quarantine_class or "other",
+                "failure_class": quarantine_class or report.get("failure_class") or "other",
                 "source_hash": report.get("source_hash"),
                 "candidate_hash": report.get("candidate_hash"),
                 "source_tokens": report.get("source_tokens"),
@@ -1070,6 +813,9 @@ def maybe_run_automatic_cleanup(conv, rb, meta, turn):
                 "reduction_pct": report.get("reduction_pct"),
                 "reason": state["last_reason"],
                 "models": report.get("models"),
+                "admission_stage": report.get("stage"),
+                "exam_results": copy.deepcopy(report.get("exam_results")),
+                "final_semantic_verdict": report.get("final_semantic_verdict"),
                 "provider_calls": copy.deepcopy(report.get("provider_calls")),
                 "rounds": copy.deepcopy(report.get("rounds")),
                 "b_advisory_error": copy.deepcopy(
@@ -1099,7 +845,7 @@ def maybe_run_automatic_cleanup(conv, rb, meta, turn):
             role="harness",
             action=None,
             result="cutover",
-            reason="automatic_cleanup_c_final_authority",
+            reason="automatic_cleanup_validated_admission",
             before_rulebook=before_rulebook,
             after_rulebook=applied,
             next_actor=next_legislative_actor(meta),
@@ -1130,6 +876,9 @@ def maybe_run_automatic_cleanup(conv, rb, meta, turn):
             "source_tokens": report.get("source_tokens"),
             "candidate_tokens": report.get("candidate_tokens"),
             "applied_tokens": applied_tokens,
+            "exam_results": copy.deepcopy(report.get("exam_results")),
+            "final_semantic_verdict": report.get("final_semantic_verdict"),
+            "reviewed_candidate_hash": report.get("reviewed_candidate_hash"),
             "reduction_pct": report.get("reduction_pct"),
             "models": report.get("models"),
             "prompt_versions": {
@@ -1150,517 +899,33 @@ def maybe_run_automatic_cleanup(conv, rb, meta, turn):
         return True
 
 
-def assemble_legislative_prompt(
-    conv,
-    rb,
-    *,
-    turn,
-    agent,
-    collaboration_input,
-    structured_snapshot=None,
-):
-    """Assemble the one deterministic model-facing legislative projection."""
-    prompt_version, role_prompt_path = ACTIVE_AGENT_PROMPTS[agent]
-    role_prompt = role_prompt_path.read_text()
-    constitution = (ROOT / "prompts" / "constitution.md").read_text()
-    next_test = ((turn // TEST_EVERY) + 1) * TEST_EVERY
-    active_feedback = derive_active_legislative_feedback(
-        conv, current_open_motion(rb)
-    )
-    fault_ledger = derive_semantic_fault_ledger(
-        conv, benchmark_suite=load_benchmark_suite()
-    )
-    semantic_fault = select_semantic_fault_for_turn(
-        fault_ledger,
-        role=agent,
-        open_motion=current_open_motion(rb),
-    )
-    fault_feedback = semantic_fault_feedback(semantic_fault)
-    required_fault_token = (
-        semantic_fault.fault_token
-        if semantic_fault is not None
-        and semantic_fault.status == "UNRESOLVED"
-        and agent == "A"
-        and current_open_motion(rb) is None
-        else None
-    )
-    request = build_legislative_request(
-        role=agent,
-        turn=turn,
-        next_live_test_turn=next_test,
-        rulebook=rb,
-        latest_receipt=latest_post_state_receipt(conv),
-        active_legislative_feedback=active_feedback,
-        semantic_fault_feedback=fault_feedback,
-        collaboration_input=collaboration_input,
-    )
-    open_motion = request.current_state.open_motion
-    target = (
-        open_motion.target_rule_id
-        if open_motion is not None
-        else "the authoritative current state"
-    )
-    audit_focus = (
-        f"open {target}"
-        if open_motion is not None
-        else target
-    )
-    public_stem = "Public audit:" if agent == "B" else "Public proposal:"
-    example_deliberation = (
-        f"Public audit: {target} needs a focused verification before adoption. "
-        "The boundary must be explicit enough for a fresh decoder to apply."
-        if agent == "B"
-        else (
-            "Public proposal: the current idea needs one focused revision. "
-            "This change states the reusable mechanism and its decoding boundary."
-        )
-    )
-    if agent == "B":
-        example_motion = (
-            {
-                "kind": "REQUEST",
-                "target_rule_id": target,
-                "focus": "Verify one exact boundary before adoption.",
-            }
-            if open_motion is not None
-            else None
-        )
-    else:
-        example_motion = (
-            {
-                "kind": "REVISE",
-                "target_rule_id": target,
-                "text": "Preserve the idea with one exact boundary.",
-            }
-            if open_motion is not None
-            else {
-                "kind": "PROPOSE",
-                "text": "Use one exact marker for one repeated meaning.",
-            }
-        )
-    example = json.dumps(
-        {
-            "deliberation": example_deliberation,
-            "motion": example_motion,
-            "fault_response": (
-                {
-                    "status": "REPAIR_PROPOSED",
-                    "fault_token": required_fault_token,
-                }
-                if required_fault_token is not None
-                else None
-            ),
-            "measurements": [],
-            "requests": [],
-        },
-        ensure_ascii=False,
-        separators=(",", ":"),
-    )
-    output_contract = (
-        "=== MANDATORY PUBLIC OUTPUT CONTRACT ===\n"
-        "`deliberation` is required public output, not private reasoning. It "
-        "must give a substantive, deliberately public conclusion and rationale "
-        f"beginning exactly \"{public_stem}\". Multiple paragraphs are allowed; "
-        "never expose hidden chain-of-thought. "
-        "Return the exact object key and value types required by the schema; "
-        "never substitute prose strings or differently named request fields. "
-        f"Valid non-operative shape example: {example}\n"
-        + (
-            "Never put legacy prose such as `ADOPT: rule-NNN` in `motion`; "
-            "use only the schema-required object.\n"
-            if agent == "B"
-            else ""
-        )
-        + "Never return an empty, whitespace-only, or punctuation-only "
-        "`deliberation` value.\n"
-        + (
-            "The supplied abstract semantic fault is mandatory now. Return "
-            "one focused `PROPOSE` motion and the exact schema-bound "
-            "`fault_response`; prompt presence or free prose is not attention. "
-            "Generalize the repair from its invariant and do not seek the "
-            "private benchmark source.\n\n"
-            if required_fault_token is not None
-            else "\n"
-        )
-    )
-    prompt_request = prompt_request_projection(request)
-    if semantic_fault is not None:
-        prompt_request = _projection_without_private_fault_material(
-            prompt_request, fault_ledger
-        )
-    open_motion_record = None
-    if open_motion is not None:
-        rule = next(
-            (row for row in rb.get("rules", []) if row.get("id") == open_motion.target_rule_id),
-            None,
-        )
-        if rule is None:
-            raise RuntimeError("open motion target is missing from the legislature")
-        open_motion_record = {
-            "id": rule.get("id"),
-            "status": rule.get("status"),
-            "text_en": rule.get("text_en"),
-            "pending_repeal": copy.deepcopy(rule.get("pending_repeal")),
-        }
-        if semantic_fault is not None:
-            open_motion_record = _projection_without_private_fault_material(
-                open_motion_record, fault_ledger
-            )
-    if structured_snapshot is not None:
-        if not isinstance(structured_snapshot, dict):
-            raise RuntimeError("structured cleanup snapshot is invalid")
-        checkpoint_turn = structured_snapshot.get("checkpoint_turn")
-        if isinstance(checkpoint_turn, bool) or not isinstance(checkpoint_turn, int):
-            raise RuntimeError("structured cleanup checkpoint is invalid")
-        structured_context = {
-            "accepted_snapshot": copy.deepcopy(structured_snapshot),
-            "post_checkpoint_changes": post_checkpoint_rule_changes(rb, checkpoint_turn),
-            "current_machine_state": prompt_request,
-        }
-        if semantic_fault is not None:
-            structured_context = _projection_without_private_fault_material(
-                structured_context, fault_ledger
-            )
-        context_json = json.dumps(
-            structured_context, ensure_ascii=False, separators=(",", ":")
-        )
-        system = (
-            f"{output_contract}{constitution}\n\n{role_prompt}\n\n"
-            f"=== STRUCTURED WORKING CONTEXT ===\n{context_json}"
-        )
-    else:
-        if semantic_fault is not None:
-            prompt_language, _prompt_legislature = (
-                _rulebook_views_without_private_fault_material(rb, fault_ledger)
-            )
-        else:
-            prompt_language = render_language(rb)
-        system = (
-            f"{output_contract}{constitution}\n\n{role_prompt}\n\n"
-            f"=== ADOPTED LANGUAGE ===\n{prompt_language}\n\n"
-            f"=== OPEN MOTION ===\n"
-            f"{json.dumps(open_motion_record, ensure_ascii=False, separators=(',', ':'))}\n\n"
-            f"=== AUTHORITATIVE CURRENT MACHINE STATE AND RECEIPT ===\n"
-            f"{json.dumps(prompt_request, ensure_ascii=False, separators=(',', ':'))}"
-        )
-    context_basis = (
-        "the structured working context"
-        if structured_snapshot is not None
-        else "the adopted language and authoritative current state"
-    )
-    user = (
-        f"It is turn {turn}. You are Agent B. Audit only {audit_focus} using "
-        f"{context_basis}, and "
-        "collaboration input above. Write a complete deliberately public conclusion "
-        "and rationale in `deliberation`, beginning exactly \"Public audit:\". "
-        "Multiple paragraphs are allowed. Return only the required "
-        "structured response."
-        if agent == "B"
-        else (
-            f"It is turn {turn}. You are Agent A. Use {context_basis} and "
-            "collaboration input above. Write a "
-            "complete deliberately public conclusion and rationale in `deliberation`, "
-            "beginning exactly \"Public proposal:\". Multiple paragraphs are allowed. "
-            "Return only the required structured response."
-        )
-    )
-    prompt_receipt = {
-        "role_version": prompt_version,
-        "role_sha256": hashlib.sha256(role_prompt.encode()).hexdigest(),
-        "assembled_sha256": hashlib.sha256(
-            f"SYSTEM\n{system}\nUSER\n{user}".encode()
-        ).hexdigest(),
-    }
-    total_chars = len(system) + len(user)
-    if total_chars > MAX_STRUCTURED_PROMPT_CHARS:
-        raise RuntimeError("legislative prompt exceeds the deterministic size budget")
-    return {
-        "system": system,
-        "user": user,
-        "prompt_receipt": prompt_receipt,
-        "request_options": action_request_options(
-            agent, rb, required_fault_token=required_fault_token
-        ),
-        "canonical_request": request,
-        "prompt_request": prompt_request,
-        "required_fault_token": required_fault_token,
-        "total_chars": total_chars,
-    }
 
 
-def _private_fault_material(fault_ledger):
-    """Return exact source strings that must never share a model prompt."""
-    material = set()
-    for entry in fault_ledger:
-        if entry.status == "RESOLVED":
-            continue
-        source = entry.latest_source
-        material.update(
-            {
-                source.benchmark_id,
-                source.atom_id,
-                source.expected_meaning,
-                source.decoded_evidence,
-                source.original,
-                source.encoded,
-                source.decoded,
-            }
-        )
-        material.update(
-            literal
-            for alternatives in source.required_literal_sets
-            for literal in alternatives
-        )
-    return tuple(sorted((value for value in material if value), key=len, reverse=True))
 
 
-def _contains_private_fault_material(value, material):
-    return isinstance(value, str) and any(private in value for private in material)
 
 
-def _projection_without_private_fault_material(value, fault_ledger):
-    """Redact a complete model-only field if it overlaps exact private evidence."""
-    material = _private_fault_material(fault_ledger)
-    if isinstance(value, dict):
-        return {
-            key: _projection_without_private_fault_material(item, fault_ledger)
-            for key, item in value.items()
-        }
-    if isinstance(value, list):
-        return [
-            _projection_without_private_fault_material(item, fault_ledger)
-            for item in value
-        ]
-    if _contains_private_fault_material(value, material):
-        return PRIVATE_FAULT_PROMPT_REDACTION
-    return value
+def _legislative_resources():
+    return legislature.LegislativeResources(
+        ROOT, ACTIVE_AGENT_PROMPTS, load_benchmark_suite(),
+        {"A": MODEL_A, "B": MODEL_B}, TEST_EVERY, AGENT_TEMP,
+    )
 
 
-def _rulebook_views_without_private_fault_material(rb, fault_ledger):
-    """Conceal contaminated prose without changing canonical view metadata."""
-    prompt_language = render_language(rb)
-    prompt_legislature = render_legislature(rb)
-    material = _private_fault_material(fault_ledger)
-    for rule in rb.get("rules", []):
-        text = rule.get("text_en")
-        if _contains_private_fault_material(text, material):
-            prompt_language = prompt_language.replace(
-                text, PRIVATE_FAULT_PROMPT_REDACTION
-            )
-            prompt_legislature = prompt_legislature.replace(
-                text, PRIVATE_FAULT_PROMPT_REDACTION
-            )
-        pending = rule.get("pending_repeal")
-        if isinstance(pending, dict) and _contains_private_fault_material(
-            pending.get("rationale"), material
-        ):
-            prompt_legislature = prompt_legislature.replace(
-                pending["rationale"], PRIVATE_FAULT_PROMPT_REDACTION
-            )
-    return prompt_language, prompt_legislature
+def assemble_legislative_prompt(conv, rb, *, turn, agent, collaboration_input,
+                                structured_snapshot=None):
+    return legislature.assemble_request(
+        conv, rb, turn=turn, agent=agent, collaboration_input=collaboration_input,
+        structured_snapshot=structured_snapshot, resources=_legislative_resources(),
+    )
 
 
 def agent_turn(conv, rb, meta, collaboration, turn):
-    agent = next_legislative_actor(meta)
-    model = MODEL_A if agent == "A" else MODEL_B
-    collaboration_before_delivery = copy.deepcopy(collaboration)
-    delivery = (deliver_one(collaboration, "RESEARCH", agent, turn) or
-                deliver_one(collaboration, "ASK", agent, turn) or
-                deliver_one(collaboration, "SUGGESTION", agent, turn))
-    prompt_input = copy.deepcopy(delivery) if delivery else {}
-    cleanup_state = meta.get("automatic_cleanup", {})
-    pending_seeds = None
-    if isinstance(cleanup_state, dict):
-        candidate_seeds = cleanup_state.get("pending_creative_seeds")
-        if isinstance(candidate_seeds, dict):
-            delivered_roles = candidate_seeds.get("delivered_roles", [])
-            if isinstance(delivered_roles, list) and agent not in delivered_roles:
-                pending_seeds = candidate_seeds
-    if pending_seeds:
-        prompt_input["cleanup_creative_seeds"] = {
-            "cleanup_turn": pending_seeds.get("cleanup_turn"),
-            "seeds": copy.deepcopy(pending_seeds.get("seeds")),
-        }
-    assembled = assemble_legislative_prompt(
-        conv,
-        rb,
-        turn=turn,
-        agent=agent,
-        collaboration_input=prompt_input or None,
-        structured_snapshot=(
-            cleanup_state.get("structured_snapshot")
-            if isinstance(cleanup_state, dict)
-            else None
-        ),
+    return legislature.take_turn(
+        TurnState(conv, rb, meta, collaboration, []), turn,
+        resources=_legislative_resources(), provider=call,
+        count_tokens=lambda text: token_count(text, meta),
     )
-    system = assembled["system"]
-    base_user = assembled["user"]
-    request_options = assembled["request_options"]
-    required_fault_token = assembled["required_fault_token"]
-    structured_action = None
-    deliberation_fallback = None
-    usage = {}
-    last_structural_reason = "unknown structural validation error"
-    attempts = 0
-    for attempts in range(1, MAX_STRUCTURAL_RETRIES + 2):
-        retry_note = (
-            ""
-            if attempts == 1
-            else "\n\nYour previous response failed local structural validation. "
-            "Regenerate from the unchanged authoritative state. "
-            f"Error: {last_structural_reason}"
-        )
-        text, usage = call(
-            model,
-            system,
-            base_user + retry_note,
-            max_tokens=2000,
-            temperature=AGENT_TEMP,
-            meta=meta,
-            request_options=request_options,
-        )
-        try:
-            structured_action, deliberation_fallback = (
-                validate_action_with_deliberation_fallback(text, agent, rb)
-                if required_fault_token is None
-                else validate_action_with_deliberation_fallback(
-                    text,
-                    agent,
-                    rb,
-                    required_fault_token=required_fault_token,
-                )
-            )
-            break
-        except ValidationError as exc:
-            last_structural_reason = validation_reason(exc)
-
-    if structured_action is None:
-        collaboration.clear()
-        collaboration.update(collaboration_before_delivery)
-        receipt = build_post_state_receipt(
-            turn=turn,
-            role=agent,
-            action=None,
-            result="structural_failure",
-            reason=f"structural_validation_exhausted: {last_structural_reason}",
-            before_rulebook=rb,
-            after_rulebook=rb,
-            next_actor=agent,
-            attempts=attempts,
-        )
-        conv.append(
-            {
-                "turn": turn,
-                "agent": "harness",
-                "type": "legislature",
-                "protocol": PROTOCOL_VERSION,
-                # Compatibility projection for the unchanged public viewer.
-                # The full authoritative result remains post_state_receipt.
-                "motion_receipt": {
-                    "accepted": False,
-                    "reason": "structural_validation_exhausted",
-                    "agent": agent,
-                    "verb": None,
-                    "rule_id": None,
-                    "changed": False,
-                    "line": None,
-                },
-                "prompt_receipt": assembled["prompt_receipt"],
-                "post_state_receipt": receipt.model_dump(mode="json"),
-            }
-        )
-        print(
-            f"[t{turn} {agent}] structural validation exhausted; same actor retained  "
-            f"${meta['spend_usd']:.3f}",
-            flush=True,
-        )
-        return "structural_failure"
-
-    before_rulebook = copy.deepcopy(rb)
-    message_event = {
-        "turn": turn,
-        "agent": agent,
-        "type": "message",
-        "content": structured_action.deliberation,
-        "structured_action": structured_action.model_dump(mode="json"),
-        "prompt_receipt": assembled["prompt_receipt"],
-        "tokens": usage.get("completion_tokens", 0),
-    }
-    if deliberation_fallback is not None:
-        message_event["deliberation_fallback"] = deliberation_fallback
-    conv.append(message_event)
-    for measurement in structured_action.measurements:
-        probe_text = measurement.text
-        n = token_count(probe_text, meta)
-        conv.append({"turn": turn, "agent": "harness", "type": "measure",
-                     "text": probe_text[:120], "tokens": n})
-        print(f"[t{turn} MEASURE] \"{probe_text[:40]}\" = {n}tok", flush=True)
-    motion_receipt = apply_typed_motion(
-        structured_action.motion,
-        rb,
-        turn,
-        agent,
-        structured_action.deliberation[:280],
-    )
-    if motion_receipt.changed:
-        rb["version"] = f"0.{rb['changes'] + 1}"
-        rb["changes"] += 1
-        rb["kernel_tokens"] = token_count(render_language(rb), meta)
-    result = "accepted" if motion_receipt.accepted else "rejected"
-    next_actor = "A" if agent == "B" else "B"
-    receipt = build_post_state_receipt(
-        turn=turn,
-        role=agent,
-        action=structured_action,
-        result=result,
-        reason=motion_receipt.reason,
-        before_rulebook=before_rulebook,
-        after_rulebook=rb,
-        next_actor=next_actor,
-        attempts=attempts,
-    )
-    conv.append(
-        {
-            "turn": turn,
-            "agent": "harness",
-            "type": "legislature",
-            "protocol": PROTOCOL_VERSION,
-            "motion_receipt": motion_receipt.dict(),
-            "post_state_receipt": receipt.model_dump(mode="json"),
-        }
-    )
-    if delivery and delivery.get("kind") == "SUGGESTION":
-        suggestion = next((row for row in collaboration.get("suggestions", [])
-                           if row.get("id") == delivery.get("id")), None)
-        if suggestion:
-            suggestion["status"] = "acted" if motion_receipt.changed else "no_action"
-            suggestion["outcome"] = motion_receipt.reason
-            suggestion["outcome_turn"] = turn
-    for typed_request in structured_action.requests:
-        kind = typed_request.kind
-        question = typed_request.question
-        if question:
-            record_id = f"{kind.lower()}-{turn}-{agent.lower()}"
-            bucket = "research" if kind in {"LOOKUP", "RESEARCH"} else "asks"
-            if not any(r.get("id") == record_id for r in collaboration[bucket]):
-                record = stable_record(kind, agent, question, record_id)
-                record["request_turn"] = turn
-                collaboration[bucket].append(record)
-    if pending_seeds:
-        delivered_roles = pending_seeds.setdefault("delivered_roles", [])
-        if agent not in delivered_roles:
-            delivered_roles.append(agent)
-        pending_seeds.setdefault("delivered_turns", {})[agent] = turn
-        if set(delivered_roles) == {"A", "B"}:
-            cleanup_state["creative_seeds_delivered_turns"] = copy.deepcopy(
-                pending_seeds["delivered_turns"]
-            )
-            cleanup_state.pop("pending_creative_seeds", None)
-    meta["last_agent"] = agent
-    print(f"[t{turn} {agent}] {usage.get('completion_tokens', 0)}tok  "
-          f"rules:{len(rb['rules'])}  ${meta['spend_usd']:.3f}", flush=True)
-    return result
-
 
 BENCHMARK_PATH = ROOT / "benchmarks" / "v2.json"
 LEGACY_BENCHMARK_PATH = ROOT / "benchmarks" / "v1.json"
@@ -1701,38 +966,6 @@ def load_benchmark_suite(path=BENCHMARK_PATH):
     return suite
 
 
-def select_benchmark(meta, suite=None):
-    """Return the next benchmark without advancing its durable cursor."""
-    suite = suite or load_benchmark_suite()
-    state = meta.get("benchmark_suite")
-    if state is None or state.get("version") != suite["version"]:
-        state = {"version": suite["version"], "next_index": 0, "cycle": 1}
-        meta["benchmark_suite"] = state
-    index = state.get("next_index")
-    cycle = state.get("cycle")
-    if not isinstance(index, int) or not 0 <= index < len(suite["benchmarks"]):
-        raise ValueError("benchmark_cursor_invalid")
-    if not isinstance(cycle, int) or cycle < 1:
-        raise ValueError("benchmark_cycle_invalid")
-    return copy.deepcopy(suite["benchmarks"][index]), cycle
-
-
-def advance_benchmark(meta, benchmark, suite=None):
-    """Advance exactly once after an exam receipt has been constructed."""
-    suite = suite or load_benchmark_suite()
-    state = meta["benchmark_suite"]
-    index = state["next_index"]
-    if suite["benchmarks"][index]["id"] != benchmark["id"]:
-        raise ValueError("benchmark_cursor_drift")
-    next_index = (index + 1) % len(suite["benchmarks"])
-    state["next_index"] = next_index
-    if next_index == 0:
-        state["cycle"] += 1
-
-
-def previous_benchmark_result(meta, benchmark):
-    """Return only a prior valid Scoring V2 result; V1 is never a comparison baseline."""
-    return copy.deepcopy(meta.get("benchmark_results_v2", {}).get(benchmark["id"]))
 
 
 def normalize_answer_key(raw):
@@ -1742,341 +975,42 @@ def normalize_answer_key(raw):
             if re.sub(r"^\s*(?:[-*•]|\d+[.)])\s*", "", str(line)).strip()]
 
 
-def _numbered_decoded(decoded):
-    """Return a stable one-based view of decoded lines for the judge."""
-    lines = decoded.splitlines()
-    return "\n".join(
-        f"{line_number:04d}: {line}"
-        for line_number, line in enumerate(lines, start=1)
-    )
 
 
-def _grader_answer_key(answer_key, decoded):
-    """Expose exact-literal requirements and deterministic decode preflight."""
-    decoded_lines = decoded.splitlines()
-    projected = []
-    for atom in answer_key:
-        literal_sets = copy.deepcopy(atom["literal_sets"])
-        projected.append({
-            "id": atom["id"],
-            "meaning": atom["meaning"],
-            "literal_sets": literal_sets,
-            "missing_literal_sets": [
-                alternatives for alternatives in literal_sets
-                if not _literal_set_survives(decoded, alternatives)
-            ],
-            "literal_set_lines": [
-                [
-                    line_number
-                    for line_number, line in enumerate(decoded_lines, start=1)
-                    if _literal_set_survives(line, alternatives)
-                ]
-                for alternatives in literal_sets
-            ],
-        })
-    return projected
 
 
-def _materialize_grader_evidence(grade, decoded):
-    """Resolve judge-selected line ranges into exact spans owned by the harness."""
-    if not isinstance(grade, dict):
-        return grade, None
-    items = grade.get("items")
-    inventions = grade.get("inventions")
-    if not isinstance(items, list) or not isinstance(inventions, list):
-        return grade, None
 
-    decoded_lines = decoded.splitlines()
-    materialized = copy.deepcopy(grade)
-
-    def resolve(entry, *, identity, missing_allowed):
-        if not isinstance(entry, dict):
-            return f"invalid_evidence_line_range:{identity}"
-        evidence_lines = entry.pop("evidence_lines", None)
-        if missing_allowed and evidence_lines == []:
-            entry["evidence"] = ""
-            return None
-        if (
-            not isinstance(evidence_lines, list)
-            or len(evidence_lines) != 2
-            or any(
-                isinstance(value, bool) or not isinstance(value, int)
-                for value in evidence_lines
-            )
-        ):
-            return f"invalid_evidence_line_range:{identity}"
-        start, end = evidence_lines
-        if start < 1 or end < start or end > len(decoded_lines):
-            return f"invalid_evidence_line_range:{identity}"
-        entry["evidence"] = "\n".join(decoded_lines[start - 1:end])
-        return None
-
-    for item in materialized["items"]:
-        identity = item.get("id", "unknown") if isinstance(item, dict) else "unknown"
-        missing_allowed = isinstance(item, dict) and item.get("verdict") == "MISSING"
-        reason = resolve(item, identity=identity, missing_allowed=missing_allowed)
-        if reason:
-            return grade, reason
-    for index, invention in enumerate(materialized["inventions"], start=1):
-        reason = resolve(
-            invention,
-            identity=f"invention-{index}",
-            missing_allowed=False,
-        )
-        if reason:
-            return grade, reason
-    return materialized, None
+def select_benchmark(meta, suite=None):
+    return exam_evidence.select_benchmark(meta, suite or load_benchmark_suite())
 
 
-def _invalid_judge_diagnostic(grade, reason):
-    """Retain only the rejected reference needed to explain an invalid result."""
-    diagnostic = {"reason": reason}
-    atom_id = reason.split(":", 1)[1] if ":" in reason else None
-    items = grade.get("items") if isinstance(grade, dict) else None
-    if atom_id and isinstance(items, list):
-        item = next(
-            (
-                candidate for candidate in items
-                if isinstance(candidate, dict) and candidate.get("id") == atom_id
-            ),
-            None,
-        )
-        if item:
-            diagnostic.update({
-                "atom_id": atom_id,
-                "verdict": item.get("verdict"),
-                "evidence_lines": copy.deepcopy(item.get("evidence_lines")),
-            })
-    return diagnostic
-
-
-def _test_turn_impl(conv, rb, meta, turn, *, progress_path=None, progress_box=None):
-    suite = load_benchmark_suite()
-    benchmark, benchmark_cycle = select_benchmark(meta, suite)
-    pname = f"{benchmark['id']} · {benchmark['name']}"
-    payload = benchmark["original"]
-    key = copy.deepcopy(benchmark["answer_key"])
-    previous = previous_benchmark_result(meta, benchmark)
-    captured = language_payload(rb)
-    rbook = render_language(rb)
-    progress = None
-    if progress_path is not None:
-        progress = PublicExamProgressWriter(
-            progress_path,
-            turn=turn,
-            benchmark_id=benchmark["id"],
-            benchmark_name=benchmark["name"],
-            language_version=captured["version"],
-            language_hash=captured["hash"],
-            replace_active=Path(progress_path).name.endswith(".local.json"),
-        )
-        if progress_box is not None:
-            progress_box[:] = [progress]
-
-    def publish_progress(phase, **fields):
-        nonlocal progress
-        if progress is None:
-            return
-        try:
-            progress.advance(phase, **fields)
-        except Exception:
-            # Public observability is deliberately fail-open for the canonical
-            # exam. Losing its tiny snapshot must not lose the real result.
-            progress = None
-            if progress_box is not None:
-                progress_box[:] = []
-
-    publish_progress("exam_started")
-    publish_progress("benchmark_selected")
-    publish_progress("language_loaded")
-    publish_progress("encoder_started")
-    enc_sys = ("You are the encoder. Encode the message below into the project language "
-               "using ONLY this rulebook. Where the rulebook is silent, fall back to plain "
-               "English for that part. Output ONLY the encoded message, nothing else.\n\n" + rbook)
-    encoded, _ = call(MODEL_A, enc_sys, payload, max_tokens=4000, temperature=0.3, meta=meta)
-    encoded = sanitize_completed_text(encoded, stage="encoder")
-    publish_progress("encoder_completed", encoded=encoded)
-    publish_progress("decoder_started")
-    dec_sys = ("You are a fresh agent. You have never seen any prior conversation. Below is the "
-               "complete rulebook of a constructed language. Decode the message you receive: "
-               "reconstruct the original content as faithfully as you can. Do not invent anything "
-               "the message does not encode. Output ONLY the reconstruction.\n\n" + rbook)
-    decoded, _ = call(MODEL_DECODER, dec_sys, encoded.strip(), max_tokens=4000, temperature=0.1, meta=meta)
-    decoded = sanitize_completed_text(decoded, stage="decoder")
-    publish_progress("decoder_completed", decoded=decoded)
-    orig_t = token_count(payload, meta)
-    enc_t = token_count(encoded.strip(), meta)
-    delta = round((enc_t - orig_t) / orig_t * 100)
-    savings_pct = -delta
-    grade_sys = (ROOT / "prompts" / "grader_v2.md").read_text()
-    if key:
-        publish_progress("judge_started")
-        numbered_decoded = _numbered_decoded(decoded.strip())
-        key_txt = json.dumps(_grader_answer_key(key, decoded.strip()), ensure_ascii=False)
-        grade_user = (
-            f"ORIGINAL:\n{payload}\n\nATOMIC ANSWER KEY:\n{key_txt}"
-            f"\n\nNUMBERED DECODED:\n{numbered_decoded}"
-        )
-        graded, _ = call(MODEL_GRADER, grade_sys, grade_user, max_tokens=4000, temperature=0, meta=meta)
-        gm = re.search(r"\{.*\}", graded, re.S)
-        try:
-            g = json.loads(gm.group(0)) if gm else {}
-        except json.JSONDecodeError:
-            g = {}
-    else:
-        g = {}
-    audit = {}
-    if key:
-        materialized_grade, evidence_reason = _materialize_grader_evidence(
-            g, decoded.strip()
-        )
-        if evidence_reason:
-            scored = {
-                "valid": False,
-                "status": "INVALID JUDGE RESULT",
-                "reason": evidence_reason,
-                "scoring_version": "v2",
-            }
-        else:
-            scored = score_judgment_v2(
-                key, materialized_grade, decoded.strip(), savings_pct
-            )
-        audit = {
-            "judge_valid": scored["valid"], "judge_status": scored["status"],
-            "judge_reason": scored["reason"], "atom_results": scored.get("items", []),
-            "survived": scored.get("survived"), "total": scored.get("total", len(key)),
-            "meaning_pass": scored.get("meaning_pass"),
-            "compression_success": scored.get("compression_success"),
-            "semantic_coverage_pct": scored.get("semantic_coverage_pct"),
-            "critical_failures": scored.get("critical_failures", []),
-            "inventions": scored.get("inventions", []),
-        }
-        if not scored["valid"]:
-            audit["judge_diagnostic"] = _invalid_judge_diagnostic(
-                g, scored["reason"]
-            )
-    else:
-        scored = {"valid": False, "status": "INVALID JUDGE RESULT", "reason": "answer_key_unavailable"}
-        audit = {"judge_valid": False, "judge_status": scored["status"],
-                 "judge_reason": scored["reason"], "atom_results": [], "survived": None,
-                 "total": 0, "meaning_pass": None, "compression_success": None,
-                 "semantic_coverage_pct": None, "critical_failures": [], "inventions": []}
-    meta["tests_run"] = meta.get("tests_run", 0) + 1
-    event = {"turn": turn, "agent": "harness", "type": "test", "payload": pname,
-             "original": payload, "orig_tokens": orig_t, "enc_tokens": enc_t,
-             "token_delta_pct": delta, "message_body_savings_pct": savings_pct,
-             "encoded": encoded.strip(), "decoded": decoded.strip(), "tokens": enc_t,
-             "decoder_model": MODEL_DECODER, "language_version": captured["version"],
-             "language_hash": captured["hash"], "era": "benchmark-v2",
-             "scoring_version": "v2",
-             "benchmark_id": benchmark["id"], "benchmark_name": benchmark["name"],
-             "benchmark_version": suite["version"], "benchmark_cycle": benchmark_cycle,
-             "benchmark_source_turn": benchmark["source_turn"],
-             "answer_key": [{"id": atom["id"], "meaning": atom["meaning"],
-                              "critical": atom["critical"],
-                              "literal_sets": copy.deepcopy(atom["literal_sets"])}
-                             for atom in key],
-             "prior_valid_v2_turn": previous.get("turn") if previous else None}
-    event.update(audit)
-    if scored["valid"]:
-        verdicts = [item.get("verdict") for item in audit["atom_results"]]
-        for completed in range(1, len(verdicts) + 1):
-            observed = verdicts[:completed]
-            publish_progress("audit_progress", audit={
-                "completed": completed,
-                "total": audit["total"],
-                "survived": observed.count("SURVIVED"),
-                "corrupted": observed.count("CORRUPTED"),
-                "missing": observed.count("MISSING"),
-                "inventions": len(audit["inventions"]),
-            })
-        publish_progress(
-            "completed",
-            tokens={"original": orig_t, "encoded": enc_t},
-            result={
-                "judge_valid": audit["judge_valid"],
-                "meaning_pass": audit["meaning_pass"],
-                "compression_success": audit["compression_success"],
-                "semantic_coverage_pct": audit["semantic_coverage_pct"],
-                "status": audit["judge_status"],
-            },
-        )
-    elif progress is not None:
-        try:
-            progress.fail("invalid_judge_result")
-        except Exception:
-            pass
-    conv.append(event)
-    exams = meta.setdefault("corpus_exams", [])
-    exams.append({"turn": turn, "language_version": captured["version"],
-                  "language_hash": captured["hash"], "scoring_version": "v2",
-                  "meaning_pass": audit["meaning_pass"],
-                  "compression_success": audit["compression_success"],
-                  "semantic_coverage_pct": audit["semantic_coverage_pct"],
-                  "critical_failures": copy.deepcopy(audit["critical_failures"]),
-                  "inventions": copy.deepcopy(audit["inventions"]),
-                  "message_body_savings_pct": savings_pct,
-                  "token_delta_pct": delta, "valid": scored["valid"],
-                  "judge_status": audit["judge_status"],
-                  "era": "benchmark-v2", "benchmark_id": benchmark["id"],
-                  "benchmark_name": benchmark["name"],
-                  "benchmark_version": suite["version"],
-                  "benchmark_cycle": benchmark_cycle,
-                  "prior_valid_v2_turn": previous.get("turn") if previous else None})
-    meta["corpus_exams"] = exams[-500:]
-    if scored["valid"]:
-        meta.setdefault("benchmark_results_v2", {})[benchmark["id"]] = {
-            "turn": turn, "meaning_pass": audit["meaning_pass"],
-            "compression_success": audit["compression_success"],
-            "semantic_coverage_pct": audit["semantic_coverage_pct"],
-            "critical_failures": copy.deepcopy(audit["critical_failures"]),
-            "inventions": copy.deepcopy(audit["inventions"]),
-            "message_body_savings_pct": savings_pct,
-            "language_version": captured["version"], "language_hash": captured["hash"],
-        }
-    advance_benchmark(meta, benchmark, suite)
-    print(f"[t{turn} TEST] {pname}  {orig_t}->{enc_t}tok ({delta:+d}%)  "
-          f"{audit['judge_status']} coverage {audit['semantic_coverage_pct']}  "
-          f"${meta['spend_usd']:.3f}", flush=True)
-    if progress is not None and progress.current and progress.current.get("phase") == "completed":
-        return copy.deepcopy(progress.current)
-    return None
+def advance_benchmark(meta, benchmark, suite=None):
+    return exam_evidence.advance_benchmark(meta, benchmark, suite or load_benchmark_suite())
 
 
 def test_turn(conv, rb, meta, turn, *, progress_path=None):
-    """Run one canonical exam and optionally expose only its safe receipts."""
-    progress_box = []
-    try:
-        return _test_turn_impl(
-            conv, rb, meta, turn,
-            progress_path=progress_path,
-            progress_box=progress_box,
-        )
-    except BaseException as error:
-        if progress_box:
-            try:
-                progress_box[0].fail(
-                    classify_public_error(error),
-                    interrupted=isinstance(error, KeyboardInterrupt),
-                    diagnostic=public_error_diagnostic(error),
-                )
-            except Exception:
-                pass
-        raise
+    return exam_evidence.run_exam(
+        TurnState(conv, rb, meta, {}, []), turn,
+        resources=exam_evidence.ExamResources(
+            ROOT, load_benchmark_suite(), MODEL_A, MODEL_DECODER, MODEL_GRADER),
+        provider=call, count_tokens=lambda text: token_count(text, meta),
+        progress_path=progress_path,
+    )
 
 
 def consume_notice(conv, turn):
     """Notice inbox: if state/pending-notice.txt exists, deliver it as a harness notice
-    this turn and remove the file. Lets notices travel via git without racing the
+    this turn; TurnStore acknowledges it only with the completed turn. Lets notices travel via git without racing the
     VPS's own state commits (a direct conversation.json edit would)."""
     f = STATE / "pending-notice.txt"
     if not f.exists():
         return
-    text = f.read_text().strip()
+    original = f.read_text()
+    text = original.strip()
     if text:
         conv.append({"turn": turn, "agent": "harness", "type": "notice", "content": text})
         print(f"[t{turn} NOTICE] delivered ({len(text)} chars)", flush=True)
-    f.unlink()
+    return original
 
 
 def process_one_research(collaboration, meta, turn):
@@ -2126,7 +1060,7 @@ def process_one_research(collaboration, meta, turn):
             "tools": [{"type": "openrouter:web_search", "parameters": {"max_total_results": 5}}],
             "max_tokens": 1000, "temperature": 0}
     try:
-        response = requests.post(API_URL, headers={"Authorization": f"Bearer {api_key()}",
+        response = (_runtime_session.post if _runtime_session else requests.post)(API_URL, headers={"Authorization": f"Bearer {api_key()}",
                                                    "Content-Type": "application/json"},
                                  json=body, timeout=180)
         response.raise_for_status()
@@ -2219,25 +1153,55 @@ def maybe_run_conversation(rb, meta, turn, conversations):
     conversations.append(artifact)
 
 
+def publish_turn(state: TurnState) -> None:
+    """Rebuild projections; an optional trace failure cannot cancel a real turn."""
+    write_outbox(STATE / "collaboration-outbox.json", state.collaboration)
+    save("public-collaboration.json", public_state(state.collaboration))
+    write_viewer_state(state.conversation, state.rulebook, state.meta,
+                       state.collaboration, state.conversations)
+    if state.public_exam_progress is not None:
+        try:
+            publish_completed_snapshot(STATE / "public-exam-progress.json", state.public_exam_progress)
+        except Exception as error:
+            print(f"[PUBLIC EXAM] completed snapshot unavailable · {error.__class__.__name__}", flush=True)
+
+
 def run(turns):
-    STATE.mkdir(exist_ok=True)
-    conv = load("conversation.json", [])
-    rb = load("rulebook.json", {"version": "0.0", "kernel_tokens": 0, "changes": 0,
-                                "next_id": 1, "rules": []})
-    meta = load("meta.json", {"spend_usd": 0.0, "last_agent": None, "tests_run": 0,
-                              "started": now_iso()})
-    collaboration = load("collaboration.json", empty_state())
-    conversations = load("conversations.json", [])
-    start_turn = (conv[-1]["turn"] + 1) if conv else 1
+    global _runtime_session, MODEL_C
+    with TurnStore(STATE).writer() as store:
+        config = os.environ.get("ALATO_RUNTIME_CONFIG")
+        if config and turns:
+            from runtime_session import RuntimeSession
+            _runtime_session = RuntimeSession(config)
+            MODEL_C = "gpt-6-astra"
+        return _run_turns(turns, store)
+
+
+def _run_turns(turns, store):
+    state = store.load(TurnState(
+        [], {"version": "0.0", "kernel_tokens": 0, "changes": 0,
+             "next_id": 1, "rules": []},
+        {"spend_usd": 0.0, "last_agent": None, "tests_run": 0, "started": now_iso()},
+        empty_state(), [],
+    ))
+    conv, rb, meta = state.conversation, state.rulebook, state.meta
+    collaboration, conversations = state.collaboration, state.conversations
+    start_turn = state.next_turn
     ensure_structured_protocol_cutover(
         conv, rb, meta, activation_turn=start_turn - 1
     )
     configure_cost_receipt_ledger(STATE / COST_LEDGER_FILENAME, meta)
+    # Projections can fail after a fully committed turn (with no redo left).
+    # Repair them before cap checks or provider work on every runner entry.
+    publish_turn(state)
+    turn = start_turn - 1
     for turn in range(start_turn, start_turn + turns):
+        if _runtime_session is not None:
+            _runtime_session.check()
         if meta["spend_usd"] >= SPEND_CAP:
             print(f"SPEND CAP hit (${meta['spend_usd']:.2f}) — stopping.", flush=True)
             break
-        consume_notice(conv, turn)
+        consumed_notice = consume_notice(conv, turn)
         collaboration = import_inbox_spool(
             collaboration, STATE / "collaboration-inbox.json", turn=turn)
         save("collaboration.json", collaboration)
@@ -2252,46 +1216,35 @@ def run(turns):
         else:
             completed_public_exam = None
             agent_turn(conv, rb, meta, collaboration, turn)
-        save("conversation.json", conv)
-        save("rulebook.json", rb)
-        save("meta.json", meta)
-        save("collaboration.json", collaboration)
-        write_outbox(STATE / "collaboration-outbox.json", collaboration)
-        save("public-collaboration.json", public_state(collaboration))
-        save("conversations.json", conversations)
-        write_viewer_state(conv, rb, meta, collaboration, conversations)
+        meta["last_completed_turn_at"] = now_iso()
         if completed_public_exam is not None:
-            try:
-                publish_completed_snapshot(
-                    STATE / "public-exam-progress.json", completed_public_exam,
-                )
-            except Exception as error:
-                print(
-                    f"[t{turn} PUBLIC EXAM] completed snapshot unavailable · "
-                    f"{error.__class__.__name__}",
-                    flush=True,
-                )
+            state.public_exam_progress = completed_public_exam
+        state = TurnState(conv, rb, meta, collaboration, conversations, state.public_exam_progress, consumed_notice)
+        store.commit(state)
+        publish_turn(state)
     print(f"done. turns {start_turn}..{turn}  rules {len(rb['rules'])}  "
           f"spend ${meta['spend_usd']:.3f}", flush=True)
 
 
 def archive(name):
-    dest = STATE / "tuning-runs" / name
-    dest.mkdir(parents=True, exist_ok=True)
-    for f in ("conversation.json", "rulebook.json", "meta.json", COST_LEDGER_FILENAME):
-        if (STATE / f).exists():
-            shutil.move(str(STATE / f), str(dest / f))
-    for pf in (ROOT / "prompts").glob("*.md"):
-        shutil.copy(str(pf), str(dest / pf.name))
+    if not name or Path(name).name != name or name in {".", ".."}:
+        raise ValueError("archive name must be one directory name")
+    with TurnStore(STATE).writer() as store:
+        # Recover first so no abandoned journal can resurrect archived work.
+        store.load(TurnState([], {}, {}, {}, []))
+        dest = store.archive(name)
+        for pf in (ROOT / "prompts").glob("*.md"):
+            shutil.copy(str(pf), str(dest / pf.name))
     print(f"archived state + prompt snapshot -> state/tuning-runs/{name}/")
 
 
 if __name__ == "__main__":
     ap = argparse.ArgumentParser()
     ap.add_argument("--turns", type=int, default=6)
+    ap.add_argument("--recover", action="store_true", help="recover and rebuild saved state without a model turn")
     ap.add_argument("--archive", help="archive current state under this name and reset")
     args = ap.parse_args()
     if args.archive:
         archive(args.archive)
     else:
-        run(args.turns)
+        run(0 if args.recover else args.turns)

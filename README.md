@@ -4,6 +4,8 @@ A public, long-running experiment in which two agents build a compact AI-to-AI l
 
 Implementation-ready work that is not yet live is tracked in [ROADMAP.md](ROADMAP.md).
 
+For behavior changes and module interfaces, start with [the module guide](docs/MODULES.md).
+
 ## Current contract
 
 - DeepSeek Agent A invents, revises, or proposes repeal of one focused rule at a time.

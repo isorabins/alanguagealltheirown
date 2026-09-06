@@ -1,0 +1,3204 @@
+{
+  "status": "PROVISIONAL_NOT_ADOPTION_READY",
+  "source_public_url": "https://raw.githubusercontent.com/isorabins/alanguagealltheirown/493a464359c4d11ca8562930b30ca1fe817b4d1e/state/rulebook.json",
+  "anonymous_public_bytes_matched_local": true,
+  "book_reduction_percent": 80.72771263726037,
+  "comparison_cost_usd": "0.12091884160",
+  "shared_total_cost_usd": "0.50342281725",
+  "shared_allowance_usd": "1.00",
+  "unsettled_requests": 0,
+  "raw_evidence_path": "/Users/isorabins/alex-workspace/projects/alato-deep-modules-20260905/tests/acceptance/local-c/.evidence/20260905/book-condensation",
+  "runs": [
+    {
+      "cost_after_usd": "0.43138671925",
+      "cost_before_usd": "0.38250397565",
+      "decoder": "moonshotai/kimi-k2.6",
+      "encoder": "deepseek/deepseek-v3.2",
+      "fixture_sha256": "45e05a98e546d31fcc8df1e4c47e040f79dd74aa988f5977d26777508a1fafbe",
+      "integrity": {
+        "candidate_language_hash": "9cc3c0b15c437ba3787c34d648f4855ef659671d7c8b022afa98d846896d94ba",
+        "candidate_render_chars": 19611,
+        "candidate_render_words": 2706,
+        "candidate_sections": 14,
+        "mapped_records": 78,
+        "operational_exclusions": 5,
+        "scope": "identity, mapping and compiler integrity only; not semantic equivalence",
+        "source_adopted_records": 83,
+        "source_file_sha256": "53ffb801cbeec7f64ad3c6d16c8863aa2e97e692686f5f48e407ca843c15abc2",
+        "source_render_chars": 104891,
+        "source_render_words": 15052,
+        "source_snapshot_hash": "53ffb801cbeec7f64ad3c6d16c8863aa2e97e692686f5f48e407ca843c15abc2",
+        "source_unchanged": true,
+        "status": "PASS"
+      },
+      "sensitivity": {
+        "scope": "assertion sensitivity only, not model or language proof",
+        "status": "PASS",
+        "targeted_assertions": 78
+      },
+      "source_unchanged": true,
+      "status": "COMPLETED_COMPARISON",
+      "tokens": {
+        "candidate_book": 3751,
+        "candidate_encoded": 378,
+        "input": 320,
+        "old_book": 21492,
+        "old_encoded": 338
+      },
+      "versions": {
+        "candidate": {
+          "decoded": "Fable workshop <at Harbor Hall> <with capacity 024 attendees> <and a penalty of $1,250.00>.\n^Use --dry-run <with /Var/Logs/app.log> <and https://api.Example.org/v1:check>; contact `Ops.Team+qa@example.org` <in us-East-1>.\n^Preserve order ID `AbC:007_A-9` exactly.\n^Allocate <10.50 GB to node-7> <for backup>.\n^Alert <if temperature <5°C> <because sensor is faulty>.\n^Keep <the ratio at 0.80> <and the range at 03-07>.\n^Schedule maintenance <from 9 AM to 11 AM local time>.\n^Proceed <after 3 PM and before 5 PM>.\n^Wait <until 3 PM> and then proceed.\n^Submit report <by 04:30 PM EST> <because manager leaves early>.\n^Meet <at 2 PM in conference room>.\n^First save logs, then <at 3 PM> restart Server-A.\n^Inspect primary database Server-B <before release>.\n^Check logs <with detailed timestamp analysis>.\n^Notify Alice <if backup succeeds> <unless maintenance is active>.\n^Send to Alice <before notifying Bob>.\n^Inspect `STORAGE-ALPHA-EXACT-000123456789` <for damage>.\n^Record `STORAGE-ALPHA-EXACT-000123456789` <in the report>.\n^Retain `STORAGE-ALPHA-EXACT-000123456789` <until Friday>.\n^Check node-7.\n^Check node-8.\n^Check node-9.",
+          "diagnostic": {
+            "actual_lines": 17,
+            "exact_lines_pass": false,
+            "expected_lines": 15,
+            "matching_lines": 0,
+            "text": "`AbC:007_A-9`\n^Inspect `AbC:007_A-9`\n^Record `AbC:007_A-9`\n^Retain `AbC:007_A-9`\n<within 2 hours>\n^Finish <within 2 hours>\n^Respond <within 2 hours>\n^Return <within 2 hours>\n^Measure <10.50 GB> exactly\n^Measure <20.00 GB> exactly\n^Measure <05.25 GB> exactly\n^Check `node-7`\n^Check `node-8`\n^Check `node-9`\n^Record <server rack A-12> as <operational>\n^Record <load balancer LB-01> as <degraded>\n^Record <cache cluster C-03> as <ready>"
+          },
+          "encoded": "Fable workshop <at Harbor Hall> <with capacity 024 attendees> <and a penalty of $1,250.00>.\n^Use --dry-run <with /Var/Logs/app.log> <and https://api.Example.org/v1:check>; contact `Ops.Team+qa@example.org` <in us-East-1>.\n^Preserve order ID `AbC:007_A-9` exactly.\n^Allocate <10.50 GB to node-7> <for backup>.\n^Alert <if temperature <5°C> <because sensor is faulty>.\n^Keep <the ratio at 0.80> <and the range at 03-07>.\n^Schedule maintenance <from 9 AM to 11 AM local time>.\n^Proceed <after 3 PM and before 5 PM>.\n^Wait <until 3 PM> and then proceed.\n^Submit report <by 04:30 PM EST> <because manager leaves early>.\n^Meet <at 2 PM in conference room>.\n^First save logs, then <at 3 PM> restart Server-A.\n^Inspect primary database Server-B <before release>.\n^Check logs <with detailed timestamp analysis>.\n^Notify Alice <if backup succeeds> <unless maintenance is active>.\n^Send to Alice <before notifying Bob>.\n^Inspect `STORAGE-ALPHA-EXACT-000123456789` <for damage>.\n^Record `STORAGE-ALPHA-EXACT-000123456789` <in the report>.\n^Retain `STORAGE-ALPHA-EXACT-000123456789` <until Friday>.\n^Check node-7.\n^Check node-8.\n^Check node-9.",
+          "factual_checks": {
+            "checks": [
+              {
+                "case": "context",
+                "literal": "Fable",
+                "pass": true
+              },
+              {
+                "case": "context",
+                "literal": "Harbor Hall",
+                "pass": true
+              },
+              {
+                "case": "context",
+                "literal": "024 attendees",
+                "pass": true
+              },
+              {
+                "case": "context",
+                "literal": "$1,250.00",
+                "pass": true
+              },
+              {
+                "case": "context",
+                "directive": false,
+                "pass": true
+              },
+              {
+                "case": "technical",
+                "literal": "--dry-run",
+                "pass": true
+              },
+              {
+                "case": "technical",
+                "literal": "/Var/Logs/app.log",
+                "pass": true
+              },
+              {
+                "case": "technical",
+                "literal": "https://api.Example.org/v1:check",
+                "pass": true
+              },
+              {
+                "case": "technical",
+                "literal": "Ops.Team+qa@example.org",
+                "pass": true
+              },
+              {
+                "case": "technical",
+                "literal": "us-East-1",
+                "pass": true
+              },
+              {
+                "case": "technical",
+                "directive": true,
+                "pass": true
+              },
+              {
+                "case": "id",
+                "literal": "AbC:007_A-9",
+                "pass": true
+              },
+              {
+                "case": "id",
+                "directive": true,
+                "pass": true
+              },
+              {
+                "case": "allocation",
+                "literal": "10.50 GB",
+                "pass": true
+              },
+              {
+                "case": "allocation",
+                "literal": "node-7",
+                "pass": true
+              },
+              {
+                "case": "allocation",
+                "literal": "backup",
+                "pass": true
+              },
+              {
+                "case": "allocation",
+                "directive": true,
+                "pass": true
+              },
+              {
+                "case": "comparison",
+                "literal": "if",
+                "pass": true
+              },
+              {
+                "case": "comparison",
+                "literal": "temperature",
+                "pass": true
+              },
+              {
+                "case": "comparison",
+                "literal": "<5°C",
+                "pass": true
+              },
+              {
+                "case": "comparison",
+                "literal": "because",
+                "pass": true
+              },
+              {
+                "case": "comparison",
+                "literal": "sensor",
+                "pass": true
+              },
+              {
+                "case": "comparison",
+                "literal": "faulty",
+                "pass": true
+              },
+              {
+                "case": "comparison",
+                "directive": true,
+                "pass": true
+              },
+              {
+                "case": "leading-zero",
+                "literal": "0.80",
+                "pass": true
+              },
+              {
+                "case": "leading-zero",
+                "literal": "03-07",
+                "pass": true
+              },
+              {
+                "case": "leading-zero",
+                "directive": true,
+                "pass": true
+              },
+              {
+                "case": "temporal-range",
+                "literal": "from 9 AM to 11 AM local time",
+                "pass": true
+              },
+              {
+                "case": "temporal-range",
+                "directive": true,
+                "pass": true
+              },
+              {
+                "case": "temporal-constraints",
+                "literal": "after 3 PM and before 5 PM",
+                "pass": true
+              },
+              {
+                "case": "temporal-constraints",
+                "directive": true,
+                "pass": true
+              },
+              {
+                "case": "independent-action",
+                "literal": "until 3 PM",
+                "pass": true
+              },
+              {
+                "case": "independent-action",
+                "literal": "and then proceed",
+                "pass": true
+              },
+              {
+                "case": "independent-action",
+                "directive": true,
+                "pass": true
+              },
+              {
+                "case": "deadline-rationale",
+                "literal": "by 04:30 PM EST",
+                "pass": true
+              },
+              {
+                "case": "deadline-rationale",
+                "literal": "because",
+                "pass": true
+              },
+              {
+                "case": "deadline-rationale",
+                "literal": "manager",
+                "pass": true
+              },
+              {
+                "case": "deadline-rationale",
+                "literal": "leaves early",
+                "pass": true
+              },
+              {
+                "case": "deadline-rationale",
+                "directive": true,
+                "pass": true
+              },
+              {
+                "case": "time-location",
+                "literal": "at 2 PM in conference room",
+                "pass": true
+              },
+              {
+                "case": "time-location",
+                "directive": true,
+                "pass": true
+              },
+              {
+                "case": "sequence",
+                "literal": "First",
+                "pass": true
+              },
+              {
+                "case": "sequence",
+                "literal": "then at 3 PM",
+                "pass": false
+              },
+              {
+                "case": "sequence",
+                "literal": "Server-A",
+                "pass": true
+              },
+              {
+                "case": "sequence",
+                "directive": true,
+                "pass": true
+              },
+              {
+                "case": "label-entity",
+                "literal": "primary database",
+                "pass": true
+              },
+              {
+                "case": "label-entity",
+                "literal": "Server-B",
+                "pass": true
+              },
+              {
+                "case": "label-entity",
+                "literal": "before release",
+                "pass": true
+              },
+              {
+                "case": "label-entity",
+                "directive": true,
+                "pass": true
+              },
+              {
+                "case": "descriptive",
+                "literal": "with detailed timestamp analysis",
+                "pass": true
+              },
+              {
+                "case": "descriptive",
+                "directive": true,
+                "pass": true
+              },
+              {
+                "case": "logic",
+                "literal": "Alice",
+                "pass": true
+              },
+              {
+                "case": "logic",
+                "literal": "if",
+                "pass": true
+              },
+              {
+                "case": "logic",
+                "literal": "backup",
+                "pass": true
+              },
+              {
+                "case": "logic",
+                "literal": "succeeds",
+                "pass": true
+              },
+              {
+                "case": "logic",
+                "literal": "unless",
+                "pass": true
+              },
+              {
+                "case": "logic",
+                "literal": "maintenance",
+                "pass": true
+              },
+              {
+                "case": "logic",
+                "literal": "active",
+                "pass": true
+              },
+              {
+                "case": "logic",
+                "directive": true,
+                "pass": true
+              },
+              {
+                "case": "recipient",
+                "literal": "to Alice",
+                "pass": true
+              },
+              {
+                "case": "recipient",
+                "literal": "before",
+                "pass": true
+              },
+              {
+                "case": "recipient",
+                "literal": "Bob",
+                "pass": true
+              },
+              {
+                "case": "recipient",
+                "directive": true,
+                "pass": true
+              },
+              {
+                "case": "alias-a",
+                "literal": "STORAGE-ALPHA-EXACT-000123456789",
+                "pass": true
+              },
+              {
+                "case": "alias-a",
+                "literal": "damage",
+                "pass": true
+              },
+              {
+                "case": "alias-a",
+                "directive": true,
+                "pass": true
+              },
+              {
+                "case": "alias-b",
+                "literal": "STORAGE-ALPHA-EXACT-000123456789",
+                "pass": true
+              },
+              {
+                "case": "alias-b",
+                "literal": "report",
+                "pass": true
+              },
+              {
+                "case": "alias-b",
+                "directive": true,
+                "pass": true
+              },
+              {
+                "case": "alias-c",
+                "literal": "STORAGE-ALPHA-EXACT-000123456789",
+                "pass": true
+              },
+              {
+                "case": "alias-c",
+                "literal": "until Friday",
+                "pass": true
+              },
+              {
+                "case": "alias-c",
+                "directive": true,
+                "pass": true
+              },
+              {
+                "case": "list-a",
+                "literal": "node-7",
+                "pass": true
+              },
+              {
+                "case": "list-a",
+                "directive": true,
+                "pass": true
+              },
+              {
+                "case": "list-b",
+                "literal": "node-8",
+                "pass": true
+              },
+              {
+                "case": "list-b",
+                "directive": true,
+                "pass": true
+              },
+              {
+                "case": "list-c",
+                "literal": "node-9",
+                "pass": true
+              },
+              {
+                "case": "list-c",
+                "directive": true,
+                "pass": true
+              }
+            ],
+            "line_count_pass": true,
+            "passed": 77,
+            "scope": "case-sensitive substrings and directive markers at expected line positions",
+            "total": 78
+          },
+          "language_hash": "950dfe79c28bafbb388f9837a4d2d5c922fd4d5bb856176ca6f2c1d902ab2066",
+          "usage": {
+            "decoder": {
+              "completion_tokens": 345,
+              "completion_tokens_details": {
+                "audio_tokens": 0,
+                "image_tokens": 0,
+                "reasoning_tokens": 0
+              },
+              "cost": 0.0029651134,
+              "cost_details": {
+                "upstream_inference_completions_cost": 0.000780321,
+                "upstream_inference_cost": 0.0029651134,
+                "upstream_inference_prompt_cost": 0.0021847924
+              },
+              "is_byok": false,
+              "prompt_tokens": 4067,
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cache_write_tokens": 0,
+                "cached_tokens": 0,
+                "video_tokens": 0
+              },
+              "response_receipt": {
+                "finish_reason": "stop",
+                "id": "gen-1788599307-s39JgHFUlhQpNqAh8Rmf",
+                "model": "moonshotai/kimi-k2.6",
+                "openrouter_metadata": null
+              },
+              "total_tokens": 4412
+            },
+            "diagnostic": {
+              "completion_tokens": 165,
+              "completion_tokens_details": {
+                "audio_tokens": 0,
+                "image_tokens": 0,
+                "reasoning_tokens": 0
+              },
+              "cost": 0.00348525,
+              "cost_details": {
+                "upstream_inference_completions_cost": 0.0005775,
+                "upstream_inference_cost": 0.00348525,
+                "upstream_inference_prompt_cost": 0.00290775
+              },
+              "is_byok": false,
+              "prompt_tokens": 3877,
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cache_write_tokens": 0,
+                "cached_tokens": 0,
+                "video_tokens": 0
+              },
+              "response_receipt": {
+                "finish_reason": "stop",
+                "id": "gen-1788599310-xvpxJDYpnnKSmYUN3JfO",
+                "model": "moonshotai/kimi-k2.6",
+                "openrouter_metadata": null
+              },
+              "total_tokens": 4042
+            },
+            "encoder": {
+              "completion_tokens": 378,
+              "completion_tokens_details": {
+                "audio_tokens": 0,
+                "image_tokens": 0,
+                "reasoning_tokens": 0
+              },
+              "cost": 0.0009772848,
+              "cost_details": {
+                "upstream_inference_completions_cost": 0.0001170288,
+                "upstream_inference_cost": 0.0009772848,
+                "upstream_inference_prompt_cost": 0.000860256
+              },
+              "is_byok": false,
+              "prompt_tokens": 4120,
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cache_write_tokens": 0,
+                "cached_tokens": 0,
+                "video_tokens": 0
+              },
+              "response_receipt": {
+                "finish_reason": "stop",
+                "id": "gen-1788599299-sEqDj9oouRdRIX8gVn4Y",
+                "model": "deepseek/deepseek-v3.2",
+                "openrouter_metadata": null
+              },
+              "total_tokens": 4498
+            }
+          }
+        },
+        "old": {
+          "decoded": "Fable workshop at Harbor Hall capacity 024 attendees penalty $1,250.00\n^Use --dry-run /Var/Logs/app.log https://api.Example.org/v1:check contact Ops.Team+qa@example.org in us-East-1\n^Preserve order ID AbC:007_A-9\n^Allocate 10.50 GB to node-7 for backup\n^Alert if temperature <5°C because sensor is faulty\n^Keep ratio at 0.80 range at 03-07\n^Schedule maintenance from 9 AM to 11 AM local time\n^Proceed after 3 PM and before 5 PM\n^Wait until 3 PM then proceed\n^Submit report by 04:30 PM EST because manager leaves early\n^Meet at 2 PM in conference room\n^First save logs then at 3 PM restart Server-A\n^Inspect primary database Server-B before release\n^Check logs with detailed timestamp analysis\n^Notify Alice if backup succeeds unless maintenance is active\n^Send to Alice before notifying Bob\n^Inspect STORAGE-ALPHA-EXACT-000123456789 for damage\n^Record STORAGE-ALPHA-EXACT-000123456789 in the report\n^Retain STORAGE-ALPHA-EXACT-000123456789 until Friday\n^Check node-7\n^Check node-8\n^Check node-9",
+          "diagnostic": {
+            "actual_lines": 16,
+            "exact_lines_pass": false,
+            "expected_lines": 15,
+            "matching_lines": 0,
+            "text": "`AbC:007_A-9`\n^Inspect `AbC:007_A-9`\n^Record `AbC:007_A-9`\n^Retain `AbC:007_A-9`\n^Finish within 2 hours\n^Respond within 2 hours\n^Return within 2 hours\n^Measure 10.50 GB exactly\n^Measure 20.00 GB exactly\n^Measure 05.25 GB exactly\n^Check node-7\n^Check node-8\n^Check node-9\n^Record server rack A-12 as operational\n^Record load balancer LB-01 as degraded\n^Record cache cluster C-03 as ready"
+          },
+          "encoded": "Fable workshop <at Harbor Hall> capacity <024 attendees> penalty <$1,250.00>\n^Use --dry-run `/Var/Logs/app.log` `https://api.Example.org/v1:check` contact `Ops.Team+qa@example.org` <in us-East-1>\n^Preserve order ID `AbC:007_A-9`\n^Allocate <10.50 GB to node-7 for backup>\n^Alert <if temperature <5°C because sensor is faulty>\n^Keep ratio <at 0.80> range <at 03-07>\n^Schedule maintenance <from 9 AM to 11 AM local time>\n^Proceed <after 3 PM and before 5 PM>\n^Wait <until 3 PM> then proceed\n^Submit report <by 04:30 PM EST> because manager leaves early\n^Meet <at 2 PM in conference room>\n^First save logs then <at 3 PM> restart Server-A\n^Inspect primary database Server-B <before release>\n^Check logs <with detailed timestamp analysis>\n^Notify Alice <if backup succeeds unless maintenance is active>\n^Send to Alice <before notifying Bob>\n^Inspect `STORAGE-ALPHA-EXACT-000123456789` <for damage>\n^Record `STORAGE-ALPHA-EXACT-000123456789` <in the report>\n^Retain `STORAGE-ALPHA-EXACT-000123456789` <until Friday>\n^Check node-7\n^Check node-8\n^Check node-9",
+          "factual_checks": {
+            "checks": [
+              {
+                "case": "context",
+                "literal": "Fable",
+                "pass": true
+              },
+              {
+                "case": "context",
+                "literal": "Harbor Hall",
+                "pass": true
+              },
+              {
+                "case": "context",
+                "literal": "024 attendees",
+                "pass": true
+              },
+              {
+                "case": "context",
+                "literal": "$1,250.00",
+                "pass": true
+              },
+              {
+                "case": "context",
+                "directive": false,
+                "pass": true
+              },
+              {
+                "case": "technical",
+                "literal": "--dry-run",
+                "pass": true
+              },
+              {
+                "case": "technical",
+                "literal": "/Var/Logs/app.log",
+                "pass": true
+              },
+              {
+                "case": "technical",
+                "literal": "https://api.Example.org/v1:check",
+                "pass": true
+              },
+              {
+                "case": "technical",
+                "literal": "Ops.Team+qa@example.org",
+                "pass": true
+              },
+              {
+                "case": "technical",
+                "literal": "us-East-1",
+                "pass": true
+              },
+              {
+                "case": "technical",
+                "directive": true,
+                "pass": true
+              },
+              {
+                "case": "id",
+                "literal": "AbC:007_A-9",
+                "pass": true
+              },
+              {
+                "case": "id",
+                "directive": true,
+                "pass": true
+              },
+              {
+                "case": "allocation",
+                "literal": "10.50 GB",
+                "pass": true
+              },
+              {
+                "case": "allocation",
+                "literal": "node-7",
+                "pass": true
+              },
+              {
+                "case": "allocation",
+                "literal": "backup",
+                "pass": true
+              },
+              {
+                "case": "allocation",
+                "directive": true,
+                "pass": true
+              },
+              {
+                "case": "comparison",
+                "literal": "if",
+                "pass": true
+              },
+              {
+                "case": "comparison",
+                "literal": "temperature",
+                "pass": true
+              },
+              {
+                "case": "comparison",
+                "literal": "<5°C",
+                "pass": true
+              },
+              {
+                "case": "comparison",
+                "literal": "because",
+                "pass": true
+              },
+              {
+                "case": "comparison",
+                "literal": "sensor",
+                "pass": true
+              },
+              {
+                "case": "comparison",
+                "literal": "faulty",
+                "pass": true
+              },
+              {
+                "case": "comparison",
+                "directive": true,
+                "pass": true
+              },
+              {
+                "case": "leading-zero",
+                "literal": "0.80",
+                "pass": true
+              },
+              {
+                "case": "leading-zero",
+                "literal": "03-07",
+                "pass": true
+              },
+              {
+                "case": "leading-zero",
+                "directive": true,
+                "pass": true
+              },
+              {
+                "case": "temporal-range",
+                "literal": "from 9 AM to 11 AM local time",
+                "pass": true
+              },
+              {
+                "case": "temporal-range",
+                "directive": true,
+                "pass": true
+              },
+              {
+                "case": "temporal-constraints",
+                "literal": "after 3 PM and before 5 PM",
+                "pass": true
+              },
+              {
+                "case": "temporal-constraints",
+                "directive": true,
+                "pass": true
+              },
+              {
+                "case": "independent-action",
+                "literal": "until 3 PM",
+                "pass": true
+              },
+              {
+                "case": "independent-action",
+                "literal": "and then proceed",
+                "pass": false
+              },
+              {
+                "case": "independent-action",
+                "directive": true,
+                "pass": true
+              },
+              {
+                "case": "deadline-rationale",
+                "literal": "by 04:30 PM EST",
+                "pass": true
+              },
+              {
+                "case": "deadline-rationale",
+                "literal": "because",
+                "pass": true
+              },
+              {
+                "case": "deadline-rationale",
+                "literal": "manager",
+                "pass": true
+              },
+              {
+                "case": "deadline-rationale",
+                "literal": "leaves early",
+                "pass": true
+              },
+              {
+                "case": "deadline-rationale",
+                "directive": true,
+                "pass": true
+              },
+              {
+                "case": "time-location",
+                "literal": "at 2 PM in conference room",
+                "pass": true
+              },
+              {
+                "case": "time-location",
+                "directive": true,
+                "pass": true
+              },
+              {
+                "case": "sequence",
+                "literal": "First",
+                "pass": true
+              },
+              {
+                "case": "sequence",
+                "literal": "then at 3 PM",
+                "pass": true
+              },
+              {
+                "case": "sequence",
+                "literal": "Server-A",
+                "pass": true
+              },
+              {
+                "case": "sequence",
+                "directive": true,
+                "pass": true
+              },
+              {
+                "case": "label-entity",
+                "literal": "primary database",
+                "pass": true
+              },
+              {
+                "case": "label-entity",
+                "literal": "Server-B",
+                "pass": true
+              },
+              {
+                "case": "label-entity",
+                "literal": "before release",
+                "pass": true
+              },
+              {
+                "case": "label-entity",
+                "directive": true,
+                "pass": true
+              },
+              {
+                "case": "descriptive",
+                "literal": "with detailed timestamp analysis",
+                "pass": true
+              },
+              {
+                "case": "descriptive",
+                "directive": true,
+                "pass": true
+              },
+              {
+                "case": "logic",
+                "literal": "Alice",
+                "pass": true
+              },
+              {
+                "case": "logic",
+                "literal": "if",
+                "pass": true
+              },
+              {
+                "case": "logic",
+                "literal": "backup",
+                "pass": true
+              },
+              {
+                "case": "logic",
+                "literal": "succeeds",
+                "pass": true
+              },
+              {
+                "case": "logic",
+                "literal": "unless",
+                "pass": true
+              },
+              {
+                "case": "logic",
+                "literal": "maintenance",
+                "pass": true
+              },
+              {
+                "case": "logic",
+                "literal": "active",
+                "pass": true
+              },
+              {
+                "case": "logic",
+                "directive": true,
+                "pass": true
+              },
+              {
+                "case": "recipient",
+                "literal": "to Alice",
+                "pass": true
+              },
+              {
+                "case": "recipient",
+                "literal": "before",
+                "pass": true
+              },
+              {
+                "case": "recipient",
+                "literal": "Bob",
+                "pass": true
+              },
+              {
+                "case": "recipient",
+                "directive": true,
+                "pass": true
+              },
+              {
+                "case": "alias-a",
+                "literal": "STORAGE-ALPHA-EXACT-000123456789",
+                "pass": true
+              },
+              {
+                "case": "alias-a",
+                "literal": "damage",
+                "pass": true
+              },
+              {
+                "case": "alias-a",
+                "directive": true,
+                "pass": true
+              },
+              {
+                "case": "alias-b",
+                "literal": "STORAGE-ALPHA-EXACT-000123456789",
+                "pass": true
+              },
+              {
+                "case": "alias-b",
+                "literal": "report",
+                "pass": true
+              },
+              {
+                "case": "alias-b",
+                "directive": true,
+                "pass": true
+              },
+              {
+                "case": "alias-c",
+                "literal": "STORAGE-ALPHA-EXACT-000123456789",
+                "pass": true
+              },
+              {
+                "case": "alias-c",
+                "literal": "until Friday",
+                "pass": true
+              },
+              {
+                "case": "alias-c",
+                "directive": true,
+                "pass": true
+              },
+              {
+                "case": "list-a",
+                "literal": "node-7",
+                "pass": true
+              },
+              {
+                "case": "list-a",
+                "directive": true,
+                "pass": true
+              },
+              {
+                "case": "list-b",
+                "literal": "node-8",
+                "pass": true
+              },
+              {
+                "case": "list-b",
+                "directive": true,
+                "pass": true
+              },
+              {
+                "case": "list-c",
+                "literal": "node-9",
+                "pass": true
+              },
+              {
+                "case": "list-c",
+                "directive": true,
+                "pass": true
+              }
+            ],
+            "line_count_pass": true,
+            "passed": 77,
+            "scope": "case-sensitive substrings and directive markers at expected line positions",
+            "total": 78
+          },
+          "language_hash": "c508ebc770945f99c37a9395db1a400f2216352486b4bb6a307ddf4dc5c2d116",
+          "usage": {
+            "decoder": {
+              "completion_tokens": 282,
+              "completion_tokens_details": {
+                "audio_tokens": 0,
+                "image_tokens": 0,
+                "reasoning_tokens": 0
+              },
+              "cost": 0.0181684,
+              "cost_details": {
+                "upstream_inference_completions_cost": 0.0009588,
+                "upstream_inference_cost": 0.0181684,
+                "upstream_inference_prompt_cost": 0.0172096
+              },
+              "is_byok": false,
+              "prompt_tokens": 21512,
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cache_write_tokens": 0,
+                "cached_tokens": 0,
+                "video_tokens": 0
+              },
+              "response_receipt": {
+                "finish_reason": "stop",
+                "id": "gen-1788599291-0C6QOdIVywdwvxphDxFG",
+                "model": "moonshotai/kimi-k2.6",
+                "openrouter_metadata": null
+              },
+              "total_tokens": 21794
+            },
+            "diagnostic": {
+              "completion_tokens": 138,
+              "completion_tokens_details": {
+                "audio_tokens": 0,
+                "image_tokens": 0,
+                "reasoning_tokens": 0
+              },
+              "cost": 0.013123341,
+              "cost_details": {
+                "upstream_inference_completions_cost": 0.00034776,
+                "upstream_inference_cost": 0.013123341,
+                "upstream_inference_prompt_cost": 0.012775581
+              },
+              "is_byok": false,
+              "prompt_tokens": 21346,
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cache_write_tokens": 0,
+                "cached_tokens": 0,
+                "video_tokens": 0
+              },
+              "response_receipt": {
+                "finish_reason": "stop",
+                "id": "gen-1788599296-IT4029vuleJ0R1ukNqBH",
+                "model": "moonshotai/kimi-k2.6",
+                "openrouter_metadata": null
+              },
+              "total_tokens": 21484
+            },
+            "encoder": {
+              "completion_tokens": 338,
+              "completion_tokens_details": {
+                "audio_tokens": 0,
+                "image_tokens": 0,
+                "reasoning_tokens": 0
+              },
+              "cost": 0.0046692216,
+              "cost_details": {
+                "upstream_inference_completions_cost": 0.0001046448,
+                "upstream_inference_cost": 0.0046692216,
+                "upstream_inference_prompt_cost": 0.0045645768
+              },
+              "is_byok": false,
+              "prompt_tokens": 21861,
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cache_write_tokens": 0,
+                "cached_tokens": 0,
+                "video_tokens": 0
+              },
+              "response_receipt": {
+                "finish_reason": "stop",
+                "id": "gen-1788599283-c9ARO0YdLIlyeJowXEwm",
+                "model": "deepseek/deepseek-v3.2",
+                "openrouter_metadata": null
+              },
+              "total_tokens": 22199
+            }
+          }
+        }
+      }
+    },
+    {
+      "cost_after_usd": "0.47431828805",
+      "cost_before_usd": "0.43138671925",
+      "decoder": "moonshotai/kimi-k2.6",
+      "encoder": "deepseek/deepseek-v3.2",
+      "fixture_sha256": "45e05a98e546d31fcc8df1e4c47e040f79dd74aa988f5977d26777508a1fafbe",
+      "integrity": {
+        "candidate_language_hash": "3c1da3ddbee0041c61c51d8f32a51f22d9e226f5a103e5524d83e08953498088",
+        "candidate_render_chars": 20270,
+        "candidate_render_words": 2799,
+        "candidate_sections": 14,
+        "mapped_records": 78,
+        "operational_exclusions": 5,
+        "scope": "identity, mapping and compiler integrity only; not semantic equivalence",
+        "source_adopted_records": 83,
+        "source_file_sha256": "53ffb801cbeec7f64ad3c6d16c8863aa2e97e692686f5f48e407ca843c15abc2",
+        "source_render_chars": 104891,
+        "source_render_words": 15052,
+        "source_snapshot_hash": "53ffb801cbeec7f64ad3c6d16c8863aa2e97e692686f5f48e407ca843c15abc2",
+        "source_unchanged": true,
+        "status": "PASS"
+      },
+      "sensitivity": {
+        "scope": "assertion sensitivity only, not model or language proof",
+        "status": "PASS",
+        "targeted_assertions": 81
+      },
+      "source_unchanged": true,
+      "status": "COMPLETED_COMPARISON",
+      "tokens": {
+        "candidate_book": 3880,
+        "candidate_encoded": 410,
+        "input": 320,
+        "old_book": 21492,
+        "old_encoded": 332
+      },
+      "versions": {
+        "candidate": {
+          "decoded": "Fable workshop at Harbor Hall with capacity 024 attendees and a penalty of $1,250.00.\n^Use --dry-run with /Var/Logs/app.log and https://api.Example.org/v1:check; contact Ops.Team+qa@example.org in us-East-1.\n^Preserve order ID `AbC:007_A-9` exactly.\n^Allocate 10.50 GB to node-7 for backup.\n^Alert if temperature <5°C because sensor is faulty.\n^Keep the ratio at 0.80 and the range at 03-07.\n^Schedule maintenance from 9 AM to 11 AM local time.\n^Proceed after 3 PM and before 5 PM.\n^Wait until 3 PM and then proceed.\n^Submit report by 04:30 PM EST because manager leaves early.\n^Meet at 2 PM in conference room.\n^First save logs, then at 3 PM restart Server-A.\n^Inspect primary database Server-B before release.\n^Check logs with detailed timestamp analysis.\n^Notify Alice if backup succeeds unless maintenance is active.\n^Send to Alice before notifying Bob.\n^Inspect `STORAGE-ALPHA-EXACT-000123456789` for damage.\n^Record `STORAGE-ALPHA-EXACT-000123456789` in the report.\n^Retain `STORAGE-ALPHA-EXACT-000123456789` until Friday.\n`STORAGE-ALPHA-EXACT-000123456789`\n`STORAGE-ALPHA-EXACT-000123456789`\n`STORAGE-ALPHA-EXACT-000123456789`\nCheck node-7\nCheck node-8\nCheck node-9",
+          "diagnostic": {
+            "actual_lines": 17,
+            "exact_lines_pass": false,
+            "expected_lines": 15,
+            "matching_lines": 0,
+            "text": "`AbC:007_A-9`\n^Inspect `AbC:007_A-9`\n^Record `AbC:007_A-9`\n^Retain `AbC:007_A-9`\n<within 2 hours>\n^Finish <within 2 hours>\n^Respond <within 2 hours>\n^Return <within 2 hours>\n^Measure <10.50 GB> exactly\n^Measure <20.00 GB> exactly\n^Measure <05.25 GB> exactly\n^Check `node-7`\n^Check `node-8`\n^Check `node-9`\n^Record <server rack A-12> as <operational>\n^Record <load balancer LB-01> as <degraded>\n^Record <cache cluster C-03> as <ready>"
+          },
+          "encoded": "Fable workshop <at Harbor Hall> <with capacity 024 attendees> <and a penalty of $1,250.00>.\n^Use --dry-run with /Var/Logs/app.log and https://api.Example.org/v1:check; contact Ops.Team+qa@example.org <in us-East-1>.\n^Preserve order ID `AbC:007_A-9` exactly.\n^Allocate <10.50 GB to node-7> for backup.\n^Alert <if temperature <5°C because sensor is faulty>.\n^Keep <the ratio at 0.80> <and the range at 03-07>.\n^Schedule maintenance <from 9 AM to 11 AM local time>.\n^Proceed <after 3 PM and before 5 PM>.\n^Wait <until 3 PM> and then proceed.\n^Submit report <by 04:30 PM EST because manager leaves early>.\n^Meet <at 2 PM in conference room>.\n^First save logs, then <at 3 PM> restart Server-A.\n^Inspect <primary database Server-B> before release.\n^Check logs <with detailed timestamp analysis>.\n^Notify Alice <if backup succeeds unless maintenance is active>.\n^Send to Alice <before notifying Bob>.\n^Inspect `STORAGE-ALPHA-EXACT-000123456789` for damage.\n^Record `STORAGE-ALPHA-EXACT-000123456789` in the report.\n^Retain `STORAGE-ALPHA-EXACT-000123456789` <until Friday>.\n$STORAGE-ALPHA-EXACT-000123456789\n$STORAGE-ALPHA-EXACT-000123456789\n$STORAGE-ALPHA-EXACT-000123456789\n%list=Check $\n$ node-7\n$ node-8\n$ node-9",
+          "factual_checks": {
+            "added_syntax_checks": [
+              {
+                "actual_count": 1,
+                "character": "<",
+                "expected_count": 1,
+                "pass": true
+              },
+              {
+                "actual_count": 0,
+                "character": ">",
+                "expected_count": 0,
+                "pass": true
+              },
+              {
+                "actual_count": 14,
+                "character": "`",
+                "expected_count": 0,
+                "pass": false
+              }
+            ],
+            "checks": [
+              {
+                "case": "context",
+                "literal": "Fable",
+                "pass": true
+              },
+              {
+                "case": "context",
+                "literal": "Harbor Hall",
+                "pass": true
+              },
+              {
+                "case": "context",
+                "literal": "024 attendees",
+                "pass": true
+              },
+              {
+                "case": "context",
+                "literal": "$1,250.00",
+                "pass": true
+              },
+              {
+                "case": "context",
+                "directive": false,
+                "pass": true
+              },
+              {
+                "case": "technical",
+                "literal": "--dry-run",
+                "pass": true
+              },
+              {
+                "case": "technical",
+                "literal": "/Var/Logs/app.log",
+                "pass": true
+              },
+              {
+                "case": "technical",
+                "literal": "https://api.Example.org/v1:check",
+                "pass": true
+              },
+              {
+                "case": "technical",
+                "literal": "Ops.Team+qa@example.org",
+                "pass": true
+              },
+              {
+                "case": "technical",
+                "literal": "us-East-1",
+                "pass": true
+              },
+              {
+                "case": "technical",
+                "directive": true,
+                "pass": true
+              },
+              {
+                "case": "id",
+                "literal": "AbC:007_A-9",
+                "pass": true
+              },
+              {
+                "case": "id",
+                "directive": true,
+                "pass": true
+              },
+              {
+                "case": "allocation",
+                "literal": "10.50 GB",
+                "pass": true
+              },
+              {
+                "case": "allocation",
+                "literal": "node-7",
+                "pass": true
+              },
+              {
+                "case": "allocation",
+                "literal": "backup",
+                "pass": true
+              },
+              {
+                "case": "allocation",
+                "directive": true,
+                "pass": true
+              },
+              {
+                "case": "comparison",
+                "literal": "if",
+                "pass": true
+              },
+              {
+                "case": "comparison",
+                "literal": "temperature",
+                "pass": true
+              },
+              {
+                "case": "comparison",
+                "literal": "<5°C",
+                "pass": true
+              },
+              {
+                "case": "comparison",
+                "literal": "because",
+                "pass": true
+              },
+              {
+                "case": "comparison",
+                "literal": "sensor",
+                "pass": true
+              },
+              {
+                "case": "comparison",
+                "literal": "faulty",
+                "pass": true
+              },
+              {
+                "case": "comparison",
+                "directive": true,
+                "pass": true
+              },
+              {
+                "case": "leading-zero",
+                "literal": "0.80",
+                "pass": true
+              },
+              {
+                "case": "leading-zero",
+                "literal": "03-07",
+                "pass": true
+              },
+              {
+                "case": "leading-zero",
+                "directive": true,
+                "pass": true
+              },
+              {
+                "case": "temporal-range",
+                "literal": "from 9 AM to 11 AM local time",
+                "pass": true
+              },
+              {
+                "case": "temporal-range",
+                "directive": true,
+                "pass": true
+              },
+              {
+                "case": "temporal-constraints",
+                "literal": "after 3 PM and before 5 PM",
+                "pass": true
+              },
+              {
+                "case": "temporal-constraints",
+                "directive": true,
+                "pass": true
+              },
+              {
+                "case": "independent-action",
+                "literal": "until 3 PM",
+                "pass": true
+              },
+              {
+                "case": "independent-action",
+                "literal": "and then proceed",
+                "pass": true
+              },
+              {
+                "case": "independent-action",
+                "directive": true,
+                "pass": true
+              },
+              {
+                "case": "deadline-rationale",
+                "literal": "by 04:30 PM EST",
+                "pass": true
+              },
+              {
+                "case": "deadline-rationale",
+                "literal": "because",
+                "pass": true
+              },
+              {
+                "case": "deadline-rationale",
+                "literal": "manager",
+                "pass": true
+              },
+              {
+                "case": "deadline-rationale",
+                "literal": "leaves early",
+                "pass": true
+              },
+              {
+                "case": "deadline-rationale",
+                "directive": true,
+                "pass": true
+              },
+              {
+                "case": "time-location",
+                "literal": "at 2 PM in conference room",
+                "pass": true
+              },
+              {
+                "case": "time-location",
+                "directive": true,
+                "pass": true
+              },
+              {
+                "case": "sequence",
+                "literal": "First",
+                "pass": true
+              },
+              {
+                "case": "sequence",
+                "literal": "then at 3 PM",
+                "pass": true
+              },
+              {
+                "case": "sequence",
+                "literal": "Server-A",
+                "pass": true
+              },
+              {
+                "case": "sequence",
+                "directive": true,
+                "pass": true
+              },
+              {
+                "case": "label-entity",
+                "literal": "primary database",
+                "pass": true
+              },
+              {
+                "case": "label-entity",
+                "literal": "Server-B",
+                "pass": true
+              },
+              {
+                "case": "label-entity",
+                "literal": "before release",
+                "pass": true
+              },
+              {
+                "case": "label-entity",
+                "directive": true,
+                "pass": true
+              },
+              {
+                "case": "descriptive",
+                "literal": "with detailed timestamp analysis",
+                "pass": true
+              },
+              {
+                "case": "descriptive",
+                "directive": true,
+                "pass": true
+              },
+              {
+                "case": "logic",
+                "literal": "Alice",
+                "pass": true
+              },
+              {
+                "case": "logic",
+                "literal": "if",
+                "pass": true
+              },
+              {
+                "case": "logic",
+                "literal": "backup",
+                "pass": true
+              },
+              {
+                "case": "logic",
+                "literal": "succeeds",
+                "pass": true
+              },
+              {
+                "case": "logic",
+                "literal": "unless",
+                "pass": true
+              },
+              {
+                "case": "logic",
+                "literal": "maintenance",
+                "pass": true
+              },
+              {
+                "case": "logic",
+                "literal": "active",
+                "pass": true
+              },
+              {
+                "case": "logic",
+                "directive": true,
+                "pass": true
+              },
+              {
+                "case": "recipient",
+                "literal": "to Alice",
+                "pass": true
+              },
+              {
+                "case": "recipient",
+                "literal": "before",
+                "pass": true
+              },
+              {
+                "case": "recipient",
+                "literal": "Bob",
+                "pass": true
+              },
+              {
+                "case": "recipient",
+                "directive": true,
+                "pass": true
+              },
+              {
+                "case": "alias-a",
+                "literal": "STORAGE-ALPHA-EXACT-000123456789",
+                "pass": true
+              },
+              {
+                "case": "alias-a",
+                "literal": "damage",
+                "pass": true
+              },
+              {
+                "case": "alias-a",
+                "directive": true,
+                "pass": true
+              },
+              {
+                "case": "alias-b",
+                "literal": "STORAGE-ALPHA-EXACT-000123456789",
+                "pass": true
+              },
+              {
+                "case": "alias-b",
+                "literal": "report",
+                "pass": true
+              },
+              {
+                "case": "alias-b",
+                "directive": true,
+                "pass": true
+              },
+              {
+                "case": "alias-c",
+                "literal": "STORAGE-ALPHA-EXACT-000123456789",
+                "pass": true
+              },
+              {
+                "case": "alias-c",
+                "literal": "until Friday",
+                "pass": true
+              },
+              {
+                "case": "alias-c",
+                "directive": true,
+                "pass": true
+              },
+              {
+                "case": "list-a",
+                "literal": "node-7",
+                "pass": false
+              },
+              {
+                "case": "list-a",
+                "directive": true,
+                "pass": false
+              },
+              {
+                "case": "list-b",
+                "literal": "node-8",
+                "pass": false
+              },
+              {
+                "case": "list-b",
+                "directive": true,
+                "pass": false
+              },
+              {
+                "case": "list-c",
+                "literal": "node-9",
+                "pass": false
+              },
+              {
+                "case": "list-c",
+                "directive": true,
+                "pass": false
+              }
+            ],
+            "line_count_pass": false,
+            "passed": 72,
+            "scope": "case-sensitive substrings and directive markers at expected line positions",
+            "total": 78
+          },
+          "language_hash": "d39b25ca59682f3e696b4882fca42f0d95f45324ce77518455acf07dbaf44263",
+          "usage": {
+            "decoder": {
+              "completion_tokens": 345,
+              "completion_tokens_details": {
+                "audio_tokens": 0,
+                "image_tokens": 0,
+                "reasoning_tokens": 0
+              },
+              "cost": 0.005389,
+              "cost_details": {
+                "upstream_inference_completions_cost": 0.00138,
+                "upstream_inference_cost": 0.005389,
+                "upstream_inference_prompt_cost": 0.004009
+              },
+              "is_byok": false,
+              "prompt_tokens": 4220,
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cache_write_tokens": 0,
+                "cached_tokens": 0,
+                "video_tokens": 0
+              },
+              "response_receipt": {
+                "finish_reason": "stop",
+                "id": "gen-1788599421-D2Ph3WEHSsu7yauK0LXy",
+                "model": "moonshotai/kimi-k2.6",
+                "openrouter_metadata": null
+              },
+              "total_tokens": 4565
+            },
+            "diagnostic": {
+              "completion_tokens": 164,
+              "completion_tokens_details": {
+                "audio_tokens": 0,
+                "image_tokens": 0,
+                "reasoning_tokens": 0
+              },
+              "cost": 0.00280728,
+              "cost_details": {
+                "upstream_inference_completions_cost": 0.00041328,
+                "upstream_inference_cost": 0.00280728,
+                "upstream_inference_prompt_cost": 0.002394
+              },
+              "is_byok": false,
+              "prompt_tokens": 4000,
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cache_write_tokens": 0,
+                "cached_tokens": 0,
+                "video_tokens": 0
+              },
+              "response_receipt": {
+                "finish_reason": "stop",
+                "id": "gen-1788599429-KYZFMSOoEuMKx4pwnIlL",
+                "model": "moonshotai/kimi-k2.6",
+                "openrouter_metadata": null
+              },
+              "total_tokens": 4164
+            },
+            "encoder": {
+              "completion_tokens": 410,
+              "completion_tokens_details": {
+                "audio_tokens": 0,
+                "image_tokens": 0,
+                "reasoning_tokens": 0
+              },
+              "cost": 0.0010141272,
+              "cost_details": {
+                "upstream_inference_completions_cost": 0.000126936,
+                "upstream_inference_cost": 0.0010141272,
+                "upstream_inference_prompt_cost": 0.0008871912
+              },
+              "is_byok": false,
+              "prompt_tokens": 4249,
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cache_write_tokens": 0,
+                "cached_tokens": 0,
+                "video_tokens": 0
+              },
+              "response_receipt": {
+                "finish_reason": "stop",
+                "id": "gen-1788599411-KbnMyf5HbY8DIq6R52cd",
+                "model": "deepseek/deepseek-v3.2",
+                "openrouter_metadata": null
+              },
+              "total_tokens": 4659
+            }
+          }
+        },
+        "old": {
+          "decoded": "Fable workshop at Harbor Hall capacity <024 attendees> penalty <$1,250.00>\n^Use --dry-run `/Var/Logs/app.log` `https://api.Example.org/v1:check` contact `Ops.Team+qa@example.org` us-East-1\n^Preserve order ID `AbC:007_A-9`\n^Allocate <10.50 GB to node-7 for backup>\n^Alert <if temperature <5°C because sensor is faulty>\n^Keep ratio <0.80> range <03-07>\n^Schedule maintenance <from 9 AM to 11 AM local time>\n^Proceed <after 3 PM and before 5 PM>\n^Wait <until 3 PM> then proceed\n^Submit report <by 04:30 PM EST> because manager leaves early\n^Meet <at 2 PM in conference room>\n^First save logs then <at 3 PM> restart Server-A\n^Inspect primary database Server-B before release\n^Check logs (with detailed timestamp analysis)\n^Notify Alice <if backup succeeds unless maintenance is active>\n^Send to Alice <before notifying Bob>\n^Inspect `STORAGE-ALPHA-EXACT-000123456789` for damage\n^Record `STORAGE-ALPHA-EXACT-000123456789` in report\n^Retain `STORAGE-ALPHA-EXACT-000123456789` <until Friday>\ncheck node-7\ncheck node-8\ncheck node-9",
+          "diagnostic": {
+            "actual_lines": 17,
+            "exact_lines_pass": false,
+            "expected_lines": 15,
+            "matching_lines": 0,
+            "text": "@id=`AbC:007_A-9`\n^Inspect `AbC:007_A-9`\n^Record `AbC:007_A-9`\n^Retain `AbC:007_A-9`\n$window=<within 2 hours>\n^Finish within 2 hours\n^Respond within 2 hours\n^Return within 2 hours\n^Measure <10.50 GB> exactly\n^Measure <20.00 GB> exactly\n^Measure <05.25 GB> exactly\n^Check node-7\n^Check node-8\n^Check node-9\n^Record <server rack A-12> as <operational>\n^Record <load balancer LB-01> as <degraded>\n^Record <cache cluster C-03> as <ready>"
+          },
+          "encoded": "Fable workshop at Harbor Hall capacity <024 attendees> penalty <$1,250.00>\n^Use --dry-run `/Var/Logs/app.log` `https://api.Example.org/v1:check` contact `Ops.Team+qa@example.org` us-East-1\n^Preserve order ID `AbC:007_A-9`\n^Allocate <10.50 GB to node-7 for backup>\n^Alert <if temperature <5°C because sensor is faulty>\n^Keep ratio <0.80> range <03-07>\n^Schedule maintenance <from 9 AM to 11 AM local time>\n^Proceed <after 3 PM and before 5 PM>\n^Wait <until 3 PM> then proceed\n^Submit report <by 04:30 PM EST> because manager leaves early\n^Meet <at 2 PM in conference room>\n^First save logs then <at 3 PM> restart Server-A\n^Inspect primary database Server-B before release\n^Check logs (with detailed timestamp analysis)\n^Notify Alice <if backup succeeds unless maintenance is active>\n^Send to Alice <before notifying Bob>\n^Inspect `STORAGE-ALPHA-EXACT-000123456789` for damage\n^Record `STORAGE-ALPHA-EXACT-000123456789` in report\n^Retain `STORAGE-ALPHA-EXACT-000123456789` <until Friday>\n%list=check $\n$ <node-7>\n$ <node-8>\n$ <node-9>",
+          "factual_checks": {
+            "added_syntax_checks": [
+              {
+                "actual_count": 16,
+                "character": "<",
+                "expected_count": 1,
+                "pass": false
+              },
+              {
+                "actual_count": 15,
+                "character": ">",
+                "expected_count": 0,
+                "pass": false
+              },
+              {
+                "actual_count": 14,
+                "character": "`",
+                "expected_count": 0,
+                "pass": false
+              }
+            ],
+            "checks": [
+              {
+                "case": "context",
+                "literal": "Fable",
+                "pass": true
+              },
+              {
+                "case": "context",
+                "literal": "Harbor Hall",
+                "pass": true
+              },
+              {
+                "case": "context",
+                "literal": "024 attendees",
+                "pass": true
+              },
+              {
+                "case": "context",
+                "literal": "$1,250.00",
+                "pass": true
+              },
+              {
+                "case": "context",
+                "directive": false,
+                "pass": true
+              },
+              {
+                "case": "technical",
+                "literal": "--dry-run",
+                "pass": true
+              },
+              {
+                "case": "technical",
+                "literal": "/Var/Logs/app.log",
+                "pass": true
+              },
+              {
+                "case": "technical",
+                "literal": "https://api.Example.org/v1:check",
+                "pass": true
+              },
+              {
+                "case": "technical",
+                "literal": "Ops.Team+qa@example.org",
+                "pass": true
+              },
+              {
+                "case": "technical",
+                "literal": "us-East-1",
+                "pass": true
+              },
+              {
+                "case": "technical",
+                "directive": true,
+                "pass": true
+              },
+              {
+                "case": "id",
+                "literal": "AbC:007_A-9",
+                "pass": true
+              },
+              {
+                "case": "id",
+                "directive": true,
+                "pass": true
+              },
+              {
+                "case": "allocation",
+                "literal": "10.50 GB",
+                "pass": true
+              },
+              {
+                "case": "allocation",
+                "literal": "node-7",
+                "pass": true
+              },
+              {
+                "case": "allocation",
+                "literal": "backup",
+                "pass": true
+              },
+              {
+                "case": "allocation",
+                "directive": true,
+                "pass": true
+              },
+              {
+                "case": "comparison",
+                "literal": "if",
+                "pass": true
+              },
+              {
+                "case": "comparison",
+                "literal": "temperature",
+                "pass": true
+              },
+              {
+                "case": "comparison",
+                "literal": "<5°C",
+                "pass": true
+              },
+              {
+                "case": "comparison",
+                "literal": "because",
+                "pass": true
+              },
+              {
+                "case": "comparison",
+                "literal": "sensor",
+                "pass": true
+              },
+              {
+                "case": "comparison",
+                "literal": "faulty",
+                "pass": true
+              },
+              {
+                "case": "comparison",
+                "directive": true,
+                "pass": true
+              },
+              {
+                "case": "leading-zero",
+                "literal": "0.80",
+                "pass": true
+              },
+              {
+                "case": "leading-zero",
+                "literal": "03-07",
+                "pass": true
+              },
+              {
+                "case": "leading-zero",
+                "directive": true,
+                "pass": true
+              },
+              {
+                "case": "temporal-range",
+                "literal": "from 9 AM to 11 AM local time",
+                "pass": true
+              },
+              {
+                "case": "temporal-range",
+                "directive": true,
+                "pass": true
+              },
+              {
+                "case": "temporal-constraints",
+                "literal": "after 3 PM and before 5 PM",
+                "pass": true
+              },
+              {
+                "case": "temporal-constraints",
+                "directive": true,
+                "pass": true
+              },
+              {
+                "case": "independent-action",
+                "literal": "until 3 PM",
+                "pass": true
+              },
+              {
+                "case": "independent-action",
+                "literal": "and then proceed",
+                "pass": false
+              },
+              {
+                "case": "independent-action",
+                "directive": true,
+                "pass": true
+              },
+              {
+                "case": "deadline-rationale",
+                "literal": "by 04:30 PM EST",
+                "pass": true
+              },
+              {
+                "case": "deadline-rationale",
+                "literal": "because",
+                "pass": true
+              },
+              {
+                "case": "deadline-rationale",
+                "literal": "manager",
+                "pass": true
+              },
+              {
+                "case": "deadline-rationale",
+                "literal": "leaves early",
+                "pass": true
+              },
+              {
+                "case": "deadline-rationale",
+                "directive": true,
+                "pass": true
+              },
+              {
+                "case": "time-location",
+                "literal": "at 2 PM in conference room",
+                "pass": true
+              },
+              {
+                "case": "time-location",
+                "directive": true,
+                "pass": true
+              },
+              {
+                "case": "sequence",
+                "literal": "First",
+                "pass": true
+              },
+              {
+                "case": "sequence",
+                "literal": "then at 3 PM",
+                "pass": false
+              },
+              {
+                "case": "sequence",
+                "literal": "Server-A",
+                "pass": true
+              },
+              {
+                "case": "sequence",
+                "directive": true,
+                "pass": true
+              },
+              {
+                "case": "label-entity",
+                "literal": "primary database",
+                "pass": true
+              },
+              {
+                "case": "label-entity",
+                "literal": "Server-B",
+                "pass": true
+              },
+              {
+                "case": "label-entity",
+                "literal": "before release",
+                "pass": true
+              },
+              {
+                "case": "label-entity",
+                "directive": true,
+                "pass": true
+              },
+              {
+                "case": "descriptive",
+                "literal": "with detailed timestamp analysis",
+                "pass": true
+              },
+              {
+                "case": "descriptive",
+                "directive": true,
+                "pass": true
+              },
+              {
+                "case": "logic",
+                "literal": "Alice",
+                "pass": true
+              },
+              {
+                "case": "logic",
+                "literal": "if",
+                "pass": true
+              },
+              {
+                "case": "logic",
+                "literal": "backup",
+                "pass": true
+              },
+              {
+                "case": "logic",
+                "literal": "succeeds",
+                "pass": true
+              },
+              {
+                "case": "logic",
+                "literal": "unless",
+                "pass": true
+              },
+              {
+                "case": "logic",
+                "literal": "maintenance",
+                "pass": true
+              },
+              {
+                "case": "logic",
+                "literal": "active",
+                "pass": true
+              },
+              {
+                "case": "logic",
+                "directive": true,
+                "pass": true
+              },
+              {
+                "case": "recipient",
+                "literal": "to Alice",
+                "pass": true
+              },
+              {
+                "case": "recipient",
+                "literal": "before",
+                "pass": true
+              },
+              {
+                "case": "recipient",
+                "literal": "Bob",
+                "pass": true
+              },
+              {
+                "case": "recipient",
+                "directive": true,
+                "pass": true
+              },
+              {
+                "case": "alias-a",
+                "literal": "STORAGE-ALPHA-EXACT-000123456789",
+                "pass": true
+              },
+              {
+                "case": "alias-a",
+                "literal": "damage",
+                "pass": true
+              },
+              {
+                "case": "alias-a",
+                "directive": true,
+                "pass": true
+              },
+              {
+                "case": "alias-b",
+                "literal": "STORAGE-ALPHA-EXACT-000123456789",
+                "pass": true
+              },
+              {
+                "case": "alias-b",
+                "literal": "report",
+                "pass": true
+              },
+              {
+                "case": "alias-b",
+                "directive": true,
+                "pass": true
+              },
+              {
+                "case": "alias-c",
+                "literal": "STORAGE-ALPHA-EXACT-000123456789",
+                "pass": true
+              },
+              {
+                "case": "alias-c",
+                "literal": "until Friday",
+                "pass": true
+              },
+              {
+                "case": "alias-c",
+                "directive": true,
+                "pass": true
+              },
+              {
+                "case": "list-a",
+                "literal": "node-7",
+                "pass": true
+              },
+              {
+                "case": "list-a",
+                "directive": true,
+                "pass": false
+              },
+              {
+                "case": "list-b",
+                "literal": "node-8",
+                "pass": true
+              },
+              {
+                "case": "list-b",
+                "directive": true,
+                "pass": false
+              },
+              {
+                "case": "list-c",
+                "literal": "node-9",
+                "pass": true
+              },
+              {
+                "case": "list-c",
+                "directive": true,
+                "pass": false
+              }
+            ],
+            "line_count_pass": true,
+            "passed": 73,
+            "scope": "case-sensitive substrings and directive markers at expected line positions",
+            "total": 78
+          },
+          "language_hash": "c508ebc770945f99c37a9395db1a400f2216352486b4bb6a307ddf4dc5c2d116",
+          "usage": {
+            "decoder": {
+              "completion_tokens": 306,
+              "completion_tokens_details": {
+                "audio_tokens": 0,
+                "image_tokens": 0,
+                "reasoning_tokens": 0
+              },
+              "cost": 0.01502236,
+              "cost_details": {
+                "upstream_inference_completions_cost": 0.00104346,
+                "upstream_inference_cost": 0.01502236,
+                "upstream_inference_prompt_cost": 0.0139789
+              },
+              "is_byok": false,
+              "prompt_tokens": 21506,
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cache_write_tokens": 0,
+                "cached_tokens": 0,
+                "video_tokens": 0
+              },
+              "response_receipt": {
+                "finish_reason": "stop",
+                "id": "gen-1788599404-7vsmDqWA3bE4DvfrTCZy",
+                "model": "moonshotai/kimi-k2.6",
+                "openrouter_metadata": null
+              },
+              "total_tokens": 21812
+            },
+            "diagnostic": {
+              "completion_tokens": 163,
+              "completion_tokens_details": {
+                "audio_tokens": 0,
+                "image_tokens": 0,
+                "reasoning_tokens": 0
+              },
+              "cost": 0.01658,
+              "cost_details": {
+                "upstream_inference_completions_cost": 0.0005705,
+                "upstream_inference_cost": 0.01658,
+                "upstream_inference_prompt_cost": 0.0160095
+              },
+              "is_byok": false,
+              "prompt_tokens": 21346,
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cache_write_tokens": 0,
+                "cached_tokens": 0,
+                "video_tokens": 0
+              },
+              "response_receipt": {
+                "finish_reason": "stop",
+                "id": "gen-1788599406-qrsY6FKYko7toUh2U6th",
+                "model": "moonshotai/kimi-k2.6",
+                "openrouter_metadata": null
+              },
+              "total_tokens": 21509
+            },
+            "encoder": {
+              "completion_tokens": 332,
+              "completion_tokens_details": {
+                "audio_tokens": 0,
+                "image_tokens": 0,
+                "reasoning_tokens": 0
+              },
+              "cost": 0.000593892,
+              "cost_details": {
+                "upstream_inference_completions_cost": 0.0001027872,
+                "upstream_inference_cost": 0.000593892,
+                "upstream_inference_prompt_cost": 0.0004911048
+              },
+              "is_byok": false,
+              "prompt_tokens": 21861,
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cache_write_tokens": 0,
+                "cached_tokens": 21760,
+                "video_tokens": 0
+              },
+              "response_receipt": {
+                "finish_reason": "stop",
+                "id": "gen-1788599396-aIFLffFAuN6TcvI2S5sh",
+                "model": "deepseek/deepseek-v3.2",
+                "openrouter_metadata": null
+              },
+              "total_tokens": 22193
+            }
+          }
+        }
+      }
+    },
+    {
+      "cost_after_usd": "0.50342281725",
+      "cost_before_usd": "0.47431828805",
+      "decoder": "moonshotai/kimi-k2.6",
+      "encoder": "deepseek/deepseek-v3.2",
+      "fixture_sha256": "45e05a98e546d31fcc8df1e4c47e040f79dd74aa988f5977d26777508a1fafbe",
+      "integrity": {
+        "candidate_language_hash": "267a6215a24757faca43feda842b825c6cdf79ea8b11a05710ce6857897b58ed",
+        "candidate_render_chars": 21508,
+        "candidate_render_words": 2979,
+        "candidate_sections": 14,
+        "mapped_records": 78,
+        "operational_exclusions": 5,
+        "scope": "identity, mapping and compiler integrity only; not semantic equivalence",
+        "source_adopted_records": 83,
+        "source_file_sha256": "53ffb801cbeec7f64ad3c6d16c8863aa2e97e692686f5f48e407ca843c15abc2",
+        "source_render_chars": 104891,
+        "source_render_words": 15052,
+        "source_snapshot_hash": "53ffb801cbeec7f64ad3c6d16c8863aa2e97e692686f5f48e407ca843c15abc2",
+        "source_unchanged": true,
+        "status": "PASS"
+      },
+      "sensitivity": {
+        "scope": "assertion sensitivity only, not model or language proof",
+        "status": "PASS",
+        "targeted_assertions": 81
+      },
+      "source_unchanged": true,
+      "status": "COMPLETED_COMPARISON",
+      "tokens": {
+        "candidate_book": 4142,
+        "candidate_encoded": 373,
+        "input": 320,
+        "old_book": 21492,
+        "old_encoded": 332
+      },
+      "versions": {
+        "candidate": {
+          "decoded": "Fable workshop at Harbor Hall with capacity 024 attendees and a penalty of $1,250.00.\n^Use --dry-run with /Var/Logs/app.log and https://api.Example.org/v1:check; contact Ops.Team+qa@example.org in us-East-1.\n^Preserve order ID AbC:007_A-9 exactly.\n^Allocate 10.50 GB to node-7 for backup.\n^Alert if temperature <5°C because sensor is faulty.\n^Keep the ratio at 0.80 and the range at 03-07.\n^Schedule maintenance from 9 AM to 11 AM local time.\n^Proceed after 3 PM and before 5 PM.\n^Wait until 3 PM and then proceed.\n^Submit report by 04:30 PM EST because manager leaves early.\n^Meet at 2 PM in conference room.\n^First save logs, then at 3 PM restart Server-A.\n^Inspect primary database Server-B before release.\n^Check logs with detailed timestamp analysis.\n^Notify Alice if backup succeeds unless maintenance is active.\n^Send to Alice before notifying Bob.\n^Inspect STORAGE-ALPHA-EXACT-000123456789 for damage.\n^Record STORAGE-ALPHA-EXACT-000123456789 in the report.\n^Retain STORAGE-ALPHA-EXACT-000123456789 until Friday.\n^Check node-7\n^Check node-8\n^Check node-9",
+          "diagnostic": {
+            "actual_lines": 15,
+            "exact_lines_pass": false,
+            "expected_lines": 15,
+            "matching_lines": 6,
+            "text": "^Inspect AbC:007_A-9\n^Record AbC:007_A-9\n^Retain AbC:007_A-9\n^Finish within 2 hours\n^Respond within 2 hours\n^Return within 2 hours\n^Measure <10.50 GB> exactly\n^Measure <20.00 GB> exactly\n^Measure <05.25 GB> exactly\n^Check `node-7`\n^Check `node-8`\n^Check `node-9`\n^Record <server rack A-12> as <operational>\n^Record <load balancer LB-01> as <degraded>\n^Record <cache cluster C-03> as <ready>"
+          },
+          "encoded": "Fable workshop <at Harbor Hall> <with capacity 024 attendees> <and a penalty of $1,250.00>.\n^Use --dry-run <with /Var/Logs/app.log> <and https://api.Example.org/v1:check>; <contact Ops.Team+qa@example.org> <in us-East-1>.\n^Preserve order ID `AbC:007_A-9` exactly.\n^Allocate <10.50 GB to node-7 for backup>.\n^Alert <if temperature <5°C because sensor is faulty>.\n^Keep <the ratio at 0.80> <and the range at 03-07>.\n^Schedule maintenance <from 9 AM to 11 AM local time>.\n^Proceed <after 3 PM and before 5 PM>.\n^Wait <until 3 PM> and then proceed.\n^Submit report <by 04:30 PM EST because manager leaves early>.\n^Meet <at 2 PM in conference room>.\n^First save logs, then <at 3 PM restart Server-A>.\n^Inspect primary database Server-B <before release>.\n^Check logs <with detailed timestamp analysis>.\n^Notify Alice <if backup succeeds unless maintenance is active>.\n^Send to Alice <before notifying Bob>.\n^Inspect `STORAGE-ALPHA-EXACT-000123456789` <for damage>.\n^Record `STORAGE-ALPHA-EXACT-000123456789` <in the report>.\n^Retain `STORAGE-ALPHA-EXACT-000123456789` <until Friday>.\n%list=^Check $\n$ node-7\n$ node-8\n$ node-9",
+          "factual_checks": {
+            "added_syntax_checks": [
+              {
+                "actual_count": 1,
+                "character": "<",
+                "expected_count": 1,
+                "pass": true
+              },
+              {
+                "actual_count": 0,
+                "character": ">",
+                "expected_count": 0,
+                "pass": true
+              },
+              {
+                "actual_count": 0,
+                "character": "`",
+                "expected_count": 0,
+                "pass": true
+              }
+            ],
+            "checks": [
+              {
+                "case": "context",
+                "literal": "Fable",
+                "pass": true
+              },
+              {
+                "case": "context",
+                "literal": "Harbor Hall",
+                "pass": true
+              },
+              {
+                "case": "context",
+                "literal": "024 attendees",
+                "pass": true
+              },
+              {
+                "case": "context",
+                "literal": "$1,250.00",
+                "pass": true
+              },
+              {
+                "case": "context",
+                "directive": false,
+                "pass": true
+              },
+              {
+                "case": "technical",
+                "literal": "--dry-run",
+                "pass": true
+              },
+              {
+                "case": "technical",
+                "literal": "/Var/Logs/app.log",
+                "pass": true
+              },
+              {
+                "case": "technical",
+                "literal": "https://api.Example.org/v1:check",
+                "pass": true
+              },
+              {
+                "case": "technical",
+                "literal": "Ops.Team+qa@example.org",
+                "pass": true
+              },
+              {
+                "case": "technical",
+                "literal": "us-East-1",
+                "pass": true
+              },
+              {
+                "case": "technical",
+                "directive": true,
+                "pass": true
+              },
+              {
+                "case": "id",
+                "literal": "AbC:007_A-9",
+                "pass": true
+              },
+              {
+                "case": "id",
+                "directive": true,
+                "pass": true
+              },
+              {
+                "case": "allocation",
+                "literal": "10.50 GB",
+                "pass": true
+              },
+              {
+                "case": "allocation",
+                "literal": "node-7",
+                "pass": true
+              },
+              {
+                "case": "allocation",
+                "literal": "backup",
+                "pass": true
+              },
+              {
+                "case": "allocation",
+                "directive": true,
+                "pass": true
+              },
+              {
+                "case": "comparison",
+                "literal": "if",
+                "pass": true
+              },
+              {
+                "case": "comparison",
+                "literal": "temperature",
+                "pass": true
+              },
+              {
+                "case": "comparison",
+                "literal": "<5°C",
+                "pass": true
+              },
+              {
+                "case": "comparison",
+                "literal": "because",
+                "pass": true
+              },
+              {
+                "case": "comparison",
+                "literal": "sensor",
+                "pass": true
+              },
+              {
+                "case": "comparison",
+                "literal": "faulty",
+                "pass": true
+              },
+              {
+                "case": "comparison",
+                "directive": true,
+                "pass": true
+              },
+              {
+                "case": "leading-zero",
+                "literal": "0.80",
+                "pass": true
+              },
+              {
+                "case": "leading-zero",
+                "literal": "03-07",
+                "pass": true
+              },
+              {
+                "case": "leading-zero",
+                "directive": true,
+                "pass": true
+              },
+              {
+                "case": "temporal-range",
+                "literal": "from 9 AM to 11 AM local time",
+                "pass": true
+              },
+              {
+                "case": "temporal-range",
+                "directive": true,
+                "pass": true
+              },
+              {
+                "case": "temporal-constraints",
+                "literal": "after 3 PM and before 5 PM",
+                "pass": true
+              },
+              {
+                "case": "temporal-constraints",
+                "directive": true,
+                "pass": true
+              },
+              {
+                "case": "independent-action",
+                "literal": "until 3 PM",
+                "pass": true
+              },
+              {
+                "case": "independent-action",
+                "literal": "and then proceed",
+                "pass": true
+              },
+              {
+                "case": "independent-action",
+                "directive": true,
+                "pass": true
+              },
+              {
+                "case": "deadline-rationale",
+                "literal": "by 04:30 PM EST",
+                "pass": true
+              },
+              {
+                "case": "deadline-rationale",
+                "literal": "because",
+                "pass": true
+              },
+              {
+                "case": "deadline-rationale",
+                "literal": "manager",
+                "pass": true
+              },
+              {
+                "case": "deadline-rationale",
+                "literal": "leaves early",
+                "pass": true
+              },
+              {
+                "case": "deadline-rationale",
+                "directive": true,
+                "pass": true
+              },
+              {
+                "case": "time-location",
+                "literal": "at 2 PM in conference room",
+                "pass": true
+              },
+              {
+                "case": "time-location",
+                "directive": true,
+                "pass": true
+              },
+              {
+                "case": "sequence",
+                "literal": "First",
+                "pass": true
+              },
+              {
+                "case": "sequence",
+                "literal": "then at 3 PM",
+                "pass": true
+              },
+              {
+                "case": "sequence",
+                "literal": "Server-A",
+                "pass": true
+              },
+              {
+                "case": "sequence",
+                "directive": true,
+                "pass": true
+              },
+              {
+                "case": "label-entity",
+                "literal": "primary database",
+                "pass": true
+              },
+              {
+                "case": "label-entity",
+                "literal": "Server-B",
+                "pass": true
+              },
+              {
+                "case": "label-entity",
+                "literal": "before release",
+                "pass": true
+              },
+              {
+                "case": "label-entity",
+                "directive": true,
+                "pass": true
+              },
+              {
+                "case": "descriptive",
+                "literal": "with detailed timestamp analysis",
+                "pass": true
+              },
+              {
+                "case": "descriptive",
+                "directive": true,
+                "pass": true
+              },
+              {
+                "case": "logic",
+                "literal": "Alice",
+                "pass": true
+              },
+              {
+                "case": "logic",
+                "literal": "if",
+                "pass": true
+              },
+              {
+                "case": "logic",
+                "literal": "backup",
+                "pass": true
+              },
+              {
+                "case": "logic",
+                "literal": "succeeds",
+                "pass": true
+              },
+              {
+                "case": "logic",
+                "literal": "unless",
+                "pass": true
+              },
+              {
+                "case": "logic",
+                "literal": "maintenance",
+                "pass": true
+              },
+              {
+                "case": "logic",
+                "literal": "active",
+                "pass": true
+              },
+              {
+                "case": "logic",
+                "directive": true,
+                "pass": true
+              },
+              {
+                "case": "recipient",
+                "literal": "to Alice",
+                "pass": true
+              },
+              {
+                "case": "recipient",
+                "literal": "before",
+                "pass": true
+              },
+              {
+                "case": "recipient",
+                "literal": "Bob",
+                "pass": true
+              },
+              {
+                "case": "recipient",
+                "directive": true,
+                "pass": true
+              },
+              {
+                "case": "alias-a",
+                "literal": "STORAGE-ALPHA-EXACT-000123456789",
+                "pass": true
+              },
+              {
+                "case": "alias-a",
+                "literal": "damage",
+                "pass": true
+              },
+              {
+                "case": "alias-a",
+                "directive": true,
+                "pass": true
+              },
+              {
+                "case": "alias-b",
+                "literal": "STORAGE-ALPHA-EXACT-000123456789",
+                "pass": true
+              },
+              {
+                "case": "alias-b",
+                "literal": "report",
+                "pass": true
+              },
+              {
+                "case": "alias-b",
+                "directive": true,
+                "pass": true
+              },
+              {
+                "case": "alias-c",
+                "literal": "STORAGE-ALPHA-EXACT-000123456789",
+                "pass": true
+              },
+              {
+                "case": "alias-c",
+                "literal": "until Friday",
+                "pass": true
+              },
+              {
+                "case": "alias-c",
+                "directive": true,
+                "pass": true
+              },
+              {
+                "case": "list-a",
+                "literal": "node-7",
+                "pass": true
+              },
+              {
+                "case": "list-a",
+                "directive": true,
+                "pass": true
+              },
+              {
+                "case": "list-b",
+                "literal": "node-8",
+                "pass": true
+              },
+              {
+                "case": "list-b",
+                "directive": true,
+                "pass": true
+              },
+              {
+                "case": "list-c",
+                "literal": "node-9",
+                "pass": true
+              },
+              {
+                "case": "list-c",
+                "directive": true,
+                "pass": true
+              }
+            ],
+            "line_count_pass": true,
+            "passed": 78,
+            "scope": "case-sensitive substrings and directive markers at expected line positions",
+            "total": 78
+          },
+          "language_hash": "79e80f3ac7782028c327b81d1ebe2fc40623322c15705456fced761930a81309",
+          "usage": {
+            "decoder": {
+              "completion_tokens": 295,
+              "completion_tokens_details": {
+                "audio_tokens": 0,
+                "image_tokens": 0,
+                "reasoning_tokens": 0
+              },
+              "cost": 0.0043655,
+              "cost_details": {
+                "upstream_inference_completions_cost": 0.0010325,
+                "upstream_inference_cost": 0.0043655,
+                "upstream_inference_prompt_cost": 0.003333
+              },
+              "is_byok": false,
+              "prompt_tokens": 4444,
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cache_write_tokens": 0,
+                "cached_tokens": 0,
+                "video_tokens": 0
+              },
+              "response_receipt": {
+                "finish_reason": "stop",
+                "id": "gen-1788599553-GXrqncMkOlGIit9iM7zU",
+                "model": "moonshotai/kimi-k2.6",
+                "openrouter_metadata": null
+              },
+              "total_tokens": 4739
+            },
+            "diagnostic": {
+              "completion_tokens": 144,
+              "completion_tokens_details": {
+                "audio_tokens": 0,
+                "image_tokens": 0,
+                "reasoning_tokens": 0
+              },
+              "cost": 0.00126135,
+              "cost_details": {
+                "upstream_inference_completions_cost": 0.000504,
+                "upstream_inference_cost": 0.00126135,
+                "upstream_inference_prompt_cost": 0.00075735
+              },
+              "is_byok": false,
+              "prompt_tokens": 4261,
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cache_write_tokens": 0,
+                "cached_tokens": 4064,
+                "video_tokens": 0
+              },
+              "response_receipt": {
+                "finish_reason": "stop",
+                "id": "gen-1788599559-Xw81PZk6vQxaevLr5Kw6",
+                "model": "moonshotai/kimi-k2.6",
+                "openrouter_metadata": null
+              },
+              "total_tokens": 4405
+            },
+            "encoder": {
+              "completion_tokens": 373,
+              "completion_tokens_details": {
+                "audio_tokens": 0,
+                "image_tokens": 0,
+                "reasoning_tokens": 0
+              },
+              "cost": 0.0010573776,
+              "cost_details": {
+                "upstream_inference_completions_cost": 0.0001154808,
+                "upstream_inference_cost": 0.0010573776,
+                "upstream_inference_prompt_cost": 0.0009418968
+              },
+              "is_byok": false,
+              "prompt_tokens": 4511,
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cache_write_tokens": 0,
+                "cached_tokens": 0,
+                "video_tokens": 0
+              },
+              "response_receipt": {
+                "finish_reason": "stop",
+                "id": "gen-1788599544-jW2wwgTRYPqRyEppCSo2",
+                "model": "deepseek/deepseek-v3.2",
+                "openrouter_metadata": null
+              },
+              "total_tokens": 4884
+            }
+          }
+        },
+        "old": {
+          "decoded": "Fable workshop at Harbor Hall capacity <024 attendees> penalty <$1,250.00>\n^Use --dry-run `/Var/Logs/app.log` `https://api.Example.org/v1:check` contact `Ops.Team+qa@example.org` us-East-1\n^Preserve order ID `AbC:007_A-9`\n^Allocate <10.50 GB to node-7 for backup>\n^Alert <if temperature <5°C because sensor is faulty>\n^Keep ratio <0.80> range <03-07>\n^Schedule maintenance <from 9 AM to 11 AM local time>\n^Proceed <after 3 PM and before 5 PM>\n^Wait <until 3 PM> then proceed\n^Submit report <by 04:30 PM EST> because manager leaves early\n^Meet <at 2 PM in conference room>\n^First save logs then <at 3 PM restart Server-A>\n^Inspect <primary database Server-B before release>\n^Check logs <with detailed timestamp analysis>\n^Notify Alice <if backup succeeds unless maintenance is active>\n^Send to Alice <before notifying Bob>\n^Inspect `STORAGE-ALPHA-EXACT-000123456789` for damage\n^Record `STORAGE-ALPHA-EXACT-000123456789` in report\n^Retain `STORAGE-ALPHA-EXACT-000123456789` <until Friday>\ncheck node-7\ncheck node-8\ncheck node-9",
+          "diagnostic": {
+            "actual_lines": 17,
+            "exact_lines_pass": false,
+            "expected_lines": 15,
+            "matching_lines": 0,
+            "text": "@id=`AbC:007_A-9`\n^Inspect `AbC:007_A-9`\n^Record `AbC:007_A-9`\n^Retain `AbC:007_A-9`\n$window=<within 2 hours>\n^Finish <within 2 hours>\n^Respond <within 2 hours>\n^Return <within 2 hours>\n^Measure <10.50 GB> exactly\n^Measure <20.00 GB> exactly\n^Measure <05.25 GB> exactly\n^Check `node-7`\n^Check `node-8`\n^Check `node-9`\n^Record <server rack A-12> as <operational>\n^Record <load balancer LB-01> as <degraded>\n^Record <cache cluster C-03> as <ready>"
+          },
+          "encoded": "Fable workshop at Harbor Hall capacity <024 attendees> penalty <$1,250.00>\n^Use --dry-run `/Var/Logs/app.log` `https://api.Example.org/v1:check` contact `Ops.Team+qa@example.org` us-East-1\n^Preserve order ID `AbC:007_A-9`\n^Allocate <10.50 GB to node-7 for backup>\n^Alert <if temperature <5°C because sensor is faulty>\n^Keep ratio <0.80> range <03-07>\n^Schedule maintenance <from 9 AM to 11 AM local time>\n^Proceed <after 3 PM and before 5 PM>\n^Wait <until 3 PM> then proceed\n^Submit report <by 04:30 PM EST> because manager leaves early\n^Meet <at 2 PM in conference room>\n^First save logs then <at 3 PM restart Server-A>\n^Inspect <primary database Server-B before release>\n^Check logs <with detailed timestamp analysis>\n^Notify Alice <if backup succeeds unless maintenance is active>\n^Send to Alice <before notifying Bob>\n^Inspect `STORAGE-ALPHA-EXACT-000123456789` for damage\n^Record `STORAGE-ALPHA-EXACT-000123456789` in report\n^Retain `STORAGE-ALPHA-EXACT-000123456789` <until Friday>\n%list=check $\n$ <node-7>\n$ <node-8>\n$ <node-9>",
+          "factual_checks": {
+            "added_syntax_checks": [
+              {
+                "actual_count": 18,
+                "character": "<",
+                "expected_count": 1,
+                "pass": false
+              },
+              {
+                "actual_count": 17,
+                "character": ">",
+                "expected_count": 0,
+                "pass": false
+              },
+              {
+                "actual_count": 14,
+                "character": "`",
+                "expected_count": 0,
+                "pass": false
+              }
+            ],
+            "checks": [
+              {
+                "case": "context",
+                "literal": "Fable",
+                "pass": true
+              },
+              {
+                "case": "context",
+                "literal": "Harbor Hall",
+                "pass": true
+              },
+              {
+                "case": "context",
+                "literal": "024 attendees",
+                "pass": true
+              },
+              {
+                "case": "context",
+                "literal": "$1,250.00",
+                "pass": true
+              },
+              {
+                "case": "context",
+                "directive": false,
+                "pass": true
+              },
+              {
+                "case": "technical",
+                "literal": "--dry-run",
+                "pass": true
+              },
+              {
+                "case": "technical",
+                "literal": "/Var/Logs/app.log",
+                "pass": true
+              },
+              {
+                "case": "technical",
+                "literal": "https://api.Example.org/v1:check",
+                "pass": true
+              },
+              {
+                "case": "technical",
+                "literal": "Ops.Team+qa@example.org",
+                "pass": true
+              },
+              {
+                "case": "technical",
+                "literal": "us-East-1",
+                "pass": true
+              },
+              {
+                "case": "technical",
+                "directive": true,
+                "pass": true
+              },
+              {
+                "case": "id",
+                "literal": "AbC:007_A-9",
+                "pass": true
+              },
+              {
+                "case": "id",
+                "directive": true,
+                "pass": true
+              },
+              {
+                "case": "allocation",
+                "literal": "10.50 GB",
+                "pass": true
+              },
+              {
+                "case": "allocation",
+                "literal": "node-7",
+                "pass": true
+              },
+              {
+                "case": "allocation",
+                "literal": "backup",
+                "pass": true
+              },
+              {
+                "case": "allocation",
+                "directive": true,
+                "pass": true
+              },
+              {
+                "case": "comparison",
+                "literal": "if",
+                "pass": true
+              },
+              {
+                "case": "comparison",
+                "literal": "temperature",
+                "pass": true
+              },
+              {
+                "case": "comparison",
+                "literal": "<5°C",
+                "pass": true
+              },
+              {
+                "case": "comparison",
+                "literal": "because",
+                "pass": true
+              },
+              {
+                "case": "comparison",
+                "literal": "sensor",
+                "pass": true
+              },
+              {
+                "case": "comparison",
+                "literal": "faulty",
+                "pass": true
+              },
+              {
+                "case": "comparison",
+                "directive": true,
+                "pass": true
+              },
+              {
+                "case": "leading-zero",
+                "literal": "0.80",
+                "pass": true
+              },
+              {
+                "case": "leading-zero",
+                "literal": "03-07",
+                "pass": true
+              },
+              {
+                "case": "leading-zero",
+                "directive": true,
+                "pass": true
+              },
+              {
+                "case": "temporal-range",
+                "literal": "from 9 AM to 11 AM local time",
+                "pass": true
+              },
+              {
+                "case": "temporal-range",
+                "directive": true,
+                "pass": true
+              },
+              {
+                "case": "temporal-constraints",
+                "literal": "after 3 PM and before 5 PM",
+                "pass": true
+              },
+              {
+                "case": "temporal-constraints",
+                "directive": true,
+                "pass": true
+              },
+              {
+                "case": "independent-action",
+                "literal": "until 3 PM",
+                "pass": true
+              },
+              {
+                "case": "independent-action",
+                "literal": "and then proceed",
+                "pass": false
+              },
+              {
+                "case": "independent-action",
+                "directive": true,
+                "pass": true
+              },
+              {
+                "case": "deadline-rationale",
+                "literal": "by 04:30 PM EST",
+                "pass": true
+              },
+              {
+                "case": "deadline-rationale",
+                "literal": "because",
+                "pass": true
+              },
+              {
+                "case": "deadline-rationale",
+                "literal": "manager",
+                "pass": true
+              },
+              {
+                "case": "deadline-rationale",
+                "literal": "leaves early",
+                "pass": true
+              },
+              {
+                "case": "deadline-rationale",
+                "directive": true,
+                "pass": true
+              },
+              {
+                "case": "time-location",
+                "literal": "at 2 PM in conference room",
+                "pass": true
+              },
+              {
+                "case": "time-location",
+                "directive": true,
+                "pass": true
+              },
+              {
+                "case": "sequence",
+                "literal": "First",
+                "pass": true
+              },
+              {
+                "case": "sequence",
+                "literal": "then at 3 PM",
+                "pass": false
+              },
+              {
+                "case": "sequence",
+                "literal": "Server-A",
+                "pass": true
+              },
+              {
+                "case": "sequence",
+                "directive": true,
+                "pass": true
+              },
+              {
+                "case": "label-entity",
+                "literal": "primary database",
+                "pass": true
+              },
+              {
+                "case": "label-entity",
+                "literal": "Server-B",
+                "pass": true
+              },
+              {
+                "case": "label-entity",
+                "literal": "before release",
+                "pass": true
+              },
+              {
+                "case": "label-entity",
+                "directive": true,
+                "pass": true
+              },
+              {
+                "case": "descriptive",
+                "literal": "with detailed timestamp analysis",
+                "pass": true
+              },
+              {
+                "case": "descriptive",
+                "directive": true,
+                "pass": true
+              },
+              {
+                "case": "logic",
+                "literal": "Alice",
+                "pass": true
+              },
+              {
+                "case": "logic",
+                "literal": "if",
+                "pass": true
+              },
+              {
+                "case": "logic",
+                "literal": "backup",
+                "pass": true
+              },
+              {
+                "case": "logic",
+                "literal": "succeeds",
+                "pass": true
+              },
+              {
+                "case": "logic",
+                "literal": "unless",
+                "pass": true
+              },
+              {
+                "case": "logic",
+                "literal": "maintenance",
+                "pass": true
+              },
+              {
+                "case": "logic",
+                "literal": "active",
+                "pass": true
+              },
+              {
+                "case": "logic",
+                "directive": true,
+                "pass": true
+              },
+              {
+                "case": "recipient",
+                "literal": "to Alice",
+                "pass": true
+              },
+              {
+                "case": "recipient",
+                "literal": "before",
+                "pass": true
+              },
+              {
+                "case": "recipient",
+                "literal": "Bob",
+                "pass": true
+              },
+              {
+                "case": "recipient",
+                "directive": true,
+                "pass": true
+              },
+              {
+                "case": "alias-a",
+                "literal": "STORAGE-ALPHA-EXACT-000123456789",
+                "pass": true
+              },
+              {
+                "case": "alias-a",
+                "literal": "damage",
+                "pass": true
+              },
+              {
+                "case": "alias-a",
+                "directive": true,
+                "pass": true
+              },
+              {
+                "case": "alias-b",
+                "literal": "STORAGE-ALPHA-EXACT-000123456789",
+                "pass": true
+              },
+              {
+                "case": "alias-b",
+                "literal": "report",
+                "pass": true
+              },
+              {
+                "case": "alias-b",
+                "directive": true,
+                "pass": true
+              },
+              {
+                "case": "alias-c",
+                "literal": "STORAGE-ALPHA-EXACT-000123456789",
+                "pass": true
+              },
+              {
+                "case": "alias-c",
+                "literal": "until Friday",
+                "pass": true
+              },
+              {
+                "case": "alias-c",
+                "directive": true,
+                "pass": true
+              },
+              {
+                "case": "list-a",
+                "literal": "node-7",
+                "pass": true
+              },
+              {
+                "case": "list-a",
+                "directive": true,
+                "pass": false
+              },
+              {
+                "case": "list-b",
+                "literal": "node-8",
+                "pass": true
+              },
+              {
+                "case": "list-b",
+                "directive": true,
+                "pass": false
+              },
+              {
+                "case": "list-c",
+                "literal": "node-9",
+                "pass": true
+              },
+              {
+                "case": "list-c",
+                "directive": true,
+                "pass": false
+              }
+            ],
+            "line_count_pass": true,
+            "passed": 73,
+            "scope": "case-sensitive substrings and directive markers at expected line positions",
+            "total": 78
+          },
+          "language_hash": "c508ebc770945f99c37a9395db1a400f2216352486b4bb6a307ddf4dc5c2d116",
+          "usage": {
+            "decoder": {
+              "completion_tokens": 306,
+              "completion_tokens_details": {
+                "audio_tokens": 0,
+                "image_tokens": 0,
+                "reasoning_tokens": 0
+              },
+              "cost": 0.00472082,
+              "cost_details": {
+                "upstream_inference_completions_cost": 0.001071,
+                "upstream_inference_cost": 0.00472082,
+                "upstream_inference_prompt_cost": 0.00364982
+              },
+              "is_byok": false,
+              "prompt_tokens": 21506,
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cache_write_tokens": 0,
+                "cached_tokens": 21152,
+                "video_tokens": 0
+              },
+              "response_receipt": {
+                "finish_reason": "stop",
+                "id": "gen-1788599533-wVDeMOqUxP6DrHg8DD0i",
+                "model": "moonshotai/kimi-k2.6",
+                "openrouter_metadata": null
+              },
+              "total_tokens": 21812
+            },
+            "diagnostic": {
+              "completion_tokens": 169,
+              "completion_tokens_details": {
+                "audio_tokens": 0,
+                "image_tokens": 0,
+                "reasoning_tokens": 0
+              },
+              "cost": 0.0155337,
+              "cost_details": {
+                "upstream_inference_completions_cost": 0.0005915,
+                "upstream_inference_cost": 0.0155337,
+                "upstream_inference_prompt_cost": 0.0149422
+              },
+              "is_byok": false,
+              "prompt_tokens": 21346,
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cache_write_tokens": 0,
+                "cached_tokens": 0,
+                "video_tokens": 0
+              },
+              "response_receipt": {
+                "finish_reason": "stop",
+                "id": "gen-1788599538-PD8IxokdcQKGe0aGhzoK",
+                "model": "moonshotai/kimi-k2.6",
+                "openrouter_metadata": null
+              },
+              "total_tokens": 21515
+            },
+            "encoder": {
+              "completion_tokens": 332,
+              "completion_tokens_details": {
+                "audio_tokens": 0,
+                "image_tokens": 0,
+                "reasoning_tokens": 0
+              },
+              "cost": 0.000593892,
+              "cost_details": {
+                "upstream_inference_completions_cost": 0.0001027872,
+                "upstream_inference_cost": 0.000593892,
+                "upstream_inference_prompt_cost": 0.0004911048
+              },
+              "is_byok": false,
+              "prompt_tokens": 21861,
+              "prompt_tokens_details": {
+                "audio_tokens": 0,
+                "cache_write_tokens": 0,
+                "cached_tokens": 21760,
+                "video_tokens": 0
+              },
+              "response_receipt": {
+                "finish_reason": "stop",
+                "id": "gen-1788599524-EKJXQHZ5ESHykurOZ44n",
+                "model": "deepseek/deepseek-v3.2",
+                "openrouter_metadata": null
+              },
+              "total_tokens": 22193
+            }
+          }
+        }
+      }
+    }
+  ]
+}

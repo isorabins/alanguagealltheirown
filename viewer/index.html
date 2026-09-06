@@ -60,6 +60,7 @@
     gap: 2rem; width: min(48rem, 100%); margin: 0 auto 1.6rem; text-align: center; }
   .timers > div, .timers > a { min-width: 0; }
   .timers .tval { display: block; font-family: var(--mono); font-size: 2.7rem; color: var(--ink); letter-spacing: 0.04em; font-variant-numeric: tabular-nums; }
+  .timers .tval.status { font-size: 1rem; padding: 0.6rem 0; overflow-wrap: anywhere; }
   .timers .tval.running { color: var(--accent); font-size: 1.5rem; padding: 0.6rem 0; }
   .timers .tlab { display: block; font-family: var(--mono); font-size: 0.64rem; letter-spacing: 0.22em; text-transform: uppercase; color: var(--ink-faint); margin-top: 0.3rem; }
   .timer-link { display: inline-block; margin-top: 0.55rem; color: var(--accent); font: 400 0.6rem var(--mono); letter-spacing: 0.12em; text-transform: uppercase; text-decoration: none; border-bottom: 1px solid rgba(201,168,106,.45); }
@@ -525,7 +526,7 @@ abuse, and maximum-cost limits.</p>
 </details>
 
 <details>
-  <summary>Full transcript — every turn, every exam</summary>
+  <summary id="transcript-summary">Transcript preview — full history not yet loaded</summary>
   <div class="hist" id="hist"></div>
 </details>
 
@@ -536,6 +537,7 @@ abuse, and maximum-cost limits.</p>
 
 <script src="bootstrap.js"></script>
 <script src="startup.js"></script>
+<script src="public-state.js"></script>
 <script>
 function scoringLabel(t) {
   if (t && t.scoring_version === "v2") return "Scoring V2";
@@ -921,7 +923,7 @@ function render(S) {
     ["latest coverage · V2", latestValidV2 ? latestValidV2.semantic_coverage_pct + "% · " + (latestValidV2.meaning_pass ? "pass" : "fail") : "awaiting V2"],
     ["latest Conversation", latestConversation && latestConversation.judgment.valid === true ? conversationPasses + " / " + conversationRows.length + " pass" : "unavailable"]
   ];
-  var metricTips={"rulebook revisions":"The numbered version of the adopted language. It advances when the official rulebook changes; it is not the number of rules currently in force.","turns":"Numbered steps in the public experiment, including legislation and tests. A turn is a place in the record, not necessarily a new rule.","rules adopted":"The rules currently in force and given to an encoder or decoder. Rejected, repealed, and historical rules are not part of the current language.","best strict savings · V2":"The largest reduction in message-body tokens among valid exams where 100% of the required meaning survived and the encoded message was actually smaller. Rulebook overhead is not included.","latest coverage · V2":"The share of explicit facts that survived the latest encode-and-decode exam. Strict passing requires 100%; this result also grew from 469 to 471 tokens.","latest Conversation":"A six-message coordination test using the captured current language. In this scenario the judge checked four specific required facts, and all four survived."};
+  var metricTips={"rulebook revisions":"The numbered version of the adopted language. It advances when the official rulebook changes; it is not the number of rules currently in force.","turns":"Numbered steps in the public experiment, including legislation and tests. A turn is a place in the record, not necessarily a new rule.","rules adopted":"The rules currently in force and given to an encoder or decoder. Rejected, repealed, and historical rules are not part of the current language.","best strict savings · V2":"The largest reduction in message-body tokens among valid exams where 100% of the required meaning survived and the encoded message was actually smaller. Rulebook overhead is not included.","latest coverage · V2":"The share of explicit facts that survived the latest encode-and-decode exam. Strict passing requires 100%; the encoded body must also be smaller for compression success.","latest Conversation":"A six-message coordination test using the captured current language. In this scenario the judge checked four specific required facts, and all four survived."};
   document.getElementById("metrics").innerHTML = m.map(function (x) {
     return '<span class="metric info-hover" tabindex="0" data-tip="'+esc(metricTips[x[0]])+'" aria-label="'+esc(x[0])+'. '+esc(metricTips[x[0]])+'">'+esc(x[0])+'<b>'+esc(x[1])+'</b></span>';
   }).join("");
@@ -986,7 +988,7 @@ function render(S) {
   var strictBest = bestStrictScoringV2(tests);
   document.getElementById("evidence-chain").innerHTML =
     (strictBest ? '<article class="evidence-card pass info-hover" tabindex="0" data-tip="The best valid Scoring V2 exam where every required meaning survived, nothing was invented, and the encoded body was smaller."><div class="lab">strongest strict pass · turn '+strictBest.turn+'</div><div class="result">'+strictBest.orig_tokens+' → '+strictBest.enc_tokens+' tokens · '+pct(strictBest.message_body_savings_pct)+' savings</div><p>'+strictBest.semantic_coverage_pct+'% semantic coverage. Every required meaning survived; nothing was invented; the encoded body was smaller.</p></article>' : '<article class="evidence-card"><p>No strict pass yet.</p></article>')+
-    (latestValidV2 ? '<article class="evidence-card info-hover '+(latestValidV2.meaning_pass&&latestValidV2.compression_success?'pass':'fail')+'" tabindex="0" data-tip="The newest valid Scoring V2 exam, shown even when it fails so progress cannot hide the latest evidence."><div class="lab">latest exam · turn '+latestValidV2.turn+'</div><div class="result">'+latestValidV2.orig_tokens+' → '+latestValidV2.enc_tokens+' tokens · '+(latestValidV2.meaning_pass&&latestValidV2.compression_success?'strict pass':'strict failure')+'</div><p>'+latestValidV2.semantic_coverage_pct+'% semantic coverage. The encoded body grew by two tokens, and vendor code CAT-882 was corrupted to CAT_882. A historical 61% savings result also failed meaning preservation and is not promoted as success.</p></article>' : '<article class="evidence-card"><p>No valid V2 exam yet.</p></article>');
+    (latestValidV2 ? '<article class="evidence-card info-hover '+(latestValidV2.meaning_pass&&latestValidV2.compression_success?'pass':'fail')+'" tabindex="0" data-tip="The newest valid Scoring V2 exam, shown even when it fails so progress cannot hide the latest evidence."><div class="lab">latest exam · turn '+latestValidV2.turn+'</div><div class="result">'+latestValidV2.orig_tokens+' → '+latestValidV2.enc_tokens+' tokens · '+(latestValidV2.meaning_pass&&latestValidV2.compression_success?'strict pass':'strict failure')+'</div><p>'+latestValidV2.semantic_coverage_pct+'% semantic coverage. Message-body savings: '+latestValidV2.message_body_savings_pct+'%. A strict success requires every meaning to survive and the encoded body to be smaller.</p></article>' : '<article class="evidence-card"><p>No valid V2 exam yet.</p></article>');
 
   // THE JUDGMENT — shared by the latest-exam card and every history row
   function judgeHtml(t) {
@@ -1248,112 +1250,33 @@ function runtimeStatusView(runtime, when, now, turn) {
   return window.ALATO_STARTUP.projectRuntime(when,now,turn,runtime);
 }
 
-var bundledStatePromise = null;
-function loadBundledState() {
-  if (window.STATE) return Promise.resolve(window.STATE);
-  if (bundledStatePromise) return bundledStatePromise;
-  bundledStatePromise = new Promise(function (resolve, reject) {
-    var script = document.createElement("script");
-    script.src = "state.js";
-    script.onload = function () {
-      if (window.STATE) resolve(window.STATE);
-      else reject(new Error("bundled state unavailable"));
-    };
-    script.onerror = function () { reject(new Error("bundled state unavailable")); };
-    document.head.appendChild(script);
-  });
-  return bundledStatePromise;
-}
-
+var publicReader = null;
 function loadState() {
-  var RAW = "https://raw.githubusercontent.com/isorabins/alanguagealltheirown/main/state/";
-  var COMMITS = "https://api.github.com/repos/isorabins/alanguagealltheirown/commits" +
-    "?sha=main&path=state%2Fconversation.json&per_page=1";
-  var fallback = window.STATE || (window.PUBLIC_BOOTSTRAP && window.PUBLIC_BOOTSTRAP.preview) || null;
-  var isLocal = window.location && /^(localhost|127\.0\.0\.1)$/.test(window.location.hostname);
-  if (fallback) render(fallback);
-  if (isLocal) {
-    if (!fallback) loadBundledState().then(render).catch(function () {});
-    return;
-  }
-  var get = function (f) { return fetch(RAW + f, {cache: "no-store"}).then(function (r) { if (!r.ok) throw 0; return r.json(); }); };
-  var getOptional = function (f, fallbackValue) { return get(f).catch(function () { return fallbackValue; }); };
-  var liveRuntime = getOptional("public-runtime.json", null);
-  var lastCommit = fetch(COMMITS, {cache: "no-store"}).then(function (r) {
-    if (!r.ok) throw 0;
-    return r.json();
-  }).catch(function () { return null; });
-  Promise.all([liveRuntime, lastCommit]).then(function (fresh) {
-    var currentRuntime=fresh[0],latest=fresh[1]&&Array.isArray(fresh[1])&&fresh[1][0];
-    var when=latest&&latest.commit&&latest.commit.committer&&latest.commit.committer.date;
-    if(currentRuntime&&when&&window.ALATO_STARTUP)window.ALATO_STARTUP.setSnapshot(when,currentRuntime.turn,currentRuntime);
-  });
-  Promise.all([get("conversation.json"), get("rulebook.json"), lastCommit,
-    getOptional("public-collaboration.json", {research: [], asks: [], suggestions: []}), getOptional("conversations.json", []),
-    getOptional("tweet-state.json", {}), liveRuntime,
-    getOptional("public-language.json", null),
-    fetch("https://raw.githubusercontent.com/isorabins/alanguagealltheirown/main/notes.json",{cache:"no-store"}).then(function(r){return r.ok?r.json():[];}).catch(function(){return [];})]).then(function (both) {
-    var latest = both[2] && Array.isArray(both[2]) && both[2][0];
-    var when = latest && latest.commit && latest.commit.committer && latest.commit.committer.date;
-    if (!when && window.PUBLIC_BOOTSTRAP) when = window.PUBLIC_BOOTSTRAP.updated || null;
-    var lastTurnNum = both[0].length ? both[0][both[0].length - 1].turn : 0;
-    var publicRuntime = both[6] || (window.PUBLIC_BOOTSTRAP && window.PUBLIC_BOOTSTRAP.runtime) || null;
-    if (window.ALATO_STARTUP) window.ALATO_STARTUP.setSnapshot(when, lastTurnNum, publicRuntime);
-    var runtime = runtimeStatusView(publicRuntime, when, Date.now(), lastTurnNum);
-    var runtimeStatus = document.getElementById("runtime-status");
-    var runtimeHeading = document.getElementById("runtime-status-heading");
-    var runtimeDetail = document.getElementById("runtime-status-detail");
-    if (runtimeStatus && runtimeHeading && runtimeDetail) {
-      runtimeHeading.textContent = runtime.heading;
-      runtimeDetail.textContent = runtime.detail;
-      if (runtime.visible) {
-        runtimeStatus.classList.add("visible");
-      } else {
-        runtimeStatus.classList.remove("visible");
-      }
+  if (!publicReader) publicReader = window.ALATO_PUBLIC_STATE.createReader({
+    fetch: fetch,
+    initial: window.STATE || (window.PUBLIC_BOOTSTRAP && window.PUBLIC_BOOTSTRAP.preview) || null,
+    local: window.location && /^(localhost|127\.0\.0\.1)$/.test(window.location.hostname),
+    onSnapshot: function(state, snapshot) {
+      render(state);
+      document.getElementById('transcript-summary').textContent = snapshot.complete
+        ? 'Full transcript — every turn, every exam'
+        : 'Transcript preview — full history not yet loaded';
+    },
+    onRuntime: function(when,turn,runtime) { window.ALATO_STARTUP.setSnapshot(when,turn===undefined?((window.PUBLIC_BOOTSTRAP||{}).turn||0):turn,runtime); },
+    onProgress: function(snapshot,status) {
+      var state=currentRenderedState||{},tests=(state.conversation||[]).filter(function(event){return event.type==="test";});
+      if(status==="ok"&&snapshot&&lastPublicProgress&&validPublicExamProgress(lastPublicProgress)&&validPublicExamProgress(snapshot)&&lastPublicProgress.run_id!==snapshot.run_id&&["completed","interrupted","failed"].indexOf(lastPublicProgress.phase)<0){status="malformed";snapshot=null;}
+      renderPublicExamProgress(snapshot,{loadStatus:status,runtime:state.meta&&state.meta.runtime,latestExam:latestValidScoringV2(tests),now:Date.now()});
     }
-    render({conversation: both[0], rulebook: both[1], collaboration: both[3], conversations: both[4], x: both[5], language: both[7], notes: both[8], meta: {updated: runtime.stamp, runtime: publicRuntime}});
-  }).catch(function () {
-    loadBundledState().then(render).catch(function () {});
   });
+  return publicReader.refresh();
+}
+function refreshPublicExamProgress() {
+  if(publicReader)return publicReader.refreshProgress();
 }
 loadState();
-
-function refreshPublicExamProgress() {
-  var local=window.location&&/^(localhost|127\.0\.0\.1)$/.test(window.location.hostname);
-  var url=local?"../state/public-exam-progress.json":"https://raw.githubusercontent.com/isorabins/alanguagealltheirown/main/state/public-exam-progress.json?at="+Date.now();
-  var current=currentRenderedState||window.STATE||{},runtime=current.meta&&current.meta.runtime;
-  if(!local&&(!runtime||runtime.status==="paused")&&publicProgressPathExists!==true){
-    if(publicProgressPathExists===false){
-      var pausedTests=(current.conversation||[]).filter(function(event){return event.type==="test";});
-      renderPublicExamProgress(null,{runtime:runtime,latestExam:latestValidScoringV2(pausedTests),now:Date.now()});
-      return;
-    }
-    if(!publicProgressPathCheck){
-      publicProgressPathCheck=fetch("https://api.github.com/repos/isorabins/alanguagealltheirown/commits?sha=main&path=state%2Fpublic-exam-progress.json&per_page=1",{cache:"no-store"})
-        .then(function(response){if(!response.ok)throw new Error("progress history unavailable");return response.json();})
-        .then(function(rows){return Array.isArray(rows)&&rows.length>0;})
-        .catch(function(){return true;});
-    }
-    publicProgressPathCheck.then(function(exists){publicProgressPathExists=exists;refreshPublicExamProgress();});
-    return;
-  }
-  var status="ok";
-  fetch(url,{cache:"no-store"}).then(function(response){
-    if(response.status===404){status="missing";publicProgressPathExists=false;return null;}
-    if(!response.ok){status="unavailable";return null;}
-    return response.text().then(function(text){try{return JSON.parse(text);}catch(error){status="malformed";return null;}});
-  }).then(function(snapshot){
-    var state=currentRenderedState||window.STATE||{},tests=(state.conversation||[]).filter(function(event){return event.type==="test";}),latest=latestValidScoringV2(tests),runtime=state.meta&&state.meta.runtime;
-    if(status==="ok"&&snapshot&&lastPublicProgress&&validPublicExamProgress(lastPublicProgress)&&validPublicExamProgress(snapshot)&&lastPublicProgress.run_id!==snapshot.run_id&&["completed","interrupted","failed"].indexOf(lastPublicProgress.phase)<0){status="malformed";snapshot=null;}
-    renderPublicExamProgress(snapshot,{loadStatus:status,runtime:runtime,latestExam:latest,now:Date.now()});
-  }).catch(function(){
-    var state=currentRenderedState||window.STATE||{},tests=(state.conversation||[]).filter(function(event){return event.type==="test";});
-    renderPublicExamProgress(null,{loadStatus:"unavailable",runtime:state.meta&&state.meta.runtime,latestExam:latestValidScoringV2(tests),now:Date.now()});
-  });
-}
-refreshPublicExamProgress();
 window.setInterval(refreshPublicExamProgress,2500);
+window.setInterval(loadState,60000);
 window.ALATO_PUBLIC_PROGRESS={validate:validPublicExamProgress,validateTransition:validPublicExamTransition,view:publicExamProgressView,refresh:refreshPublicExamProgress};
 
 (function () {

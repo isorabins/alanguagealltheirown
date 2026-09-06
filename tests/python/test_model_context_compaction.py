@@ -728,7 +728,7 @@ class SemanticFaultFeedbackPromptTests(unittest.TestCase):
             ],
             "original": "RAW_BENCHMARK_SENTINEL " * 100,
             "encoded": "RAW_ENCODED_SENTINEL " * 100,
-            "decoded": "RAW_DECODED_SENTINEL " * 100,
+            "decoded": "RAW_DECODED_SENTINEL " * 100 + "\nA noncritical location was normalized.\n" + evidence,
             "grader_prompt": "RAW_GRADER_PROMPT_SENTINEL " * 100,
             "grader_deliberation": "RAW_GRADER_DELIBERATION_SENTINEL " * 100,
         }
@@ -844,7 +844,7 @@ class SemanticFaultFeedbackPromptTests(unittest.TestCase):
         book_hash = snapshot_hash(book)
 
         with mock.patch(
-            "loop.derive_semantic_fault_ledger", return_value=ledger
+            "legislature.derive_semantic_fault_ledger", return_value=ledger
         ):
             assembled = self._assemble([event], book, "A")
 
