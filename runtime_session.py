@@ -26,7 +26,7 @@ class RuntimeSession:
         self.transport = ReservedTransport(config['limit_usd'], config['models'],
             Path(config['ledger']), max_output_tokens=6000, **options)
         self.compactor = compactor or CodexCompactor(Path(config['codex_evidence']),
-            executable=config['codex'], reasoning='medium')
+            executable=config['codex'], reasoning='high')
 
     def check(self):
         if self.now() >= self.expires:

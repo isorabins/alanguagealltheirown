@@ -11,15 +11,14 @@ from pathlib import Path
 from typing import Any, Callable
 from dataclasses import dataclass
 import math
-import shutil
+import hashlib
 
 from cleanup_rulebook import build_applied_rulebook
 from exam_evidence import ExamResources, run_exam
 from legislative_protocol import current_open_motion
 from rulebook import language_payload, render_language
-from shadow_cleanup import (run_shadow_cleanup, cleanup_b_request_options,
-                            validate_b_audit, _require_clean_completion, DEFAULT_MAX_SPEND_USD,
-                            compile_c_response, semantic_review_request)
+from shadow_cleanup import (run_shadow_cleanup, _require_clean_completion, DEFAULT_MAX_SPEND_USD,
+                            compile_c_response)
 from state_store import atomic_write_json, load_json, snapshot_hash
 from turn_store import TurnState
 
@@ -39,7 +38,7 @@ def run_verified_cleanup(source_path: Path, output_dir: Path, *,
                          meta: dict[str, Any], resume_draft_dir: Path | None = None, **kwargs: Any) -> dict[str, Any]:
     """Same cleanup-runner seam as shadow cleanup, with admission evidence.
 
-    A PASS means the exact applied language passed semantic review and every
+    A PASS means C finalized the exact applied language and it passed every
     registered exam's meaning gate. Message savings are reported independently.
     Provider spending survives refusal; exam cursors/results do not enter active
     state. A failed/unavailable judge is a refusal, never implicit approval.
@@ -95,15 +94,37 @@ def run_verified_cleanup(source_path: Path, output_dir: Path, *,
                     or candidate != load_json(saved / 'candidate.json', None)
                     or seeds != load_json(saved / 'creative-seeds.json', None)):
                 raise ValueError('saved draft artifacts do not match their C response')
-            shutil.copytree(saved, output_dir / 'shadow')
-            shadow = dict(shadow, resumed_draft_from=str(saved), prior_status=shadow['status'])
-        else:
-            shadow = run_shadow_cleanup(source_path, output_dir / 'shadow',
-                call_model=call_model, token_counter=token_counter, meta=meta, **options)
+            saved_call = load_json(saved / 'c-call.json', None)
+            if (not isinstance(saved_call, dict)
+                    or saved_call.get('model') != options['model_c']
+                    or json.loads(saved_call.get('content', 'null')) != load_json(saved / 'c-response.json', None)):
+                raise ValueError('saved C response payload or model mismatch')
+            _require_clean_completion(saved_call.get('usage', {}), 'Saved Agent C')
+            # A repaired historical draft cannot impersonate a fresh initial call.
+            # Bind the exact system and user input before reusing its response.
+            rounds = shadow.get('round_count', 1)
+            saved_round = saved / 'rounds' / f'{rounds:02d}'
+            saved_request = load_json(saved_round / 'c-request.json', None)
+            resume_call = call_model
+            first = True
+            def call_model(*args, **params):
+                nonlocal first
+                if first:
+                    first = False
+                    if (args[0] != saved_call['model']
+                            or hashlib.sha256(args[1].encode()).hexdigest() != saved_call.get('prompt_sha256')
+                            or json.loads(args[2]) != saved_request):
+                        raise ValueError('saved C response belongs to a different request')
+                    return saved_call['content'], saved_call['usage']
+                return resume_call(*args, **params)
+        shadow = run_shadow_cleanup(source_path, output_dir / 'shadow',
+            call_model=call_model, token_counter=token_counter, meta=meta, **options)
+        if resume_draft_dir is not None:
+            shadow.update(resumed_draft_from=str(saved), prior_status='FAIL')
         report.update(copy.deepcopy(shadow))
         report.update(kind='verified_cleanup', status='FAIL', applied=False,
                       max_language_tokens=policy.max_language_tokens, exam_results=[])
-        if shadow['status'] != 'PASS' and resume_draft_dir is None:
+        if shadow['status'] != 'PASS':
             return report
         candidate = load_json(output_dir / 'shadow/candidate.json', None)
         seeds = load_json(output_dir / 'shadow/creative-seeds.json', None)
@@ -119,30 +140,15 @@ def run_verified_cleanup(source_path: Path, output_dir: Path, *,
             return report
         report['applied_language_hash'] = language_payload(applied)['hash']
         report['applied_tokens'] = applied_tokens
-        report['stage'] = 'final_semantic_review'
+        # B is advisory. The shadow protocol already binds its comments to the
+        # reviewed draft and gives C the final decision when B objects.
         audit = load_json(output_dir / 'shadow/b-audit.json', None)
-        if not (isinstance(audit, dict) and audit.get('verdict') == 'pass'
-                and audit.get('reviewed_candidate_hash') == candidate_hash):
-            request = semantic_review_request(source, candidate)
-            from shadow_cleanup import DEFAULT_PROMPT_B_PATH
-            prompt = Path(options.get('prompt_b_path') or DEFAULT_PROMPT_B_PATH).read_text()
-            raw, usage = call_model(options['model_b'], prompt, json.dumps(request, ensure_ascii=False),
-                max_tokens=6000, temperature=0, meta=meta,
-                request_options=cleanup_b_request_options(source, candidate))
-            atomic_write_json(output_dir / 'final-b-call.json', {'request': request, 'text': raw, 'usage': usage})
-            _require_clean_completion(usage, 'Final Agent B')
-            audit = json.loads(raw)
-        validate_b_audit(source, candidate, audit)
-        atomic_write_json(output_dir / 'final-b-audit.json', audit)
         report['final_semantic_verdict'] = audit['verdict']
         report['reviewed_candidate_hash'] = audit['reviewed_candidate_hash']
-        if audit['verdict'] != 'pass':
-            report.update(stage='final_semantic_review', reason='final candidate rejected by Agent B')
-            return report
-        # A resumed draft may carry an earlier unavailable advisory. That
-        # history stays in shadow/report.json; it is not this admission's failure.
-        report.pop('failure_class', None)
-        report.pop('b_advisory_error', None)
+        report['final_candidate_hash'] = candidate_hash
+        report['c_cycle_completed'] = True
+        report['decision_authority'] = 'C'
+        report['b_review_mode'] = 'single_advisory'
         # Exams have isolated state; only real provider spending is charged back.
         trial = TurnState([], applied, copy.deepcopy(meta), {}, [])
         trial.meta.pop('benchmark_suite', None)
@@ -174,9 +180,9 @@ def run_verified_cleanup(source_path: Path, output_dir: Path, *,
         # Caller reads these exact artifacts only after all admission gates pass.
         atomic_write_json(output_dir / 'candidate.json', candidate)
         atomic_write_json(output_dir / 'creative-seeds.json', seeds)
-        report.update(status='PASS', stage='complete', decision_authority='validated_admission',
-                      b_review_mode='final_candidate_required',
-                      reason='full compact book passed final semantic review and all registered meaning exams')
+        report.update(status='PASS', stage='complete', decision_authority='C',
+                      b_review_mode='single_advisory',
+                      reason='C final book passed all registered meaning exams')
         return report
     except Exception as exc:
         report.update(status='FAIL', error_type=type(exc).__name__, reason=str(exc))

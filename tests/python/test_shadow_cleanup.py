@@ -67,6 +67,9 @@ class ShadowCleanupTests(unittest.TestCase):
                     self.assertEqual(correction["error"], "referenced groups must exactly match defined groups")
                     return json.dumps(c_response()), {"cost": .01}
                 request = json.loads(user)
+                if request.get("final_decision"):
+                    self.assertEqual(request["b_advisory"]["verdict"], "pass")
+                    return json.dumps(c_response()), {"cost": .01}
                 return json.dumps({"verdict": "pass", "reviewed_source_hash": request["source_hash"],
                     "reviewed_candidate_hash": request["candidate_hash"],
                     "covered_source_ids": ["rule-001", "rule-002"],
@@ -75,7 +78,7 @@ class ShadowCleanupTests(unittest.TestCase):
                 model_c="c", model_b="b", call_model=call, token_counter=self._token_counter,
                 meta={"spend_usd": 0})
             self.assertEqual(report["status"], "PASS")
-            self.assertEqual(calls, ["c", "c", "b"])
+            self.assertEqual(calls, ["c", "c", "b", "c"])
             self.assertTrue(report["source_unchanged"])
 
     def test_exclusion_mismatch_gets_one_correction_without_waiving_coverage(self):
@@ -93,6 +96,9 @@ class ShadowCleanupTests(unittest.TestCase):
                     self.assertEqual(correction["error"], "exclusions must exactly match __exclude__ assignments")
                     return json.dumps(c_response()), {"cost": .01}
                 request = json.loads(user)
+                if request.get("final_decision"):
+                    self.assertEqual(request["b_advisory"]["verdict"], "pass")
+                    return json.dumps(c_response()), {"cost": .01}
                 return json.dumps({"verdict": "pass", "reviewed_source_hash": request["source_hash"],
                     "reviewed_candidate_hash": request["candidate_hash"],
                     "covered_source_ids": ["rule-001", "rule-002"],
@@ -101,7 +107,7 @@ class ShadowCleanupTests(unittest.TestCase):
                 model_c="c", model_b="b", call_model=call, token_counter=self._token_counter,
                 meta={"spend_usd": 0})
             self.assertEqual(report["status"], "PASS")
-            self.assertEqual(calls, ["c", "c", "b"])
+            self.assertEqual(calls, ["c", "c", "b", "c"])
             self.assertTrue(report["source_unchanged"])
 
     def test_structural_corrections_cannot_exceed_two_c_calls(self):
@@ -157,7 +163,7 @@ class ShadowCleanupTests(unittest.TestCase):
             self.assertEqual(calls, ["c", "c"])
             self.assertFalse(report["applied"])
 
-    def test_b_objections_after_correction_cannot_apply_without_c_finalization(self):
+    def test_b_objections_after_one_repair_leave_c_final_decision(self):
         with tempfile.TemporaryDirectory() as directory:
             self.source_path = self._source_copy(directory)
             calls = []
@@ -177,9 +183,10 @@ class ShadowCleanupTests(unittest.TestCase):
             report = run_shadow_cleanup(self.source_path, Path(directory) / "shadow",
                 model_c="c", model_b="b", call_model=call, token_counter=self._token_counter,
                 meta={"spend_usd": 0})
-            self.assertEqual(report["status"], "FAIL")
-            self.assertEqual(report["stage"], "c_call_limit")
-            self.assertEqual(calls, ["c", "c", "b"])
+            self.assertEqual(report["status"], "PASS")
+            self.assertEqual(report["stage"], "complete")
+            self.assertEqual(report["decision_authority"], "C")
+            self.assertEqual(calls, ["c", "c", "b", "c"])
             self.assertFalse(report["applied"])
 
     def _source_copy(self, directory):
@@ -195,7 +202,7 @@ class ShadowCleanupTests(unittest.TestCase):
             calls.append(model)
             if token_limits is not None:
                 token_limits.append(_kwargs["max_tokens"])
-            if len(calls) == 1:
+            if model == "different-family-c" or json.loads(user).get("final_decision"):
                 return json.dumps(c_response()), {"cost": 0.01}
             request = json.loads(user)
             source = json.loads((self.source_path).read_text())
@@ -265,8 +272,8 @@ class ShadowCleanupTests(unittest.TestCase):
             )
             self.assertEqual(report["status"], "PASS")
             self.assertEqual(report["reduction_pct"], 20.0)
-            self.assertEqual(calls, ["different-family-c", "kimi-b"])
-            self.assertEqual(token_limits, [MAX_C_TOKENS, MAX_B_TOKENS])
+            self.assertEqual(calls, ["different-family-c", "kimi-b", "different-family-c"])
+            self.assertEqual(token_limits, [MAX_C_TOKENS, MAX_B_TOKENS, MAX_C_TOKENS])
             self.assertEqual(self.source_path.read_bytes(), before)
             self.assertTrue(report["source_unchanged"])
             self.assertFalse(report["applied"])
@@ -527,7 +534,7 @@ class ShadowCleanupTests(unittest.TestCase):
             self.assertEqual(len(final["adopted_language"]), 2)
             self.assertTrue(final["final_decision"])
             self.assertEqual(set(final["b_advisory"]),
-                             {"omissions", "meaning_changes", "operational_text"})
+                             {"omissions", "meaning_changes", "operational_text", "notes", "verdict", "reviewed_source_hash", "reviewed_candidate_hash", "covered_source_ids"})
             self.assertEqual(final["b_advisory"]["meaning_changes"][0]["location"],
                              "rule-c001")
             self.assertEqual(final["previous_candidate"], b_requests[0]["candidate"])

@@ -53,3 +53,16 @@ class RuntimeTests(unittest.TestCase):
                 retained=Path(session.retain_cleanup(p))
             self.assertEqual(json.loads((retained/'report.json').read_text())['candidate_hash'],'abc')
             self.assertEqual(len(json.loads((retained/'exam-events.json').read_text())[0]['judge_attempts']),2)
+
+    def test_sol_and_astra_route_before_api_key_with_high_reasoning(self):
+        with tempfile.TemporaryDirectory() as d:
+            root=Path(d)
+            with patch('runtime_session.CodexCompactor') as factory:
+                session=RuntimeSession(self.config(root))
+                self.assertEqual(factory.call_args.kwargs['reasoning'],'high')
+            c=Mock(return_value=('text',{'cost':0}))
+            session.compactor=c
+            with patch.object(loop,'_runtime_session',session),patch.object(loop,'api_key',side_effect=AssertionError):
+                for model in ('gpt-5.6-sol','gpt-6-astra'):
+                    loop.call(model,'system','data')
+            self.assertEqual([c.args[0] for c in c.call_args_list],['gpt-5.6-sol','gpt-6-astra'])

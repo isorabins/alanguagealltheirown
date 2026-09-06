@@ -102,7 +102,7 @@ class FullCleanupTests(unittest.TestCase):
                 loop.ensure_structured_protocol_cutover(state.conversation,state.rulebook,state.meta,activation_turn=0)
                 store.commit(state)
                 self.assertTrue(loop.maybe_run_automatic_cleanup(state.conversation,state.rulebook,state.meta,1))
-                self.assertEqual([r['model'] for r in requests],['c','b','encoder','decoder','grader'])
+                self.assertEqual([r['model'] for r in requests],['c','b','c','encoder','decoder','grader'])
                 self.assertEqual(state.meta['tests_run'],0)
                 accepted_hash=language_payload(state.rulebook)['hash']
                 store.commit(state)

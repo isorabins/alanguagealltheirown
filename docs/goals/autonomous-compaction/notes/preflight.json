@@ -1,0 +1,51 @@
+{
+  "prior_task": {
+    "id": "01a075c2-a61e-7222-aa6a-983f9faa140f",
+    "title": "Make ALATO production-ready",
+    "status": "interrupted and archived",
+    "inherited_dirty_files": 11
+  },
+  "production": {
+    "revision": "d49a662e6f0e81218cdcd6f235e99c41145680a6",
+    "timer": "paused by prior task",
+    "active_call": false,
+    "path": "/root/alanguagealltheirown",
+    "host": "claude-vps"
+  },
+  "budget": {
+    "ledger": "/root/alato-restart-20260906/approved-2/budget.json",
+    "limit_usd": "2",
+    "spent_usd": "0.28892238185",
+    "expires_at": "2026-09-07T06:50:18.219114+00:00",
+    "new_allowance": false
+  },
+  "models": {
+    "A": {
+      "id": "gpt-5.6-sol",
+      "reasoning": "high",
+      "billing": "codex_subscription",
+      "response_id": "codex:01a075ca-c0bb-7103-8255-038d980afb3f"
+    },
+    "B": {
+      "id": "moonshotai/kimi-k3",
+      "response_id": "gen-1788682716-o2fKpd6jIEve7Emjvdve"
+    },
+    "C": {
+      "id": "gpt-6-astra",
+      "reasoning": "high",
+      "billing": "codex_subscription",
+      "response_id": "codex:01a075ca-d294-7e50-a2bc-2c634c2333ba"
+    }
+  },
+  "credentials": "Bitwarden authoritative key matched existing production cache in-process; OpenRouter HTTP200",
+  "vercel": {
+    "account": "isorabins",
+    "deployment": "dpl_ECJBKJ96KLc95y6w2uqyaw9zdqkZ",
+    "status": "Ready"
+  },
+  "tests": {
+    "python": 294,
+    "node": 87,
+    "checker_incomplete_state": "rejected missing manifest"
+  }
+}

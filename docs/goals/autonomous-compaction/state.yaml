@@ -1,0 +1,126 @@
+version: 2
+goal:
+  title: ALATO autonomous successful compaction
+  slug: autonomous-compaction
+  kind: existing_plan
+  tranche: Complete all six user gates through verified live adoption and scheduled
+    continuation
+  status: active
+  oracle:
+    signal: Executable completion checker verifies exact passing candidate live plus
+      scheduled A/B use and public state
+    cadence: At phase changes and final audit
+    final_proof: Source/candidate hashes, five valid passing exams, live adoption/reload,
+      scheduled prompts, production revision and browser evidence
+  intake:
+    original_request: Get ALATO running autonomously with a successfully compacted
+      rulebook adopted live
+    interpreted_outcome: A Sol high and B Kimi K3 use a <=4500 operative-token book
+      finalized by Astra high C through Codex login
+    input_shape: existing_plan
+    audience: Iso and public experiment readers
+    authority: approved
+    proof_type: test
+    completion_proof: All six attached user gates with executable rejection of incomplete
+      evidence
+    likely_misfire: Confusing graceful failed compaction with adoption
+    blind_spots_considered:
+      - Current model availability
+      - Remaining shared spend and expiry
+      - Interrupted prior writer changes
+    existing_plan_facts:
+      - Preserve existing implementation and history
+      - B advises C decides
+      - Do not weaken meaning exams
+      - Existing shared $2 balance only
+rules:
+  pm_owns_state: true
+  one_active_task: true
+  max_write_workers: 1
+  no_implementation_without_worker_or_pm_task: true
+  no_completion_without_judge_or_pm_audit: true
+  planning_is_not_completion: true
+  queued_required_worker_blocks_completion: true
+  continuous_until_full_outcome: true
+  missing_input_or_credentials_do_not_stop_goal: true
+  exact_human_approval_can_terminal_wait: true
+  preserve_and_validate_existing_plan: true
+  intake_misfire_must_be_audited: true
+  goal_pressure_requires_oracle: true
+  no_completion_on_weak_proof: true
+  slice_policy:
+    max_consecutive_tiny_tasks: 2
+    prefer_vertical_slices: true
+    judge_picks_largest_safe_slice: true
+    worker_completes_whole_slice: true
+agents:
+  scout: unknown
+  worker: unknown
+  judge: unknown
+visual_board:
+  selected: local
+  local:
+    status: starting
+    url: null
+    command: node /Users/isorabins/.codex/plugins/cache/goalbuddy/goalbuddy/0.4.3/skills/goal-prep/surfaces/local-goal-board/scripts/local-goal-board.mjs
+      --goal docs/goals/autonomous-compaction
+active_task: T003
+tasks:
+  - id: T001
+    type: pm
+    assignee: PM
+    status: done
+    objective: Verify preflight and inherited changes; implement proportionate compaction/routing/recovery
+      fixes and evidence checker
+    allowed_files:
+      - '*.py'
+      - prompts/*
+      - tests/**
+      - docs/**
+      - PROGRESS.md
+      - viewer/**
+    verify:
+      - python3 -m unittest discover -s tests/python
+      - node --test tests/js/*.test.js
+    receipt:
+      result: done
+      summary: Runtime corrections verified; inherited changes preserved; real model
+        and access preflight passed
+      evidence:
+        - notes/preflight.json
+  - id: T002
+    type: judge
+    assignee: Judge
+    status: done
+    objective: Independent skeptical review of implementation before release
+    receipt:
+      result: done
+      decision: approved
+      full_outcome_complete: false
+      rationale: Independent preliminary review approves corrected runtime; completion
+        checker remains pending actual evidence binding
+  - id: T003
+    type: pm
+    assignee: PM
+    status: active
+    objective: Release, diagnose real exams until passing, adopt through normal production
+      cycle and verify scheduled continuation and public display
+    receipt: null
+    allowed_files:
+      - '*.py'
+      - tests/**
+      - docs/**
+      - PROGRESS.md
+      - viewer/**
+  - id: T999
+    type: judge
+    assignee: Judge
+    status: queued
+    objective: Audit exact full outcome against executable evidence check
+    receipt: null
+checks:
+  dirty_fingerprint: unknown
+  last_verification:
+    result: unknown
+    task: null
+    commands: []

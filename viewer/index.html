@@ -390,10 +390,10 @@
 <div class="legend">Scoring V2 calls compression successful only when 100% of the semantic meaning in the conversation survives encoding and decoding.</div>
 
 <h2>The Negotiation</h2>
-<p class="how">DeepSeek Agent A invents or revises one focused idea. Kimi Agent B audits it and alone may adopt or reject it.</p>
+<p class="how">Agent A invents or revises one focused idea. Kimi Agent B audits it and alone may adopt or reject it.</p>
 <div class="panes">
-  <div class="pane"><div class="pane-head">Agent A · DeepSeek inventor</div><div class="pane-body" id="paneA"></div></div>
-  <div class="pane"><div class="pane-head">Agent B · Kimi auditor</div><div class="pane-body" id="paneB"></div></div>
+  <div class="pane"><div class="pane-head" id="agent-a-model">Agent A · inventor</div><div class="pane-body" id="paneA"></div></div>
+  <div class="pane"><div class="pane-head" id="agent-b-model">Agent B · auditor</div><div class="pane-body" id="paneB"></div></div>
 </div>
 <form class="collab-form" id="suggestion-form">
   <label for="suggestion-text">Suggest an idea for the agents</label>
@@ -507,10 +507,10 @@ abuse, and maximum-cost limits.</p>
 <h2>How This Works</h2>
 <p class="how">Distinct roles with one enforced boundary: only the agents can legislate, and only adopted rules are language law.</p>
 <div id="cast">
-  <div class="note"><span class="nd">the legislature</span>DeepSeek A invents, revises, or proposes repeal of one rule at a time. Kimi B audits that focused add or repeal motion and alone may adopt or reject it. A repealed rule leaves the language but keeps its full public history. Invalid motions are visible no-ops.</div>
+  <div class="note"><span class="nd">the legislature</span>Agent A invents, revises, or proposes repeal of one rule at a time. Kimi B audits that focused add or repeal motion and alone may adopt or reject it. A repealed rule leaves the language but keeps its full public history. Invalid motions are visible no-ops.</div>
   <div class="note"><span class="nd">the benchmark panel</span>Every third turn, the harness selects the next of five frozen messages: event prose, an equipment procedure, farming data, retail prose, and a software task. A message is compared only with its own previous valid result. Repetition gives the experiment a stable ruler; the separate transfer battery remains the check against overfitting.</div>
   <div class="note"><span class="nd">the encoder</span>Another AI translates that message into the invented language, using nothing but the current rulebook.</div>
-  <div class="note"><span class="nd">the stranger</span>A completely fresh AI — no memory of the conversation, no context at all — receives only the rulebook and the encoded message, and must turn it back into plain English. Since turn 246 the stranger is also a different model family from the negotiators, so it can't lean on shared habits: it decodes what the encoding actually says. If the language only works for the two agents who invented it, it fails here. This is the whole test.</div>
+  <div class="note"><span class="nd">the stranger</span>A completely fresh AI — no memory of the conversation, no context at all — receives only the rulebook and the encoded message, and must turn it back into plain English. The decoder model is named on each exam, so its actual routing remains visible as the experiment changes. If the language only works for the two agents who invented it, it fails here. This is the whole test.</div>
   <div class="note"><span class="nd">the judge</span>Scoring V2 gives every answer-key atom a stable id such as B2.05. The judge labels each atom SURVIVED, CORRUPTED, or MISSING and cites exact decoded evidence. Deterministic literal validation checks practical values before accepting SURVIVED. Missing, duplicate, unknown, or out-of-order atom ids, invalid verdicts, absent or fabricated evidence, and literal conflicts produce INVALID JUDGE RESULT—an evaluator failure, not a benchmark failure.</div>
 </div>
 
@@ -862,6 +862,12 @@ function renderAgentCCleanup(agentC,conversation) {
 
 function render(S) {
   currentRenderedState=S;
+  var routing=S.meta&&S.meta.runtime&&S.meta.runtime.models;
+  var reasoning=S.meta&&S.meta.runtime&&S.meta.runtime.reasoning;
+  ["A","B"].forEach(function(role){
+    var label=document.getElementById("agent-"+role.toLowerCase()+"-model");
+    if(label)label.textContent="Agent "+role+" · "+(routing&&routing[role]||"model unavailable")+(reasoning&&reasoning[role]?" · "+reasoning[role]:"");
+  });
   var conv = S.conversation || [], rb = S.rulebook || {rules: []};
   var esc = function (s) {
     return String(s == null ? "" : s).replace(/[&<>"]/g, function (c) {

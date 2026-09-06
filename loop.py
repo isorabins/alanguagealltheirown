@@ -306,7 +306,7 @@ def call(model, system, user, max_tokens=600, temperature=0.7, meta=None,
          request_options=None, transport=None):
     """One chat call. Returns (text, usage). Retries transient failures."""
     global _no_reasoning_field
-    if _runtime_session is not None and model == "gpt-6-astra":
+    if _runtime_session is not None and model in {"gpt-6-astra", "gpt-5.6-sol"}:
         return _runtime_session.compact(model, system, user,
             request_options=request_options, meta=meta)
     messages = ([{"role": "system", "content": system}] if system else []) + [
@@ -610,7 +610,7 @@ def ensure_structured_protocol_cutover(conv, rb, meta, *, activation_turn):
 
 
 AUTOMATIC_CLEANUP_STATE_SCHEMA_VERSION = 2
-AUTOMATIC_CLEANUP_EDITION = "automatic-cleanup-v7-astra-verified-admission"
+AUTOMATIC_CLEANUP_EDITION = "automatic-cleanup-v8-c-decides"
 MAX_POST_CHECKPOINT_CHANGES = 64
 MAX_STRUCTURED_PROMPT_CHARS = legislature.MAX_STRUCTURED_PROMPT_CHARS
 
@@ -665,8 +665,13 @@ def _upgrade_automatic_cleanup_state(state, turn):
 def reset_automatic_cleanup_quarantine(state, *, reviewed_edition, operator):
     """Explicitly re-arm C only after an operator reviews a different edition."""
     quarantine = state.get("quarantine")
-    if not isinstance(quarantine, dict) or state.get("last_status") != "quarantined":
-        raise ValueError("automatic cleanup is not quarantined")
+    prior_status = state.get("last_status")
+    if prior_status == "failed":
+        quarantine = {"edition": state.get("reset", {}).get("reviewed_edition"),
+                      "reason": "failed_attempt", "failure_reason": state.get("last_reason"),
+                      "entered_turn": state.get("last_attempt_turn")}
+    elif not isinstance(quarantine, dict) or prior_status != "quarantined":
+        raise ValueError("automatic cleanup is not quarantined or failed")
     if not isinstance(reviewed_edition, str) or not reviewed_edition.strip():
         raise ValueError("reset requires a reviewed cleanup edition")
     if reviewed_edition == quarantine.get("edition"):
@@ -683,12 +688,22 @@ def reset_automatic_cleanup_quarantine(state, *, reviewed_edition, operator):
     state["last_status"] = "armed"
     state["last_reason"] = "explicit operator reset for reviewed edition"
     state["last_attempt_language_hash"] = None
-    state.pop("quarantine")
+    state.pop("quarantine", None)
 
 
 def run_admission_cleanup(source_path, output, **kwargs):
     """Normal cleanup always proves the final book against the registered suite."""
     from verified_cleanup import run_verified_cleanup
+    if _runtime_session is not None:
+        from cleanup_replay import CleanupReplay
+        identity = snapshot_hash({'source': load_json(source_path, None),
+                                  'edition': AUTOMATIC_CLEANUP_EDITION,
+                                  'models': [MODEL_A, MODEL_B, MODEL_C, MODEL_DECODER, MODEL_GRADER]})
+        replay = CleanupReplay(_runtime_session.evidence / 'replay' / identity,
+            account=lambda meta, usage: record_provider_cost(meta, usage,
+                response_id=usage.get('response_receipt', {}).get('id')))
+        kwargs['call_model'] = replay.call(kwargs['call_model'])
+        kwargs['token_counter'] = replay.tokens(kwargs['token_counter'])
     try:
         return run_verified_cleanup(source_path, output,
             exams=exam_evidence.ExamResources(
@@ -816,6 +831,8 @@ def maybe_run_automatic_cleanup(conv, rb, meta, turn, *, cleanup_runner=None):
                 "admission_stage": report.get("stage"),
                 "exam_results": copy.deepcopy(report.get("exam_results")),
                 "final_semantic_verdict": report.get("final_semantic_verdict"),
+            "c_cycle_completed": report.get("c_cycle_completed", False),
+            "decision_authority": report.get("decision_authority"),
                 "provider_calls": copy.deepcopy(report.get("provider_calls")),
                 "rounds": copy.deepcopy(report.get("rounds")),
                 "b_advisory_error": copy.deepcopy(
@@ -878,6 +895,8 @@ def maybe_run_automatic_cleanup(conv, rb, meta, turn, *, cleanup_runner=None):
             "applied_tokens": applied_tokens,
             "exam_results": copy.deepcopy(report.get("exam_results")),
             "final_semantic_verdict": report.get("final_semantic_verdict"),
+            "c_cycle_completed": report.get("c_cycle_completed", False),
+            "decision_authority": report.get("decision_authority"),
             "reviewed_candidate_hash": report.get("reviewed_candidate_hash"),
             "reduction_pct": report.get("reduction_pct"),
             "models": report.get("models"),
@@ -1167,12 +1186,14 @@ def publish_turn(state: TurnState) -> None:
 
 
 def run(turns):
-    global _runtime_session, MODEL_C
+    global _runtime_session, MODEL_A, MODEL_B, MODEL_C
     with TurnStore(STATE).writer() as store:
         config = os.environ.get("ALATO_RUNTIME_CONFIG")
         if config and turns:
             from runtime_session import RuntimeSession
             _runtime_session = RuntimeSession(config)
+            MODEL_A = "gpt-5.6-sol"
+            MODEL_B = "moonshotai/kimi-k3"
             MODEL_C = "gpt-6-astra"
         return _run_turns(turns, store)
 
@@ -1186,6 +1207,9 @@ def _run_turns(turns, store):
     ))
     conv, rb, meta = state.conversation, state.rulebook, state.meta
     collaboration, conversations = state.collaboration, state.conversations
+    if _runtime_session is not None:
+        meta["runtime_models"] = {"A": MODEL_A, "B": MODEL_B, "C": MODEL_C}
+        meta["runtime_reasoning"] = {"A": "high", "C": "high"}
     start_turn = state.next_turn
     ensure_structured_protocol_cutover(
         conv, rb, meta, activation_turn=start_turn - 1
