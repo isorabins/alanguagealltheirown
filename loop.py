@@ -612,7 +612,7 @@ def ensure_structured_protocol_cutover(conv, rb, meta, *, activation_turn):
 AUTOMATIC_CLEANUP_STATE_SCHEMA_VERSION = 2
 AUTOMATIC_CLEANUP_EDITION = "automatic-cleanup-v7-astra-verified-admission"
 MAX_POST_CHECKPOINT_CHANGES = 64
-MAX_STRUCTURED_PROMPT_CHARS = 120_000
+MAX_STRUCTURED_PROMPT_CHARS = legislature.MAX_STRUCTURED_PROMPT_CHARS
 
 
 def build_structured_cleanup_snapshot(candidate, *, checkpoint_turn, source_hash):
