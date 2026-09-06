@@ -1,0 +1,294 @@
+{
+  "scope": "local isolated comparison; no live adoption or live model change",
+  "source_hash": "6f30e9f940dd013e97b1335d02ce1e0163c781e553443f538c4da9f53aecaed8",
+  "model_c": "gpt-5.6-sol",
+  "reasoning": "high",
+  "api_budget": "existing shared $2 session, no new allowance",
+  "local_trial_policy": "B advisory only; C final authority; up to three C calls to leave room for a structural repair; unchanged five meaning exams",
+  "comparison_limit": "one sample per model; Astra candidate retained from same-source prior attempt; Sol receives finalization opportunity that prior Astra attempt lacked",
+  "results": {
+    "astra": {
+      "applied_tokens": 3826,
+      "candidate_hash": "8ff5ad08f64bb8cad062b5d9b81a3d186673397f320aef6af083d3467eeac383",
+      "exam_results": [
+        {
+          "benchmark_id": "B1",
+          "critical_failures": [
+            {
+              "atom_id": "B1.21",
+              "decoded_evidence": "^if 3% discount applies because 50% deposit is wired by Friday at noon note it on payment authorization",
+              "expected_meaning": "A 3% discount applies if the 50% deposit is wired by Friday at noon instead of the following Monday.",
+              "verdict": "CORRUPTED"
+            }
+          ],
+          "enc_tokens": 792,
+          "inventions": [],
+          "judge_reason": "valid",
+          "judge_status": "VALID",
+          "judge_valid": true,
+          "meaning_pass": false,
+          "message_body_savings_pct": -69,
+          "orig_tokens": 469,
+          "semantic_coverage_pct": 90
+        },
+        {
+          "benchmark_id": "B2",
+          "critical_failures": [],
+          "enc_tokens": 434,
+          "inventions": [],
+          "judge_reason": "valid",
+          "judge_status": "VALID",
+          "judge_valid": true,
+          "meaning_pass": false,
+          "message_body_savings_pct": 2,
+          "orig_tokens": 445,
+          "semantic_coverage_pct": 97
+        },
+        {
+          "benchmark_id": "B3",
+          "critical_failures": [
+            {
+              "atom_id": "B3.15",
+              "decoded_evidence": "^do not use `@blended_potash_mix` for this pass",
+              "expected_meaning": "Do not use blended potash mix PK-30 on this pass.",
+              "verdict": "CORRUPTED"
+            },
+            {
+              "atom_id": "B3.16",
+              "decoded_evidence": "",
+              "expected_meaning": "PK-30 application is deferred until the post-harvest window.",
+              "verdict": "MISSING"
+            }
+          ],
+          "enc_tokens": 476,
+          "inventions": [],
+          "judge_reason": "valid",
+          "judge_status": "VALID",
+          "judge_valid": true,
+          "meaning_pass": false,
+          "message_body_savings_pct": -9,
+          "orig_tokens": 435,
+          "semantic_coverage_pct": 93
+        },
+        {
+          "benchmark_id": "B4",
+          "critical_failures": [
+            {
+              "atom_id": "B4.10",
+              "decoded_evidence": "if any unit attempted defrost between 10:00 AM and 1:00 PM today hold off on its next scheduled defrost and switch to manual-only mode for next 48 hours",
+              "expected_meaning": "For a unit that attempted defrost from 10:00 AM through 1:00 PM today, hold its next scheduled defrost.",
+              "verdict": "CORRUPTED"
+            },
+            {
+              "atom_id": "B4.12",
+              "decoded_evidence": "if any unit attempted defrost between 10:00 AM and 1:00 PM today proceed with its next cycle as planned but reduce duration by 25%",
+              "expected_meaning": "For a unit that did not attempt defrost in that window, run its next cycle as planned at 25% shorter duration.",
+              "verdict": "CORRUPTED"
+            }
+          ],
+          "enc_tokens": 394,
+          "inventions": [
+            {
+              "claim": "The decoder incorrectly states the 25% reduction applies to units that attempted defrost.",
+              "evidence": "if any unit attempted defrost between 10:00 AM and 1:00 PM today proceed with its next cycle as planned but reduce duration by 25%"
+            }
+          ],
+          "judge_reason": "valid",
+          "judge_status": "VALID",
+          "judge_valid": true,
+          "meaning_pass": false,
+          "message_body_savings_pct": 8,
+          "orig_tokens": 428,
+          "semantic_coverage_pct": 94
+        },
+        {
+          "benchmark_id": "B5",
+          "critical_failures": [
+            {
+              "atom_id": "B5.09",
+              "decoded_evidence": "full re-sync will consume about `<350 gigabits>` bandwidth from Frankfurt node",
+              "expected_meaning": "The re-sync uses about '350 gigs' of bandwidth from the Frankfurt node; preserve that source-unit ambiguity.",
+              "verdict": "CORRUPTED"
+            },
+            {
+              "atom_id": "B5.16",
+              "decoded_evidence": "",
+              "expected_meaning": "The manual pre-check must take no more than 120 seconds.",
+              "verdict": "MISSING"
+            },
+            {
+              "atom_id": "B5.19",
+              "decoded_evidence": "",
+              "expected_meaning": "Do not make a third pre-check attempt.",
+              "verdict": "MISSING"
+            }
+          ],
+          "enc_tokens": 445,
+          "inventions": [],
+          "judge_reason": "valid",
+          "judge_status": "VALID",
+          "judge_valid": true,
+          "meaning_pass": false,
+          "message_body_savings_pct": 8,
+          "orig_tokens": 482,
+          "semantic_coverage_pct": 90
+        }
+      ],
+      "meaning_pass": false,
+      "size_pass": true,
+      "aggregate_original_tokens": 2259,
+      "aggregate_encoded_tokens": 2541,
+      "aggregate_message_savings_pct": -12.48,
+      "book_reduction_pct": 82.2
+    },
+    "sol": {
+      "applied_tokens": 4098,
+      "candidate_hash": "2a2d2fd62ddd528c6a1575031245cae34eedde574c19d107c09dce7bacb4f65b",
+      "exam_results": [
+        {
+          "benchmark_id": "B1",
+          "critical_failures": [
+            {
+              "atom_id": "B1.12",
+              "decoded_evidence": "^For Atrium reception, if count is between 70 and 90, Tier B is approved\n^For Atrium reception, if count exceeds 90, switch to Tier A",
+              "expected_meaning": "Tier B may be used for the general attendee reception in the Atrium if the budget is squeezed.",
+              "verdict": "CORRUPTED"
+            },
+            {
+              "atom_id": "B1.21",
+              "decoded_evidence": "^If we wire the 50% deposit by Friday at noon, note 3% discount explicitly on payment authorization",
+              "expected_meaning": "A 3% discount applies if the 50% deposit is wired by Friday at noon instead of the following Monday.",
+              "verdict": "CORRUPTED"
+            }
+          ],
+          "enc_tokens": 413,
+          "inventions": [],
+          "judge_reason": "valid",
+          "judge_status": "VALID",
+          "judge_valid": true,
+          "meaning_pass": false,
+          "message_body_savings_pct": 12,
+          "orig_tokens": 469,
+          "semantic_coverage_pct": 87
+        },
+        {
+          "benchmark_id": "B2",
+          "critical_failures": [
+            {
+              "atom_id": "B2.03",
+              "decoded_evidence": "",
+              "expected_meaning": "At approximately 10:47 local, the test reached a 22.5 MPa hold pressure.",
+              "verdict": "MISSING"
+            }
+          ],
+          "enc_tokens": 399,
+          "inventions": [],
+          "judge_reason": "valid",
+          "judge_status": "VALID",
+          "judge_valid": true,
+          "meaning_pass": false,
+          "message_body_savings_pct": 10,
+          "orig_tokens": 445,
+          "semantic_coverage_pct": 93
+        },
+        {
+          "benchmark_id": "B3",
+          "critical_failures": [
+            {
+              "atom_id": "B3.23",
+              "decoded_evidence": "^Confirm product scan against batch ID prior loading",
+              "expected_meaning": "Before loading, verify the product scan against batch F23-8892.",
+              "verdict": "CORRUPTED"
+            }
+          ],
+          "enc_tokens": 353,
+          "inventions": [],
+          "judge_reason": "valid",
+          "judge_status": "VALID",
+          "judge_valid": true,
+          "meaning_pass": false,
+          "message_body_savings_pct": 19,
+          "orig_tokens": 435,
+          "semantic_coverage_pct": 89
+        },
+        {
+          "benchmark_id": "B4",
+          "critical_failures": [
+            {
+              "atom_id": "B4.25",
+              "decoded_evidence": "^final summary her include log findings action taken each freezer coil unit final location seafood shipment",
+              "expected_meaning": "The final summary to Erica must include the log findings.",
+              "verdict": "CORRUPTED"
+            },
+            {
+              "atom_id": "B4.26",
+              "decoded_evidence": "^final summary her include log findings action taken each freezer coil unit final location seafood shipment",
+              "expected_meaning": "The final summary to Erica must include the action taken on each freezer-coil unit.",
+              "verdict": "CORRUPTED"
+            },
+            {
+              "atom_id": "B4.27",
+              "decoded_evidence": "^final summary her include log findings action taken each freezer coil unit final location seafood shipment",
+              "expected_meaning": "The final summary to Erica must include the seafood shipment's final location.",
+              "verdict": "CORRUPTED"
+            }
+          ],
+          "enc_tokens": 331,
+          "inventions": [],
+          "judge_reason": "valid",
+          "judge_status": "VALID",
+          "judge_valid": true,
+          "meaning_pass": false,
+          "message_body_savings_pct": 23,
+          "orig_tokens": 428,
+          "semantic_coverage_pct": 90
+        },
+        {
+          "benchmark_id": "B5",
+          "critical_failures": [
+            {
+              "atom_id": "B5.26",
+              "decoded_evidence": "if bandwidth shows over 475 gigabits used pause any non-essential dataflows tagged with env: staging in Frankfurt region until after verification window closes",
+              "expected_meaning": "If TX-88773 shows over 475 gigabits used, pause non-essential Frankfurt dataflows tagged env: staging.",
+              "verdict": "CORRUPTED"
+            }
+          ],
+          "enc_tokens": 411,
+          "inventions": [],
+          "judge_reason": "valid",
+          "judge_status": "VALID",
+          "judge_valid": true,
+          "meaning_pass": false,
+          "message_body_savings_pct": 15,
+          "orig_tokens": 482,
+          "semantic_coverage_pct": 86
+        }
+      ],
+      "meaning_pass": false,
+      "size_pass": true,
+      "aggregate_original_tokens": 2259,
+      "aggregate_encoded_tokens": 1907,
+      "aggregate_message_savings_pct": 15.58,
+      "book_reduction_pct": 80.93
+    }
+  },
+  "shared_session_spend_usd": "0.27707658435",
+  "status": "COMPLETE",
+  "api_trial_spend_usd": 0.1170360473,
+  "source_unchanged": true,
+  "raw_evidence": "/Users/isorabins/alex-workspace/projects/alato-deep-modules-20260905/tests/acceptance/local-c/.evidence/sol-comparison-20260906",
+  "source_tokens": 21492,
+  "sol_b_advisory": "pass; no findings",
+  "sol_calls": 2,
+  "live_changed": false,
+  "production_behavior_still_pending": "B advisory-only admission and a guaranteed C finalization opportunity; Sol high was used for this local trial only.",
+  "artifact_sha256": {
+    "source.json": "6f30e9f940dd013e97b1335d02ce1e0163c781e553443f538c4da9f53aecaed8",
+    "astra-candidate.json": "8ff5ad08f64bb8cad062b5d9b81a3d186673397f320aef6af083d3467eeac383",
+    "sol-shadow/candidate.json": "2a2d2fd62ddd528c6a1575031245cae34eedde574c19d107c09dce7bacb4f65b",
+    "sol-exam-events.json": "eec78de62d094c2686d647df67aa339fb09a1806cb8333971c8b2dbbcde94fc9",
+    "astra-exam-events.json": "c1216a69fbb67fe48ad7bc31c14270f1420ccb2e4a857d5344ba23a51d8e111c",
+    "run_trial.py": "d036d47634036bd9e628edea4aa6fbb18be6739dd979888054a077a3bfe59792",
+    "api_bridge.py": "25c156ddecaa5acde3736f32f64354c27d55ad15405eda0b72c3d0bc7b0b1b5f"
+  }
+}
