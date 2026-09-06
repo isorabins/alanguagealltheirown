@@ -258,3 +258,16 @@ test('failed raw archive preserves the complete last-good snapshot and retries l
  await reader.refresh();phase=1;await reader.refresh();assert.equal(seen.at(-1)[0].meta.runtime.turn,10);assert.equal(seen.at(-1)[1].complete,true);
  phase=2;await reader.refresh();assert.equal(seen.at(-1)[0].meta.runtime.turn,11);
 });
+
+test('fallback compares semantic object values across sorted preview and unsorted archive serialization',async()=>{
+ const seen=[];let downloads=0;
+ const reader=createReader({onSnapshot:(s,m)=>seen.push([s,m]),fetch:async url=>{
+  if(url.includes('api.github.com'))return response(null,403);
+  const s=state(10);s.language={version:'one',hash:'same',rules:[{id:'one',text:'same'}]};s.notes=[{text:'note',id:1}];
+  if(url.endsWith('state.js')){downloads++;return response(archive(s));}
+  const sorted=v=>Array.isArray(v)?v.map(sorted):v&&typeof v==='object'?Object.fromEntries(Object.keys(v).sort().map(k=>[k,sorted(v[k])])):v;
+  return response(sorted(s));
+ }});
+ await reader.refresh();await reader.refresh();
+ assert.equal(seen.at(-1)[1].source,'canonical-unpinned');assert.equal(downloads,1);
+});
