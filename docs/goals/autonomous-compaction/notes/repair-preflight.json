@@ -1,0 +1,44 @@
+{
+  "wire_bytes_before_output_clamp": 495061,
+  "retained_text_count": 266,
+  "indexed_count": 400,
+  "spent_usd": "0.35790227065",
+  "dry_runs": [
+    {
+      "hypothetical_limit": "2",
+      "would_dispatch": false,
+      "result": "guard rejects reservation"
+    },
+    {
+      "hypothetical_limit": "4",
+      "would_dispatch": true,
+      "result": "guard permits reservation; intercepted before HTTP",
+      "reservation_usd": "3.084936",
+      "minimum_total_cap": "3.44283827065"
+    }
+  ],
+  "expires_at": "2026-09-07T06:50:18.219114+00:00",
+  "provider_dispatches": 0,
+  "schema_probe": {
+    "model": "gpt-5.6-sol",
+    "reasoning": "high",
+    "billing": "codex_subscription",
+    "native_validation": "passed",
+    "finish_reason": "stop",
+    "evidence": "/root/alato-restart-20260906/approved-2/schema-repair-preflight/sol-evidence"
+  },
+  "tests": {
+    "python": 303,
+    "node": 89,
+    "focused_after_unicode_range": 14
+  },
+  "recommended_total_cap_usd": "4",
+  "additional_authorization_usd": "2",
+  "approval_status": "pending",
+  "production_paused": true,
+  "independent_review": {
+    "decision": "approved",
+    "conditional_on": "Explicit shared cap increase approval before resumed paid execution",
+    "full_outcome_complete": false
+  }
+}

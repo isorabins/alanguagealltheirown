@@ -242,22 +242,53 @@ def _source_is_unchanged(source_path: Path, original: bytes) -> bool:
 
 
 def semantic_review_request(source, candidate):
-    """Keep every rule text and the history grounding candidate memory.
+    """Keep all operative text, reference dependencies and cited memory evidence.
 
-    Routine revision-event prose is not operative law. C still receives the
-    complete source; B gets all current rule texts plus cited memory evidence.
+    Uncited retired prose is indexed explicitly, never presented as reviewed.
+    C retains the complete immutable source and final editorial authority.
     """
-    cited = {source_id for entries in candidate.get('legislative_memory', {}).values()
-             for entry in entries for source_id in entry.get('source_ids', [])}
-    rows = [{key: copy.deepcopy(value) for key, value in row.items()
-             if key != 'history' or row['id'] in cited} for row in source['rules']]
-    omitted = [row['id'] for row in source['rules'] if row.get('history') and row['id'] not in cited]
-    return {'source_hash': snapshot_hash(source), 'candidate_hash': snapshot_hash(candidate),
-            'original_adopted_language': _adopted_rows(source),
-            'complete_legislature': rows, 'candidate': copy.deepcopy(candidate),
-            'history_projection': {'kind':'history_filtered_review', 'projection_hash':snapshot_hash(rows),
-                'omitted_history_ids':omitted, 'omitted_history_count':len(omitted),
-                'note':'All rule texts retained; revision-event history retained for every legislative-memory citation.'}}
+    by_id={row['id']:row for row in source['rules']}
+    cited={source_id for entries in candidate.get('legislative_memory',{}).values()
+           for entry in entries for source_id in entry.get('source_ids',[])}
+    adopted={row['id'] for row in source['rules'] if row.get('status')=='adopted'}
+    def references(text):
+        found=set()
+        text=text.translate(str.maketrans({char:'-' for char in '‐‑‒–—−﹘﹣－'}))
+        for match in re.finditer(r'\brules?[-\s]+((?:\d+|[,\s-]|and\b|through\b|to\b)+)',text,re.I):
+            phrase=match.group(1)
+            numbers={int(n) for n in re.findall(r'\d+',phrase)}
+            for low,high in re.findall(r'(\d+)\s*(?:-|through|to)\s*(\d+)',phrase,re.I):
+                numbers.update(n for n in (int(k.split('-')[-1]) for k in by_id) if int(low)<=n<=int(high))
+            found.update(k for k in by_id if int(k.split('-')[-1]) in numbers)
+        return found
+    retained=adopted|cited|references(json.dumps(candidate.get('structured_rulebook',{}),ensure_ascii=False))
+    pending=list(retained)
+    while pending:
+        rule_id=pending.pop()
+        evidence={key:value for key,value in by_id[rule_id].items() if key!='history' or rule_id in cited}
+        for dependency in references(json.dumps(evidence,ensure_ascii=False))-retained:
+            retained.add(dependency);pending.append(dependency)
+    rows=[];indexed=[]
+    for row in source['rules']:
+        rule_id=row['id']
+        if rule_id not in retained:
+            projected={'id':rule_id,'status':row.get('status'),'text_sha256':hashlib.sha256(row.get('text_en','').encode()).hexdigest(),
+                       'record_hash':snapshot_hash(row),'review_scope':'index_only_uncited_nonoperative'}
+            indexed.append(rule_id)
+        else:
+            projected={key:copy.deepcopy(value) for key,value in row.items() if key!='history' or rule_id in cited}
+            if rule_id in adopted:
+                projected.pop('text_en',None)
+                projected['text_location']='original_adopted_language'
+        rows.append(projected)
+    scope={'kind':'operative_dependency_and_cited_history_v1','projection_hash':snapshot_hash(rows),
+           'retained_text_ids':sorted(retained),'indexed_only_ids':indexed,'indexed_only_count':len(indexed),
+           'history_retained_ids':sorted(cited),'omitted_history_ids':[row['id'] for row in source['rules'] if row.get('history') and row['id'] not in cited],
+           'note':'All adopted text is in original_adopted_language. Referenced dependency text and cited memory history are retained. Indexed-only retired records are unavailable for substantive B review; hashes are identity evidence, not semantic evidence. C retains the full source.'}
+    scope['omitted_history_count']=len(scope['omitted_history_ids'])
+    return {'source_hash':snapshot_hash(source),'candidate_hash':snapshot_hash(candidate),
+            'original_adopted_language':_adopted_rows(source),'complete_legislature':rows,
+            'candidate':copy.deepcopy(candidate),'history_projection':scope}
 
 
 def run_shadow_cleanup(
@@ -367,6 +398,7 @@ def run_shadow_cleanup(
         adopted = _adopted_rows(source)
         previous_candidate = None
         previous_advisory = None
+        previous_review_scope = None
         structural_correction = None
         repairs_used = 0
         source_tokens = None
@@ -408,6 +440,7 @@ def run_shadow_cleanup(
                     "final_decision": True,
                     "previous_candidate": previous_candidate,
                     "b_advisory": previous_advisory,
+                    "b_review_scope": previous_review_scope,
                 })
                 c_system = f"{prompt_c}\n\n{finalizer_prompt}"
                 c_system_version = (
@@ -528,6 +561,7 @@ def run_shadow_cleanup(
 
             report["stage"] = "b_call"
             b_request = semantic_review_request(source, candidate)
+            previous_review_scope = copy.deepcopy(b_request["history_projection"])
             try:
                 b_text, b_usage = call_model(
                     model_b,

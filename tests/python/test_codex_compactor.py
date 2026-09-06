@@ -78,3 +78,36 @@ class CodexCompactorTests(unittest.TestCase):
         raw,usage=self.run_fake(raw='Send by 5 PM.',text_mode=True)
         self.assertEqual(raw,'Send by 5 PM.')
         self.assertEqual(usage['billing'],'codex_subscription')
+
+
+class CodexLegislativeSchemaTests(unittest.TestCase):
+    def test_real_motion_schemas_use_disjoint_supported_unions(self):
+        from codex_compactor import codex_wire_schema
+        from legislative_protocol import action_request_options,validate_action
+        from test_legislative_protocol import adopted_book,open_add_book
+        for role,book in [('A',adopted_book()),('B',open_add_book())]:
+            original=action_request_options(role,book)['response_format']['json_schema']['schema']
+            saved=json.dumps(original,sort_keys=True)
+            projected=codex_wire_schema(original)
+            self.assertEqual(json.dumps(original,sort_keys=True),saved)
+            self.assertNotIn('"oneOf"',json.dumps(projected))
+            self.assertNotIn('"discriminator"',json.dumps(projected))
+            self.assertNotIn('"default"',json.dumps(projected))
+            def required(node):
+                if isinstance(node,dict):
+                    if node.get('type')=='object':
+                        self.assertEqual(set(node['required']),set(node['properties']))
+                        self.assertIs(node['additionalProperties'],False)
+                    for v in node.values():required(v)
+                elif isinstance(node,list):
+                    for v in node:required(v)
+            required(projected)
+        from pydantic import ValidationError
+        with self.assertRaises(ValidationError):
+            validate_action({'deliberation':'Public proposal: Invalid target','motion':{'kind':'REPEAL','target_rule_id':'missing','rationale':'A real explanation'},'measurements':[],'requests':[]},'A',adopted_book())
+
+    def test_overlapping_or_untagged_unions_fail_closed(self):
+        from codex_compactor import codex_wire_schema
+        branch={'type':'object','properties':{'kind':{'const':'SAME'}},'required':['kind']}
+        for schema in [{'oneOf':[{'type':'string'},{'type':'string'}]}, {'oneOf':[branch,branch],'discriminator':{'propertyName':'kind'}}]:
+            with self.assertRaises(CodexCompletionError):codex_wire_schema(schema)

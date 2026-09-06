@@ -121,8 +121,8 @@ tasks:
 checks:
   dirty_fingerprint: unknown
   last_verification:
-    result: passed locally; production completion unproven
+    result: repairs verified; production paused pending budget approval; completion unproven
     task: T003
     commands:
-      - python3 -m unittest discover -s tests/python (301 passed)
+      - python3 -m unittest discover -s tests/python (303 passed)
       - node --test tests/js/*.test.js (89 passed)

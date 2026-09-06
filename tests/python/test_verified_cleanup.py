@@ -36,7 +36,12 @@ class VerifiedCleanupTests(unittest.TestCase):
                 nonlocal audits
                 calls.append(model);kwargs['meta']['spend_usd']+=.01
                 usage={'cost':.01,'response_receipt':{'finish_reason':'stop'}}
-                if model=='c': return json.dumps(c_response()),usage
+                if model=='c':
+                    request=json.loads(user)
+                    if 'b_advisory' in request:
+                        self.assertEqual(request['b_review_scope']['kind'],'operative_dependency_and_cited_history_v1')
+                        self.assertEqual(request['b_review_scope']['retained_text_ids'],['rule-001','rule-002'])
+                    return json.dumps(c_response()),usage
                 if model=='b':
                     audits+=1;request=json.loads(user)
                     if resume and audits==1: raise RuntimeError('review unavailable')
@@ -171,25 +176,33 @@ class VerifiedCleanupTests(unittest.TestCase):
         self.assertEqual(report['status'],'FAIL')
         self.assertEqual(calls,['c','b'])
 
-    def test_review_projection_keeps_every_rule_text_and_cited_history(self):
+    def test_review_projection_keeps_operative_dependencies_and_cited_history(self):
         from shadow_cleanup import semantic_review_request
         from state_store import snapshot_hash
-        source={'rules':[{'id':'rule-001','status':'adopted','text_en':'Keep A.',
-                         'history':[{'why':'Relevant memory evidence.'}]},
-                        {'id':'rule-002','status':'rejected','text_en':'Keep B record.',
-                         'history':[{'why':'Uncited revision chatter.'}]}]}
+        import hashlib
+        source={'rules':[
+            {'id':'rule-001','status':'adopted','text_en':'Keep exceptions in rules 003–004.', 'history':[{'why':'Relevant memory evidence.'}]},
+            {'id':'rule-002','status':'rejected','text_en':'Uncited retired text.', 'history':[{'why':'Uncited revision chatter.'}]},
+            {'id':'rule-003','status':'repealed','text_en':'Preserve the example from rule-005.','history':[]},
+            {'id':'rule-004','status':'rejected','text_en':'A scope exception.','history':[{'why':'Cited retired evidence with rule‑006.'}]},
+            {'id':'rule-005','status':'repealed','text_en':'A transitive example.','history':[]},
+            {'id':'rule-006','status':'rejected','text_en':'Unicode history dependency.', 'supersedes':'rule–007','history':[]},
+            {'id':'rule-007','status':'repealed','text_en':'Metadata dependency.','history':[]}]}
         before=copy.deepcopy(source)
-        candidate={'legislative_memory':{'failure_modes':[{'source_ids':['rule-001']}]}}
-        request=semantic_review_request(source,candidate)
-        rows=request['complete_legislature']
-        self.assertEqual([r['text_en'] for r in rows],['Keep A.','Keep B record.'])
+        candidate={'legislative_memory':{'failure_modes':[{'source_ids':['rule-001','rule-004']}]}}
+        request=semantic_review_request(source,candidate);rows=request['complete_legislature']
+        self.assertEqual(request['original_adopted_language'],[{'id':'rule-001','text_en':source['rules'][0]['text_en']}])
         self.assertEqual(rows[0]['history'],source['rules'][0]['history'])
-        self.assertNotIn('history',rows[1])
+        self.assertEqual(rows[0]['text_location'],'original_adopted_language')
+        self.assertEqual(rows[3]['history'],source['rules'][3]['history'])
+        self.assertEqual([row['text_en'] for row in rows[2:]],[row['text_en'] for row in source['rules'][2:]])
+        self.assertNotIn('history',rows[1]);self.assertNotIn('text_en',rows[1])
+        self.assertEqual(rows[1]['record_hash'],snapshot_hash(source['rules'][1]))
+        self.assertEqual(rows[1]['text_sha256'],hashlib.sha256(source['rules'][1]['text_en'].encode()).hexdigest())
         projection=request['history_projection']
-        self.assertEqual(projection['omitted_history_ids'],['rule-002'])
+        self.assertEqual(projection['indexed_only_ids'],['rule-002'])
         self.assertEqual(projection['projection_hash'],snapshot_hash(rows))
-        self.assertEqual(request['source_hash'],snapshot_hash(source))
-        self.assertEqual(source,before)
+        self.assertEqual(request['source_hash'],snapshot_hash(source));self.assertEqual(source,before)
 
     def test_resume_rejects_mismatched_payload_model_and_prompt(self):
         for tamper in ('content','model','prompt'):
