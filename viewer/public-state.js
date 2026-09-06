@@ -73,10 +73,15 @@
         if (!complete || local) publish(full, token, 'deployed', null, true);
       } catch (_) {}
     }
+    function stableValue(value) {
+      if (Array.isArray(value)) return value.map(stableValue);
+      if (value && typeof value === 'object') return Object.fromEntries(Object.keys(value).sort().map(key => [key, stableValue(value[key])]));
+      return value;
+    }
     function snapshotSignal(state) {
-      return JSON.stringify({turn: turnOf(state), updated: state.meta && state.meta.updated,
+      return JSON.stringify(stableValue({turn: turnOf(state), updated: state.meta && state.meta.updated,
         runtime: state.meta && state.meta.runtime, language: state.language,
-        notes: Array.isArray(state.notes) ? state.notes.slice(-1) : []});
+        notes: Array.isArray(state.notes) ? state.notes.slice(-1) : []}));
     }
     async function unpinnedFallback(token) {
       // One whole archive remains coherent without the rate-limited revision API.
