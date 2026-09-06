@@ -205,4 +205,9 @@ persist outside public state. An absent configuration preserves legacy routing.
 Development exams correct one structured invalid judge response on the identical
 source/reconstruction. Both judgments remain in the exam receipt. Valid negative
 scores never trigger correction; malformed non-judgment responses stay invalid.
+The single correction receives all deficient literal citations, including the
+authored spans and actual decoded occurrence lines. This feedback neither
+selects replacement spans nor decides whether the meanings survived. Explicit
+references may connect decoded lines; unrelated literal occurrences do not prove
+that a relationship survived.
 The strict meaning/literal validator remains the authority for admission.

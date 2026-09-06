@@ -1,0 +1,52 @@
+{
+  "adopted": false,
+  "source_tokens": 21492,
+  "candidate_tokens": 3324,
+  "report": "/root/alato-restart-20260906/approved-2/cleanup-evidence/07f9eb6ea7a44d70b716fbd8a8bc5f9a/report.json",
+  "results": [
+    {
+      "id": "B1",
+      "coverage": 100,
+      "valid": true,
+      "pass": true
+    },
+    {
+      "id": "B2",
+      "coverage": 97,
+      "valid": true,
+      "pass": false
+    },
+    {
+      "id": "B3",
+      "coverage": 96,
+      "valid": true,
+      "pass": false
+    },
+    {
+      "id": "B4",
+      "coverage": 90,
+      "valid": true,
+      "pass": false
+    },
+    {
+      "id": "B5",
+      "coverage": 97,
+      "valid": true,
+      "pass": false
+    }
+  ],
+  "diagnosis": "B3-B5 initial SURVIVED claims cited too-narrow spans; repair changed verdicts instead of fixing references. B2 initial substantive negative is questionable. Identity controls all pass; isolated reference controls running. No C prompt change yet.",
+  "identity_control": "/root/alato-restart-20260906/approved-2/identity-control/result.json",
+  "admission_evidence_from_controls": false,
+  "timer": "paused after real turn3748",
+  "current_book_tokens": 21474,
+  "current_book_hash": "f80d0cfe0f35ec8876f58d9ad7dc2c3c7c7fc55e2af26549921ae603279d1e4e",
+  "public_fallback": {
+    "prs": [
+      87,
+      88
+    ],
+    "deployment": "dpl_47peNoguSzXiUBAxchtwFLAbRd7p",
+    "controlled_browser_403": "passed with real raw-main network; complete canonical-unpinned turn3748, correct hash/models and persisted 2026-09-06T09:32:32Z completion"
+  }
+}

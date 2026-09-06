@@ -165,6 +165,36 @@ def _invalid_judge_diagnostic(grade, reason):
     return diagnostic
 
 
+def _citation_repair_feedback(answer_key, grade, decoded):
+    """Explain every literal/citation conflict without deciding any meaning."""
+    if not isinstance(grade, dict) or not isinstance(grade.get("items"), list):
+        return []
+    materialized, reason = _materialize_grader_evidence(grade, decoded)
+    if reason or not isinstance(materialized, dict):
+        return []
+    projected = {atom["id"]: atom for atom in _grader_answer_key(answer_key, decoded)}
+    authored = {item["id"]: item for item in grade["items"]
+                if isinstance(item, dict) and isinstance(item.get("id"), str)}
+    feedback = []
+    for item in materialized.get("items", []):
+        if (not isinstance(item, dict) or item.get("verdict") != "SURVIVED"
+                or not isinstance(item.get("id"), str)):
+            continue
+        atom = projected.get(item.get("id"))
+        if atom is None or not isinstance(item.get("evidence"), str):
+            continue
+        conflicts = [
+            {"alternatives": alternatives, "decoded_lines": lines}
+            for alternatives, lines in zip(atom["literal_sets"], atom["literal_set_lines"])
+            if not _literal_set_survives(item["evidence"], alternatives)
+        ]
+        if conflicts:
+            feedback.append({"atom_id": item["id"],
+                             "authored_evidence_lines": copy.deepcopy(authored[item["id"]].get("evidence_lines")),
+                             "required_groups_outside_citation": conflicts})
+    return feedback
+
+
 def _test_turn_impl(conv, rb, meta, turn, *, resources, provider, count_tokens, progress_path=None, progress_box=None):
     suite = resources.suite
     benchmark, benchmark_cycle = select_benchmark(meta, suite)
@@ -262,6 +292,21 @@ def _test_turn_impl(conv, rb, meta, turn, *, resources, provider, count_tokens, 
                       "CORRUPTED and MISSING remain valid outcomes.\nVALIDATION ERROR: "
                       + scored["reason"] + "\nPREVIOUS UNACCEPTED JUDGMENT:\n"
                       + json.dumps(g, ensure_ascii=False))
+            citation_feedback = _citation_repair_feedback(key, g, decoded.strip())
+            if citation_feedback:
+                repair += (
+                    "\n\nCITATION VALIDATION DETAILS (all affected atoms):\n"
+                    + json.dumps(citation_feedback, ensure_ascii=False)
+                    + "\nThese are required literals missing from your selected citation, "
+                    "not findings that the decoded meaning is wrong. Nonempty decoded_lines "
+                    "locate the literals in the unchanged reconstruction. Inspect those lines "
+                    "together with the claim: an unambiguous reference can connect them. "
+                    "If the full meaning is correct, retain SURVIVED and cite the complete "
+                    "contiguous span. Mere occurrence elsewhere does not prove a relationship. "
+                    "Wrong or ambiguous relationships remain CORRUPTED; absent content remains "
+                    "MISSING. An empty decoded_lines list means the required literal is absent "
+                    "and SURVIVED is forbidden. Review every listed atom in this single repair."
+                )
             repaired, _ = provider(resources.grader, grade_sys, repair,
                                    max_tokens=4000, temperature=0, meta=meta)
             match = re.search(r"\{.*\}", repaired, re.S)

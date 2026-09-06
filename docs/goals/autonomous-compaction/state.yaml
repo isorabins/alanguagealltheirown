@@ -32,7 +32,7 @@ goal:
       - Preserve existing implementation and history
       - B advises C decides
       - Do not weaken meaning exams
-      - Existing shared $2 balance only
+      - Existing shared allowance, increased to $5 total by Iso; original deadline retained
 rules:
   pm_owns_state: true
   one_active_task: true
@@ -121,8 +121,8 @@ tasks:
 checks:
   dirty_fingerprint: unknown
   last_verification:
-    result: repairs deployed; shared $5 approved; C finalization running; completion unproven
+    result: public display fixed; admission failed; citation repair controls passed; review pending; timer paused
     task: T003
     commands:
-      - python3 -m unittest discover -s tests/python (303 passed)
-      - node --test tests/js/*.test.js (89 passed)
+      - python3 -m unittest discover -s tests/python (307 passed)
+      - node --test tests/js/*.test.js (95 passed)
