@@ -126,6 +126,42 @@ class ShadowCleanupTests(unittest.TestCase):
             self.assertEqual(calls, ["c", "c"])
             self.assertFalse(report["applied"])
 
+    def test_draft_repair_preserves_one_final_repair_with_unchanged_guards(self):
+        for final_valid in (True, False):
+            with self.subTest(final_valid=final_valid), tempfile.TemporaryDirectory() as directory:
+                self.source_path = self._source_copy(directory)
+                calls = []
+                authored = c_response()
+                broken = c_response()
+                broken["assignments"]["rule-001"] = "excluded"
+                broken["exclusions"] = [{"source_id": "rule-001", "reason": "operational"}]
+                def call(model, system, user, **kwargs):
+                    calls.append(model)
+                    request = json.loads(user)
+                    if model == "b":
+                        return json.dumps({"verdict": "pass", "reviewed_source_hash": request["source_hash"],
+                            "reviewed_candidate_hash": request["candidate_hash"],
+                            "covered_source_ids": ["rule-001", "rule-002"], "omissions": [],
+                            "meaning_changes": [], "operational_text": [], "notes": []}), {"cost": .01}
+                    count = calls.count("c")
+                    if count in (1, 3):
+                        return json.dumps(broken), {"cost": .01}
+                    if count == 4:
+                        self.assertTrue(request["final_decision"])
+                        self.assertEqual(request["previous_draft"], authored)
+                        self.assertEqual(request["structural_correction"]["previous_draft"], broken)
+                        self.assertEqual(request["b_advisory"]["verdict"], "pass")
+                        self.assertIn("__exclude__", system)
+                        return json.dumps(authored if final_valid else broken), {"cost": .01}
+                    return json.dumps(authored), {"cost": .01}
+                report = run_shadow_cleanup(self.source_path, Path(directory) / "shadow",
+                    model_c="c", model_b="b", call_model=call, token_counter=self._token_counter,
+                    meta={"spend_usd": 0})
+                self.assertEqual(calls, ["c", "c", "b", "c", "c"])
+                self.assertEqual(report["status"], "PASS" if final_valid else "FAIL")
+                self.assertTrue(report["source_unchanged"])
+                self.assertFalse(report["applied"])
+
     def test_self_override_is_rejected_and_offered_for_bounded_correction(self):
         with tempfile.TemporaryDirectory() as directory:
             self.source_path = self._source_copy(directory)
@@ -277,7 +313,7 @@ class ShadowCleanupTests(unittest.TestCase):
             self.assertEqual(self.source_path.read_bytes(), before)
             self.assertTrue(report["source_unchanged"])
             self.assertFalse(report["applied"])
-            self.assertEqual(report["prompt_c_version"], "cleanup-c-v4")
+            self.assertEqual(report["prompt_c_version"], "cleanup-c-v5")
             self.assertEqual(report["prompt_b_version"], "cleanup-b-v3")
             self.assertEqual(report["decision_authority"], "C")
             self.assertEqual(report["b_review_mode"], "single_advisory")
@@ -332,25 +368,29 @@ class ShadowCleanupTests(unittest.TestCase):
             self.assertEqual(receipt_b["content"], prompt_b.read_text())
 
     def test_versioned_candidate_prompts_have_stable_ids_and_exact_test_content(self):
+        self.assertEqual(hashlib.sha256((ROOT / "prompts/cleanup_c_v4.md").read_bytes()).hexdigest(),
+                         "0601eaa93bc5484ef31faa7a38259fb8f7ff7c6faf5b184b2ba2891a5ff8e5a8")
+        self.assertEqual(hashlib.sha256((ROOT / "prompts/cleanup_c_finalizer_v3.md").read_bytes()).hexdigest(),
+                         "2e864b365b35e3d97981565f8db4f6c1b022f052793717597095fc701659486c")
         prompt_c_v1 = ROOT / "prompts/cleanup_c_v1.md"
         prompt_b_v1 = ROOT / "prompts/cleanup_b_v1.md"
-        prompt_c = ROOT / "prompts/cleanup_c_v4.md"
+        prompt_c = ROOT / "prompts/cleanup_c_v5.md"
         prompt_b = ROOT / "prompts/cleanup_b_v3.md"
-        finalizer = ROOT / "prompts/cleanup_c_finalizer_v3.md"
+        finalizer = ROOT / "prompts/cleanup_c_finalizer_v4.md"
         c_hash = hashlib.sha256(prompt_c.read_bytes()).hexdigest()
         b_hash = hashlib.sha256(prompt_b.read_bytes()).hexdigest()
-        self.assertEqual(prompt_version(prompt_c, "c", c_hash), "cleanup-c-v4")
+        self.assertEqual(prompt_version(prompt_c, "c", c_hash), "cleanup-c-v5")
         self.assertEqual(prompt_version(prompt_b, "b", b_hash), "cleanup-b-v3")
         self.assertEqual(prompt_version(finalizer, "c-finalizer",
                                         hashlib.sha256(finalizer.read_bytes()).hexdigest()),
-                         "cleanup-c-finalizer-v3")
+                         "cleanup-c-finalizer-v4")
         self.assertEqual(hashlib.sha256(finalizer.read_bytes()).hexdigest(),
-                         "2e864b365b35e3d97981565f8db4f6c1b022f052793717597095fc701659486c")
+                         "8284ac6a876876ce3e1f169ca20a1cf12eb488fe822b835a94a8671dfc03c61f")
         self.assertEqual(hashlib.sha256(prompt_c_v1.read_bytes()).hexdigest(),
                          "a7489096e4dedcab2f0287c45fc663f0daeab84e47311d0a7b7b92e04e17e730")
         self.assertEqual(hashlib.sha256(prompt_b_v1.read_bytes()).hexdigest(),
                          "39a9062ce640b760769bd70a8563f85b0358a962426c412c3d822ccc013ae32f")
-        self.assertEqual(c_hash, "0601eaa93bc5484ef31faa7a38259fb8f7ff7c6faf5b184b2ba2891a5ff8e5a8")
+        self.assertEqual(c_hash, "f34c2bc7d9c7f7ae5876a51f0518819cf7c38c8b76766659697eef872e636aa4")
         self.assertEqual(b_hash, "34c3d859d7c519149f14d04565ce420bb0f2eb9ee307b2cbe0820b90c15029b4")
         self.assertEqual(
             hashlib.sha256((ROOT / "prompts/cleanup_c_v2.md").read_bytes()).hexdigest(),
@@ -547,7 +587,7 @@ class ShadowCleanupTests(unittest.TestCase):
             self.assertEqual(stored["b_advisory"], final["b_advisory"])
             assembled = json.loads((output / "rounds/02/c-system-prompt.json").read_text())
             self.assertEqual(assembled["content"], c_systems[1])
-            self.assertIn("cleanup-c-finalizer-v3", assembled["version"])
+            self.assertIn("cleanup-c-finalizer-v4", assembled["version"])
 
     def test_b_rejection_requires_an_actionable_finding(self):
         source = json.loads((FIX / "source.json").read_text())

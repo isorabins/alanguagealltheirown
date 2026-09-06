@@ -163,8 +163,11 @@ scheduled turn. Their live integrations are not covered by this refactor's offli
 acceptance. Changes to those paths need task-specific evidence; do not assume the
 main regression suite proves them.
 
-The shadow drafting helper allows one structural correction shared across draft and finalization,
-plus one B advisory and C's mandatory final decision. B may approve or object; all
+The shadow drafting helper allows one structural correction per authored phase
+(draft and finalization), at most four C calls, one B advisory, and C's mandatory
+final decision. The finalizer receives the exact validated C draft as well as its
+compiled representation; assignment/exclusion markers are an explicit output contract.
+B may approve or object; all
 comments and notes reach C, and B has no veto. Automatic adoption additionally requires
 all registered meaning exams against the exact applied candidate. Its recorded-spend stop threshold covers all provider calls and token probes, but a hard monetary ceiling requires a reserving transport. Provider `finish_reason=error` is a service failure,
 not proof of invalid authored output. The [local C smoke](../tests/acceptance/run_local_c_smoke.py)

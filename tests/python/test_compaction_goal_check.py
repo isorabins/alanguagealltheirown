@@ -16,7 +16,7 @@ from test_shadow_cleanup import c_response
 import loop
 
 class CompletionCheckTests(unittest.TestCase):
-    def build(self,root, *, evolve=False):
+    def build(self,root, *, evolve=False, phase_repairs=False):
         files={};remote={};calls=[]
         def put(name,value,raw=False,remote_origin=False):
             content=value if raw else json.dumps(value)
@@ -26,7 +26,7 @@ class CompletionCheckTests(unittest.TestCase):
         response=c_response();candidate,seeds=compile_c_response(source,response)
         applied=build_applied_rulebook(source,candidate);applied['kernel_tokens']=100
         language=language_payload(applied)['hash'];snapshot=loop.build_structured_cleanup_snapshot(candidate,checkpoint_turn=10,source_hash=snapshot_hash(source))
-        def call(role,model,system,user,text):
+        def call(role,model,system,user,text,params=None):
             index=len(calls);codex=model.startswith('gpt-');identifier=('codex:' if codex else 'gen-')+str(index)
             request={'model':model,'system':system,'user':user};usage={'cost':0 if codex else .01,'response_receipt':{'id':identifier,'model':model,'finish_reason':'stop'}}
             item={'role':role,'model':model,'request':request,'text':text,'response_id':identifier,'usage':usage,'finish_reason':'stop','raw_request_file':f'request-{index}.json','raw_response_file':f'response-{index}.json'}
@@ -34,18 +34,31 @@ class CompletionCheckTests(unittest.TestCase):
                 item.update(billing='codex_subscription',reasoning='high',events_file=f'events-{index}.jsonl')
                 put(item['raw_request_file'],dict(request,reasoning='high'),remote_origin=True)
                 put(item['raw_response_file'],text,raw=True,remote_origin=True)
-                put(item['events_file'],'\n'.join(json.dumps(e) for e in [{'type':'thread.started','thread_id':str(index)},{'type':'turn.completed'}]),raw=True,remote_origin=True)
+                put(item['events_file'],'\n'.join(json.dumps(e) for e in [{'type':'thread.started','thread_id':str(index)},{'type':'item.completed','item':{'type':'agent_message','text':text}},{'type':'turn.completed'}]),raw=True,remote_origin=True)
             else:
-                put(item['raw_request_file'],{'model':model,'messages':[{'role':'system','content':system},{'role':'user','content':user}]},remote_origin=True)
+                put(item['raw_request_file'],{'model':model,'messages':[{'role':'system','content':system},{'role':'user','content':user}],
+                    **{k:v for k,v in (params or {}).items() if k in ('max_tokens','temperature')},'reasoning':{'enabled':False}},remote_origin=True)
                 put(item['raw_response_file'],{'id':identifier,'model':model,'choices':[{'message':{'content':text},'finish_reason':'stop'}]},remote_origin=True)
             calls.append(item);return item
         initial={'source_hash':snapshot_hash(source)}
+        broken=copy.deepcopy(response)
+        broken['assignments']['rule-001']='excluded'
+        broken['exclusions']=[{'source_id':'rule-001','reason':'operational'}]
+        cycle_calls=[]
+        if phase_repairs:
+            cycle_calls.append(call('C','gpt-6-astra','draft',json.dumps(initial),json.dumps(broken)))
         draft=call('C','gpt-6-astra','draft',json.dumps(initial),json.dumps(response))
+        cycle_calls.append(draft)
         advisory={'verdict':'pass','notes':['Preserve deadlines.']}
-        b=call('B','moonshotai/kimi-k3','review',json.dumps(initial),json.dumps(advisory))
-        final_request=dict(initial,final_decision=True,b_advisory=advisory)
+        b=call('B','moonshotai/kimi-k3','review',json.dumps(dict(initial,candidate=candidate)),json.dumps(advisory))
+        cycle_calls.append(b)
+        final_request=dict(initial,final_decision=True,b_advisory=advisory,previous_draft=response,previous_candidate=candidate)
+        if phase_repairs:
+            cycle_calls.append(call('C','gpt-6-astra','finalize',json.dumps(final_request),json.dumps(broken)))
+            final_request['structural_correction']={'error':'exclusions must exactly match __exclude__ assignments','previous_draft':broken}
         final=call('C','gpt-6-astra','finalize',json.dumps(final_request),json.dumps(response))
-        cycle=[{'role':r['role'],'response_id':r['response_id'],'request':json.loads(r['request']['user']),'response':json.loads(r['text'])} for r in [draft,b,final]]
+        cycle_calls.append(final)
+        cycle=[{'role':r['role'],'response_id':r['response_id'],'request':json.loads(r['request']['user']),'response':json.loads(r['text'])} for r in cycle_calls]
         suite=[];events=[]
         from exam_evidence import ExamResources,run_exam
         from turn_store import TurnState
@@ -59,7 +72,7 @@ class CompletionCheckTests(unittest.TestCase):
             def fixture_provider(model,system,user,**params):
                 output=json.dumps(judgment) if model=='deepseek/deepseek-v3.2' else original
                 role={'gpt-5.6-sol':'A','moonshotai/kimi-k2.6':'decoder','deepseek/deepseek-v3.2':'judge'}[model]
-                item=call(role,model,system,user,output)
+                item=call(role,model,system,user,output,params)
                 return output,item['usage']
             trial=TurnState([],copy.deepcopy(applied),{'spend_usd':0}, {}, [])
             with redirect_stdout(io.StringIO()):
@@ -70,18 +83,27 @@ class CompletionCheckTests(unittest.TestCase):
         put('reload.json',{'rulebook':applied,'meta':{'automatic_cleanup':cleanup}},remote_origin=True)
         current=copy.deepcopy(applied)
         for i,role in enumerate(['A','B'],11):
-            if evolve and role=='B':
-                current['rules'].append({'id':'rule-evolved','status':'adopted','text_en':'A later general rule.','history':[{'turn':11,'verb':'adopt'}]})
-                current['kernel_tokens']=105
-                conversation[-1]['post_state_receipt']={'adopted_language_hash':language_payload(current)['hash'],'rulebook_hash':snapshot_hash(current)}
             put(f'pre-turn-{i}.json',{'rulebook':current},remote_origin=True)
             context={'accepted_snapshot':snapshot,'post_checkpoint_changes':__import__('legislature').post_checkpoint_rule_changes(current,10),'current_machine_state':{'collaboration_input':{'cleanup_creative_seeds':{'seeds':seeds}}}}
             system='=== STRUCTURED WORKING CONTEXT ===\n'+json.dumps(context);user=f'It is turn {i}. You are Agent {role}.'
             r=call(role,{'A':'gpt-5.6-sol','B':'moonshotai/kimi-k3'}[role],system,user,'{}')
+            put(f'start-state-{i}.json',{'conversation':conversation,'rulebook':current,'meta':{'automatic_cleanup':cleanup}},remote_origin=True)
             conversation.append({'turn':i,'type':'message','agent':role,'prompt_receipt':{'assembled_sha256':hashlib.sha256(f'SYSTEM\n{system}\nUSER\n{user}'.encode()).hexdigest()}})
+            if evolve and role=='A':
+                current['rules'].append({'id':'rule-evolved','status':'adopted','text_en':'A later general rule.','history':[{'turn':11,'verb':'adopt'}]})
+                current['kernel_tokens']=105
+                conversation.append({'turn':i,'type':'legislature','agent':'harness',
+                    'post_state_receipt':{'adopted_language_hash':language_payload(current)['hash'],'rulebook_hash':snapshot_hash(current)}})
+            put(f'terminal-state-{i}.json',{'conversation':conversation,'rulebook':current,'meta':{'automatic_cleanup':cleanup}},remote_origin=True)
             filename=f'scheduler-{i}.json'
             put(filename,{'unit':'language-loop.service','TriggeredBy':'language-loop.timer','ExecMainStartTimestampMonotonic':200,'LastTriggerUSecMonotonic':100,'InvocationID':str(i),'ExecMainStatus':'0','completed_turn':i},remote_origin=True)
-            scheduled.append({'turn':i,'role':role,'pre_turn_snapshot_file':f'pre-turn-{i}.json','language_hash':language_payload(current)['hash'],'response_id':r['response_id'],'scheduler_snapshot_file':filename})
+            put(f'start-scheduler-{i}.json',json.loads((root/filename).read_text()),remote_origin=True)
+            for name,origin in [(filename,f'scheduler-{i}-terminal.json'),
+                                (f'start-scheduler-{i}.json',f'scheduler-{i}-start.json'),
+                                (f'start-state-{i}.json',f'state-{i}-start.json'),
+                                (f'terminal-state-{i}.json',f'state-{i}-terminal.json')]:
+                remote[name]='/root/alato-restart-20260906/fixture/'+origin
+            scheduled.append({'turn':i,'role':role,'pre_turn_snapshot_file':f'pre-turn-{i}.json','language_hash':language_payload(json.loads((root/f'pre-turn-{i}.json').read_text())['rulebook'])['hash'],'response_id':r['response_id'],'scheduler_snapshot_file':filename,'scheduler_start_file':f'start-scheduler-{i}.json','invocation_start_state_file':f'start-state-{i}.json','invocation_terminal_state_file':f'terminal-state-{i}.json'})
         models={'A':'gpt-5.6-sol','B':'moonshotai/kimi-k3','C':'gpt-6-astra'}
         report={'status':'PASS','stage':'complete','source_hash':snapshot_hash(source),'candidate_hash':snapshot_hash(candidate),'final_candidate_hash':snapshot_hash(candidate),'decision_authority':'C','c_cycle_completed':True,'applied_tokens':100,'source_tokens':1000,'applied_language_hash':language,'exam_results':events}
         production={'host':'claude-vps','path':'/root/alanguagealltheirown','revision':'a'*40,'adoption':{'turn':10,'candidate_hash':snapshot_hash(candidate),'language_hash':language},'reload_language_hash':language,'reload_snapshot_file':'reload.json','language_hash':language_payload(current)['hash'],'active_tokens':current['kernel_tokens'],'exams':events,'timer_active':True,'future_c_enabled':True,'models':models,'scheduled_turns':scheduled,'accepted_snapshot':snapshot,'conversation':conversation,'latest_turn':12}
@@ -125,6 +147,21 @@ class CompletionCheckTests(unittest.TestCase):
             with patch.object(loop,'load_benchmark_suite',return_value={'version':'v2','benchmarks':suite}):
                 self.assertTrue(gate.check(root,live_reader=lambda _:live)['complete'])
 
+    def test_bounded_phase_repairs_and_exact_reviewed_draft(self):
+        for mutation in (None, 'fifth_c', 'wrong_draft'):
+            with self.subTest(mutation=mutation), tempfile.TemporaryDirectory() as d:
+                root=Path(d);suite,live=self.build(root,phase_repairs=True)
+                if mutation:
+                    p=root/'provider-receipts.json';value=json.loads(p.read_text())
+                    if mutation=='fifth_c':value['compaction_cycle'].append(copy.deepcopy(value['compaction_cycle'][-1]))
+                    else:value['compaction_cycle'][-1]['request']['previous_draft']['assignments']['rule-001']='wrong'
+                    p.write_text(json.dumps(value))
+                    m=json.loads((root/'manifest.json').read_text());m['sha256'][p.name]=hashlib.sha256(p.read_bytes()).hexdigest();(root/'manifest.json').write_text(json.dumps(m))
+                with patch.object(loop,'load_benchmark_suite',return_value={'version':'v2','benchmarks':suite}):
+                    if mutation:
+                        with self.assertRaises(ValueError):gate.check(root,live_reader=lambda _:live)
+                    else:self.assertTrue(gate.check(root,live_reader=lambda _:live)['complete'])
+
     def test_rejects_failed_codex_terminal_and_unavailable_future_runtime(self):
         for failure in ['terminal','quarantine','expiry','budget','unrecorded_book']:
             with self.subTest(failure=failure),tempfile.TemporaryDirectory() as d:
@@ -160,3 +197,46 @@ class CompletionCheckTests(unittest.TestCase):
     def test_incomplete_bundle_is_rejected_before_remote_access(self):
         with tempfile.TemporaryDirectory() as d:
             with self.assertRaises(OSError):gate.check(d,live_reader=lambda _:self.fail('no remote call expected'))
+
+    def test_rejects_borrowed_invocations_outputs_and_changed_execution_settings(self):
+        for defect in ('old_message','missing_message','wrong_invocation','wrong_reload',
+                       'max_tokens','temperature','reasoning','borrowed_output'):
+            with self.subTest(defect=defect),tempfile.TemporaryDirectory() as d:
+                root=Path(d);suite,live=self.build(root)
+                if defect=='borrowed_output':
+                    name='events-0.jsonl';events=[json.loads(line) for line in (root/name).read_text().splitlines()]
+                    events[1]['item']['text']='Unrelated completed output'
+                    text='\n'.join(json.dumps(event) for event in events);reason='Codex final output'
+                else:
+                    name={'old_message':'start-state-11.json','missing_message':'terminal-state-11.json',
+                          'wrong_invocation':'start-scheduler-11.json','wrong_reload':'start-state-12.json',
+                          'max_tokens':'request-4.json','temperature':'request-5.json','reasoning':'request-5.json'}[defect]
+                    value=json.loads((root/name).read_text())
+                    if defect=='old_message':
+                        message=copy.deepcopy(live['state']['conversation.json'][1]);message['later_annotation']='enriched'
+                        value['conversation'].append(message);reason='message not produced'
+                    elif defect=='missing_message':value['conversation'].pop();reason='message not produced'
+                    elif defect=='wrong_invocation':value['InvocationID']='unrelated';reason='scheduler invocation mismatch'
+                    elif defect=='wrong_reload':value['rulebook']['version']='unrelated';reason='scheduled reload differs'
+                    elif defect=='reasoning':value['reasoning']={'enabled':True};reason='reasoning settings mismatch'
+                    else:value[defect]=3999 if defect=='max_tokens' else .9;reason='provider settings mismatch'
+                    text=json.dumps(value)
+                (root/name).write_text(text);digest=hashlib.sha256(text.encode()).hexdigest()
+                manifest=json.loads((root/'manifest.json').read_text());manifest['sha256'][name]=digest
+                live['remote_hashes'][name]=digest
+                (root/'manifest.json').write_text(json.dumps(manifest))
+                with patch.object(loop,'load_benchmark_suite',return_value={'version':'v2','benchmarks':suite}),self.assertRaisesRegex(ValueError,reason):
+                    gate.check(root,live_reader=lambda _:live)
+
+    def test_rejects_a_matching_scheduler_pair_from_an_unrelated_invocation(self):
+        with tempfile.TemporaryDirectory() as d:
+            root=Path(d);suite,live=self.build(root)
+            manifest=json.loads((root/'manifest.json').read_text())
+            for name,phase in [('scheduler-11.json','terminal'),('start-scheduler-11.json','start')]:
+                value=json.loads((root/name).read_text());value['InvocationID']='unrelated'
+                text=json.dumps(value);(root/name).write_text(text);digest=hashlib.sha256(text.encode()).hexdigest()
+                manifest['sha256'][name]=live['remote_hashes'][name]=digest
+                manifest['remote_files'][name]=f'/root/alato-restart-20260906/fixture/scheduler-unrelated-{phase}.json'
+            (root/'manifest.json').write_text(json.dumps(manifest))
+            with patch.object(loop,'load_benchmark_suite',return_value={'version':'v2','benchmarks':suite}),self.assertRaisesRegex(ValueError,'invocation artifact origin mismatch'):
+                gate.check(root,live_reader=lambda _:live)

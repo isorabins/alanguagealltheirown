@@ -610,7 +610,7 @@ def ensure_structured_protocol_cutover(conv, rb, meta, *, activation_turn):
 
 
 AUTOMATIC_CLEANUP_STATE_SCHEMA_VERSION = 2
-AUTOMATIC_CLEANUP_EDITION = "automatic-cleanup-v8-c-decides"
+AUTOMATIC_CLEANUP_EDITION = "automatic-cleanup-v9-explicit-assignment-contract"
 MAX_POST_CHECKPOINT_CHANGES = 64
 MAX_STRUCTURED_PROMPT_CHARS = legislature.MAX_STRUCTURED_PROMPT_CHARS
 

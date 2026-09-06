@@ -114,8 +114,17 @@ def check(directory, *, live_reader=read_live):
     require(receipts['source_hash']==snapshot_hash(source) and receipts['candidate_hash']==snapshot_hash(candidate),'provider receipt identity mismatch')
     from shadow_cleanup import compile_c_response
     cycle=receipts['compaction_cycle']
-    require([r['role'] for r in cycle] in [['C','B','C'],['C','C','B','C'],['C','B','C','C']],'missing draft/advisory/final cycle')
+    require([r['role'] for r in cycle] in [['C','B','C'],['C','C','B','C'],['C','B','C','C'],['C','C','B','C','C']],'missing draft/advisory/final cycle')
     advisory=next(r for r in cycle if r['role']=='B')
+    advisory_index=cycle.index(advisory)
+    reviewed_draft=cycle[advisory_index-1]['response']
+    reviewed_candidate,_=compile_c_response(source,reviewed_draft)
+    require(reviewed_candidate==advisory['request']['candidate'],'B reviewed another draft')
+    for authored in cycle[advisory_index+1:]:
+        require(authored['request']['previous_draft']==reviewed_draft and
+                authored['request']['previous_candidate']==reviewed_candidate and
+                authored['request']['b_advisory']==advisory['response'],
+                'finalization lost the reviewed draft or advisory')
     final=cycle[-1]
     require(final['request']['final_decision'] is True and final['request']['b_advisory']==advisory['response'],'C did not receive B comments')
     require(final['request']['source_hash']==snapshot_hash(source),'C finalized another source')
@@ -137,6 +146,12 @@ def check(directory, *, live_reader=read_live):
             terminal=[json.loads(line) for line in (directory/r['events_file']).read_text().splitlines()]
             require(any(e.get('type')=='turn.completed' for e in terminal) and not any(e.get('type')=='turn.failed' for e in terminal),'Codex terminal receipt absent or failed')
             require(any('codex:'+str(e.get('thread_id'))==r['response_id'] for e in terminal if e.get('type')=='thread.started'),'Codex response identity mismatch')
+            outputs=[(i,e['item'].get('text')) for i,e in enumerate(terminal)
+                     if e.get('type')=='item.completed' and e.get('item',{}).get('type')=='agent_message']
+            require(bool(outputs) and isinstance(outputs[-1][1],str)
+                    and outputs[-1][1].strip()==raw_text.strip()
+                    and outputs[-1][0]<max(i for i,e in enumerate(terminal) if e.get('type')=='turn.completed'),
+                    'Codex final output not bound to completed message')
         else:
             raw_request=read(r['raw_request_file']);raw_response=read(r['raw_response_file'])
             messages=([{'role':'system','content':request['system']}] if request['system'] else [])+[{'role':'user','content':request['user']}]
@@ -158,6 +173,11 @@ def check(directory, *, live_reader=read_live):
     def replay_provider(model,system,user,**params):
         matching=[r for r in calls if r['request']=={'model':model,'system':system,'user':user}]
         require(len(matching)==1,'exam lacks an exact canonical provider request')
+        if matching[0].get('billing')!='codex_subscription':
+            wire=read(matching[0]['raw_request_file'])
+            require(all(wire.get(key)==params[key] for key in ('max_tokens','temperature')),
+                    'exam provider settings mismatch')
+            require(wire.get('reasoning')=={'enabled':False},'exam reasoning settings mismatch')
         return matching[0]['text'],matching[0]['usage']
     for index,event in enumerate(events,1):
         def count_tokens(value):
@@ -201,7 +221,31 @@ def check(directory, *, live_reader=read_live):
             require(r['scheduler_snapshot_file'] in manifest['remote_files'],'scheduler evidence lacks remote capture')
             scheduler=read(r['scheduler_snapshot_file'])
             require(scheduler['unit']=='language-loop.service' and scheduler['TriggeredBy']=='language-loop.timer','manual-only continuation')
-            delay=int(scheduler['ExecMainStartTimestampMonotonic'])-int(scheduler['LastTriggerUSecMonotonic'])
+            for key in ('scheduler_start_file','invocation_start_state_file','invocation_terminal_state_file'):
+                require(r[key] in manifest['remote_files'],'invocation boundary lacks remote capture')
+            started=read(r['scheduler_start_file'])
+            require(all(started[key]==scheduler[key] for key in ('unit','TriggeredBy','InvocationID','ExecMainStartTimestampMonotonic')),
+                    'scheduler invocation mismatch')
+            for key,kind,phase in (('scheduler_snapshot_file','scheduler','terminal'),
+                                   ('scheduler_start_file','scheduler','start'),
+                                   ('invocation_start_state_file','state','start'),
+                                   ('invocation_terminal_state_file','state','terminal')):
+                require(Path(manifest['remote_files'][r[key]]).name==f'{kind}-{scheduler["InvocationID"]}-{phase}.json',
+                        'invocation artifact origin mismatch')
+            before=read(r['invocation_start_state_file']);after=read(r['invocation_terminal_state_file'])
+            def identity(event):
+                return (event.get('type'),event.get('turn'),event.get('agent'),event.get('prompt_receipt',{}).get('assembled_sha256'))
+            require(identity(canonical) not in [identity(e) for e in before['conversation']]
+                    and identity(canonical) in [identity(e) for e in after['conversation']],
+                    'message not produced by captured invocation')
+            for state in (before,after):
+                require(state['conversation']==production['conversation'][:len(state['conversation'])],
+                        'invocation history differs from canonical history')
+            if r['turn']>adoption['turn']:
+                require(before['rulebook']==pre_turn['rulebook']
+                        and before['meta']['automatic_cleanup']['structured_snapshot']==expected_snapshot,
+                        'scheduled reload differs from persisted compact checkpoint')
+            delay=int(started['ExecMainStartTimestampMonotonic'])-int(started['LastTriggerUSecMonotonic'])
             require(0<=delay<=5000000 and bool(scheduler['InvocationID']),'service start not bound to timer trigger')
             require(scheduler['ExecMainStatus']=='0' and scheduler['completed_turn']>=r['turn'],'scheduled service did not complete')
             require(any(c['response_id']==r['response_id'] for c in receipts['calls'] if c['role']==role),'scheduled provider receipt absent')

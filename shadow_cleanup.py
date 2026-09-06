@@ -23,13 +23,13 @@ from state_store import atomic_write_json, load_json, snapshot_hash
 MIN_REDUCTION_PCT = 5.0
 MAX_C_TOKENS = 22_000
 MAX_B_TOKENS = 22_000
-MAX_C_CALLS = 3
+MAX_C_CALLS = 4
 MAX_B_CALLS = 1
 DEFAULT_MAX_SPEND_USD = 1.10
 PROMPTS_DIR = Path(__file__).parent / "prompts"
-DEFAULT_PROMPT_C_PATH = PROMPTS_DIR / "cleanup_c_v4.md"
+DEFAULT_PROMPT_C_PATH = PROMPTS_DIR / "cleanup_c_v5.md"
 DEFAULT_PROMPT_B_PATH = PROMPTS_DIR / "cleanup_b_v3.md"
-FINALIZER_PROMPT_PATH = PROMPTS_DIR / "cleanup_c_finalizer_v3.md"
+FINALIZER_PROMPT_PATH = PROMPTS_DIR / "cleanup_c_finalizer_v4.md"
 SEED_FIELDS = {"idea", "experiment", "risk"}
 AUDIT_FIELD_ORDER = (
     "verdict",
@@ -307,8 +307,8 @@ def run_shadow_cleanup(
 ) -> dict[str, Any]:
     """Create evidence only; never apply to the supplied source.
 
-    At most three C calls: draft, one structural repair, and final decision
-    after one B advisory. The repair is shared across draft and finalization.
+    At most four C calls: draft and final decision after one B advisory,
+    with at most one structural repair in each independently authored phase.
     B comments never veto C; deterministic structure and size still gate output.
     """
     source_path = Path(source_path)
@@ -397,10 +397,11 @@ def run_shadow_cleanup(
     try:
         adopted = _adopted_rows(source)
         previous_candidate = None
+        previous_draft = None
         previous_advisory = None
         previous_review_scope = None
         structural_correction = None
-        repairs_used = 0
+        repairs_used = {"draft": 0, "final": 0}
         source_tokens = None
         for round_number in range(1, MAX_C_CALLS + 1):
             report["round_count"] = round_number
@@ -439,6 +440,7 @@ def run_shadow_cleanup(
                 c_request.update({
                     "final_decision": True,
                     "previous_candidate": previous_candidate,
+                    "previous_draft": previous_draft,
                     "b_advisory": previous_advisory,
                     "b_review_scope": previous_review_scope,
                 })
@@ -491,10 +493,11 @@ def run_shadow_cleanup(
             atomic_write_json(output_dir / "c-response.json", c_response)
 
             report["stage"] = "c_validation"
+            phase = "final" if previous_candidate is not None else "draft"
             try:
                 candidate, seeds = compile_c_response(source, c_response)
             except ValueError as exc:
-                if (repairs_used >= 1 or round_number >= MAX_C_CALLS or
+                if (repairs_used[phase] >= 1 or round_number >= MAX_C_CALLS or
                         str(exc) not in {
                             "referenced groups must exactly match defined groups",
                             "contract overrides must be unique and cannot reference self",
@@ -502,7 +505,7 @@ def run_shadow_cleanup(
                             "exclusions must exactly match __exclude__ assignments",
                         }):
                     raise
-                repairs_used += 1
+                repairs_used[phase] += 1
                 structural_correction = {"error": str(exc), "previous_draft": c_response}
                 report["rounds"].append({"round": round_number, "c_validation": "invalid",
                                          "reason": str(exc)})
@@ -649,6 +652,7 @@ def run_shadow_cleanup(
             # Every valid advisory, including approval with notes, goes back to C.
             # Only C's subsequent complete response is the final candidate.
             previous_candidate = candidate
+            previous_draft = copy.deepcopy(c_response)
             previous_advisory = copy.deepcopy(audit)
             if round_number == MAX_C_CALLS:
                 report.update(stage="c_call_limit", reason="C call limit exhausted before advisory finalization")
