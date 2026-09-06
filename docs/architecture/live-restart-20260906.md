@@ -54,3 +54,34 @@ and receipts, revert code through Git; never reset canonical experiment history.
   actual failure must continue normal turns without applying a candidate.
 - Release: remote revision, host service, successive canonical turns and public
   viewer evidence remain required before a live completion claim.
+
+## Release checkpoint — 2026-09-06 14:43 WITA
+
+Code commit 7b9dcd1d, branch codex/alato-deep-modules-20260905, pushed in PR #83.
+288 Python tests and 87 Node tests pass; GitHub offline checks pass. Independent
+cold review findings resolved, with 11 additional focused checks independently
+passing. Host-only Codex 0.153.0 install verified registry signatures and
+attestations, no reported npm vulnerabilities. Existing ChatGPT login completed
+an actual gpt-6-astra medium response. Existing OpenRouter cache matched Bitwarden
+in-process; no secret copied or displayed.
+
+Fresh judges on all five frozen real run06 outputs now return valid judgments:
+B1 100%, B2 100%, B3 96%, B4 90%, B5 100%. B3/B4 used the single correction.
+This diagnostic does NOT adopt the candidate or replace canonical scores.
+Shared original allowance consumed $0.80685295017 of $1; no uncertain charge.
+No further API calls may use a copied/new ledger to reset that allowance.
+
+Automatic approval review rejected the exact main merge: it requires explicit
+approval of PR #83 despite the general live-restoration instruction. PR remains
+OPEN, mergedAt null, head 7b9dcd1d45cd7106fe36116552ef24451244c223. Production
+code and timer remain unchanged; only the isolated server CLI prerequisite is
+installed. A question for $1 total restart/24-hour operating allowance remains
+pending; do not assume approval from elapsed time. No main-merge workaround.
+
+Next after exact release approval: verify PR head/checks, merge, fast-forward
+server code, install/verify ALATO_RUNTIME_CONFIG in the service, use the original
+shared ledger or a separately explicitly approved operating allowance with clear
+provenance, reset reviewed v7 quarantine under writer lock, then verify real
+successive turns and the actual deployed public viewer. Timer stays stopped
+until those boundaries are satisfied. API reservation may stop before the dollar
+balance reaches zero because it reserves each call's maximum possible charge.
