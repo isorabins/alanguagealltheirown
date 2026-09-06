@@ -5,6 +5,7 @@ classification. No API keys are read or copied; Codex manages its saved login.
 """
 from __future__ import annotations
 import json
+import copy
 import os
 from pathlib import Path
 import subprocess
@@ -16,6 +17,45 @@ from state_store import atomic_write_json
 
 class CodexCompletionError(RuntimeError):
     """No complete, schema-shaped result was obtained. Never apply partial text."""
+
+
+def codex_wire_schema(schema):
+    """Project disjoint tagged unions to Codex's strict JSON Schema subset.
+
+    Native Pydantic validation remains authoritative after model generation.
+    https://developers.openai.com/api/docs/guides/structured-outputs
+    """
+    root=copy.deepcopy(schema)
+    def visit(node):
+        if isinstance(node,list):
+            return [visit(value) for value in node]
+        if not isinstance(node,dict):
+            return node
+        node=dict(node)
+        if 'oneOf' in node:
+            tag=node.get('discriminator',{}).get('propertyName')
+            tags=[]
+            for branch in node['oneOf']:
+                target=branch
+                if '$ref' in branch:
+                    parts=branch['$ref'].split('/')
+                    if parts[:2]!=['#','$defs'] or len(parts)!=3:
+                        raise CodexCompletionError('unsupported union reference')
+                    target=root['$defs'][parts[2]]
+                value=target.get('properties',{}).get(tag,{}).get('const')
+                if not isinstance(value,str) or tag not in target.get('required',[]):
+                    raise CodexCompletionError('Codex union requires distinct required literal tags')
+                tags.append(value)
+            if len(set(tags))!=len(tags) or 'anyOf' in node:
+                raise CodexCompletionError('Codex union branches are not provably disjoint')
+            node['anyOf']=node.pop('oneOf')
+            node.pop('discriminator',None)
+        node.pop('default',None)
+        if node.get('type')=='object' and 'properties' in node:
+            node['required']=list(node['properties'])
+            node['additionalProperties']=False
+        return {key:visit(value) for key,value in node.items()}
+    return visit(root)
 
 
 class CodexCompactor:
@@ -59,7 +99,7 @@ class CodexCompactor:
             work = Path(directory)
             schema_path, output = work / 'schema.json', work / 'response.json'
             if schema is not None:
-                atomic_write_json(schema_path, schema)
+                atomic_write_json(schema_path, codex_wire_schema(schema))
             receipt_dir = Path(tempfile.mkdtemp(prefix='call-', dir=self.evidence))
             output_instruction = ('Return only the schema-conforming final object.' if schema is not None
                                   else 'Return only the requested final text, without commentary.')
@@ -88,6 +128,7 @@ class CodexCompactor:
                 'model': model, 'reasoning': self.reasoning, 'system': system,
                 'user': user, 'schema': schema, 'billing': 'Codex subscription',
                 'input_mode': input_mode,
+                'wire_schema': codex_wire_schema(schema) if schema is not None else None,
             })
             command = [self.executable, 'exec', '--ignore-user-config', '--ephemeral',
                        '--skip-git-repo-check', '--sandbox', 'read-only', '--color', 'never',

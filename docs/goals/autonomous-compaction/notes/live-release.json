@@ -1,0 +1,22 @@
+{
+  "approval": "Iso answered yes to merge/deploy PR85 at2620b0b7 and resume within existing allowance",
+  "pr": 85,
+  "merge_commit": "2985256aad74571bd1b25ed04e4b844cae22a700",
+  "rearm_commit": "9b4bc4ac",
+  "first_resumed_turn": 3745,
+  "first_resumed_role": "B",
+  "first_resumed_model": "moonshotai/kimi-k3",
+  "vercel_deployment": "dpl_4izYxaDKexwqnDdqXKDWZQ9eF5qY",
+  "public_url": "https://alanguagealltheirown.com",
+  "public_verification": "Browser displayed turn3745, current runtime labels, old C finalization not evidenced, original83-rule language; no console errors",
+  "next": "Production paused after failed turn3746; retained3304-token C draft awaits repaired B review, C finalization and all5 exams.",
+  "evidence_correction": "Temporary observer reused completed-turn filename on failure; overwritten scheduler-turn-3745.json is not proof of successful turn3745. New evidence must use invocation identity.",
+  "failed_turn": 3746,
+  "canonical_turn": 3745,
+  "draft_tokens": 3304,
+  "adopted": false,
+  "failures": [
+    "B request refused before provider dispatch by shared spending reservation",
+    "Sol wire schema rejected oneOf before generation"
+  ]
+}
