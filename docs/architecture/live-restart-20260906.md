@@ -85,3 +85,38 @@ provenance, reset reviewed v7 quarantine under writer lock, then verify real
 successive turns and the actual deployed public viewer. Timer stays stopped
 until those boundaries are satisfied. API reservation may stop before the dollar
 balance reaches zero because it reserves each call's maximum possible charge.
+
+## LIVE VERIFIED — 2026-09-06 WITA
+
+Iso explicitly approved PR83 main merge and a NEW $2 operating allowance for
+restart/first24h. PR83 merged at a87ab636. The real first attempt exposed a valid
+2,603-character research delivery absent from the local copy: B's full prompt
+was120,839 chars against the120,000 guard. No API spend occurred. Red/green native
+assembly test and independent29-test review supported the minimal160,000 ceiling
+repair; PR84 merged at4a515051. No adopted language or fidelity gate changed.
+
+Live service received ALATO_RUNTIME_CONFIG, shared$2 reservation ledger and the
+existing Codex ChatGPT login. Quarantine was explicitly rearmed for reviewed v7.
+Real B turn3739 rejected the pending rule670. At turn3740 Astra produced two drafts;
+its3,828-token candidate required further advisory finalization after the C call
+limit. Admission refused it, retained complete evidence, kept the83-rule language,
+and A continued with a normal new proposal. Scheduled exam3741 then passed all
+required meanings:435 original→388 encoded tokens,11% savings. The timer is active.
+
+The existing public domain still pointed at an August deployment despite the
+successful Vercel production build. Its alias was updated to the new deployment
+(dpl_ECJBKJ96KLc95y6w2uqyaw9zdqkZ). Browser checks on the actual domain verified
+turn3741,100% meaning/11% savings, full83-rulebook expansion, and desktop/375px
+rendering. Screenshots were captured in the task; no broad human-console or paid
+Try It acceptance is claimed.
+
+Receipt:live-restart-20260906-receipt.json. Verified canonical commit28dce783;
+new API operating spend$0.13130859705 of$2, no uncertain charges. Earlier local
+allowance remains separately accounted at$0.80685295017. Codex subscription use
+is separate. Every paid attempt remains reserved; spending can stop before$2 if
+insufficient balance remains for a request's bound. The timer automatically stops
+2026-09-07 at14:50WITA (06:50UTC), and runtime expiry independently blocks calls.
+
+Outcome:actual experiment restored and live, including safe C refusal and continued
+A/B operation. A compacted replacement and its actual idea delivery are NOT claimed
+accepted. Language-quality improvements remain future work as Iso requested.
