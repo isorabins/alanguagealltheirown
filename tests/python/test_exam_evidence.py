@@ -79,8 +79,8 @@ class EvidenceTests(unittest.TestCase):
                 loop.test_turn(conv, json.loads(
                     (ROOT / "tests/fixtures/mixed-rulebook.json").read_text()
                 ), meta, turn)
-            self.assertEqual(len(calls), 3)
-            return conv[-1], calls[-1]
+            self.assertEqual(len(calls), 4 if verdict == "SURVIVED" else 3)
+            return conv[-1], calls[2]
 
         invalid_event, grader_call = run("SURVIVED")
         grader_system, grader_user = grader_call[1], grader_call[2]
@@ -245,6 +245,30 @@ class EvidenceTests(unittest.TestCase):
             benchmark_id="B2", target_id="B2.01", literal="C-18A",
             replacement="c18a", turn=1509,
         )
+
+    def test_invalid_evidence_is_repaired_once_without_regenerating_message(self):
+        benchmark=loop.load_benchmark_suite()["benchmarks"][0]
+        decoded, grade=self._valid_grade(benchmark)
+        broken=copy.deepcopy(grade)
+        broken["items"][0]["evidence_lines"]=[1]
+        # A valid negative judgment must be accepted as negative, never retried
+        # until it passes. The repair may discover an actual missing meaning.
+        grade["items"][0].update(verdict="MISSING", evidence_lines=[])
+        responses=[("ENC",{}),(decoded,{}),(json.dumps(broken),{}),(json.dumps(grade),{})]
+        conv=[]; meta={"tests_run":0,"spend_usd":0}
+        rb=json.loads((ROOT/"tests/fixtures/mixed-rulebook.json").read_text())
+        with mock.patch("loop.call",side_effect=responses) as call, mock.patch(
+                "loop.token_count",side_effect=[100,120]):
+            loop.test_turn(conv,rb,meta,3)
+        self.assertEqual(call.call_count,4)
+        event=conv[-1]
+        self.assertEqual(event["encoded"],"ENC")
+        self.assertEqual(event["decoded"],decoded)
+        self.assertTrue(event["judge_valid"])
+        self.assertFalse(event["meaning_pass"])
+        self.assertEqual([a["valid"] for a in event["judge_attempts"]],[False,True])
+        self.assertEqual(meta["tests_run"],1)
+        self.assertEqual(meta["benchmark_suite"]["next_index"],1)
 
     def test_corpus_receipt_does_not_mutate_legacy_rule_scores(self):
         rb = json.loads((ROOT / "tests/fixtures/mixed-rulebook.json").read_text())

@@ -89,6 +89,50 @@ class LocalCleanupBudgetTests(unittest.TestCase):
         self.assertEqual(transport.attempts[0]["reserved_usd"], "1.10")
         self.assertEqual(transport.attempts[0]["output_token_limit"], 5)
 
+    def test_only_proven_context_rejection_reconciles_once_with_original_receipt(self):
+        response={'error':{'code':400,
+            'message':"This endpoint's maximum context length is 100 tokens. However, you requested about 200 tokens.",
+            'metadata':{'provider_name':None}}}
+        request={'model':'test/model','messages':[{'role':'user','content':'Candidate'}],'max_tokens':10}
+        request_path=Path(self.directory.name)/'request.json'
+        request_path.write_text(json.dumps(request))
+        post=Mock(return_value=Mock(status_code=400,json=lambda:response))
+        t=ReservedTransport('10',self.models,self.receipt,post=post)
+        with self.assertRaises(LocalBudgetError):
+            t('unused',json=request)
+        request_path.write_text(json.dumps(request))
+        self.assertEqual(str(t.used),'1.20')
+        self.assertTrue(t.reconcile_context_rejection(request_path))
+        self.assertEqual(t.attempts[-1]['status'],'uncertain')
+        self.assertEqual(t.attempts[-1]['reconciliation']['kind'],'documented_zero_charge')
+        self.assertEqual(t.used,0)
+        self.assertFalse(t.reconcile_context_rejection(request_path))
+        self.assertEqual(t.used,0)
+
+    def test_ambiguous_or_auxiliary_requests_cannot_release_reservation(self):
+        for variant in ('timeout','provider','partial','auxiliary','wrong_model','same_model_other_request'):
+            with self.subTest(variant=variant):
+                self.receipt.unlink(missing_ok=True)
+                response={'error':{'code':400,'message':"This endpoint's maximum context length is 100 tokens.",
+                                  'metadata':{'provider_name':None}}}
+                if variant=='timeout': response['error']['message']='Request timed out'
+                if variant=='provider': response['error']['metadata']['provider_name']='upstream'
+                if variant=='partial': response['choices']=[{'message':{'content':'Partial'}}]
+                request={'model':'test/model','messages':[{'role':'user','content':'u'}],'max_tokens':10}
+                if variant=='auxiliary': request['request_options']={'plugins':[{'id':'web'}]}
+
+                path=Path(self.directory.name)/'request.json';path.write_text(json.dumps(request))
+                t=ReservedTransport('10',self.models,self.receipt,
+                    post=Mock(return_value=Mock(status_code=400,json=lambda:response)))
+                with self.assertRaises(LocalBudgetError):
+                    t('unused',json=request)
+                if variant=='wrong_model': request['model']='other'
+                if variant=='same_model_other_request': request['messages'][0]['content']='A different request'
+                path.write_text(json.dumps(request))
+                with self.assertRaises(LocalBudgetError): t.reconcile_context_rejection(path)
+                self.assertEqual(str(t.used),'1.20')
+                self.assertTrue(t.stopped)
+
 
 if __name__ == "__main__":
     unittest.main()

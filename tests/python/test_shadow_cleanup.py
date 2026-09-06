@@ -78,6 +78,32 @@ class ShadowCleanupTests(unittest.TestCase):
             self.assertEqual(calls, ["c", "c", "b"])
             self.assertTrue(report["source_unchanged"])
 
+    def test_exclusion_mismatch_gets_one_correction_without_waiving_coverage(self):
+        with tempfile.TemporaryDirectory() as directory:
+            self.source_path = self._source_copy(directory)
+            calls = []
+            def call(model, _system, user, **kwargs):
+                calls.append(model)
+                if len(calls) == 1:
+                    draft = c_response()
+                    draft["exclusions"] = [{"source_id":"rule-001","reason":"operational"}]
+                    return json.dumps(draft), {"cost": .01}
+                if len(calls) == 2:
+                    correction = json.loads(user)["structural_correction"]
+                    self.assertEqual(correction["error"], "exclusions must exactly match __exclude__ assignments")
+                    return json.dumps(c_response()), {"cost": .01}
+                request = json.loads(user)
+                return json.dumps({"verdict": "pass", "reviewed_source_hash": request["source_hash"],
+                    "reviewed_candidate_hash": request["candidate_hash"],
+                    "covered_source_ids": ["rule-001", "rule-002"],
+                    "omissions": [], "meaning_changes": [], "operational_text": [], "notes": []}), {"cost": .01}
+            report = run_shadow_cleanup(self.source_path, Path(directory) / "shadow",
+                model_c="c", model_b="b", call_model=call, token_counter=self._token_counter,
+                meta={"spend_usd": 0})
+            self.assertEqual(report["status"], "PASS")
+            self.assertEqual(calls, ["c", "c", "b"])
+            self.assertTrue(report["source_unchanged"])
+
     def test_structural_corrections_cannot_exceed_two_c_calls(self):
         with tempfile.TemporaryDirectory() as directory:
             self.source_path = self._source_copy(directory)

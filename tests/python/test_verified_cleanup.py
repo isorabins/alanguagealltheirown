@@ -15,7 +15,7 @@ ROOT = Path(__file__).resolve().parents[2]
 class VerifiedCleanupTests(unittest.TestCase):
     def run_case(self, *, first_reject=False, final_reject=False, invalid_judge=False,
                  meaning_fail=False, provider_fail=False, stale_audit=False,
-                 open_motion=False, oversized=False, source_tokens=1000, candidate_tokens=100, max_spend=1.1, probe_cost=0):
+                 open_motion=False, oversized=False, source_tokens=1000, candidate_tokens=100, max_spend=1.1, probe_cost=0, resume=False, changed_resume=False):
         with tempfile.TemporaryDirectory() as directory:
             base = Path(directory)
             source = {'version':'1', 'next_id':3, 'changes':0, 'kernel_tokens':source_tokens,
@@ -39,6 +39,7 @@ class VerifiedCleanupTests(unittest.TestCase):
                 if model=='c': return json.dumps(c_response()),usage
                 if model=='b':
                     audits+=1;request=json.loads(user)
+                    if resume and audits==1: raise RuntimeError('review unavailable')
                     rejected=(first_reject and audits==1) or (final_reject and audits>1)
                     return json.dumps({'verdict':'REJECT' if rejected else 'pass',
                         'reviewed_source_hash':request['source_hash'],
@@ -65,15 +66,24 @@ class VerifiedCleanupTests(unittest.TestCase):
             report=run_verified_cleanup(path,base/'out',exams=ExamResources(ROOT,suite,'encoder','decoder','grader'),
                 policy=CleanupPolicy(), model_c='c',model_b='b',call_model=call,
                 token_counter=tokens,meta=meta,max_spend_usd=max_spend)
+            if resume:
+                self.assertEqual(report['status'],'FAIL')
+                if changed_resume:
+                    source['rules'][0]['text_en']='Changed language.'
+                    path.write_text(json.dumps(source));before=path.read_bytes()
+                report=run_verified_cleanup(path,base/'resumed',exams=ExamResources(ROOT,suite,'encoder','decoder','grader'),
+                    policy=CleanupPolicy(),model_c='c',model_b='b',call_model=call,
+                    token_counter=tokens,meta=meta,max_spend_usd=max_spend,resume_draft_dir=base/'out/shadow')
             self.assertEqual(path.read_bytes(),before)
             self.assertEqual(meta['tests_run'],prior['tests_run'])
             self.assertEqual(meta['benchmark_suite'],prior['benchmark_suite'])
             if not probe_cost:
                 self.assertAlmostEqual(meta['spend_usd'],len(calls)*.01)
-            exposed=(base/'out/candidate.json').exists()
+            result_dir=base/('resumed' if resume else 'out')
+            exposed=(result_dir/'candidate.json').exists()
             self.assertEqual(exposed,report['status']=='PASS')
             if exposed:
-                self.assertEqual(len(json.loads((base/'out/creative-seeds.json').read_text())),3)
+                self.assertEqual(len(json.loads((result_dir/'creative-seeds.json').read_text())),3)
             return report,calls
 
     def test_all_real_exam_stages_and_exact_review_required_before_exposure(self):
@@ -141,3 +151,34 @@ class VerifiedCleanupTests(unittest.TestCase):
         self.assertEqual(report['status'],'FAIL')
         self.assertEqual(calls,[])
         self.assertEqual(report['error_type'],'CleanupBudgetExceeded')
+
+    def test_resume_unavailable_review_revalidates_draft_without_redrafting(self):
+        report,calls=self.run_case(resume=True)
+        self.assertEqual(report['status'],'PASS')
+        self.assertEqual(calls,['c','b','b','encoder','decoder','grader','encoder','decoder','grader'])
+        self.assertEqual(report['prior_status'],'FAIL')
+
+    def test_resume_refuses_changed_source_before_review(self):
+        report,calls=self.run_case(resume=True,changed_resume=True)
+        self.assertEqual(report['status'],'FAIL')
+        self.assertEqual(calls,['c','b'])
+
+    def test_review_projection_keeps_every_rule_text_and_cited_history(self):
+        from shadow_cleanup import semantic_review_request
+        from state_store import snapshot_hash
+        source={'rules':[{'id':'rule-001','status':'adopted','text_en':'Keep A.',
+                         'history':[{'why':'Relevant memory evidence.'}]},
+                        {'id':'rule-002','status':'rejected','text_en':'Keep B record.',
+                         'history':[{'why':'Uncited revision chatter.'}]}]}
+        before=copy.deepcopy(source)
+        candidate={'legislative_memory':{'failure_modes':[{'source_ids':['rule-001']}]}}
+        request=semantic_review_request(source,candidate)
+        rows=request['complete_legislature']
+        self.assertEqual([r['text_en'] for r in rows],['Keep A.','Keep B record.'])
+        self.assertEqual(rows[0]['history'],source['rules'][0]['history'])
+        self.assertNotIn('history',rows[1])
+        projection=request['history_projection']
+        self.assertEqual(projection['omitted_history_ids'],['rule-002'])
+        self.assertEqual(projection['projection_hash'],snapshot_hash(rows))
+        self.assertEqual(request['source_hash'],snapshot_hash(source))
+        self.assertEqual(source,before)

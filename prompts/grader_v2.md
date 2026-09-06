@@ -31,5 +31,14 @@ results do not establish that the atom survived; still judge the full meaning.
 List each substantive invention as an object with a brief unsupported `claim` and one
 contiguous `evidence_lines` range. An empty inventions array means none.
 
+A single-line range still requires two integers: [7,7], never [7]. If a claim
+uses "this batch" or another reference, include the earlier line naming its
+referent in the selected contiguous range. Do not mark SURVIVED while citing
+only a pronoun and leaving the required identifier outside your evidence.
+
+RELAY means the decoder restates the message, including its instructions.
+RESPONDED means it answers or claims to perform the task instead of relaying it.
+An imperative sentence alone is not evidence of RESPONDED.
+
 Reply with only JSON in this exact shape, with no prose or markdown:
 {"mode":"RELAY" or "RESPONDED","items":[{"id":"B1.01","verdict":"SURVIVED","evidence_lines":[1,2]},{"id":"B1.02","verdict":"MISSING","evidence_lines":[]}],"inventions":[{"claim":"brief unsupported claim","evidence_lines":[8,8]}]}

@@ -15,7 +15,7 @@ from pathlib import Path
 
 import requests
 
-from state_store import atomic_write_json
+from state_store import atomic_write_json, snapshot_hash
 
 
 class LocalBudgetError(RuntimeError):
@@ -70,6 +70,47 @@ nonnegative cost receipt. The receipt file contains no headers or prompt content
             "stopped": self.stopped, "attempts": self.attempts,
         })
 
+    def reconcile_context_rejection(self, request_path):
+        """Release one proven pre-generation rejection under documented billing.
+
+        The original uncertain receipt is retained. This is a policy-supported
+        zero charge, never represented as a returned provider usage receipt.
+        No other missing-cost response or timeout is eligible.
+        """
+        if not self.attempts:
+            raise LocalBudgetError('no request to reconcile')
+        attempt = self.attempts[-1]
+        if attempt.get('reconciliation'):
+            return False
+        response_path = self.path.parent / f'provider-response-{len(self.attempts):02d}.json'
+        response = json.loads(response_path.read_text())
+        request = json.loads(Path(request_path).read_text())
+        error = response.get('error') or {}
+        metadata = error.get('metadata') or {}
+        bound_request = (attempt.get('request_hash') == snapshot_hash(request)
+                         and attempt.get('text_only_no_aux') is True)
+        if (attempt.get('status') != 'uncertain' or not self.stopped
+                or any(a.get('status') == 'uncertain' and not a.get('reconciliation') for a in self.attempts[:-1])
+                or response.get('http_status') != 400 or error.get('code') != 400
+                or not str(error.get('message', '')).startswith("This endpoint's maximum context length is ")
+                or 'provider_name' not in metadata or metadata['provider_name'] is not None
+                or any(response.get(k) is not None for k in ('id', 'model', 'provider', 'choices', 'usage'))
+                or not bound_request or request.get('model') != attempt.get('model')
+                or self._amount(self.models[attempt['model']]['pricing'].get('request', 0)) != 0):
+            raise LocalBudgetError('response is not a proven text-only pre-generation context rejection')
+        attempt['reconciliation'] = {
+            'kind': 'documented_zero_charge', 'charge_usd': '0',
+            'released_reservation_usd': attempt['reserved_usd'],
+            'response_hash': snapshot_hash(response), 'request_hash': snapshot_hash(request),
+            'request_path': str(Path(request_path).resolve()),
+            'basis': 'Context validation failed before provider assignment; no output or auxiliary services.',
+            'billing_policy': 'https://openrouter.ai/docs/guides/features/zero-completion-insurance',
+        }
+        self.used -= self._amount(attempt['reserved_usd'])
+        self.stopped = False
+        self._save()
+        return True
+
     def __call__(self, url, **kwargs):
         if self.stopped:
             raise LocalBudgetError("local provider run already stopped")
@@ -105,13 +146,21 @@ nonnegative cost receipt. The receipt file contains no headers or prompt content
                    self._amount(prices.get("request", 0)))
         if self.used + reserve > self.limit:
             raise LocalBudgetError("next request exceeds remaining local spend reservation")
+        wire_keys = {'model', 'messages', 'max_tokens', 'temperature', 'provider',
+                     'response_format', 'reasoning'}
+        text_only = (bool(messages) and all(isinstance(m.get('content'), str)
+                     and m.get('role') in {'system', 'user'} and set(m) <= {'role','content'}
+                     for m in messages) and not (set(body) - wire_keys)
+                     and not body['model'].endswith(':online'))
         attempt = {"model": body["model"], "reserved_usd": str(reserve), "input_token_bound": context,
                    "output_token_limit": output,
-                   "status": "uncertain"}
+                   "status": "uncertain", "request_hash": snapshot_hash(body),
+                   "text_only_no_aux": text_only}
         self.attempts.append(attempt)
         self.used += reserve
         self.stopped = True
         self._save()  # Durable before dispatch; a crash cannot erase the reservation.
+        atomic_write_json(self.path.parent / f"provider-request-{len(self.attempts):02d}.json", body)
         try:
             response = self.post(url, **kwargs)
             data = response.json()

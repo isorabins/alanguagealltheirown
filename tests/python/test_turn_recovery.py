@@ -76,6 +76,19 @@ class RunnerRecoveryTests(unittest.TestCase):
         self.assertEqual(self.projection.call_args.args[2]['last_completed_turn_at'], committed_at)
         self.assertEqual(len(self.calls), 1)
 
+    def test_expired_runtime_recovers_committed_projection_before_refusing_work(self):
+        from local_cleanup import LocalBudgetError
+        self.projection.side_effect = [None, OSError('projection interrupted')]
+        with self.assertRaises(OSError): loop.run(1)
+        self.projection.reset_mock(side_effect=True)
+        session = mock.Mock()
+        session.check.side_effect = LocalBudgetError('expired')
+        with mock.patch.object(loop, '_runtime_session', session), self.assertRaises(LocalBudgetError):
+            loop.run(1)
+        self.projection.assert_called_once()
+        self.assertEqual(len(self.calls), 1)
+        self.assertEqual(load_json(self.root/'conversation.json', [])[-1]['turn'], 1)
+
     def test_archive_recovers_prepared_work_and_cannot_resurrect_it(self):
         state = TurnState([{'turn': 1}], {'rules': []}, {}, empty_state(), [])
         with TurnStore(self.root).writer() as store:

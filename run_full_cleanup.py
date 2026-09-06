@@ -27,7 +27,7 @@ from verified_cleanup import CleanupPolicy, run_verified_cleanup
 
 
 STATE_FILES = ('rulebook.json', 'conversation.json', 'meta.json',
-               'collaboration.json', 'conversations.json')
+               'collaboration.json', 'conversations.json', loop.COST_LEDGER_FILENAME)
 
 
 def snapshot_source(source_dir: Path) -> dict[str, bytes]:
@@ -63,6 +63,9 @@ def main():
     parser.add_argument('--budget', type=Path, required=True,
                         help='Existing shared $1 ledger; cannot start a new allowance')
     parser.add_argument('--codex', default='codex')
+    parser.add_argument('--resume-draft', type=Path, help='Resume validated C draft after unavailable B review')
+    parser.add_argument('--reconcile-context-request', type=Path, help='Recorded request for a proven pre-generation context rejection')
+    parser.add_argument('--replay-first-c', type=Path, help='Reuse one complete C receipt only for an identical request')
     parser.add_argument('--motion-review-note', help='Optional, attributed local operator suggestion to B')
     args = parser.parse_args()
     if not args.budget.exists():
@@ -84,8 +87,10 @@ def main():
               if m['id'] in {loop.MODEL_A, loop.MODEL_B, loop.MODEL_DECODER, loop.MODEL_GRADER}}
     atomic_write_json(args.output / 'model-preflight.json', models)
     transport = ReservedTransport('1.00', models, args.budget, max_output_tokens=6000)
+    if args.reconcile_context_request:
+        transport.reconcile_context_rejection(args.reconcile_context_request)
     api = partial(loop.call, transport=transport)
-    codex = CodexCompactor(args.output / 'codex', executable=args.codex)
+    codex = CodexCompactor(args.output / 'codex', executable=args.codex, replay_first=args.replay_first_c)
     loop.MODEL_C = 'gpt-6-astra'
     call_index = 0
     def dispatch(model, system, user, **kwargs):
@@ -105,7 +110,7 @@ def main():
     loop.call = dispatch
     loop.token_count = partial(loop.token_count, call_model=dispatch)
     loop.STATE = state_dir
-    loop.AUTOMATIC_CLEANUP_EDITION = 'local-verified-codex-v1'
+    loop.AUTOMATIC_CLEANUP_EDITION = 'local-verified-codex-v2-history-projection'
     resources = ExamResources(loop.ROOT, loop.load_benchmark_suite(),
         loop.MODEL_A, loop.MODEL_DECODER, loop.MODEL_GRADER)
     result = {'status': 'FAILED', 'scope': 'full saved experiment, local copy only',
@@ -116,7 +121,7 @@ def main():
         # Retain its temporary evidence before the caller cleans it up.
         try:
             return run_verified_cleanup(source, ephemeral_output, exams=resources,
-                policy=CleanupPolicy(), **kwargs)
+                policy=CleanupPolicy(), resume_draft_dir=args.resume_draft, **kwargs)
         finally:
             if Path(ephemeral_output).exists():
                 shutil.copytree(ephemeral_output, args.output / 'cleanup')
@@ -154,12 +159,12 @@ def main():
             if current_open_motion(state.rulebook) is not None:
                 result.update(status='WAITING_FOR_MOTION', reason='normal actors have not settled the open motion')
                 return
-            state.rulebook['kernel_tokens'] = loop.token_count(render_language(state.rulebook), state.meta)
             cstate = state.meta.get('automatic_cleanup', {})
             if cstate.get('last_status') == 'quarantined':
                 loop.reset_automatic_cleanup_quarantine(cstate,
                     reviewed_edition=loop.AUTOMATIC_CLEANUP_EDITION,
                     operator='user-approved full local verified cleanup')
+            state.rulebook['kernel_tokens'] = loop.token_count(render_language(state.rulebook), state.meta)
             # Explicit local request to compact now. Only scheduling metadata
             # changes; the source language and legislative decisions remain real.
             cstate.update(schema_version=loop.AUTOMATIC_CLEANUP_STATE_SCHEMA_VERSION,

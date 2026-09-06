@@ -93,6 +93,7 @@ _key = None
 _no_reasoning_field = False
 _probe_overhead = None
 _probe_cache = {}
+_runtime_session = None
 _cost_receipt_ledger_path = None
 _cost_receipt_ledger = None
 
@@ -305,6 +306,9 @@ def call(model, system, user, max_tokens=600, temperature=0.7, meta=None,
          request_options=None, transport=None):
     """One chat call. Returns (text, usage). Retries transient failures."""
     global _no_reasoning_field
+    if _runtime_session is not None and model == "gpt-6-astra":
+        return _runtime_session.compact(model, system, user,
+            request_options=request_options, meta=meta)
     messages = ([{"role": "system", "content": system}] if system else []) + [
         {"role": "user", "content": user}
     ]
@@ -329,7 +333,8 @@ def call(model, system, user, max_tokens=600, temperature=0.7, meta=None,
         if d:
             time.sleep(d)
         try:
-            r = (transport or requests.post)(API_URL, headers=headers, json=body, timeout=180)
+            r = (transport or (_runtime_session.post if _runtime_session else requests.post))(
+                API_URL, headers=headers, json=body, timeout=180)
         except requests.RequestException as e:
             print(f"  ! network {e.__class__.__name__}, retry {i}", flush=True)
             continue
@@ -605,7 +610,7 @@ def ensure_structured_protocol_cutover(conv, rb, meta, *, activation_turn):
 
 
 AUTOMATIC_CLEANUP_STATE_SCHEMA_VERSION = 2
-AUTOMATIC_CLEANUP_EDITION = "automatic-cleanup-v6-provider-failure-classification"
+AUTOMATIC_CLEANUP_EDITION = "automatic-cleanup-v7-astra-verified-admission"
 MAX_POST_CHECKPOINT_CHANGES = 64
 MAX_STRUCTURED_PROMPT_CHARS = 120_000
 
@@ -684,10 +689,14 @@ def reset_automatic_cleanup_quarantine(state, *, reviewed_edition, operator):
 def run_admission_cleanup(source_path, output, **kwargs):
     """Normal cleanup always proves the final book against the registered suite."""
     from verified_cleanup import run_verified_cleanup
-    return run_verified_cleanup(source_path, output,
-        exams=exam_evidence.ExamResources(
-            ROOT, load_benchmark_suite(), MODEL_A, MODEL_DECODER, MODEL_GRADER),
-        **kwargs)
+    try:
+        return run_verified_cleanup(source_path, output,
+            exams=exam_evidence.ExamResources(
+                ROOT, load_benchmark_suite(), MODEL_A, MODEL_DECODER, MODEL_GRADER),
+            **kwargs)
+    finally:
+        if _runtime_session is not None and Path(output).exists():
+            _runtime_session.retain_cleanup(output)
 
 
 def maybe_run_automatic_cleanup(conv, rb, meta, turn, *, cleanup_runner=None):
@@ -1051,7 +1060,7 @@ def process_one_research(collaboration, meta, turn):
             "tools": [{"type": "openrouter:web_search", "parameters": {"max_total_results": 5}}],
             "max_tokens": 1000, "temperature": 0}
     try:
-        response = requests.post(API_URL, headers={"Authorization": f"Bearer {api_key()}",
+        response = (_runtime_session.post if _runtime_session else requests.post)(API_URL, headers={"Authorization": f"Bearer {api_key()}",
                                                    "Content-Type": "application/json"},
                                  json=body, timeout=180)
         response.raise_for_status()
@@ -1158,7 +1167,13 @@ def publish_turn(state: TurnState) -> None:
 
 
 def run(turns):
+    global _runtime_session, MODEL_C
     with TurnStore(STATE).writer() as store:
+        config = os.environ.get("ALATO_RUNTIME_CONFIG")
+        if config and turns:
+            from runtime_session import RuntimeSession
+            _runtime_session = RuntimeSession(config)
+            MODEL_C = "gpt-6-astra"
         return _run_turns(turns, store)
 
 
@@ -1181,6 +1196,8 @@ def _run_turns(turns, store):
     publish_turn(state)
     turn = start_turn - 1
     for turn in range(start_turn, start_turn + turns):
+        if _runtime_session is not None:
+            _runtime_session.check()
         if meta["spend_usd"] >= SPEND_CAP:
             print(f"SPEND CAP hit (${meta['spend_usd']:.2f}) — stopping.", flush=True)
             break

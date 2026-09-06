@@ -40,7 +40,8 @@ class ModuleContractTests(unittest.TestCase):
                   'evidence_lines': [] if verdict == 'MISSING' else [n, n]}
                  for n, atom in enumerate(benchmark['answer_key'], 1)]
         if invalid_span: items[0]['evidence_lines'] = [9999, 9999]
-        responses = iter([('ENCODED', {}), (decoded, {}), (json.dumps({'mode': 'RELAY', 'items': items, 'inventions': []}), {})])
+        grade = (json.dumps({'mode': 'RELAY', 'items': items, 'inventions': []}), {})
+        responses = iter([('ENCODED', {}), (decoded, {}), grade] + ([grade] if invalid_span else []))
         requests = []
         def provider(model, system, user, **options):
             requests.append((model, system, user))
@@ -49,7 +50,7 @@ class ModuleContractTests(unittest.TestCase):
         with contextlib.redirect_stdout(io.StringIO()):
             completed = exam_evidence.run_exam(self.state, turn, resources=self.resources,
                 provider=provider, count_tokens=lambda _: next(tokens), progress_path=progress_path)
-        self.assertEqual([r[0] for r in requests], ['encoder', 'decoder', 'judge'])
+        self.assertEqual([r[0] for r in requests], ['encoder', 'decoder', 'judge'] + (['judge'] if invalid_span else []))
         self.assertEqual(requests[1][2], 'ENCODED')
         return completed
 
@@ -177,3 +178,28 @@ class ModuleContractTests(unittest.TestCase):
             self.assertEqual([e['turn'] for e in preview['conversation'] if e.get('judge_valid')], [1, 2])
             self.assertEqual(preview['conversation'][-1]['turn'], 49)
             self.assertLessEqual((root/'viewer/bootstrap.js').stat().st_size, 2048)
+
+    def test_structural_repair_receives_prior_judgment_and_retains_vote(self):
+        self.state.rulebook = {'version':'1','changes':0,'next_id':2,'kernel_tokens':10,
+            'rules':[{'id':'rule-001','status':'proposed','text_en':'Use an ambiguous slot.',
+                      'proposed_turn':1,'history':[]}]}
+        self.state.meta['last_agent']='A'
+        bad={'deliberation':'Public audit: this proposal loses the quantity and should be rejected.',
+             'motion':{'kind':'REJECT','target_rule_id':'rule-001','focus':'Loses the quantity.'},
+             'fault_response':None,'measurements':[],'requests':[]}
+        raw=json.dumps(bad)
+        repaired=copy.deepcopy(bad);repaired['motion'].pop('focus')
+        calls=[]
+        def provider(model,system,user,**kwargs):
+            calls.append(user)
+            # The repair model needs its actual failed judgment, not only an
+            # error code and the previous actor's revision request.
+            if len(calls)>1 and raw in user and 'extra_forbidden' in user:
+                return json.dumps(repaired),{}
+            return raw,{}
+        outcome=legislature.take_turn(self.state,2,resources=loop._legislative_resources(),
+            provider=provider,count_tokens=lambda _:10)
+        self.assertEqual(outcome,'accepted')
+        self.assertEqual(len(calls),2)
+        self.assertEqual(self.state.rulebook['rules'][0]['status'],'rejected')
+        self.assertEqual(self.state.conversation[-1]['post_state_receipt']['next_actor'],'A')

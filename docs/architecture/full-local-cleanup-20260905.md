@@ -113,3 +113,69 @@ The existing automatic-cleanup tests now mock the admission seam rather than the
 advisory-only drafting helper, because the user requested a real judge gate before
 adoption. The provider-failure test now expects the source-token preflight; old-book
 retention, failure classification and provider receipt assertions are unchanged.
+
+
+## Continued local verification — 2026-09-06 WITA
+
+Iso explicitly approved saved legislative feedback and metadata transmission to
+ALATO's existing OpenRouter models under the original shared $1 cap. Automatic
+review initially rejected the continuation again on broader-context grounds.
+An offline inspection of the actual Legislature request established that the
+7,117-event conversation is processed locally rather than serialized into prompts;
+outgoing fields are adopted language, open motion, machine-state metadata, latest
+receipt, active legislative feedback and the attributed operator suggestion.
+Saved collaboration contained no asks, research or suggestions. That evidence
+resolved review; the approved run proceeded without changing its destination.
+Preflight: `/private/tmp/alato-c-local-20260905/outgoing-payload-preflight.json`.
+
+Run02 made seven normal scheduled turns, including development exams3744/3747.
+B initially requested corrections. At3746 it authored a REJECT with an extra
+forbidden `focus` field; structural regeneration discarded that judgment and
+returned REQUEST. At3749 B ultimately ADOPTED the revised rule670. This leaves
+84 adopted rules in the local copy. An intermediate chat update wrongly said the
+proposal was rejected; the next update corrected it against the saved response.
+The original saved experiment was unchanged.
+
+The real failure demonstrated a retry-context defect: a format repair saw only
+its error and old authoritative context, not the response it needed to repair.
+`test_structural_repair_receives_prior_judgment_and_retains_vote` failed before the
+fix and passed after. Retries now receive the prior response (bounded16384chars),
+clearly marked unaccepted data, with guidance to preserve substantive judgment.
+No invalid response is directly accepted and no decision is manufactured.
+
+The first full Astra call failed before generation: CLI initial-message limit
+1,048,576 characters, actual1,439,155. The adapter now writes large input JSON
+unchanged to its read-only temporary working directory and asks Astra to inspect
+all source records through bounded file reads. Its test proves availability of the
+entire input, not that a model actually reads it. Final review and meaning exams
+remain necessary. Smaller requests retain the verified inline path.
+
+Run02 ended with the previous book retained and API spending $0.65358429347.
+Run03 resumes that settled local state, avoiding duplicate legislative work.
+Evidence directory: `/private/tmp/alato-c-local-20260905/full-verified-03`.
+Regression after both fixes: 276 Python tests passed. Independent skeptical review
+found no correctness blocker in the retry-context or large-input transport fixes.
+
+## Verified outcome and correction — 2026-09-06 WITA
+
+The user explicitly approved sending saved legislative context to the existing
+providers. Astra medium via Codex subscription produced a corrected 3,814-token
+candidate from 22,343 operative tokens (82.93% reduction), with 20 contracts and
+three nonoperative ideas. Real Kimi final review passed candidate hash
+90df2f37af32478eb7e42017aca697fdde0f09be6a4a335ad3f3526c8d62cc55.
+Run06 then passed two meaning exams; three were invalid judgments (B3/B4 literal
+evidence conflicts, B5 malformed evidence range). No adoption or real A/B delivery
+occurred. Four of five encoded messages expanded. This is not evidence of a
+working compression language. The original experiment was unchanged.
+
+The initial full-history B request exceeded provider context before generation.
+Its retained uncertain reservation was individually reconciled using the exact
+request, explicit provider-null context error, and OpenRouter's documented zero
+completion policy. Later code requires pre-dispatch request binding and rejects
+auxiliary-fee/ambiguous cases; this is not a fabricated returned usage receipt.
+B subsequently reviewed all source current texts plus memory-cited histories,
+with explicit omitted-history metadata; C still received the complete source.
+
+Current restart scope and acceptance: live-restart-20260906.md. Source-only replay
+and diagnostic judge rechecks never authorize adoption. Raw local evidence is
+under /private/tmp/alato-c-local-20260905/full-verified-06/.

@@ -241,6 +241,25 @@ def _source_is_unchanged(source_path: Path, original: bytes) -> bool:
         return False
 
 
+def semantic_review_request(source, candidate):
+    """Keep every rule text and the history grounding candidate memory.
+
+    Routine revision-event prose is not operative law. C still receives the
+    complete source; B gets all current rule texts plus cited memory evidence.
+    """
+    cited = {source_id for entries in candidate.get('legislative_memory', {}).values()
+             for entry in entries for source_id in entry.get('source_ids', [])}
+    rows = [{key: copy.deepcopy(value) for key, value in row.items()
+             if key != 'history' or row['id'] in cited} for row in source['rules']]
+    omitted = [row['id'] for row in source['rules'] if row.get('history') and row['id'] not in cited]
+    return {'source_hash': snapshot_hash(source), 'candidate_hash': snapshot_hash(candidate),
+            'original_adopted_language': _adopted_rows(source),
+            'complete_legislature': rows, 'candidate': copy.deepcopy(candidate),
+            'history_projection': {'kind':'history_filtered_review', 'projection_hash':snapshot_hash(rows),
+                'omitted_history_ids':omitted, 'omitted_history_count':len(omitted),
+                'note':'All rule texts retained; revision-event history retained for every legislative-memory citation.'}}
+
+
 def run_shadow_cleanup(
     source_path: Path,
     output_dir: Path,
@@ -445,6 +464,7 @@ def run_shadow_cleanup(
                             "referenced groups must exactly match defined groups",
                             "contract overrides must be unique and cannot reference self",
                             "contract contains an unknown override reference",
+                            "exclusions must exactly match __exclude__ assignments",
                         }):
                     raise
                 structural_correction = {"error": str(exc), "previous_draft": c_response}
@@ -503,13 +523,7 @@ def run_shadow_cleanup(
                 break
 
             report["stage"] = "b_call"
-            b_request = {
-                "source_hash": source_hash,
-                "candidate_hash": candidate_hash,
-                "original_adopted_language": adopted,
-                "complete_legislature": copy.deepcopy(source.get("rules", [])),
-                "candidate": candidate,
-            }
+            b_request = semantic_review_request(source, candidate)
             try:
                 b_text, b_usage = call_model(
                     model_b,

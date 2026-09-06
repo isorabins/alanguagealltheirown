@@ -242,21 +242,35 @@ def _test_turn_impl(conv, rb, meta, turn, *, resources, provider, count_tokens, 
         g = {}
     audit = {}
     if key:
-        materialized_grade, evidence_reason = _materialize_grader_evidence(
-            g, decoded.strip()
-        )
-        if evidence_reason:
-            scored = {
-                "valid": False,
-                "status": "INVALID JUDGE RESULT",
-                "reason": evidence_reason,
-                "scoring_version": "v2",
-            }
-        else:
-            scored = score_judgment_v2(
-                key, materialized_grade, decoded.strip(), savings_pct
-            )
+        judge_attempts = []
+        for attempt in range(2):
+            materialized_grade, evidence_reason = _materialize_grader_evidence(g, decoded.strip())
+            scored = ({"valid": False, "status": "INVALID JUDGE RESULT",
+                       "reason": evidence_reason, "scoring_version": "v2"}
+                      if evidence_reason else
+                      score_judgment_v2(key, materialized_grade, decoded.strip(), savings_pct))
+            judge_attempts.append({"judgment": copy.deepcopy(g),
+                                   "valid": scored["valid"], "reason": scored["reason"]})
+            # Repair an authored evidence judgment once. Never retry a valid
+            # negative score, regenerate the message, or change the answer key.
+            if scored["valid"] or attempt or not isinstance(g, dict) or not isinstance(g.get("items"), list):
+                break
+            repair = (grade_user + "\n\nYour previous judgment was rejected by the validator. "
+                      "The original message, decoded text, and answer key are unchanged. "
+                      "Return the full judgment with valid evidence references. Preserve your "
+                      "substantive verdicts unless the evidence requires reconsideration; "
+                      "CORRUPTED and MISSING remain valid outcomes.\nVALIDATION ERROR: "
+                      + scored["reason"] + "\nPREVIOUS UNACCEPTED JUDGMENT:\n"
+                      + json.dumps(g, ensure_ascii=False))
+            repaired, _ = provider(resources.grader, grade_sys, repair,
+                                   max_tokens=4000, temperature=0, meta=meta)
+            match = re.search(r"\{.*\}", repaired, re.S)
+            try:
+                g = json.loads(match.group(0)) if match else {}
+            except json.JSONDecodeError:
+                g = {}
         audit = {
+            "judge_attempts": judge_attempts,
             "judge_valid": scored["valid"], "judge_status": scored["status"],
             "judge_reason": scored["reason"], "atom_results": scored.get("items", []),
             "survived": scored.get("survived"), "total": scored.get("total", len(key)),

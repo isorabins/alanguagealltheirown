@@ -15,6 +15,9 @@ class FullCleanupTests(unittest.TestCase):
             original = b'{"rules": []}'
             (source/'rulebook.json').write_bytes(original)
             self.assertEqual(snapshot_source(source), {'rulebook.json': original})
+            ledger=b'{"receipts":{}}'
+            (source/'cost-receipts.local.json').write_bytes(ledger)
+            self.assertEqual(snapshot_source(source)['cost-receipts.local.json'],ledger)
             for journal in ('turn-commit.local.json', 'turn-archive.local.json'):
                 pending = source/journal
                 pending.write_text('{}')

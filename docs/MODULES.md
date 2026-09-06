@@ -68,6 +68,9 @@ module owns prompts, bounded eligible context, regeneration, validation,
 measurements, language version/hash, delivery outcome and next actor. Exhausted
 structure leaves language and delivery eligibility intact and retains the actor.
 Provider/accounting failures propagate; the caller must not commit a partial turn.
+A structural retry receives the bounded prior unaccepted response and its validation
+error, so the model can repair format while retaining its substantive judgment.
+The repaired result still passes the same authority and structure checks.
 
 `assemble_request(...)` is the inspection seam for the exact model-facing context.
 It does not call a model or confer authority on supplied evidence.
@@ -140,7 +143,7 @@ These are part of the map, not a claim that every file needed rewriting.
 | [Collaboration](../collaboration.py): import, eligible delivery, public projection; [lookup](../project_lookup.py): `project_lookup` | Human moderation controls visibility; deliver eligible replies once; keep full private evidence while bounding prompt input. Internal questions use project evidence or ASK. | [ASK](../tests/python/test_ask_lifecycle.py), [research](../tests/python/test_research_lifecycle.py), [suggestions](../tests/python/test_suggestion_lifecycle.py), [inbox](../tests/python/test_collaboration_inbox.py). |
 | [Courier](../collab_sync.py) and [HTTP collaboration adapters](../viewer/api/_collaboration.js) | Transport bounded inbox/outbox records. Browser actions cannot directly author canonical history. Session and moderation gates remain enforced. | [Collaboration HTTP](../tests/js/collaboration-api.test.js), [session](../tests/js/human-session.test.js), [suggestions](../tests/js/suggestion-api.test.js). |
 | [Cleanup admission](../verified_cleanup.py): `run_verified_cleanup`; [compiler](../cleanup_rulebook.py), [drafting/review](../shadow_cleanup.py) | Produce a full structured candidate plus exactly three nonoperative ideas. Default automatic adoption requires <=4,500 operative tokens, semantic approval of the exact final candidate, and all registered meaning exams passing. Refusal preserves language and ideas; charges remain recorded. | [Admission gates](../tests/python/test_verified_cleanup.py), [default admission and durable A/B delivery](../tests/python/test_full_cleanup.py), [compiler](../tests/python/test_cleanup_rulebook.py), [shadow](../tests/python/test_shadow_cleanup.py), [automatic cleanup](../tests/python/test_automatic_cleanup.py). |
-| [Full local cleanup](../run_full_cleanup.py): CLI; [Codex C adapter](../codex_compactor.py): `CodexCompactor` | Snapshot under the writer lock, refuse pending recovery, preserve scheduled development exams while settling motions and delivering accepted ideas. Astra uses the existing Codex subscription; OpenRouter calls reserve against an existing shared ledger. Capture prompts, results, admission evidence and commit/reload receipt without changing original state. | [Snapshot and delivery](../tests/python/test_full_cleanup.py), [CLI completion/error contract](../tests/python/test_codex_compactor.py). |
+| [Full local cleanup](../run_full_cleanup.py): CLI; [Codex C adapter](../codex_compactor.py): `CodexCompactor` | Snapshot under the writer lock, refuse pending recovery, preserve scheduled development exams while settling motions and delivering accepted ideas. Astra uses the existing Codex subscription and reads an intact local input file when the full source exceeds the CLI message limit; OpenRouter calls reserve against an existing shared ledger. Capture prompts, results, admission evidence and commit/reload receipt without changing original state. | [Snapshot and delivery](../tests/python/test_full_cleanup.py), [CLI completion/error contract](../tests/python/test_codex_compactor.py). |
 | [Local cleanup rehearsal](../local_cleanup.py): `ReservedTransport`, CLI | Run the existing C/B cleanup against a source file without applying it. Reserve maximum advertised token cost before each HTTP attempt; stop on uncertain charges. Keep prompts, responses, candidate, audit and cost receipts in a new output directory. | [Local budget boundary](../tests/python/test_local_cleanup.py). |
 | [Conversation](../conversation_exam.py): `run_conversation` | Six messages use captured adopted language; judge must cover each scenario requirement exactly once. | [Conversation exam](../tests/python/test_conversation_exam.py). |
 | [Public progress](../public_exam_progress.py): writer/validator | Only safe fields and valid phase transitions become inspectable trace evidence. | [Progress](../tests/python/test_public_exam_progress.py), page tests above. |
@@ -184,3 +187,19 @@ The repository's [offline CI](../.github/workflows/offline-acceptance.yml) disco
 all Python and Node tests, including the new interface contracts. This is executable
 regression protection, not a claim that remote branch-protection settings changed.
 The historical coverage checker checks traceability; it is not semantic proof.
+
+### Bounded live sessions
+
+`ALATO_RUNTIME_CONFIG` selects `runtime_session.RuntimeSession`: a local operator
+configuration for the shared durable API ledger, price catalog, expiry and Codex
+executable. The normal runner initializes it under the turn writer lock. Recovery
+and snapshot repair precede spending checks. Configured C is Astra medium through
+Codex; API calls, retries and token probes cross the reserving transport. Research
+with auxiliary tool fees is refused before dispatch because text pricing cannot
+bound those charges. Both rejected and accepted cleanup admission directories
+persist outside public state. An absent configuration preserves legacy routing.
+
+Development exams correct one structured invalid judge response on the identical
+source/reconstruction. Both judgments remain in the exam receipt. Valid negative
+scores never trigger correction; malformed non-judgment responses stay invalid.
+The strict meaning/literal validator remains the authority for admission.

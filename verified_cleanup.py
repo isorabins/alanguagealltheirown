@@ -11,13 +11,15 @@ from pathlib import Path
 from typing import Any, Callable
 from dataclasses import dataclass
 import math
+import shutil
 
 from cleanup_rulebook import build_applied_rulebook
 from exam_evidence import ExamResources, run_exam
 from legislative_protocol import current_open_motion
 from rulebook import language_payload, render_language
 from shadow_cleanup import (run_shadow_cleanup, cleanup_b_request_options,
-                            validate_b_audit, _require_clean_completion, DEFAULT_MAX_SPEND_USD)
+                            validate_b_audit, _require_clean_completion, DEFAULT_MAX_SPEND_USD,
+                            compile_c_response, semantic_review_request)
 from state_store import atomic_write_json, load_json, snapshot_hash
 from turn_store import TurnState
 
@@ -34,7 +36,7 @@ class CleanupPolicy:
 def run_verified_cleanup(source_path: Path, output_dir: Path, *,
                          exams: ExamResources, policy: CleanupPolicy = CleanupPolicy(),
                          call_model: Callable, token_counter: Callable,
-                         meta: dict[str, Any], **kwargs: Any) -> dict[str, Any]:
+                         meta: dict[str, Any], resume_draft_dir: Path | None = None, **kwargs: Any) -> dict[str, Any]:
     """Same cleanup-runner seam as shadow cleanup, with admission evidence.
 
     A PASS means the exact applied language passed semantic review and every
@@ -81,12 +83,27 @@ def run_verified_cleanup(source_path: Path, output_dir: Path, *,
         minimum = round(max(5.0, 100 * (1 - policy.max_language_tokens / source_tokens)), 2)
         options = dict(kwargs)
         options['min_reduction_pct'] = minimum
-        shadow = run_shadow_cleanup(source_path, output_dir / 'shadow',
-            call_model=call_model, token_counter=token_counter, meta=meta, **options)
+        if resume_draft_dir is not None:
+            saved = Path(resume_draft_dir)
+            shadow = load_json(saved / 'report.json', None)
+            if (not isinstance(shadow, dict) or shadow.get('source_hash') != snapshot_hash(source)
+                    or shadow.get('stage') != 'b_call' or shadow.get('status') != 'FAIL'
+                    or shadow.get('b_advisory_error', {}).get('status') != 'unavailable'):
+                raise ValueError('only an identical-source draft with unavailable B review can resume')
+            candidate, seeds = compile_c_response(source, load_json(saved / 'c-response.json', None))
+            if (snapshot_hash(candidate) != shadow.get('candidate_hash')
+                    or candidate != load_json(saved / 'candidate.json', None)
+                    or seeds != load_json(saved / 'creative-seeds.json', None)):
+                raise ValueError('saved draft artifacts do not match their C response')
+            shutil.copytree(saved, output_dir / 'shadow')
+            shadow = dict(shadow, resumed_draft_from=str(saved), prior_status=shadow['status'])
+        else:
+            shadow = run_shadow_cleanup(source_path, output_dir / 'shadow',
+                call_model=call_model, token_counter=token_counter, meta=meta, **options)
         report.update(copy.deepcopy(shadow))
         report.update(kind='verified_cleanup', status='FAIL', applied=False,
                       max_language_tokens=policy.max_language_tokens, exam_results=[])
-        if shadow['status'] != 'PASS':
+        if shadow['status'] != 'PASS' and resume_draft_dir is None:
             return report
         candidate = load_json(output_dir / 'shadow/candidate.json', None)
         seeds = load_json(output_dir / 'shadow/creative-seeds.json', None)
@@ -106,10 +123,7 @@ def run_verified_cleanup(source_path: Path, output_dir: Path, *,
         audit = load_json(output_dir / 'shadow/b-audit.json', None)
         if not (isinstance(audit, dict) and audit.get('verdict') == 'pass'
                 and audit.get('reviewed_candidate_hash') == candidate_hash):
-            request = {'source_hash': snapshot_hash(source), 'candidate_hash': candidate_hash,
-                'original_adopted_language': [{'id': r['id'], 'text_en': r['text_en']}
-                    for r in source['rules'] if r['status'] == 'adopted'],
-                'complete_legislature': copy.deepcopy(source['rules']), 'candidate': candidate}
+            request = semantic_review_request(source, candidate)
             from shadow_cleanup import DEFAULT_PROMPT_B_PATH
             prompt = Path(options.get('prompt_b_path') or DEFAULT_PROMPT_B_PATH).read_text()
             raw, usage = call_model(options['model_b'], prompt, json.dumps(request, ensure_ascii=False),
@@ -125,6 +139,10 @@ def run_verified_cleanup(source_path: Path, output_dir: Path, *,
         if audit['verdict'] != 'pass':
             report.update(stage='final_semantic_review', reason='final candidate rejected by Agent B')
             return report
+        # A resumed draft may carry an earlier unavailable advisory. That
+        # history stays in shadow/report.json; it is not this admission's failure.
+        report.pop('failure_class', None)
+        report.pop('b_advisory_error', None)
         # Exams have isolated state; only real provider spending is charged back.
         trial = TurnState([], applied, copy.deepcopy(meta), {}, [])
         trial.meta.pop('benchmark_suite', None)
