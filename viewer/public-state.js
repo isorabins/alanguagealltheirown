@@ -33,14 +33,17 @@
    */
   function createReader(options) {
     let sequence = 0, current = null, revision = null, completeRevision = null, complete = false;
-    let acceptedSequence = 0, progressSequence = 0;
+    let acceptedSequence = 0, progressSequence = 0, currentSource = null;
+    const turnOf = state => state && state.conversation && state.conversation.length ? state.conversation[state.conversation.length - 1].turn : 0;
     const fetch = options.fetch;
     const progress = options.onProgress || function () {};
     const runtime = options.onRuntime || function () {};
     const local = !!options.local;
     function publish(state, token, source, commit, isComplete = false) {
       if (token !== sequence || token < acceptedSequence || !validSnapshot(state)) return false;
+      if (currentSource === 'canonical-unpinned' && turnOf(state) < turnOf(current)) return false;
       acceptedSequence = token;
+      currentSource = source;
       if (commit && Array.isArray(commit.notes)) state = Object.assign({}, state, {notes: commit.notes});
       current = state;
       revision = commit || null;
@@ -49,7 +52,8 @@
       options.onSnapshot(state, {source, revision: commit && commit.sha, complete});
       const stateRuntime = state.meta && state.meta.runtime;
       const displayedTurn = state.conversation.length ? state.conversation[state.conversation.length - 1].turn : 0;
-      runtime(source === 'canonical' && stateRuntime ? commit.date : null,
+      const completionTime = source === 'canonical-unpinned' && stateRuntime && state.meta && Number.isFinite(Date.parse(state.meta.updated || '')) ? state.meta.updated : null;
+      runtime(source === 'canonical' && stateRuntime ? commit.date : completionTime,
               displayedTurn, stateRuntime || {});
       return true;
     }
@@ -68,6 +72,26 @@
         const full = parseArchive(await get('state.js', true));
         if (!complete || local) publish(full, token, 'deployed', null, true);
       } catch (_) {}
+    }
+    function snapshotSignal(state) {
+      return JSON.stringify({turn: turnOf(state), updated: state.meta && state.meta.updated,
+        runtime: state.meta && state.meta.runtime, language: state.language,
+        notes: Array.isArray(state.notes) ? state.notes.slice(-1) : []});
+    }
+    async function unpinnedFallback(token) {
+      // One whole archive remains coherent without the rate-limited revision API.
+      // The preview is only a small change detector; never join its data to history.
+      const preview = await get(REPO + 'main/viewer/preview.json');
+      if (!validSnapshot(preview)) throw new Error('invalid fallback preview');
+      if (complete && (turnOf(preview) < turnOf(current) || snapshotSignal(preview) === snapshotSignal(current))) return;
+      const full = parseArchive(await get(REPO + 'main/viewer/state.js', true));
+      if (!validSnapshot(full) || turnOf(full) < Math.max(turnOf(preview), turnOf(current))) {
+        throw new Error('older fallback archive');
+      }
+      if (turnOf(full) === turnOf(preview) && snapshotSignal(full) !== snapshotSignal(preview)) {
+        throw new Error('fallback archive does not yet match preview');
+      }
+      publish(full, token, 'canonical-unpinned', null, true);
     }
     async function refreshProgress() {
       const requested = ++progressSequence;
@@ -94,10 +118,12 @@
         await refreshProgress();
         return;
       }
+      let headResolved = false;
       try {
         const commits = await get(COMMITS);
         const head = Array.isArray(commits) && commits[0];
         if (!head || !/^[a-f0-9]{40}$/.test(head.sha)) throw new Error('invalid revision');
+        headResolved = true;
         if (completeRevision === head.sha) { await refreshProgress(); return; }
         // A notes/code-only commit must not make an old turn look fresh.
         const history = await get(COMMITS.replace('sha=main', 'sha=' + head.sha) + '&path=state%2Fconversation.json');
@@ -116,6 +142,9 @@
           await refreshProgress();
         }
       } catch (_) {
+        if (!headResolved) {
+          try { await unpinnedFallback(token); } catch (_) {}
+        }
         if (!complete) await fallback(token);
         if (token === sequence) await refreshProgress();
         if (!current && token === sequence) runtime(null);

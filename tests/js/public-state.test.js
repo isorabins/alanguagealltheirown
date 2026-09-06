@@ -189,3 +189,72 @@ test('unavailable full archives leave the canonical preview explicitly incomplet
  assert.equal(seen.at(-1)[0].meta.runtime.turn,30);
  assert.equal(seen.at(-1)[1].complete,false);
 });
+
+test('rate-limited head uses one complete current archive with persisted completion time',async()=>{
+ const seen=[],runtime=[],progress=[],urls=[];let turn=10;
+ const reader=createReader({initial:state(4),onSnapshot:(s,m)=>seen.push([s,m]),onRuntime:(...r)=>runtime.push(r),onProgress:(s,status)=>progress.push(status),fetch:async url=>{
+  urls.push(url);
+  if(url.includes('api.github.com'))return response(null,403);
+  const s=state(turn);s.meta.updated=date;s.conversation.unshift({turn:1});
+  return url.endsWith('state.js')?response(archive(s)):response(s);
+ }});
+ await reader.refresh();
+ assert.equal(seen.at(-1)[0].conversation[0].turn,1);
+ assert.deepEqual(seen.at(-1)[1],{source:'canonical-unpinned',revision:null,complete:true});
+ assert.equal(runtime.at(-1)[0],date);assert.equal(progress.at(-1),'unavailable');
+ await reader.refresh();assert.equal(urls.filter(u=>u.endsWith('state.js')).length,1);
+ turn=11;await reader.refresh();assert.equal(seen.at(-1)[0].meta.runtime.turn,11);
+ assert.ok(!urls.some(u=>u.endsWith('public-exam-progress.json')));
+});
+
+test('lagging or failed unpinned archive retries and later stale pinned head cannot roll it back',async()=>{
+ const seen=[];let phase='lag';
+ const reader=createReader({initial:state(4),onSnapshot:(s,m)=>seen.push([s,m]),fetch:async url=>{
+  if(url.includes('api.github.com'))return phase==='pinned'?head(A):response(null,403);
+  if(url==='preview.json'||url==='state.js')return response(null,503);
+  const turn=phase==='pinned'?8:url.endsWith('preview.json')?10:phase==='lag'?9:10;
+  return url.endsWith('state.js')?response(archive(state(turn))):response(state(turn));
+ }});
+ await reader.refresh();assert.equal(seen.at(-1)[0].meta.runtime.turn,4);
+ phase='good';await reader.refresh();assert.equal(seen.at(-1)[0].meta.runtime.turn,10);
+ phase='pinned';await reader.refresh();assert.equal(seen.at(-1)[0].meta.runtime.turn,10);
+ assert.equal(seen.at(-1)[1].source,'canonical-unpinned');
+});
+
+test('unpinned fallback never invents completion time when source time is missing or invalid',async()=>{
+ for(const updated of [undefined,'invalid']) {
+  const runtime=[];
+  const reader=createReader({onSnapshot(){},onRuntime:(...r)=>runtime.push(r),fetch:async url=>{
+   if(url.includes('api.github.com'))return response(null,403);
+   const s=state(10);s.meta.updated=updated;
+   return url.endsWith('state.js')?response(archive(s)):response(s);
+  }});
+  await reader.refresh();assert.equal(runtime.at(-1)[0],null);
+ }
+});
+
+test('same-turn runtime changes retry a lagging archive and publish only matching full evidence',async()=>{
+ let phase='initial',downloads=0;const seen=[];
+ const reader=createReader({onSnapshot:s=>seen.push(s),fetch:async url=>{
+  if(url.includes('api.github.com'))return response(null,403);
+  const s=state(10);s.meta.updated=date;
+  if(phase!=='initial'&&(url.endsWith('preview.json')||phase==='matching'))s.meta.runtime.status='paused';
+  if(url.endsWith('state.js')){downloads++;return response(archive(s));}
+  return response(s);
+ }});
+ await reader.refresh();phase='lag';await reader.refresh();assert.equal(seen.at(-1).meta.runtime.status,'active');
+ phase='matching';await reader.refresh();assert.equal(seen.at(-1).meta.runtime.status,'paused');
+ await reader.refresh();assert.equal(downloads,3);
+});
+
+test('failed raw archive preserves the complete last-good snapshot and retries later',async()=>{
+ let phase=0;const seen=[];
+ const reader=createReader({onSnapshot:(s,m)=>seen.push([s,m]),fetch:async url=>{
+  if(url.includes('api.github.com'))return response(null,403);
+  if(phase===1&&url.endsWith('state.js'))return response(null,503);
+  const s=state(phase===0?10:11);
+  return url.endsWith('state.js')?response(archive(s)):response(s);
+ }});
+ await reader.refresh();phase=1;await reader.refresh();assert.equal(seen.at(-1)[0].meta.runtime.turn,10);assert.equal(seen.at(-1)[1].complete,true);
+ phase=2;await reader.refresh();assert.equal(seen.at(-1)[0].meta.runtime.turn,11);
+});

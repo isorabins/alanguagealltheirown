@@ -20,7 +20,7 @@ from state_store import snapshot_hash
 
 RUNTIME_FILES = tuple(sorted(
     ['loop.py', 'shadow_cleanup.py', 'verified_cleanup.py', 'runtime_session.py', 'local_cleanup.py',
-     'codex_compactor.py', 'cleanup_replay.py', 'public_snapshot.py', 'viewer/index.html',
+     'codex_compactor.py', 'cleanup_replay.py', 'public_snapshot.py', 'viewer/index.html', 'viewer/public-state.js',
      'cleanup_rulebook.py', 'rulebook.py', 'exam_evidence.py', 'legislature.py',
      'legislative_protocol.py', 'turn_store.py', 'state_store.py', 'collaboration.py',
      'conversation_exam.py', 'public_exam_progress.py', 'project_lookup.py', 'run_turn.sh']

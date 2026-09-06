@@ -114,8 +114,12 @@ Legacy states without that timestamp do not invent one.
 **Give the reader:** a fetch adapter and rendering callbacks. `createReader(...)`
 returns `refresh()` and `refreshProgress()`. A refresh pins content to repository
 head and gets turn freshness from history at that revision. A bounded preview retains the real headline exams and latest A/B messages
-before full history arrives. Missing previews support old commits; unavailable GitHub
-falls back to deployed preview **and then full history**. Malformed or late older
+before full history arrives. Missing previews support old commits. If GitHub revision lookup
+is unavailable, a raw-main preview detects advancing turns and one complete raw-main
+archive supplies a coherent fallback, using its persisted completion timestamp.
+It never mixes revisions or loads independent progress, never replaces newer turns
+with older ones, and retries an archive that lagged its preview. If that path is
+unavailable, it falls back to deployed preview **and then full history**. Malformed or late older
 responses cannot overwrite a newer coherent view. Each snapshot callback reports
 `complete`: false previews are labeled as incomplete in the page. If a canonical
 preview succeeds but the full archive fails, the reader tries the deployed full

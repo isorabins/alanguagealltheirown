@@ -121,7 +121,7 @@ tasks:
 checks:
   dirty_fingerprint: unknown
   last_verification:
-    result: repairs verified; production paused pending budget approval; completion unproven
+    result: repairs deployed; shared $5 approved; C finalization running; completion unproven
     task: T003
     commands:
       - python3 -m unittest discover -s tests/python (303 passed)
