@@ -26,7 +26,9 @@ from rulebook import apply_typed_motion, render_language, render_legislature
 from turn_store import TurnState
 
 MAX_POST_CHECKPOINT_CHANGES = 64
-MAX_STRUCTURED_PROMPT_CHARS = 120_000
+# Full pre-cleanup language plus bounded collaboration must fit. Live t3739
+# is 120,839 characters; retain headroom without truncating operative content.
+MAX_STRUCTURED_PROMPT_CHARS = 160_000
 PRIVATE_FAULT_PROMPT_REDACTION = "[private validation-overlapping text withheld from this legislative prompt]"
 
 @dataclass(frozen=True)

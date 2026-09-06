@@ -983,6 +983,21 @@ class ProductionShapedPromptTests(unittest.TestCase):
         self.assertLessEqual(assembled["total_chars"], loop.MAX_STRUCTURED_PROMPT_CHARS)
         self.assertEqual(snapshot_hash(book), original_hash)
 
+    def test_full_legacy_book_has_headroom_without_dropping_adopted_text(self):
+        book = production_book()
+        book['rules'][0]['text_en'] = 'Preserve this exact boundary. ' * 3900
+        original = snapshot_hash(book)
+        assembled = loop.assemble_legislative_prompt(production_window(book), book,
+            turn=1210, agent='B', collaboration_input=None)
+        self.assertGreater(assembled['total_chars'], 120_000)
+        self.assertLessEqual(assembled['total_chars'], loop.MAX_STRUCTURED_PROMPT_CHARS)
+        self.assertIn(book['rules'][0]['text_en'], assembled['system'])
+        self.assertEqual(snapshot_hash(book), original)
+        book['rules'][0]['text_en'] += 'Preserve this exact boundary. ' * 3000
+        with self.assertRaisesRegex(RuntimeError, 'deterministic size budget'):
+            loop.assemble_legislative_prompt(production_window(book), book,
+                turn=1210, agent='B', collaboration_input=None)
+
     def test_live_test_projection_keeps_outcome_not_duplicate_payloads(self):
         event = {
             "turn": 1209,
