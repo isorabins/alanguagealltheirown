@@ -20,6 +20,42 @@ ROOT = Path(__file__).parents[2]
 
 
 class EvidenceTests(unittest.TestCase):
+    def test_citation_feedback_tolerates_structurally_invalid_judgments(self):
+        from exam_evidence import _citation_repair_feedback
+        key = [{"id": "R1", "meaning": "Retain Nia.", "literal_sets": [["Nia"]]}]
+        for grade in [None, {"items": None}, {"items": {}},
+                      {"items": [{"id": [], "verdict": "SURVIVED", "evidence_lines": [1, 1]}],
+                       "inventions": []}]:
+            with self.subTest(grade=grade):
+                self.assertEqual(_citation_repair_feedback(key, grade, "Nia"), [])
+
+    def test_citation_feedback_lists_all_conflicts_without_changing_judgment(self):
+        from exam_evidence import _citation_repair_feedback
+        key = [
+            {"id": "R1", "meaning": "Send Nia the report.", "literal_sets": [["Nia"]]},
+            {"id": "R2", "meaning": "Include lot VX-240.", "literal_sets": [["VX-240"]]},
+            {"id": "R3", "meaning": "Include code ZZ-9.", "literal_sets": [["ZZ-9"]]},
+        ]
+        decoded = "Nia is the audit lead.\nLot VX-240 is allocated.\nSend her the report including this lot."
+        grade = {"mode": "RELAY", "items": [
+            {"id": atom["id"], "verdict": "SURVIVED", "evidence_lines": [3, 3]}
+            for atom in key
+        ], "inventions": []}
+        before = copy.deepcopy(grade)
+        feedback = _citation_repair_feedback(key, grade, decoded)
+        self.assertEqual(grade, before)
+        self.assertEqual([row["atom_id"] for row in feedback], ["R1", "R2", "R3"])
+        self.assertEqual([row["required_groups_outside_citation"][0]["decoded_lines"]
+                          for row in feedback], [[1], [2], []])
+        self.assertTrue(all(row["authored_evidence_lines"] == [3, 3] for row in feedback))
+        # Literal occurrence is reported even when the relationship is wrong;
+        # the helper must neither decide a verdict nor manufacture a citation.
+        wrong = decoded.replace("Send her", "Send Omar")
+        self.assertEqual(_citation_repair_feedback(key, grade, wrong), feedback)
+        grade["items"][0]["verdict"] = "CORRUPTED"
+        self.assertEqual([row["atom_id"] for row in _citation_repair_feedback(key, grade, decoded)],
+                         ["R2", "R3"])
+
     def _valid_grade(self, benchmark):
         decoded = "\n".join(atom["meaning"] for atom in benchmark["answer_key"])
         grade = {"mode": "RELAY", "items": [
@@ -80,6 +116,12 @@ class EvidenceTests(unittest.TestCase):
                     (ROOT / "tests/fixtures/mixed-rulebook.json").read_text()
                 ), meta, turn)
             self.assertEqual(len(calls), 4 if verdict == "SURVIVED" else 3)
+            if verdict == "SURVIVED":
+                self.assertIn("CITATION VALIDATION DETAILS", calls[3][2])
+                details = calls[3][2].split("CITATION VALIDATION DETAILS (all affected atoms):\n", 1)[1].split("\nThese are", 1)[0]
+                self.assertEqual(json.loads(details)[0]["atom_id"], target_id)
+                self.assertEqual(json.loads(details)[0]["required_groups_outside_citation"],
+                                 [{"alternatives": [literal], "decoded_lines": []}])
             return conv[-1], calls[2]
 
         invalid_event, grader_call = run("SURVIVED")
@@ -179,6 +221,23 @@ class EvidenceTests(unittest.TestCase):
                     result["items"][0]["evidence"],
                 )
 
+    def test_reference_span_repair_keeps_literal_and_negative_guards(self):
+        # Synthetic recipient control; no production benchmark answer is supplied.
+        decoded = "The audit lead is Nia Kato.\nSend her the completed report."
+        key = [{"id": "REF.1", "meaning": "Send the completed report to Nia Kato.",
+                "critical": True, "literal_sets": [["Nia Kato"]]}]
+        for span, verdict, valid, passed in [([2, 2], "SURVIVED", False, False),
+                                             ([1, 2], "SURVIVED", True, True),
+                                             ([1, 2], "CORRUPTED", True, False)]:
+            with self.subTest(span=span, verdict=verdict):
+                grade = {"mode": "RELAY", "items": [{"id": "REF.1", "verdict": verdict,
+                         "evidence_lines": span}], "inventions": []}
+                materialized, error = loop._materialize_grader_evidence(grade, decoded)
+                self.assertIsNone(error)
+                score = loop.score_judgment_v2(key, materialized, decoded, 0)
+                self.assertEqual(score["valid"], valid)
+                self.assertEqual(bool(score.get("meaning_pass")), passed)
+
     def test_malformed_or_legacy_evidence_references_fail_closed(self):
         decoded = "Line one.\nLine two."
         for evidence_lines in (
@@ -269,6 +328,24 @@ class EvidenceTests(unittest.TestCase):
         self.assertEqual([a["valid"] for a in event["judge_attempts"]],[False,True])
         self.assertEqual(meta["tests_run"],1)
         self.assertEqual(meta["benchmark_suite"]["next_index"],1)
+
+    def test_malformed_atom_ids_reach_the_single_repair(self):
+        benchmark = loop.load_benchmark_suite()["benchmarks"][0]
+        decoded, grade = self._valid_grade(benchmark)
+        for malformed_id in ([], {}):
+            with self.subTest(malformed_id=malformed_id):
+                broken = copy.deepcopy(grade)
+                broken["items"][0]["id"] = malformed_id
+                responses = [("ENC", {}), (decoded, {}), (json.dumps(broken), {}),
+                             (json.dumps(grade), {})]
+                conv = []; meta = {"tests_run": 0, "spend_usd": 0}
+                rb = json.loads((ROOT / "tests/fixtures/mixed-rulebook.json").read_text())
+                with mock.patch("loop.call", side_effect=responses) as call, mock.patch(
+                        "loop.token_count", side_effect=[100, 120]):
+                    loop.test_turn(conv, rb, meta, 3)
+                self.assertEqual(call.call_count, 4)
+                self.assertEqual(conv[-1]["judge_attempts"][0]["reason"], "invalid_atom_id")
+                self.assertTrue(conv[-1]["judge_valid"])
 
     def test_corpus_receipt_does_not_mutate_legacy_rule_scores(self):
         rb = json.loads((ROOT / "tests/fixtures/mixed-rulebook.json").read_text())

@@ -1,0 +1,134 @@
+{
+  "scope": "Diagnostic only; no adoption and no new encoder/decoder calls. Original failed admission retained.",
+  "original_admission": "/root/alato-restart-20260906/approved-2/cleanup-evidence/07f9eb6ea7a44d70b716fbd8a8bc5f9a",
+  "diagnostic": "/root/alato-restart-20260906/approved-2/retained-judge-control-v2",
+  "controls": "/root/alato-restart-20260906/approved-2/citation-repair-controls-v2",
+  "changes": "Clarify decoded references; give sole repair all missing citation literals and their decoded occurrence lines, without choosing spans or verdicts.",
+  "unchanged": [
+    "Five original benchmarks and answer keys",
+    "Meaning thresholds and literal guards",
+    "Models and reasoning settings",
+    "One repair only for invalid authored judgments",
+    "Valid negative judgments are terminal"
+  ],
+  "results": {
+    "B1": "valid pass 100",
+    "B2": "valid pass 100",
+    "B3": "valid pass 100",
+    "B4": "invalid: B4.31 evidence range [13,-1]; disputed reference citations corrected, no retry",
+    "B5": "valid pass 100"
+  },
+  "controls_result": {
+    "admission_evidence": false,
+    "diagnostic_only": true,
+    "results": [
+      {
+        "attempts": 2,
+        "case": "near",
+        "expected_pass": true,
+        "judge_valid": true,
+        "label": "baseline",
+        "meaning_pass": true
+      },
+      {
+        "attempts": 2,
+        "case": "distant",
+        "expected_pass": true,
+        "judge_valid": true,
+        "label": "baseline",
+        "meaning_pass": true
+      },
+      {
+        "attempts": 2,
+        "case": "wrong_recipient",
+        "expected_pass": false,
+        "judge_valid": false,
+        "label": "baseline",
+        "meaning_pass": null
+      },
+      {
+        "attempts": 2,
+        "case": "wrong_lot",
+        "expected_pass": false,
+        "judge_valid": true,
+        "label": "baseline",
+        "meaning_pass": false
+      },
+      {
+        "attempts": 2,
+        "case": "ambiguous",
+        "expected_pass": false,
+        "judge_valid": true,
+        "label": "baseline",
+        "meaning_pass": false
+      },
+      {
+        "attempts": 2,
+        "case": "missing",
+        "expected_pass": false,
+        "judge_valid": true,
+        "label": "baseline",
+        "meaning_pass": false
+      },
+      {
+        "attempts": 2,
+        "case": "near",
+        "expected_pass": true,
+        "judge_valid": true,
+        "label": "candidate",
+        "meaning_pass": true
+      },
+      {
+        "attempts": 2,
+        "case": "distant",
+        "expected_pass": true,
+        "judge_valid": true,
+        "label": "candidate",
+        "meaning_pass": true
+      },
+      {
+        "attempts": 2,
+        "case": "wrong_recipient",
+        "expected_pass": false,
+        "judge_valid": true,
+        "label": "candidate",
+        "meaning_pass": false
+      },
+      {
+        "attempts": 2,
+        "case": "wrong_lot",
+        "expected_pass": false,
+        "judge_valid": true,
+        "label": "candidate",
+        "meaning_pass": false
+      },
+      {
+        "attempts": 2,
+        "case": "ambiguous",
+        "expected_pass": false,
+        "judge_valid": true,
+        "label": "candidate",
+        "meaning_pass": false
+      },
+      {
+        "attempts": 2,
+        "case": "missing",
+        "expected_pass": false,
+        "judge_valid": true,
+        "label": "candidate",
+        "meaning_pass": false
+      }
+    ],
+    "spend_usd": "0.00235606320"
+  },
+  "candidate_sha256": {
+    "exam_evidence.py": "30482321cab6b88f473bc3d6b5ec68b052d18b946c364dddb11b941ce3ec7160",
+    "prompts/grader_v2.md": "477b1f8ad87eea5b64797f18542179f57a869c78c3c3b3e4ba0855bf71a95d89"
+  },
+  "next_required": "Independent release review and fresh native production C cycle with all real exam stages; diagnostic scores are not admission evidence.",
+  "release_sha256": {
+    "exam_evidence.py": "489099c8cd7b4182c09a37045b234d031b1d03b6286c97de19f084675b9fea7a",
+    "prompts/grader_v2.md": "477b1f8ad87eea5b64797f18542179f57a869c78c3c3b3e4ba0855bf71a95d89"
+  },
+  "review_fix": "Malformed array/object atom IDs skip citation projection and reach the existing single repair. Added helper and native exam regressions; valid citation behavior unchanged."
+}
