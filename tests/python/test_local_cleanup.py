@@ -58,6 +58,32 @@ class LocalCleanupBudgetTests(unittest.TestCase):
                 self.assertTrue(transport.stopped)
                 self.assertEqual(str(transport.used), "1.20")
 
+    def test_uncertain_failure_records_safe_stage_without_releasing_reservation(self):
+        cases = [
+            ('request', Mock(side_effect=loop.requests.Timeout('secret-network-detail')), 'Timeout'),
+            ('response_json', Mock(return_value=Mock(status_code=200,
+                json=Mock(side_effect=ValueError('secret-response-detail')))), 'ValueError'),
+            ('response_receipt', Mock(return_value=Mock(status_code=200,
+                json=lambda: {'id':'gen-test', 'choices':[{'message':{'content':'\ud83d'}}],
+                              'usage':{'cost':.3}})), 'UnicodeEncodeError'),
+            ('cost', Mock(return_value=Mock(status_code=200,
+                json=lambda: {'id':'gen-test', 'usage':{'cost':None}})), 'LocalBudgetError'),
+        ]
+        for stage, post, error_type in cases:
+            with self.subTest(stage=stage):
+                self.receipt.unlink(missing_ok=True)
+                transport=ReservedTransport('10',self.models,self.receipt,post=post)
+                with self.assertRaises(LocalBudgetError):
+                    transport('unused',json={'model':'test/model','max_tokens':10})
+                saved=json.loads(self.receipt.read_text())
+                self.assertTrue(saved['stopped'])
+                self.assertEqual(saved['charged_or_reserved_usd'],'1.20')
+                failure=saved['attempts'][-1]['failure']
+                self.assertEqual(failure['stage'],stage)
+                self.assertEqual(failure['exception_type'],error_type)
+                self.assertNotIn('secret-',self.receipt.read_text())
+                self.assertEqual(post.call_count,1)
+
     def test_text_rehearsal_fits_one_dollar_without_reserving_empty_context(self):
         models = {"moonshotai/kimi-k3": {"context_length": 1048576,
                   "pricing": {"prompt": ".000003", "completion": ".000015"}}}

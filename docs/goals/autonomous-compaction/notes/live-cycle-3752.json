@@ -1,0 +1,42 @@
+{
+  "goal_complete": false,
+  "release": "41b592211f5d4481155d356e325eabfc3a2931f1",
+  "edition": "automatic-cleanup-v9-explicit-assignment-contract",
+  "scheduled_invocation": "82f72d76f7494fc083981bb5ec53a404",
+  "source_hash": "ff8cad73ec45a9626209c927ff261af209430b3196c8ff80e3da435740813fc0",
+  "language_hash": "6382c49a2fea36287b9ad4117a34ba3aca99764775fcb53203561c04ddfae48d",
+  "source_tokens": 21302,
+  "open_motion": null,
+  "last_completed_turn": 3751,
+  "c_call": "call-c1kebhqx",
+  "budget_total_usd": "4.30368734495",
+  "limit_usd": "8",
+  "expires_at": "2026-09-07T06:50:18.219114+00:00",
+  "unresolved_reservations_retained": [
+    208,
+    214,
+    218,
+    235
+  ],
+  "transport_diagnostic": "Exact request218 repeated219..224 succeeded six times; no proven root cause; native3750 retry then completed; if failure recurs add safe stage/exception diagnostics before retry",
+  "cadence": "temporary minute interval on same native sequential service; original15-minute file intact",
+  "restoration_required": false,
+  "restore_script": "/tmp/alato-repair-preflight/restore-cadence.py",
+  "restore_on": "required scheduled continuation complete, or any further pause; use --pause for abort",
+  "observer_session": 96326,
+  "observer_receipts": "/root/alato-restart-20260906/approved-2/goal-live/citation-cycle/",
+  "c_draft_valid": true,
+  "candidate_hash": "fd577e95a76899043da9493624dfd3a85fbd10e4ea0f85cbe0d04034abca0e21",
+  "native_failure_report": "/root/alato-restart-20260906/approved-2/cleanup-evidence/586674d7e699446eb059c02657485025/report.json",
+  "native_failure_stage": "token_gate",
+  "native_failed_request": 235,
+  "timer_active": false,
+  "diagnostic236": {
+    "outcome": "received_cost",
+    "response_id": "gen-1788693779-RbTSr3rPCIA23kuHmn7s",
+    "actual_cost_usd": "0.000708768",
+    "request_hash": "f67189bb85250fab281fdef59ffa9f8e71e847c04122440e97c615c30d3caef7",
+    "scope": "isolated instrumented transport; does not prove cause of native failure"
+  },
+  "next_action": "Release minimal safe failure diagnostics, then resume exact cached C draft under unchanged8cap/expiry. No more standalone sampling."
+}
