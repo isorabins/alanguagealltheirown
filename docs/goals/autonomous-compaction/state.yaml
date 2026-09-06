@@ -32,7 +32,7 @@ goal:
       - Preserve existing implementation and history
       - B advises C decides
       - Do not weaken meaning exams
-      - Existing shared allowance, increased to $5 total by Iso; original deadline retained
+      - Existing shared allowance, increased to $8 total by Iso; original deadline retained
 rules:
   pm_owns_state: true
   one_active_task: true
@@ -121,7 +121,7 @@ tasks:
 checks:
   dirty_fingerprint: unknown
   last_verification:
-    result: public display fixed; admission failed; citation repair controls passed; review pending; timer paused
+    result: Kimi retry passed; C final failed exclusion marker; explicit assignment contract and one repair per phase verified locally; release review pending; timer paused
     task: T003
     commands:
       - python3 -m unittest discover -s tests/python (307 passed)

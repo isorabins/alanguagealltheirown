@@ -114,8 +114,17 @@ def check(directory, *, live_reader=read_live):
     require(receipts['source_hash']==snapshot_hash(source) and receipts['candidate_hash']==snapshot_hash(candidate),'provider receipt identity mismatch')
     from shadow_cleanup import compile_c_response
     cycle=receipts['compaction_cycle']
-    require([r['role'] for r in cycle] in [['C','B','C'],['C','C','B','C'],['C','B','C','C']],'missing draft/advisory/final cycle')
+    require([r['role'] for r in cycle] in [['C','B','C'],['C','C','B','C'],['C','B','C','C'],['C','C','B','C','C']],'missing draft/advisory/final cycle')
     advisory=next(r for r in cycle if r['role']=='B')
+    advisory_index=cycle.index(advisory)
+    reviewed_draft=cycle[advisory_index-1]['response']
+    reviewed_candidate,_=compile_c_response(source,reviewed_draft)
+    require(reviewed_candidate==advisory['request']['candidate'],'B reviewed another draft')
+    for authored in cycle[advisory_index+1:]:
+        require(authored['request']['previous_draft']==reviewed_draft and
+                authored['request']['previous_candidate']==reviewed_candidate and
+                authored['request']['b_advisory']==advisory['response'],
+                'finalization lost the reviewed draft or advisory')
     final=cycle[-1]
     require(final['request']['final_decision'] is True and final['request']['b_advisory']==advisory['response'],'C did not receive B comments')
     require(final['request']['source_hash']==snapshot_hash(source),'C finalized another source')

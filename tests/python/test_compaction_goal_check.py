@@ -16,7 +16,7 @@ from test_shadow_cleanup import c_response
 import loop
 
 class CompletionCheckTests(unittest.TestCase):
-    def build(self,root, *, evolve=False):
+    def build(self,root, *, evolve=False, phase_repairs=False):
         files={};remote={};calls=[]
         def put(name,value,raw=False,remote_origin=False):
             content=value if raw else json.dumps(value)
@@ -41,12 +41,24 @@ class CompletionCheckTests(unittest.TestCase):
                 put(item['raw_response_file'],{'id':identifier,'model':model,'choices':[{'message':{'content':text},'finish_reason':'stop'}]},remote_origin=True)
             calls.append(item);return item
         initial={'source_hash':snapshot_hash(source)}
+        broken=copy.deepcopy(response)
+        broken['assignments']['rule-001']='excluded'
+        broken['exclusions']=[{'source_id':'rule-001','reason':'operational'}]
+        cycle_calls=[]
+        if phase_repairs:
+            cycle_calls.append(call('C','gpt-6-astra','draft',json.dumps(initial),json.dumps(broken)))
         draft=call('C','gpt-6-astra','draft',json.dumps(initial),json.dumps(response))
+        cycle_calls.append(draft)
         advisory={'verdict':'pass','notes':['Preserve deadlines.']}
-        b=call('B','moonshotai/kimi-k3','review',json.dumps(initial),json.dumps(advisory))
-        final_request=dict(initial,final_decision=True,b_advisory=advisory)
+        b=call('B','moonshotai/kimi-k3','review',json.dumps(dict(initial,candidate=candidate)),json.dumps(advisory))
+        cycle_calls.append(b)
+        final_request=dict(initial,final_decision=True,b_advisory=advisory,previous_draft=response,previous_candidate=candidate)
+        if phase_repairs:
+            cycle_calls.append(call('C','gpt-6-astra','finalize',json.dumps(final_request),json.dumps(broken)))
+            final_request['structural_correction']={'error':'exclusions must exactly match __exclude__ assignments','previous_draft':broken}
         final=call('C','gpt-6-astra','finalize',json.dumps(final_request),json.dumps(response))
-        cycle=[{'role':r['role'],'response_id':r['response_id'],'request':json.loads(r['request']['user']),'response':json.loads(r['text'])} for r in [draft,b,final]]
+        cycle_calls.append(final)
+        cycle=[{'role':r['role'],'response_id':r['response_id'],'request':json.loads(r['request']['user']),'response':json.loads(r['text'])} for r in cycle_calls]
         suite=[];events=[]
         from exam_evidence import ExamResources,run_exam
         from turn_store import TurnState
@@ -134,6 +146,21 @@ class CompletionCheckTests(unittest.TestCase):
             root=Path(d);suite,live=self.build(root,evolve=True)
             with patch.object(loop,'load_benchmark_suite',return_value={'version':'v2','benchmarks':suite}):
                 self.assertTrue(gate.check(root,live_reader=lambda _:live)['complete'])
+
+    def test_bounded_phase_repairs_and_exact_reviewed_draft(self):
+        for mutation in (None, 'fifth_c', 'wrong_draft'):
+            with self.subTest(mutation=mutation), tempfile.TemporaryDirectory() as d:
+                root=Path(d);suite,live=self.build(root,phase_repairs=True)
+                if mutation:
+                    p=root/'provider-receipts.json';value=json.loads(p.read_text())
+                    if mutation=='fifth_c':value['compaction_cycle'].append(copy.deepcopy(value['compaction_cycle'][-1]))
+                    else:value['compaction_cycle'][-1]['request']['previous_draft']['assignments']['rule-001']='wrong'
+                    p.write_text(json.dumps(value))
+                    m=json.loads((root/'manifest.json').read_text());m['sha256'][p.name]=hashlib.sha256(p.read_bytes()).hexdigest();(root/'manifest.json').write_text(json.dumps(m))
+                with patch.object(loop,'load_benchmark_suite',return_value={'version':'v2','benchmarks':suite}):
+                    if mutation:
+                        with self.assertRaises(ValueError):gate.check(root,live_reader=lambda _:live)
+                    else:self.assertTrue(gate.check(root,live_reader=lambda _:live)['complete'])
 
     def test_rejects_failed_codex_terminal_and_unavailable_future_runtime(self):
         for failure in ['terminal','quarantine','expiry','budget','unrecorded_book']:

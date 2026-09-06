@@ -108,7 +108,8 @@ def cleanup_draft_request_options(source: dict[str, Any]) -> dict[str, Any]:
     """Build the exact structured-output and provider-routing options for A."""
     adopted_ids = _ordered_adopted_ids(source)
     assignment_properties = {
-        rule_id: {"type": "string", "minLength": 1, "maxLength": 128}
+        rule_id: {"type": "string", "minLength": 1, "maxLength": 128,
+                  "description": "Exact defined group ID, or __exclude__ with one matching exclusions entry."}
         for rule_id in adopted_ids
     }
     schema = {
