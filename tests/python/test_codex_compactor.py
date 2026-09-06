@@ -10,10 +10,10 @@ from codex_compactor import CodexCompactor, CodexCompletionError
 
 
 class CodexCompactorTests(unittest.TestCase):
-    def run_fake(self, *, terminal=True, failed=False, raw='{"groups": []}', timeout=False, large=False):
+    def run_fake(self, *, terminal=True, failed=False, raw='{"groups": []}', timeout=False, large=False, text_mode=False):
         with tempfile.TemporaryDirectory() as directory:
             def run(command,**kwargs):
-                self.assertIn('--output-schema',command)
+                self.assertEqual('--output-schema' in command, not text_mode)
                 self.assertIn('--ignore-user-config',command)
                 self.assertIn('--ephemeral',command)
                 self.assertEqual(command[command.index('--sandbox')+1],'read-only')
@@ -34,7 +34,7 @@ class CodexCompactorTests(unittest.TestCase):
                 return SimpleNamespace(returncode=1 if failed else 0)
             with patch.dict('os.environ',{'OPENAI_API_KEY':'fake-key','OPENROUTER_API_KEY':'fake-key'}):
                 adapter=CodexCompactor(Path(directory),run=run)
-                return adapter('gpt-6-astra','Return an object','source data '*100000 if large else 'source data',request_options={
+                return adapter('gpt-6-astra','Return an object','source data '*100000 if large else 'source data',request_options=None if text_mode else {
                     'response_format':{'json_schema':{'schema':{'type':'object'}}}})
 
     def test_complete_response_uses_subscription_and_schema(self):
@@ -73,3 +73,8 @@ class CodexCompactorTests(unittest.TestCase):
             b=CodexCompactor(base/'other',replay_first=saved,run=no_call)
             with self.assertRaisesRegex(CodexCompletionError,'different request'):
                 b('gpt-6-astra','s','changed source',request_options=options)
+
+    def test_plain_encoding_response_uses_subscription_without_json_coercion(self):
+        raw,usage=self.run_fake(raw='Send by 5 PM.',text_mode=True)
+        self.assertEqual(raw,'Send by 5 PM.')
+        self.assertEqual(usage['billing'],'codex_subscription')

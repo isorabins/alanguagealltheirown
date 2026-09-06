@@ -378,3 +378,19 @@ class AutomaticCleanupTests(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class FailedEditionResetTests(unittest.TestCase):
+    def test_reviewed_new_edition_rearms_failed_attempt_without_resetting_growth(self):
+        import loop
+        state={'last_status':'failed','last_attempt_language_hash':'book','last_reason':'C final call exhausted',
+               'last_attempt_turn':8,'baseline_tokens':2463,'baseline_turn':2,
+               'reset':{'reviewed_edition':'old-edition'}}
+        loop.reset_automatic_cleanup_quarantine(state,reviewed_edition=loop.AUTOMATIC_CLEANUP_EDITION,operator='Approved goal release')
+        self.assertEqual(state['baseline_tokens'],2463)
+        self.assertEqual(state['baseline_turn'],2)
+        self.assertIsNone(state['last_attempt_language_hash'])
+        self.assertEqual(state['reset']['prior_quarantine']['failure_reason'],'C final call exhausted')
+        state['last_status']='failed'
+        with self.assertRaises(ValueError):
+            loop.reset_automatic_cleanup_quarantine(state,reviewed_edition=loop.AUTOMATIC_CLEANUP_EDITION,operator='same edition')

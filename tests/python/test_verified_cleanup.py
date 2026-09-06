@@ -15,7 +15,7 @@ ROOT = Path(__file__).resolve().parents[2]
 class VerifiedCleanupTests(unittest.TestCase):
     def run_case(self, *, first_reject=False, final_reject=False, invalid_judge=False,
                  meaning_fail=False, provider_fail=False, stale_audit=False,
-                 open_motion=False, oversized=False, source_tokens=1000, candidate_tokens=100, max_spend=1.1, probe_cost=0, resume=False, changed_resume=False):
+                 open_motion=False, oversized=False, source_tokens=1000, candidate_tokens=100, max_spend=1.1, probe_cost=0, resume=False, changed_resume=False, tamper_resume=None):
         with tempfile.TemporaryDirectory() as directory:
             base = Path(directory)
             source = {'version':'1', 'next_id':3, 'changes':0, 'kernel_tokens':source_tokens,
@@ -71,6 +71,13 @@ class VerifiedCleanupTests(unittest.TestCase):
                 if changed_resume:
                     source['rules'][0]['text_en']='Changed language.'
                     path.write_text(json.dumps(source));before=path.read_bytes()
+                if tamper_resume:
+                    saved_path=base/'out/shadow/c-call.json'
+                    saved=json.loads(saved_path.read_text())
+                    if tamper_resume=='content':saved['content']='{}'
+                    elif tamper_resume=='model':saved['model']='different-c'
+                    elif tamper_resume=='prompt':saved['prompt_sha256']='stale'
+                    saved_path.write_text(json.dumps(saved))
                 report=run_verified_cleanup(path,base/'resumed',exams=ExamResources(ROOT,suite,'encoder','decoder','grader'),
                     policy=CleanupPolicy(),model_c='c',model_b='b',call_model=call,
                     token_counter=tokens,meta=meta,max_spend_usd=max_spend,resume_draft_dir=base/'out/shadow')
@@ -89,19 +96,20 @@ class VerifiedCleanupTests(unittest.TestCase):
     def test_all_real_exam_stages_and_exact_review_required_before_exposure(self):
         report,calls=self.run_case()
         self.assertEqual(report['status'],'PASS')
-        self.assertEqual(calls,['c','b','encoder','decoder','grader','encoder','decoder','grader'])
+        self.assertEqual(calls,['c','b','c','encoder','decoder','grader','encoder','decoder','grader'])
         self.assertEqual(len(report['exam_results']),2)
         self.assertEqual(report['reviewed_candidate_hash'],report['candidate_hash'])
 
     def test_c_revision_cannot_inherit_prior_review(self):
         report,calls=self.run_case(first_reject=True)
-        self.assertEqual(calls[:4],['c','b','c','b'])
+        self.assertEqual(calls[:4],['c','b','c','encoder'])
         self.assertEqual(report['status'],'PASS')
 
-    def test_final_rejection_stops_before_exams(self):
+    def test_c_overrules_b_and_all_exams_decide_adoption(self):
         report,calls=self.run_case(first_reject=True,final_reject=True)
-        self.assertEqual(report['status'],'FAIL')
-        self.assertEqual(calls,['c','b','c','b'])
+        self.assertEqual(report['status'],'PASS')
+        self.assertEqual(calls.count('b'),1)
+        self.assertEqual(report['decision_authority'],'C')
 
     def test_bad_judge_or_meaning_stops_admission_but_runs_whole_suite(self):
         for flag in ('invalid_judge','meaning_fail'):
@@ -141,11 +149,11 @@ class VerifiedCleanupTests(unittest.TestCase):
     def test_admission_budget_covers_revision_exams_and_token_probes(self):
         report,calls=self.run_case(first_reject=True,max_spend=.035)
         self.assertEqual(report['status'],'FAIL')
-        self.assertEqual(calls,['c','b','c','b'])
+        self.assertEqual(calls,['c','b','c','encoder'])
         self.assertEqual(report['error_type'],'CleanupBudgetExceeded')
         report,calls=self.run_case(max_spend=.045)
         self.assertEqual(report['status'],'FAIL')
-        self.assertEqual(calls,['c','b','encoder','decoder','grader'])
+        self.assertEqual(calls,['c','b','c','encoder','decoder'])
         self.assertEqual(report['error_type'],'CleanupBudgetExceeded')
         report,calls=self.run_case(max_spend=.005,probe_cost=.006)
         self.assertEqual(report['status'],'FAIL')
@@ -155,7 +163,7 @@ class VerifiedCleanupTests(unittest.TestCase):
     def test_resume_unavailable_review_revalidates_draft_without_redrafting(self):
         report,calls=self.run_case(resume=True)
         self.assertEqual(report['status'],'PASS')
-        self.assertEqual(calls,['c','b','b','encoder','decoder','grader','encoder','decoder','grader'])
+        self.assertEqual(calls,['c','b','b','c','encoder','decoder','grader','encoder','decoder','grader'])
         self.assertEqual(report['prior_status'],'FAIL')
 
     def test_resume_refuses_changed_source_before_review(self):
@@ -182,3 +190,10 @@ class VerifiedCleanupTests(unittest.TestCase):
         self.assertEqual(projection['projection_hash'],snapshot_hash(rows))
         self.assertEqual(request['source_hash'],snapshot_hash(source))
         self.assertEqual(source,before)
+
+    def test_resume_rejects_mismatched_payload_model_and_prompt(self):
+        for tamper in ('content','model','prompt'):
+            with self.subTest(tamper=tamper):
+                report,calls=self.run_case(resume=True,tamper_resume=tamper)
+                self.assertEqual(report['status'],'FAIL')
+                self.assertEqual(calls,['c','b'])

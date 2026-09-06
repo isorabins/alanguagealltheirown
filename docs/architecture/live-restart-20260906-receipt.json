@@ -1,0 +1,108 @@
+{
+  "verified_at": "2026-09-06T07:10:57.904511+00:00",
+  "code_release": "4a5150512220de4f94c58b94848d57bbf75a77d9",
+  "merged_prs": [
+    83,
+    84
+  ],
+  "canonical_commit": "28dce78334c9542517a75eafb27db2d6a52aa2fb",
+  "completed_turn": 3741,
+  "last_completed_turn_at": "2026-09-06T07:09:16Z",
+  "loop_timer": "active",
+  "session_end_timer": "active",
+  "expires_at": "2026-09-07T06:50:18.219114+00:00",
+  "api_limit_usd": "2",
+  "api_charged_or_reserved_usd": "0.13130859705",
+  "uncertain_charge": false,
+  "new_operating_allowance": true,
+  "earlier_local_testing_spend_usd": "0.80685295017",
+  "recent_events": [
+    {
+      "turn": 3739,
+      "agent": "B",
+      "type": "message",
+      "status": null,
+      "reason": null,
+      "judge_valid": null,
+      "semantic_coverage_pct": null,
+      "message_body_savings_pct": null,
+      "orig_tokens": null,
+      "enc_tokens": null
+    },
+    {
+      "turn": 3739,
+      "agent": "harness",
+      "type": "legislature",
+      "status": null,
+      "reason": null,
+      "judge_valid": null,
+      "semantic_coverage_pct": null,
+      "message_body_savings_pct": null,
+      "orig_tokens": null,
+      "enc_tokens": null
+    },
+    {
+      "turn": 3740,
+      "agent": "harness",
+      "type": "cleanup",
+      "status": "failed",
+      "reason": "C call limit exhausted before advisory finalization",
+      "judge_valid": null,
+      "semantic_coverage_pct": null,
+      "message_body_savings_pct": null,
+      "orig_tokens": null,
+      "enc_tokens": null
+    },
+    {
+      "turn": 3740,
+      "agent": "A",
+      "type": "message",
+      "status": null,
+      "reason": null,
+      "judge_valid": null,
+      "semantic_coverage_pct": null,
+      "message_body_savings_pct": null,
+      "orig_tokens": null,
+      "enc_tokens": null
+    },
+    {
+      "turn": 3740,
+      "agent": "harness",
+      "type": "legislature",
+      "status": null,
+      "reason": null,
+      "judge_valid": null,
+      "semantic_coverage_pct": null,
+      "message_body_savings_pct": null,
+      "orig_tokens": null,
+      "enc_tokens": null
+    },
+    {
+      "turn": 3741,
+      "agent": "harness",
+      "type": "test",
+      "status": null,
+      "reason": null,
+      "judge_valid": true,
+      "semantic_coverage_pct": 100,
+      "message_body_savings_pct": 11,
+      "orig_tokens": 435,
+      "enc_tokens": 388
+    }
+  ],
+  "cleanup": [
+    {
+      "status": "FAIL",
+      "stage": "c_call_limit",
+      "reason": "C call limit exhausted before advisory finalization",
+      "candidate_tokens": 3828,
+      "models": {
+        "b": "moonshotai/kimi-k2.6",
+        "c": "gpt-6-astra"
+      },
+      "candidate_hash": "8ff5ad08f64bb8cad062b5d9b81a3d186673397f320aef6af083d3467eeac383"
+    }
+  ],
+  "public_url": "https://alanguagealltheirown.com",
+  "viewer_deployment": "dpl_ECJBKJ96KLc95y6w2uqyaw9zdqkZ"
+}

@@ -1,0 +1,37 @@
+{
+  "phase": "implementation ready; specific main-merge approval pending",
+  "review": {
+    "agent": "review_inherited",
+    "decision": "approved local implementation",
+    "full_outcome_complete": false,
+    "resolved": [
+      "mandatory C final decision and bounded repair",
+      "exact response/request replay and raw completion status",
+      "native unchanged exam replay without leaked decoder context",
+      "canonical adoption/reload and recorded later evolution",
+      "truthful C finalization and public exam projection"
+    ]
+  },
+  "tests": {
+    "python": 301,
+    "node": 89,
+    "completion_checker": "positive native fixture, recorded evolution, and negative evidence controls pass; real bundle absent"
+  },
+  "release": {
+    "pr": "https://github.com/isorabins/alanguagealltheirown/pull/85",
+    "blocker": "Automatic approval review rejected specific PR85 merge despite general goal release authority; await explicit Iso approval. No bypass or deployment."
+  },
+  "production_readback": {
+    "revision": "d49a662e6f0e81218cdcd6f235e99c41145680a6",
+    "latest_turn": 3744,
+    "tokens": 21492,
+    "timer": "inactive",
+    "service": "inactive",
+    "dirty": false,
+    "cleanup_status": "failed",
+    "spent_usd": "0.28892238185",
+    "remaining_usd": "1.71107761815",
+    "expires_at": "2026-09-07T06:50:18.219114+00:00"
+  },
+  "next": "After release approval: verify final PR head/checks, merge and deploy existing path; preserve state and shared ledger, rearm failed v7 as reviewed v8, verify real C admission and subsequent timer-driven A/B, capture remote evidence and browser state, run checker and final independent audit."
+}

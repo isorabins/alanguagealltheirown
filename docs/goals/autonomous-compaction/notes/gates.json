@@ -1,0 +1,26 @@
+{
+  "compaction": {
+    "status": "unproven",
+    "evidence": []
+  },
+  "meaning": {
+    "status": "unproven",
+    "evidence": []
+  },
+  "adoption": {
+    "status": "unproven",
+    "evidence": []
+  },
+  "autonomy": {
+    "status": "unproven",
+    "evidence": []
+  },
+  "public_display": {
+    "status": "unproven",
+    "evidence": []
+  },
+  "regressions_review": {
+    "status": "unproven",
+    "evidence": []
+  }
+}

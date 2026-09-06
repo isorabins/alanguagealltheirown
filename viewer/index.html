@@ -390,10 +390,10 @@
 <div class="legend">Scoring V2 calls compression successful only when 100% of the semantic meaning in the conversation survives encoding and decoding.</div>
 
 <h2>The Negotiation</h2>
-<p class="how">DeepSeek Agent A invents or revises one focused idea. Kimi Agent B audits it and alone may adopt or reject it.</p>
+<p class="how">Agent A invents or revises one focused idea. Kimi Agent B audits it and alone may adopt or reject it.</p>
 <div class="panes">
-  <div class="pane"><div class="pane-head">Agent A · DeepSeek inventor</div><div class="pane-body" id="paneA"></div></div>
-  <div class="pane"><div class="pane-head">Agent B · Kimi auditor</div><div class="pane-body" id="paneB"></div></div>
+  <div class="pane"><div class="pane-head" id="agent-a-model">Agent A · inventor</div><div class="pane-body" id="paneA"></div></div>
+  <div class="pane"><div class="pane-head" id="agent-b-model">Agent B · auditor</div><div class="pane-body" id="paneB"></div></div>
 </div>
 <form class="collab-form" id="suggestion-form">
   <label for="suggestion-text">Suggest an idea for the agents</label>
@@ -507,10 +507,10 @@ abuse, and maximum-cost limits.</p>
 <h2>How This Works</h2>
 <p class="how">Distinct roles with one enforced boundary: only the agents can legislate, and only adopted rules are language law.</p>
 <div id="cast">
-  <div class="note"><span class="nd">the legislature</span>DeepSeek A invents, revises, or proposes repeal of one rule at a time. Kimi B audits that focused add or repeal motion and alone may adopt or reject it. A repealed rule leaves the language but keeps its full public history. Invalid motions are visible no-ops.</div>
+  <div class="note"><span class="nd">the legislature</span>Agent A invents, revises, or proposes repeal of one rule at a time. Kimi B audits that focused add or repeal motion and alone may adopt or reject it. A repealed rule leaves the language but keeps its full public history. Invalid motions are visible no-ops.</div>
   <div class="note"><span class="nd">the benchmark panel</span>Every third turn, the harness selects the next of five frozen messages: event prose, an equipment procedure, farming data, retail prose, and a software task. A message is compared only with its own previous valid result. Repetition gives the experiment a stable ruler; the separate transfer battery remains the check against overfitting.</div>
   <div class="note"><span class="nd">the encoder</span>Another AI translates that message into the invented language, using nothing but the current rulebook.</div>
-  <div class="note"><span class="nd">the stranger</span>A completely fresh AI — no memory of the conversation, no context at all — receives only the rulebook and the encoded message, and must turn it back into plain English. Since turn 246 the stranger is also a different model family from the negotiators, so it can't lean on shared habits: it decodes what the encoding actually says. If the language only works for the two agents who invented it, it fails here. This is the whole test.</div>
+  <div class="note"><span class="nd">the stranger</span>A completely fresh AI — no memory of the conversation, no context at all — receives only the rulebook and the encoded message, and must turn it back into plain English. The decoder model is named on each exam, so its actual routing remains visible as the experiment changes. If the language only works for the two agents who invented it, it fails here. This is the whole test.</div>
   <div class="note"><span class="nd">the judge</span>Scoring V2 gives every answer-key atom a stable id such as B2.05. The judge labels each atom SURVIVED, CORRUPTED, or MISSING and cites exact decoded evidence. Deterministic literal validation checks practical values before accepting SURVIVED. Missing, duplicate, unknown, or out-of-order atom ids, invalid verdicts, absent or fabricated evidence, and literal conflicts produce INVALID JUDGE RESULT—an evaluator failure, not a benchmark failure.</div>
 </div>
 
@@ -810,7 +810,7 @@ function agentCCleanupView(agentC, conversation) {
       status:attempt.status==="applied"||invalidAdvisory?"completed":(structuralFailure?"failed structural validation":"failed safely")
     });
     timeline.push({stage:"Agent B advisory",status:verdict});
-    if(rounds.length>1)timeline.push({stage:"Agent C finalization",status:"completed"});
+    timeline.push({stage:"Agent C finalization",status:attempt.c_cycle_completed===true?"completed":(attempt.c_cycle_completed===false?"not completed":"not evidenced")});
     timeline.push({stage:"local validation",status:attempt.status==="applied"?"passed":"not completed"});
     timeline.push({stage:"canonical application",status:attempt.status==="applied"?"applied":(agentC.state==="quarantined"?"failed · quarantined":"failed")});
   }
@@ -834,6 +834,7 @@ function agentCCleanupView(agentC, conversation) {
     state:state,detail:detail,growth:growth,trigger:trigger,progress:progress,
     attempt:attempt?{turn:attempt.turn,status:attempt.status}:null,
     quarantineReceiptCount:quarantineReceipts.length,timeline:timeline,
+    models:attempt&&attempt.models||{}, exams:attempt&&Array.isArray(attempt.exam_results)?attempt.exam_results:[],
     evidence:{
       turn:attempt&&Number.isInteger(attempt.turn)?attempt.turn:null,
       tokens:sourceTokens!==null&&appliedTokens!==null?sourceTokens+" → "+appliedTokens:"unavailable",
@@ -856,12 +857,23 @@ function renderAgentCCleanup(agentC,conversation) {
   view.timeline.forEach(function(item,index){rows+='<div class="trace-line"><span class="trace-time">'+String(index+1).padStart(2,"0")+'</span><span class="trace-stage">'+publicProgressEsc(item.stage)+'</span><span>'+publicProgressEsc(item.status)+'</span></div>';});
   var evidence=view.evidence;
   rows+='<div class="cleanup-final"><span>turn<b>'+publicProgressEsc(evidence.turn===null?"unavailable":evidence.turn)+'</b></span><span>source → applied tokens<b>'+publicProgressEsc(evidence.tokens)+'</b></span><span>reduction<b>'+publicProgressEsc(evidence.reduction)+'</b></span><span>run spend<b>'+publicProgressEsc(evidence.spend)+'</b></span><span>B verdict<b>'+publicProgressEsc(evidence.bVerdict)+'</b></span><span>canonical application<b>'+publicProgressEsc(evidence.application)+'</b></span></div>';
+  if(view.models.c)rows+='<div class="trace-line"><span class="trace-stage">Agent C model</span><span>'+publicProgressEsc(view.models.c)+'</span></div>';
+  view.exams.forEach(function(exam){
+    var result=exam.judge_valid!==true?'invalid judgment':(exam.meaning_pass===true?'meaning PASS':'meaning FAIL');
+    rows+='<div class="trace-line"><span class="trace-stage">'+publicProgressEsc(exam.benchmark_id)+'</span><span>'+result+' · '+publicProgressEsc(exam.semantic_coverage_pct)+'% coverage · '+publicProgressEsc(exam.orig_tokens)+' → '+publicProgressEsc(exam.enc_tokens)+' message tokens · '+publicProgressEsc(exam.message_body_savings_pct)+'% body savings</span></div>';
+  });
   body.innerHTML=rows;
   return view;
 }
 
 function render(S) {
   currentRenderedState=S;
+  var routing=S.meta&&S.meta.runtime&&S.meta.runtime.models;
+  var reasoning=S.meta&&S.meta.runtime&&S.meta.runtime.reasoning;
+  ["A","B"].forEach(function(role){
+    var label=document.getElementById("agent-"+role.toLowerCase()+"-model");
+    if(label)label.textContent="Agent "+role+" · "+(routing&&routing[role]||"model unavailable")+(reasoning&&reasoning[role]?" · "+reasoning[role]:"");
+  });
   var conv = S.conversation || [], rb = S.rulebook || {rules: []};
   var esc = function (s) {
     return String(s == null ? "" : s).replace(/[&<>"]/g, function (c) {

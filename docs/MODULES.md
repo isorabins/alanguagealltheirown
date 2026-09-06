@@ -142,7 +142,7 @@ These are part of the map, not a claim that every file needed rewriting.
 | [Language representation](../rulebook.py): `language_payload`, `render_language`, `apply_typed_motion` | Distinguish adopted language from complete legislature; preserve authority and deterministic language identity. | [Views](../tests/python/test_rulebook_views.py), [motion authority](../tests/python/test_motion_authority.py). |
 | [Collaboration](../collaboration.py): import, eligible delivery, public projection; [lookup](../project_lookup.py): `project_lookup` | Human moderation controls visibility; deliver eligible replies once; keep full private evidence while bounding prompt input. Internal questions use project evidence or ASK. | [ASK](../tests/python/test_ask_lifecycle.py), [research](../tests/python/test_research_lifecycle.py), [suggestions](../tests/python/test_suggestion_lifecycle.py), [inbox](../tests/python/test_collaboration_inbox.py). |
 | [Courier](../collab_sync.py) and [HTTP collaboration adapters](../viewer/api/_collaboration.js) | Transport bounded inbox/outbox records. Browser actions cannot directly author canonical history. Session and moderation gates remain enforced. | [Collaboration HTTP](../tests/js/collaboration-api.test.js), [session](../tests/js/human-session.test.js), [suggestions](../tests/js/suggestion-api.test.js). |
-| [Cleanup admission](../verified_cleanup.py): `run_verified_cleanup`; [compiler](../cleanup_rulebook.py), [drafting/review](../shadow_cleanup.py) | Produce a full structured candidate plus exactly three nonoperative ideas. Default automatic adoption requires <=4,500 operative tokens, semantic approval of the exact final candidate, and all registered meaning exams passing. Refusal preserves language and ideas; charges remain recorded. | [Admission gates](../tests/python/test_verified_cleanup.py), [default admission and durable A/B delivery](../tests/python/test_full_cleanup.py), [compiler](../tests/python/test_cleanup_rulebook.py), [shadow](../tests/python/test_shadow_cleanup.py), [automatic cleanup](../tests/python/test_automatic_cleanup.py). |
+| [Cleanup admission](../verified_cleanup.py): `run_verified_cleanup`; [compiler](../cleanup_rulebook.py), [drafting/review](../shadow_cleanup.py) | Produce a full structured candidate plus exactly three nonoperative ideas. Default automatic adoption requires <=4,500 operative tokens, C finalization after one advisory B review, and all registered meaning exams passing. Refusal preserves language and ideas; charges remain recorded. | [Admission gates](../tests/python/test_verified_cleanup.py), [default admission and durable A/B delivery](../tests/python/test_full_cleanup.py), [compiler](../tests/python/test_cleanup_rulebook.py), [shadow](../tests/python/test_shadow_cleanup.py), [automatic cleanup](../tests/python/test_automatic_cleanup.py). |
 | [Full local cleanup](../run_full_cleanup.py): CLI; [Codex C adapter](../codex_compactor.py): `CodexCompactor` | Snapshot under the writer lock, refuse pending recovery, preserve scheduled development exams while settling motions and delivering accepted ideas. Astra uses the existing Codex subscription and reads an intact local input file when the full source exceeds the CLI message limit; OpenRouter calls reserve against an existing shared ledger. Capture prompts, results, admission evidence and commit/reload receipt without changing original state. | [Snapshot and delivery](../tests/python/test_full_cleanup.py), [CLI completion/error contract](../tests/python/test_codex_compactor.py). |
 | [Local cleanup rehearsal](../local_cleanup.py): `ReservedTransport`, CLI | Run the existing C/B cleanup against a source file without applying it. Reserve maximum advertised token cost before each HTTP attempt; stop on uncertain charges. Keep prompts, responses, candidate, audit and cost receipts in a new output directory. | [Local budget boundary](../tests/python/test_local_cleanup.py). |
 | [Conversation](../conversation_exam.py): `run_conversation` | Six messages use captured adopted language; judge must cover each scenario requirement exactly once. | [Conversation exam](../tests/python/test_conversation_exam.py). |
@@ -159,11 +159,10 @@ scheduled turn. Their live integrations are not covered by this refactor's offli
 acceptance. Changes to those paths need task-specific evidence; do not assume the
 main regression suite proves them.
 
-The shadow drafting helper may spend its remaining C call correcting an undefined group or invalid
-override reference. It still permits at most two C calls and one B advisory;
-missing source coverage and all acceptance gates remain protected. If correction
-uses the last C call and B raises objections, cleanup fails instead of applying
-without C's final decision. Shadow PASS alone no longer authorizes automatic adoption: the admission module additionally requires final-candidate B approval and every registered meaning exam. Its recorded-spend stop threshold covers all provider calls and token probes, but a hard monetary ceiling requires a reserving transport. Provider `finish_reason=error` is a service failure,
+The shadow drafting helper allows one structural correction shared across draft and finalization,
+plus one B advisory and C's mandatory final decision. B may approve or object; all
+comments and notes reach C, and B has no veto. Automatic adoption additionally requires
+all registered meaning exams against the exact applied candidate. Its recorded-spend stop threshold covers all provider calls and token probes, but a hard monetary ceiling requires a reserving transport. Provider `finish_reason=error` is a service failure,
 not proof of invalid authored output. The [local C smoke](../tests/acceptance/run_local_c_smoke.py)
 uses a shared dollar allowance and an explicitly reduced fixture; it is opt-in
 and separate from offline CI and full historical-source acceptance.
@@ -193,7 +192,7 @@ The historical coverage checker checks traceability; it is not semantic proof.
 `ALATO_RUNTIME_CONFIG` selects `runtime_session.RuntimeSession`: a local operator
 configuration for the shared durable API ledger, price catalog, expiry and Codex
 executable. The normal runner initializes it under the turn writer lock. Recovery
-and snapshot repair precede spending checks. Configured C is Astra medium through
+and snapshot repair precede spending checks. Configured A is Sol high and C is Astra high through
 Codex; API calls, retries and token probes cross the reserving transport. Research
 with auxiliary tool fees is refused before dispatch because text pricing cannot
 bound those charges. Both rejected and accepted cleanup admission directories

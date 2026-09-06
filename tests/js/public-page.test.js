@@ -81,7 +81,7 @@ test('locked opening copy and timer order are preserved',()=>{
   assert.match(html,/id="t-turn">--:--<\/span><span class="tlab">next turn<\/span>/);
   assert.doesNotMatch(html,/id="t-conversation"|class="tlab">next Conversation<\/span>/);
   assert.match(html,/Scoring V2 calls compression successful only when 100% of the semantic meaning in the conversation survives encoding and decoding\./);
-  assert.match(html,/DeepSeek Agent A invents or revises one focused idea\. Kimi Agent B audits it and alone may adopt or reject it\./);
+  assert.match(html,/Agent A invents or revises one focused idea\. Kimi Agent B audits it and alone may adopt or reject it\./);
   assert.match(copyDeck,/One they negotiate themselves, in public, one rule at a time\./);
   assert.match(html,/id="exam-jump" href="#live-test-section">see last test ↓<\/a>/);
   assert.match(html,/id="agent-c-summary" href="#agent-c-cleanup-section"/);
@@ -237,7 +237,7 @@ test('Agent C cleanup view separates substantive attempts from quarantine receip
 
 test('Agent C cleanup view reconstructs B advisory finalization and applied evidence',()=>{
   const event={
-    type:'cleanup',turn:2510,status:'applied',source_tokens:120,applied_tokens:68,
+    type:'cleanup',turn:2510,status:'applied',source_tokens:120,applied_tokens:68,c_cycle_completed:true,
     reduction_pct:43.33,run_spend_usd:0.1234,
     rounds:[{round:1,b_verdict:'REJECT'},{round:2,b_verdict:null}]
   };
@@ -781,4 +781,30 @@ test('real page labels a pending preview honestly and restores full transcript l
  resolveFull({ok:false,status:503});await work;
  assert.equal(viewer.elements.get('transcript-summary').textContent,'Full transcript — every turn, every exam');
  assert.equal(seen.length,2);
+});
+
+
+test('agent labels follow canonical runtime routing and reasoning',()=>{
+  const script=html.match(/<script>\s*([\s\S]*?)<\/script>/)[1];
+  const viewer=viewerDocument();
+  const render=Function('document',script.slice(0,script.indexOf('\nfunction runtimeView'))+'\nreturn render;')(viewer.document);
+  render({conversation:[],rulebook:{rules:[]},meta:{runtime:{models:{A:'gpt-5.6-sol',B:'moonshotai/kimi-k3',C:'gpt-6-astra'},reasoning:{A:'high',C:'high'}}}});
+  assert.equal(viewer.elements.get('agent-a-model').textContent,'Agent A · gpt-5.6-sol · high');
+  assert.equal(viewer.elements.get('agent-b-model').textContent,'Agent B · moonshotai/kimi-k3');
+  render({conversation:[],rulebook:{rules:[]},meta:{}});
+  assert.match(viewer.elements.get('agent-a-model').textContent,/model unavailable/);
+});
+
+
+test('cleanup finalization and exams require explicit persisted evidence',()=>{
+  const script=html.match(/<script>\s*([\s\S]*?)<\/script>/)[1];
+  const viewer=viewerDocument();
+  const draw=Function('document',script.slice(0,script.indexOf('\nfunction runtimeView'))+'\nreturn renderAgentCCleanup;')(viewer.document);
+  const prior={type:'cleanup',turn:8,status:'failed',rounds:[{},{}]};
+  draw({},[prior]);
+  assert.match(viewer.elements.get('agent-c-trace-body').innerHTML,/not evidenced/);
+  assert.doesNotMatch(viewer.elements.get('agent-c-trace-body').innerHTML,/Agent C finalization<\/span><span>completed/);
+  draw({},[{...prior,c_cycle_completed:true,models:{c:'gpt-6-astra'},exam_results:[{benchmark_id:'B1',judge_valid:true,meaning_pass:false,semantic_coverage_pct:97,orig_tokens:100,enc_tokens:80,message_body_savings_pct:20}]}]);
+  assert.match(viewer.elements.get('agent-c-trace-body').innerHTML,/meaning FAIL · 97% coverage/);
+  assert.match(viewer.elements.get('agent-c-trace-body').innerHTML,/gpt-6-astra/);
 });

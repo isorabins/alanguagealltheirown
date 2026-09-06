@@ -23,7 +23,7 @@ from state_store import atomic_write_json, load_json, snapshot_hash
 MIN_REDUCTION_PCT = 5.0
 MAX_C_TOKENS = 22_000
 MAX_B_TOKENS = 22_000
-MAX_C_CALLS = 2
+MAX_C_CALLS = 3
 MAX_B_CALLS = 1
 DEFAULT_MAX_SPEND_USD = 1.10
 PROMPTS_DIR = Path(__file__).parent / "prompts"
@@ -276,10 +276,9 @@ def run_shadow_cleanup(
 ) -> dict[str, Any]:
     """Create evidence only; never apply to the supplied source.
 
-    At most two C calls and one B advisory. An invalid cross-reference may use
-    the remaining C call for correction; all deterministic gates still apply.
-    Other validation failures stop. If B objects after correction exhausted C's
-    allowance, fail instead of silently applying an unfinalized candidate.
+    At most three C calls: draft, one structural repair, and final decision
+    after one B advisory. The repair is shared across draft and finalization.
+    B comments never veto C; deterministic structure and size still gate output.
     """
     source_path = Path(source_path)
     output_dir = Path(output_dir)
@@ -369,6 +368,7 @@ def run_shadow_cleanup(
         previous_candidate = None
         previous_advisory = None
         structural_correction = None
+        repairs_used = 0
         source_tokens = None
         for round_number in range(1, MAX_C_CALLS + 1):
             report["round_count"] = round_number
@@ -413,6 +413,8 @@ def run_shadow_cleanup(
                 c_system_version = (
                     f"{prompt_c_version}+{finalizer_prompt_version}"
                 )
+            if structural_correction is not None and previous_candidate is not None:
+                c_system += "\nRepair the structural_correction in your previous final draft; retain your final editorial decision."
             c_system_hash = hashlib.sha256(c_system.encode()).hexdigest()
             atomic_write_json(round_dir / "c-request.json", c_request)
             atomic_write_json(round_dir / "c-system-prompt.json", {
@@ -459,7 +461,7 @@ def run_shadow_cleanup(
             try:
                 candidate, seeds = compile_c_response(source, c_response)
             except ValueError as exc:
-                if (round_number >= MAX_C_CALLS or
+                if (repairs_used >= 1 or round_number >= MAX_C_CALLS or
                         str(exc) not in {
                             "referenced groups must exactly match defined groups",
                             "contract overrides must be unique and cannot reference self",
@@ -467,11 +469,13 @@ def run_shadow_cleanup(
                             "exclusions must exactly match __exclude__ assignments",
                         }):
                     raise
+                repairs_used += 1
                 structural_correction = {"error": str(exc), "previous_draft": c_response}
                 report["rounds"].append({"round": round_number, "c_validation": "invalid",
                                          "reason": str(exc)})
                 atomic_write_json(round_dir / "round-report.json", report["rounds"][-1])
                 continue
+            structural_correction = None
             candidate_hash = snapshot_hash(candidate)
             report["candidate_hash"] = candidate_hash
             atomic_write_json(round_dir / "candidate.json", candidate)
@@ -608,19 +612,10 @@ def run_shadow_cleanup(
             }
             report["rounds"].append(round_summary)
             atomic_write_json(round_dir / "round-report.json", round_summary)
-            if audit["verdict"] == "pass":
-                report.update({
-                    "status": "PASS",
-                    "stage": "complete",
-                    "reason": "Agent C draft passed deterministic gates; B raised no objection",
-                })
-                break
+            # Every valid advisory, including approval with notes, goes back to C.
+            # Only C's subsequent complete response is the final candidate.
             previous_candidate = candidate
-            previous_advisory = {
-                "omissions": copy.deepcopy(audit["omissions"]),
-                "meaning_changes": copy.deepcopy(audit["meaning_changes"]),
-                "operational_text": copy.deepcopy(audit["operational_text"]),
-            }
+            previous_advisory = copy.deepcopy(audit)
             if round_number == MAX_C_CALLS:
                 report.update(stage="c_call_limit", reason="C call limit exhausted before advisory finalization")
     except Exception as exc:
