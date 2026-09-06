@@ -810,7 +810,7 @@ function agentCCleanupView(agentC, conversation) {
       status:attempt.status==="applied"||invalidAdvisory?"completed":(structuralFailure?"failed structural validation":"failed safely")
     });
     timeline.push({stage:"Agent B advisory",status:verdict});
-    if(rounds.length>1)timeline.push({stage:"Agent C finalization",status:"completed"});
+    timeline.push({stage:"Agent C finalization",status:attempt.c_cycle_completed===true?"completed":(attempt.c_cycle_completed===false?"not completed":"not evidenced")});
     timeline.push({stage:"local validation",status:attempt.status==="applied"?"passed":"not completed"});
     timeline.push({stage:"canonical application",status:attempt.status==="applied"?"applied":(agentC.state==="quarantined"?"failed · quarantined":"failed")});
   }
@@ -834,6 +834,7 @@ function agentCCleanupView(agentC, conversation) {
     state:state,detail:detail,growth:growth,trigger:trigger,progress:progress,
     attempt:attempt?{turn:attempt.turn,status:attempt.status}:null,
     quarantineReceiptCount:quarantineReceipts.length,timeline:timeline,
+    models:attempt&&attempt.models||{}, exams:attempt&&Array.isArray(attempt.exam_results)?attempt.exam_results:[],
     evidence:{
       turn:attempt&&Number.isInteger(attempt.turn)?attempt.turn:null,
       tokens:sourceTokens!==null&&appliedTokens!==null?sourceTokens+" → "+appliedTokens:"unavailable",
@@ -856,6 +857,11 @@ function renderAgentCCleanup(agentC,conversation) {
   view.timeline.forEach(function(item,index){rows+='<div class="trace-line"><span class="trace-time">'+String(index+1).padStart(2,"0")+'</span><span class="trace-stage">'+publicProgressEsc(item.stage)+'</span><span>'+publicProgressEsc(item.status)+'</span></div>';});
   var evidence=view.evidence;
   rows+='<div class="cleanup-final"><span>turn<b>'+publicProgressEsc(evidence.turn===null?"unavailable":evidence.turn)+'</b></span><span>source → applied tokens<b>'+publicProgressEsc(evidence.tokens)+'</b></span><span>reduction<b>'+publicProgressEsc(evidence.reduction)+'</b></span><span>run spend<b>'+publicProgressEsc(evidence.spend)+'</b></span><span>B verdict<b>'+publicProgressEsc(evidence.bVerdict)+'</b></span><span>canonical application<b>'+publicProgressEsc(evidence.application)+'</b></span></div>';
+  if(view.models.c)rows+='<div class="trace-line"><span class="trace-stage">Agent C model</span><span>'+publicProgressEsc(view.models.c)+'</span></div>';
+  view.exams.forEach(function(exam){
+    var result=exam.judge_valid!==true?'invalid judgment':(exam.meaning_pass===true?'meaning PASS':'meaning FAIL');
+    rows+='<div class="trace-line"><span class="trace-stage">'+publicProgressEsc(exam.benchmark_id)+'</span><span>'+result+' · '+publicProgressEsc(exam.semantic_coverage_pct)+'% coverage · '+publicProgressEsc(exam.orig_tokens)+' → '+publicProgressEsc(exam.enc_tokens)+' message tokens · '+publicProgressEsc(exam.message_body_savings_pct)+'% body savings</span></div>';
+  });
   body.innerHTML=rows;
   return view;
 }

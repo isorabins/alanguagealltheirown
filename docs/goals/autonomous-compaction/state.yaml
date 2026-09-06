@@ -60,8 +60,8 @@ agents:
 visual_board:
   selected: local
   local:
-    status: starting
-    url: null
+    status: running
+    url: http://goalbuddy.localhost:41737/autonomous-compaction/
     command: node /Users/isorabins/.codex/plugins/cache/goalbuddy/goalbuddy/0.4.3/skills/goal-prep/surfaces/local-goal-board/scripts/local-goal-board.mjs
       --goal docs/goals/autonomous-compaction
 active_task: T003
@@ -121,6 +121,8 @@ tasks:
 checks:
   dirty_fingerprint: unknown
   last_verification:
-    result: unknown
-    task: null
-    commands: []
+    result: passed locally; production completion unproven
+    task: T003
+    commands:
+      - python3 -m unittest discover -s tests/python (301 passed)
+      - node --test tests/js/*.test.js (89 passed)

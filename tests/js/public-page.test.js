@@ -237,7 +237,7 @@ test('Agent C cleanup view separates substantive attempts from quarantine receip
 
 test('Agent C cleanup view reconstructs B advisory finalization and applied evidence',()=>{
   const event={
-    type:'cleanup',turn:2510,status:'applied',source_tokens:120,applied_tokens:68,
+    type:'cleanup',turn:2510,status:'applied',source_tokens:120,applied_tokens:68,c_cycle_completed:true,
     reduction_pct:43.33,run_spend_usd:0.1234,
     rounds:[{round:1,b_verdict:'REJECT'},{round:2,b_verdict:null}]
   };
@@ -793,4 +793,18 @@ test('agent labels follow canonical runtime routing and reasoning',()=>{
   assert.equal(viewer.elements.get('agent-b-model').textContent,'Agent B · moonshotai/kimi-k3');
   render({conversation:[],rulebook:{rules:[]},meta:{}});
   assert.match(viewer.elements.get('agent-a-model').textContent,/model unavailable/);
+});
+
+
+test('cleanup finalization and exams require explicit persisted evidence',()=>{
+  const script=html.match(/<script>\s*([\s\S]*?)<\/script>/)[1];
+  const viewer=viewerDocument();
+  const draw=Function('document',script.slice(0,script.indexOf('\nfunction runtimeView'))+'\nreturn renderAgentCCleanup;')(viewer.document);
+  const prior={type:'cleanup',turn:8,status:'failed',rounds:[{},{}]};
+  draw({},[prior]);
+  assert.match(viewer.elements.get('agent-c-trace-body').innerHTML,/not evidenced/);
+  assert.doesNotMatch(viewer.elements.get('agent-c-trace-body').innerHTML,/Agent C finalization<\/span><span>completed/);
+  draw({},[{...prior,c_cycle_completed:true,models:{c:'gpt-6-astra'},exam_results:[{benchmark_id:'B1',judge_valid:true,meaning_pass:false,semantic_coverage_pct:97,orig_tokens:100,enc_tokens:80,message_body_savings_pct:20}]}]);
+  assert.match(viewer.elements.get('agent-c-trace-body').innerHTML,/meaning FAIL · 97% coverage/);
+  assert.match(viewer.elements.get('agent-c-trace-body').innerHTML,/gpt-6-astra/);
 });

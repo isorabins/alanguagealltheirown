@@ -138,8 +138,18 @@ def _public_cleanup_event(event):
         )
         if key in event
     }
+    if type(event.get("c_cycle_completed")) is bool:
+        public["c_cycle_completed"] = event["c_cycle_completed"]
+    if isinstance(event.get("models"), dict):
+        public["models"] = {role: event["models"].get(role) for role in ("b", "c")}
+    public["exam_results"] = [
+        {key: copy.deepcopy(result.get(key)) for key in (
+            "benchmark_id", "judge_valid", "meaning_pass", "semantic_coverage_pct",
+            "orig_tokens", "enc_tokens", "message_body_savings_pct")}
+        for result in (event.get("exam_results") if isinstance(event.get("exam_results"), list) else []) if isinstance(result, dict)
+    ]
     public["rounds"] = []
-    for round_item in event.get("rounds", []):
+    for round_item in (event.get("rounds") if isinstance(event.get("rounds"), list) else []):
         if not isinstance(round_item, dict):
             continue
         public_round = {

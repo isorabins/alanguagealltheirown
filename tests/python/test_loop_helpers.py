@@ -728,6 +728,9 @@ class StructuredLoopTests(unittest.TestCase):
             "source_tokens": 19080,
             "candidate_tokens": 3600,
             "reduction_pct": 81.13,
+            "c_cycle_completed": True,
+            "exam_results": [{"benchmark_id":"B1", "judge_valid":True,"meaning_pass":False,
+                              "decoded":"PRIVATE DECODE", "critical_failures":["PRIVATE DETAIL"]}],
             "reason": "PRIVATE FAILURE REASON",
             "provider_calls": [{"content": "PRIVATE PROVIDER CALL"}],
             "b_advisory_error": {
@@ -751,7 +754,7 @@ class StructuredLoopTests(unittest.TestCase):
                 loop.write_viewer_state(conversation, rulebook, {})
             raw = (root / "viewer" / "state.js").read_text()
         for private_value in (
-            "PRIVATE FAILURE REASON", "PRIVATE PROVIDER CALL",
+            "PRIVATE FAILURE REASON", "PRIVATE PROVIDER CALL", "PRIVATE DECODE", "PRIVATE DETAIL",
             "PRIVATE B RESPONSE", "private-hash", "provider_calls",
             "b_advisory_error",
         ):
@@ -792,3 +795,11 @@ class StructuredLoopTests(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class HistoricalCleanupProjectionTests(unittest.TestCase):
+    def test_null_legacy_admission_fields_do_not_break_publication(self):
+        from public_snapshot import _public_cleanup_event
+        event=_public_cleanup_event({'type':'cleanup','turn':5,'status':'failed','exam_results':None,'rounds':None})
+        self.assertEqual(event['exam_results'],[])
+        self.assertEqual(event['rounds'],[])
