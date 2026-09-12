@@ -14,7 +14,7 @@
   "charged_or_reserved_usd": "3.78097481495",
   "approved_shared_limit_usd": "8",
   "expires_at": "2026-09-07T06:50:18.219114+00:00",
-  "timer_active": false,
+  "timer_active": true,
   "expiry_timer_active": true,
   "source_hash": "47b66898df49e4ba015b9476ab594bf29668185c772e5a9748824e3e71d8a5cc",
   "native_replay_identity": "e133bd02261bac78cc39f8e3ec3668cdbe0176eb30e61173bfbd2a7cd9f4f2f6",
@@ -31,5 +31,23 @@
   "retry_response_id": "gen-1788690842-i0q0nOdowOFYvwLUPbwT",
   "retained_final_failure": "/root/alato-restart-20260906/approved-2/cleanup-evidence/bb01bc3ee2494a47a811af10e48596af/report.json",
   "final_failure": "rule-521 assignment was excluded instead of __exclude__",
-  "pending_motion": "A3749 proposed repeal of rule-604; native B must resolve before new source compaction"
+  "pending_motion": "A3749 proposed repeal of rule-604; native B must resolve before new source compaction",
+  "followup_release": {
+    "pr": 90,
+    "merge": "41b592211f5d4481155d356e325eabfc3a2931f1",
+    "deployed_at": "2026-09-06T10:48:40.888070+00:00",
+    "edition": "automatic-cleanup-v9-explicit-assignment-contract",
+    "source_hash": "32b35f63007f6c6c3ce9f836d95aa02412f4b7f965fe97468653c731d6d0a0ea",
+    "initial_state": "armed",
+    "authority": "Iso explicitly approved PR90 merge/deploy and resuming under same8cap/deadline"
+  },
+  "regular_test_probe_failure": {
+    "index": 214,
+    "reservation_usd": "0.003430150",
+    "retained_in_full": true,
+    "bounded_native_retry_enabled": true,
+    "receipt": "/root/alato-restart-20260906/approved-2/goal-live/token-probe-214-recovery.json",
+    "ledger_total_usd": "4.18569936815",
+    "next_timer": "2026-09-06T11:00:00+00:00"
+  }
 }

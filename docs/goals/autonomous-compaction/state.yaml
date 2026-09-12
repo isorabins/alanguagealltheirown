@@ -121,7 +121,7 @@ tasks:
 checks:
   dirty_fingerprint: unknown
   last_verification:
-    result: Kimi retry passed; C final failed exclusion marker; explicit assignment contract and one repair per phase verified locally; release review pending; timer paused
+    result: C3752 valid draft cached; native size probe235 failed; original15-minute cadence restored and paused; isolated instrumented236 succeeded; safe runtime failure diagnostics tested312Python, release pending; no adoption
     task: T003
     commands:
       - python3 -m unittest discover -s tests/python (307 passed)

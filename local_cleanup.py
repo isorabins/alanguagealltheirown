@@ -12,6 +12,8 @@ from decimal import Decimal, InvalidOperation
 from functools import partial
 import json
 from pathlib import Path
+import re
+import time
 
 import requests
 
@@ -161,19 +163,43 @@ nonnegative cost receipt. The receipt file contains no headers or prompt content
         self.stopped = True
         self._save()  # Durable before dispatch; a crash cannot erase the reservation.
         atomic_write_json(self.path.parent / f"provider-request-{len(self.attempts):02d}.json", body)
+        stage = "request"
+        started = time.monotonic()
+        response = None
+        data = None
         try:
             response = self.post(url, **kwargs)
+            stage = "response_json"
             data = response.json()
             # Preserve diagnosis evidence locally, including provider choice
             # errors that the ordinary text/usage adapter does not return.
             # Never persist request headers or the transport's credential.
+            stage = "response_receipt"
             atomic_write_json(self.path.parent / f"provider-response-{len(self.attempts):02d}.json", {
                 "http_status": response.status_code,
                 **{key: data.get(key) for key in
                    ("id", "model", "provider", "choices", "usage", "error")},
             })
+            stage = "cost"
             cost = self._amount(data.get("usage", {}).get("cost"))
-        except Exception:
+        except Exception as error:
+            # Keep diagnostics separate from billing: no raw exception, headers,
+            # prompt, or model output; uncertainty still retains the full reserve.
+            failure = {"stage": stage, "exception_type": type(error).__name__,
+                       "elapsed_seconds": round(time.monotonic() - started, 3)}
+            status = getattr(response, "status_code", None)
+            if type(status) is int:
+                failure["http_status"] = status
+            response_id = data.get("id") if isinstance(data, dict) else None
+            if isinstance(response_id, str) and re.fullmatch(r"gen-[A-Za-z0-9_-]{1,150}", response_id):
+                failure["response_id"] = response_id
+            attempt["failure"] = failure
+            try:
+                self._save()
+            except Exception:
+                # A filesystem failure cannot undo the pre-dispatch reservation
+                # or replace the fail-closed error with unsafe exception details.
+                pass
             raise LocalBudgetError("provider charge uncertain; reservation retained, no retry") from None
         attempt.update({"response_id": data.get("id"), "http_status": response.status_code,
                         "cost_usd": str(cost), "status": "received"})
